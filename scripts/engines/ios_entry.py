@@ -431,6 +431,8 @@ SYSDIAGNOSE_DIR = "DiagnosticLogs/sysdiagnose"
 SYSDIAGNOSE_MAX_BYTES = 3 * 1024 ** 3
 SYSDIAGNOSE_WAIT_SECONDS = 10 * 60
 SHUTDOWN_LOG_MAX_BYTES = 16 * 1024 ** 2
+# The list of processes running when the sysdiagnose was created.
+PROCESS_LIST_MAX_BYTES = 8 * 1024 ** 2
 # A failed service start can leave pymobiledevice3 waiting forever: every
 # diagnostic step is bounded so it can only reduce coverage.
 CRASH_STEP_SECONDS = 10 * 60
@@ -480,18 +482,30 @@ async def read_file(afc, path, destination, limit):
     return written
 
 
-def extract_shutdown_log(archive, destination):
-    """Read only `shutdown.log` from a sysdiagnose archive, streaming. Member
-    names are untrusted and never used as paths."""
+def extract_shutdown_log(archive, destination, processes=None):
+    """Read only `shutdown.log` from a sysdiagnose archive, streaming, and,
+    when `processes` is given, the list of processes that were running when it
+    was created (`ps.txt` at the top of the archive). Nothing else is kept.
+    Member names are untrusted and never used as paths. Returns whether the
+    shutdown log was found."""
     import tarfile
+    found = False
     with tarfile.open(archive, "r|gz") as tar:
         for member in tar:
-            if member.isfile() and member.name.replace("\\", "/").endswith("/Extra/shutdown.log") \
-                    and member.size <= SHUTDOWN_LOG_MAX_BYTES:
+            if not member.isfile():
+                continue
+            name = member.name.replace("\\", "/")
+            if not found and name.endswith("/Extra/shutdown.log") and member.size <= SHUTDOWN_LOG_MAX_BYTES:
                 source = tar.extractfile(member)
                 destination.write_bytes(source.read(SHUTDOWN_LOG_MAX_BYTES + 1)[:SHUTDOWN_LOG_MAX_BYTES])
-                return True
-    return False
+                found = True
+            elif processes is not None and not processes.exists() and name.count("/") == 1 \
+                    and name.endswith("/ps.txt") and member.size <= PROCESS_LIST_MAX_BYTES:
+                source = tar.extractfile(member)
+                processes.write_bytes(source.read(PROCESS_LIST_MAX_BYTES + 1)[:PROCESS_LIST_MAX_BYTES])
+            if found and (processes is None or processes.exists()):
+                break
+    return found
 
 
 async def newest_sysdiagnose(afc, deadline):
@@ -722,7 +736,7 @@ async def collect_diagnostics(client, work, wait_seconds=SYSDIAGNOSE_WAIT_SECOND
                     try:
                         await asyncio.wait_for(read_file(manager.afc, f"{SYSDIAGNOSE_DIR}/{name}", archive,
                                                          SYSDIAGNOSE_MAX_BYTES), SYSDIAGNOSE_STEP_SECONDS)
-                        found = extract_shutdown_log(archive, root / "shutdown.log")
+                        found = extract_shutdown_log(archive, root / "shutdown.log", root / "ps.txt")
                     finally:
                         # The rest of the archive (system logs) is never kept.
                         archive.unlink(missing_ok=True)

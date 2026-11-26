@@ -11,7 +11,9 @@
 //!   (`apple-id-verify.com`, `whatsapp-update.info`),
 //! - a brand's own domain used as a subdomain of another one
 //!   (`icloud.com.account-check.net`),
-//! - links to a bare public IP address.
+//! - links to a bare public IP address,
+//! - links to a host on a dynamic DNS, tunnel or data collection service,
+//!   where phishing pages and spyware downloads are put up for free.
 //!
 //! Each result names the brand and the reason. These are review points: a
 //! look-alike domain is a strong phishing sign but does not prove infection.
@@ -444,6 +446,17 @@ pub fn assess_in(link: &str, context: Context) -> Option<Assessment> {
             severity: "low",
         });
     }
+    if context == Context::Message {
+        if let Some(hosting) =
+            crate::infrastructure::classify(&host).filter(|h| !h.reporting_only())
+        {
+            return Some(Assessment {
+                reason: format!("link to {} ({})", hosting.kind, hosting.service),
+                host,
+                severity: "medium",
+            });
+        }
+    }
     assess_host_in(&host, context)
 }
 /// Assess a host name already known to be a domain.
@@ -635,6 +648,19 @@ mod tests {
             assert!(got.reason.contains(expected), "{link}: {}", got.reason);
             assert_eq!(got.severity, severity, "{link}");
         }
+    }
+    #[test]
+    fn message_links_to_dynamic_dns_or_tunnels_are_flagged_but_not_in_browsing() {
+        let found = assess("https://update-now.duckdns.org/app.apk").unwrap();
+        assert_eq!(found.severity, "medium");
+        assert_eq!(
+            found.reason,
+            "link to a dynamic DNS name, which follows a home or rented connection (DuckDNS)"
+        );
+        assert!(assess("https://abc.trycloudflare.com/").is_some());
+        assert!(assess_in("https://abc.trycloudflare.com/", Context::Browsing).is_none());
+        assert!(assess("https://api.telegram.org/bot1/sendMessage").is_none());
+        assert!(assess("https://www.duckdns.org/").is_none());
     }
     #[test]
     fn browsing_history_gets_only_the_strongest_signals_and_words_stay_words() {

@@ -63,12 +63,15 @@ memory. The PDF is rendered locally with jsPDF.
 4. **Deep check (iPhone, optional).** Ticking it on the ready step asks the
    owner to start a sysdiagnose with the phone's buttons. "Start scan" stays
    disabled until the phone confirms it; unticking it enables Start again.
-   Without the deep check, the scan starts at once. The shutdown log and the
-   crash reports are read after the copy.
+   Without the deep check, the scan starts at once. The shutdown log, the
+   process list of the sysdiagnose and the crash reports are read after the
+   copy.
 5. **Analysis.** MVT runs offline over the copy, and Enigm's own analysis in
    `agent/core` matches indicators, looks for spyware behaviour on Android,
-   suspicious process locations on iPhone and look-alike links in messages
-   and browsing history.
+   suspicious process locations on iPhone, look-alike links in messages
+   and browsing history, and hosts on services spyware reports to
+   (`infrastructure.rs`: dynamic DNS, tunnels, data collection services and
+   the Telegram bot API).
 6. **Cleanup.** The temporary folder is deleted and the report says whether
    that succeeded.
 

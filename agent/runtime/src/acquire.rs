@@ -494,7 +494,8 @@ enum BehaviorCommand {
     Settings,
     Launcher,
     Permissions,
-    AppOps,
+    /// One operation per command: each answer stays within the output bound.
+    AppOps(&'static str),
     Integrity,
 }
 impl BehaviorCommand {
@@ -523,10 +524,9 @@ impl BehaviorCommand {
                     .collect::<Vec<_>>()
                     .join("|")
             ),
-            Self::AppOps => format!(
-                "for op in {}; do echo \"#op $op\"; dumpsys appops --op $op 2>/dev/null; done; true",
-                behavior::WATCHED_OPS.join(" ")
-            ),
+            Self::AppOps(op) => {
+                format!("echo '#op {op}'; dumpsys appops --op {op} 2>/dev/null; true")
+            }
             Self::Integrity => format!(
                 "getprop; echo '#selinux'; getenforce 2>/dev/null; echo '#su'; ls {} 2>/dev/null; true",
                 behavior::SU_PATHS.join(" ")
@@ -590,13 +590,16 @@ fn behavior_inventory(
         }
         _ => inventory.permissions_status = "unsupported".into(),
     }
-    match shell(&BehaviorCommand::AppOps.text(), 60) {
-        Some(text) if text.contains("Package ") || text.contains("AppOps") => {
-            inventory.app_ops = behavior::parse_app_ops(&text);
-            inventory.app_ops_status = "completed".into();
+    let mut answered = false;
+    for op in behavior::WATCHED_OPS {
+        if let Some(text) = shell(&BehaviorCommand::AppOps(op).text(), 60)
+            .filter(|text| text.contains("Package ") || text.contains("AppOps"))
+        {
+            answered = true;
+            inventory.app_ops.extend(behavior::parse_app_ops(&text));
         }
-        _ => inventory.app_ops_status = "unsupported".into(),
     }
+    inventory.app_ops_status = if answered { "completed" } else { "unsupported" }.into();
     match shell(&BehaviorCommand::Integrity.text(), 60) {
         Some(text) if text.contains("#selinux") => {
             let (props, rest) = text.split_once("#selinux").unwrap_or((&text, ""));
@@ -1030,8 +1033,11 @@ esac"#,
             grants["com.evil.spy"].0.iter().collect::<Vec<_>>(),
             vec!["RECORD_AUDIO"]
         );
-        let ops = behavior::parse_app_ops(&run(BehaviorCommand::AppOps));
-        assert_eq!(ops.len(), 2);
+        let ops: Vec<_> = behavior::WATCHED_OPS
+            .iter()
+            .flat_map(|op| behavior::parse_app_ops(&run(BehaviorCommand::AppOps(op))))
+            .collect();
+        assert_eq!(ops.len(), behavior::WATCHED_OPS.len());
         assert!(ops
             .iter()
             .all(|o| o.state.as_deref() == Some("bg") && o.seconds_ago == 3600));

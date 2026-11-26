@@ -472,7 +472,18 @@ pub fn analyze_mvt(
     // Enigm's own analysis of MVT's extracted records: impersonating links in
     // messages and browsers, and configuration profiles able to intercept.
     enigm_scan_core::extractions::analyze(&output, report);
-    report.check("mvt_routine_alerts", "completed", &format!("{} MVT heuristics omitted as routine on ordinary phones: app updates and uninstalls, the manufacturer's own accessibility services, apps from known stores allowed to install updates, the USB debugging session used by this scan, and iPhone's Lockdown Mode being on. None matched a signed indicator; indicator matches are never omitted.", routine.omitted));
+    report.check("mvt_routine_alerts", "completed", &format!("{} MVT heuristics omitted as routine on ordinary phones: app updates and uninstalls, the manufacturer's own accessibility services, apps from known stores allowed to install updates, the USB debugging session used by this scan, and configuration profiles being installed or removed (the profiles themselves are checked). None matched a signed indicator; indicator matches are never omitted.", routine.omitted));
+    if let Some(on) = routine.lockdown {
+        report.check(
+            "ios_lockdown_mode",
+            "completed",
+            if on {
+                "Lockdown Mode is on: Apple's strongest protection against mercenary spyware."
+            } else {
+                "Lockdown Mode is off. People at risk of targeted spyware can turn it on in Settings, Privacy & Security."
+            },
+        );
+    }
     if let Some(patch) = routine.security_patch {
         report.check("android_security_patch", "completed", &format!("{patch} Install the latest system update; an outdated phone is easier to attack, but this is not a sign of spyware."));
     }
@@ -543,12 +554,14 @@ struct Alert {
 /// MVT heuristics that fire on ordinary phones: package updates and
 /// uninstalls, the manufacturer's own accessibility services, apps from known
 /// stores that may install updates, the USB debugging session this scan
-/// itself uses, and iPhone's Lockdown Mode being on. They are counted, never silently dropped, and never applied
+/// itself uses, and configuration profiles being installed or removed. They are counted, never silently dropped, and never applied
 /// to an alert that matches a signed indicator.
 #[derive(Default)]
 pub struct Routine {
     pub omitted: usize,
     pub security_patch: Option<String>,
+    /// iPhone's Lockdown Mode, when MVT reported it.
+    pub lockdown: Option<bool>,
 }
 impl Routine {
     fn absorb(
@@ -571,9 +584,16 @@ impl Routine {
             || message.starts_with("The accessibility dump states")
         {
             true
-        } else if message.starts_with("Lockdown mode enabled") {
+        } else if message == "Lockdown mode enabled" || message == "Lockdown mode disabled" {
             // iPhone's Lockdown Mode is Apple's strongest protection against
-            // this kind of spyware: a safeguard, never a sign of it.
+            // this kind of spyware: whether it is on is reported as a check,
+            // never as a sign of spyware.
+            self.lockdown = Some(message.ends_with("enabled"));
+            return true;
+        } else if message.starts_with("On ") && message.contains("\" started operation \"") {
+            // Configuration profiles being installed or removed: routine
+            // (VPNs, work profiles, betas). The profiles themselves are
+            // analysed for interception and management in extractions.rs.
             true
         } else if message.starts_with("Risky package 'com.android.shell'") {
             // ADB runs as com.android.shell: this is the scan's own session.
@@ -755,7 +775,8 @@ mod tests {
             {"level":"MEDIUM","module":"getprop","message":"This phone has not received security updates for more than six months (last update: 2025-01-05).","event":{}},
             {"level":"MEDIUM","module":"accessibility","message":"Found accessibility service: \"com.spy.helper/.A\" (enabled)","event":{"package_name":"com.spy.helper"}},
             {"level":"MEDIUM","module":"packages","message":"Found an installed package related to rooting/jailbreaking: \"com.topjohnwu.magisk\"","event":{"package_name":"com.topjohnwu.magisk"}},
-            {"level":"LOW","module":"global_preferences","message":"Lockdown mode enabled","event":{"entry":"LDMGlobalEnabled","value":true}}
+            {"level":"LOW","module":"global_preferences","message":"Lockdown mode enabled","event":{"entry":"LDMGlobalEnabled","value":true}},
+            {"level":"LOW","module":"profile_events","message":"On 2026-11-20 10:00:00 process \"profiled\" started operation \"install\" of profile \"com.example.vpn\"","event":{}}
         ]);
         let mut routine = Routine::default();
         let findings = parse_alerts_with_rules(
@@ -773,8 +794,10 @@ mod tests {
             .iter()
             .all(|f| f.rule.starts_with("mvt.heuristic.")));
         assert!(findings[0].evidence.contains("com.spy.helper"));
-        // Lockdown Mode being on is a safeguard, never a point to review.
+        // Profile events are routine; Lockdown Mode, like the security patch,
+        // becomes a check of its own. Neither is a point to review.
         assert_eq!(routine.omitted, 6);
+        assert_eq!(routine.lockdown, Some(true));
         assert!(routine.security_patch.unwrap().contains("2025-01-05"));
         // Without an inventory, accessibility services are never assumed trusted.
         let mut routine = Routine::default();

@@ -183,3 +183,73 @@ it("translates what the network analysis writes", () => {
     "com.example.x envió 30 MB en segundo plano",
   );
 });
+
+it("translates the spyware intelligence texts", () => {
+  const es = "es" as const;
+  for (const id of ["ios_running_processes", "ios_lockdown_mode"])
+    expect(checkName(id, es)).not.toBe(id);
+  expect(
+    checkDetail(
+      "ios_running_processes",
+      "212 process(es) were running when the sysdiagnose was created on 2026-11-26T09:12:00Z. Each was checked against signed process and path indicators and for executables running from unusual folders.",
+      es,
+    ),
+  ).toMatch(
+    /^212 procesos estaban en ejecución al crearse el sysdiagnose, el 26 de noviembre de 2026\./,
+  );
+  expect(
+    checkDetail(
+      "ios_lockdown_mode",
+      "Lockdown Mode is off. People at risk of targeted spyware can turn it on in Settings, Privacy & Security.",
+      es,
+    ),
+  ).toContain("Ajustes > Privacidad y seguridad");
+  for (const text of [
+    "Review point: spyware without servers of its own often reports to such hosts. Few ordinary apps use them, though some home and gaming services do.",
+    "Find which app uses this host. If you do not recognise it, ask an expert to review the phone.",
+    "Review point: the domain imitates a trusted brand, is a bare address or is on a free service that hides who runs it. Spyware and phishing are often delivered this way, but this alone does not show that the link was opened or that anything was installed.",
+  ])
+    expect(nativeText(text, es)).not.toBe(text);
+  const evidence: Array<[string, string]> = [
+    [
+      "contacted by the phone: panel.duckdns.org: a dynamic DNS name, which follows a home or rented connection (DuckDNS)",
+      "contactado por el móvil: panel.duckdns.org: un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada (DuckDNS)",
+    ],
+    [
+      "private DNS server: abc.trycloudflare.com: a tunnel that exposes a computer to the internet (Cloudflare Tunnel)",
+      "Servidor DNS privado: abc.trycloudflare.com: un túnel que expone un ordenador a internet (Cloudflare Tunnel)",
+    ],
+    [
+      "x.duckdns.org: link to a dynamic DNS name, which follows a home or rented connection (DuckDNS). Seen 2 time(s) in SMS or iMessage between 2026-11-20T10:00:00Z and 2026-11-21T09:00:00Z, e.g. https://x.duckdns.org/app",
+      "x.duckdns.org: enlace a un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada (DuckDNS). Apariciones: 2, en SMS o iMessage, entre 2026-11-20T10:00:00Z y 2026-11-21T09:00:00Z. Ejemplo: https://x.duckdns.org/app",
+    ],
+    [
+      "apple-id-verify.com: apple-id-verify.com combines the name apple with other words but is not owned by apple. Seen 1 time(s) in WhatsApp, e.g. https://apple-id-verify.com/",
+      "apple-id-verify.com: apple-id-verify.com combina el nombre apple con otras palabras, pero no pertenece a apple. Apariciones: 1, en WhatsApp. Ejemplo: https://apple-id-verify.com/",
+    ],
+    [
+      "/private/var/db/com.apple.xpc.roleaccountd.staging/bh: an executable ran from a system database folder, where iOS and App Store apps never run code; delayed 2 reboot(s) in shutdown.log (2026-11-20T10:00:00Z); was running when the sysdiagnose was created",
+      "/private/var/db/com.apple.xpc.roleaccountd.staging/bh: se ejecutó un programa desde una carpeta de bases de datos del sistema, donde iOS y las apps de la App Store nunca ejecutan código; reinicios retrasados en shutdown.log: 2 (2026-11-20T10:00:00Z); estaba en ejecución al crearse el sysdiagnose",
+    ],
+    [
+      "com.police.agent: installed from a computer over USB (ADB), not from an app store; accessibility service enabled (can read the screen and typing); used location while not on screen 10 min ago",
+      "com.police.agent: instalada desde un ordenador por USB (ADB), no desde una tienda; servicio de accesibilidad activado (puede leer la pantalla y lo que escribes); usó la ubicación sin estar en pantalla hace 10 min",
+    ],
+  ];
+  for (const [english, spanish] of evidence)
+    expect(evidenceText(english, es)).toBe(spanish);
+  // Every other language of the app has them too, with no English phrase
+  // left behind.
+  const englishPhrases =
+    /contacted by|dynamic DNS name|tunnel that|link to|Seen \d|executable ran|never run code|reboot\(s\)|sysdiagnose was created|installed from a computer|while not on screen| ago\b/;
+  for (const language of ["fr", "de", "it", "pt"] as const) {
+    for (const id of ["ios_running_processes", "ios_lockdown_mode"])
+      expect(checkName(id, language)).not.toBe(id);
+    for (const [english] of evidence)
+      expect(evidenceText(english, language)).not.toMatch(englishPhrases);
+  }
+  // Engine messages that are not Enigm's stay as written.
+  expect(evidenceText("Found a file on 2026-11-20, e.g. x", es)).toBe(
+    "Found a file on 2026-11-20, e.g. x",
+  );
+});

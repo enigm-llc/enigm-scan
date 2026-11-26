@@ -18,6 +18,28 @@ const t = (
 /** Whole sentences: recommendations and limitations. Groups are kept as-is. */
 export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
+    /^Review point: spyware without servers of its own often reports to such hosts/,
+    t(
+      "Punto a revisar: el spyware que no tiene servidores propios suele enviar sus datos a este tipo de servicios. Pocas apps normales los usan, aunque algunos servicios domésticos y de juegos sí.",
+      "Point to review: spyware without servers of its own often reports to such services. Few ordinary apps use them, though some home and gaming services do.",
+      "Point à vérifier : les logiciels espions sans serveurs propres envoient souvent leurs données à ce type de service. Peu d’applications ordinaires les utilisent, même si certains services domestiques et de jeu le font.",
+      "Zu prüfender Punkt: Spyware ohne eigene Server meldet sich oft bei solchen Diensten. Nur wenige gewöhnliche Apps nutzen sie, einige Heim- und Spieledienste allerdings schon.",
+      "Punto da verificare: lo spyware senza server propri invia spesso i dati a servizi di questo tipo. Poche app comuni li usano, anche se alcuni servizi domestici e di gioco sì.",
+      "Ponto a rever: o spyware sem servidores próprios envia muitas vezes os dados para este tipo de serviço. Poucas apps comuns os usam, embora alguns serviços domésticos e de jogos o façam.",
+    ),
+  ],
+  [
+    /^Find which app uses this host\./,
+    t(
+      "Averigua qué app usa este servidor. Si no la reconoces, pide a un experto que revise el móvil.",
+      "Find out which app uses this server. If you do not recognise it, ask an expert to review the phone.",
+      "Identifiez l’application qui utilise ce serveur. Si vous ne la reconnaissez pas, faites examiner le téléphone par un expert.",
+      "Finden Sie heraus, welche App diesen Server nutzt. Wenn Sie sie nicht kennen, lassen Sie das Telefon von einer Fachperson prüfen.",
+      "Scopri quale app usa questo server. Se non la riconosci, fai esaminare il telefono da un esperto.",
+      "Descubra que app usa este servidor. Se não a reconhecer, peça a um especialista que reveja o telemóvel.",
+    ),
+  ],
+  [
     /^Captured for at least 120 seconds, and while the copy ran up to 15 minutes/,
     t(
       "La red se observó al menos 120 segundos, y mientras duró la copia hasta 15 minutos, por el servicio USB autorizado del móvil. Es una observación limitada, no una vigilancia continua ni una prueba de que no haya espionaje.",
@@ -240,12 +262,12 @@ export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
     /^Review point: the domain imitates a trusted brand/,
     t(
-      "Punto a revisar: el dominio imita una marca de confianza o usa una dirección IP. El spyware y el phishing suelen llegar así, pero esto no demuestra que se abriera el enlace ni que se instalara nada.",
-      "Point to review: the domain imitates a trusted brand or uses a bare address. Spyware and phishing often arrive this way, but this does not show the link was opened or anything installed.",
-      "Point à vérifier : le domaine imite une marque de confiance ou utilise une adresse IP. Les logiciels espions et le phishing arrivent souvent ainsi, mais cela ne prouve pas que le lien a été ouvert ni que quelque chose a été installé.",
-      "Zu prüfender Punkt: Die Domain ahmt eine vertrauenswürdige Marke nach oder nutzt eine reine IP-Adresse. Spyware und Phishing kommen oft so, doch das zeigt nicht, dass der Link geöffnet oder etwas installiert wurde.",
-      "Punto da verificare: il dominio imita un marchio affidabile o usa un indirizzo IP. Spyware e phishing arrivano spesso così, ma ciò non dimostra che il link sia stato aperto o che sia stato installato qualcosa.",
-      "Ponto a rever: o domínio imita uma marca de confiança ou usa um endereço IP. O spyware e o phishing chegam muitas vezes assim, mas isto não mostra que a ligação foi aberta nem que algo foi instalado.",
+      "Punto a revisar: el dominio imita una marca de confianza, es una dirección IP o está en un servicio gratuito que oculta quién lo controla. El spyware y el phishing suelen llegar así, pero esto no demuestra que se abriera el enlace ni que se instalara nada.",
+      "Point to review: the domain imitates a trusted brand, is a bare address or is on a free service that hides who runs it. Spyware and phishing often arrive this way, but this does not show the link was opened or anything installed.",
+      "Point à vérifier : le domaine imite une marque de confiance, est une adresse IP ou se trouve sur un service gratuit qui cache qui le gère. Les logiciels espions et le phishing arrivent souvent ainsi, mais cela ne prouve pas que le lien a été ouvert ni que quelque chose a été installé.",
+      "Zu prüfender Punkt: Die Domain ahmt eine vertrauenswürdige Marke nach, ist eine reine IP-Adresse oder liegt bei einem kostenlosen Dienst, der verbirgt, wer sie betreibt. Spyware und Phishing kommen oft so, doch das zeigt nicht, dass der Link geöffnet oder etwas installiert wurde.",
+      "Punto da verificare: il dominio imita un marchio affidabile, è un indirizzo IP o si trova su un servizio gratuito che nasconde chi lo gestisce. Spyware e phishing arrivano spesso così, ma ciò non dimostra che il link sia stato aperto o che sia stato installato qualcosa.",
+      "Ponto a rever: o domínio imita uma marca de confiança, é um endereço IP ou está num serviço gratuito que esconde quem o gere. O spyware e o phishing chegam muitas vezes assim, mas isto não mostra que a ligação foi aberta nem que algo foi instalado.",
     ),
   ],
   [
@@ -351,6 +373,380 @@ export const EXTRA_TEXTS: Array<[RegExp, T]> = [
 
 /** Phrases that Enigm composes into evidence lines, longest first. */
 export const FRAGMENTS: Array<[string, T]> = [
+  [
+    "installed from a computer over USB (ADB), not from an app store",
+    t(
+      "instalada desde un ordenador por USB (ADB), no desde una tienda",
+      "installed from a computer over USB (ADB), not from an app store",
+      "installée depuis un ordinateur par USB (ADB), pas depuis une boutique",
+      "per USB von einem Computer installiert (ADB), nicht aus einem Store",
+      "installata da un computer tramite USB (ADB), non da uno store",
+      "instalada a partir de um computador por USB (ADB), não de uma loja",
+    ),
+  ],
+  [
+    "used location while not on screen",
+    t(
+      "usó la ubicación sin estar en pantalla",
+      "used location while not on screen",
+      "a utilisé la localisation hors écran",
+      "nutzte den Standort im Hintergrund",
+      "ha usato la posizione fuori dallo schermo",
+      "usou a localização sem estar no ecrã",
+    ),
+  ],
+  [
+    "link to a dynamic DNS name, which follows a home or rented connection",
+    t(
+      "enlace a un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada",
+      "link to a dynamic DNS name, which follows a home or rented connection",
+      "lien vers un nom DNS dynamique, qui suit une connexion domestique ou louée",
+      "Link zu einem dynamischen DNS-Namen, der einem privaten oder gemieteten Anschluss folgt",
+      "link a un nome DNS dinamico, che segue una connessione domestica o noleggiata",
+      "ligação para um nome de DNS dinâmico, que acompanha um acesso à internet doméstico ou alugado",
+    ),
+  ],
+  [
+    "link to a tunnel that exposes a computer to the internet",
+    t(
+      "enlace a un túnel que expone un ordenador a internet",
+      "link to a tunnel that exposes a computer to the internet",
+      "lien vers un tunnel qui expose un ordinateur à Internet",
+      "Link zu einem Tunnel, der einen Computer im Internet erreichbar macht",
+      "link a un tunnel che espone un computer a internet",
+      "ligação para um túnel que expõe um computador à internet",
+    ),
+  ],
+  [
+    "link to a service that keeps what is sent to it for someone to collect",
+    t(
+      "enlace a un servicio que guarda lo que recibe para que alguien lo recoja",
+      "link to a service that keeps what is sent to it for someone to collect",
+      "lien vers un service qui conserve ce qu’on lui envoie pour que quelqu’un le récupère",
+      "Link zu einem Dienst, der alles Gesendete aufbewahrt, bis jemand es abholt",
+      "link a un servizio che conserva ciò che riceve perché qualcuno lo recuperi",
+      "ligação para um serviço que guarda o que recebe para alguém o recolher",
+    ),
+  ],
+  [
+    "link to a bare IP address instead of a domain name",
+    t(
+      "enlace a una dirección IP en lugar de un nombre de dominio",
+      "link to a bare IP address instead of a domain name",
+      "lien vers une adresse IP au lieu d’un nom de domaine",
+      "Link zu einer reinen IP-Adresse statt eines Domainnamens",
+      "link a un indirizzo IP invece che a un nome di dominio",
+      "ligação para um endereço IP em vez de um nome de domínio",
+    ),
+  ],
+  [
+    "a dynamic DNS name, which follows a home or rented connection",
+    t(
+      "un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada",
+      "a dynamic DNS name, which follows a home or rented connection",
+      "un nom DNS dynamique, qui suit une connexion domestique ou louée",
+      "ein dynamischer DNS-Name, der einem privaten oder gemieteten Anschluss folgt",
+      "un nome DNS dinamico, che segue una connessione domestica o noleggiata",
+      "um nome de DNS dinâmico, que acompanha um acesso à internet doméstico ou alugado",
+    ),
+  ],
+  [
+    "a tunnel that exposes a computer to the internet",
+    t(
+      "un túnel que expone un ordenador a internet",
+      "a tunnel that exposes a computer to the internet",
+      "un tunnel qui expose un ordinateur à Internet",
+      "ein Tunnel, der einen Computer im Internet erreichbar macht",
+      "un tunnel che espone un computer a internet",
+      "um túnel que expõe um computador à internet",
+    ),
+  ],
+  [
+    "a service that keeps what is sent to it for someone to collect",
+    t(
+      "un servicio que guarda lo que recibe para que alguien lo recoja",
+      "a service that keeps what is sent to it for someone to collect",
+      "un service qui conserve ce qu’on lui envoie pour que quelqu’un le récupère",
+      "ein Dienst, der alles Gesendete aufbewahrt, bis jemand es abholt",
+      "un servizio che conserva ciò che riceve perché qualcuno lo recuperi",
+      "um serviço que guarda o que recebe para alguém o recolher",
+    ),
+  ],
+  [
+    "the Telegram bot API, which spyware uses to send what it collects",
+    t(
+      "la API de bots de Telegram, que el spyware usa para enviar lo que recoge",
+      "the Telegram bot API, which spyware uses to send what it collects",
+      "l’API des bots Telegram, que les logiciels espions utilisent pour envoyer ce qu’ils collectent",
+      "die Telegram-Bot-API, über die Spyware Gesammeltes versendet",
+      "l’API dei bot di Telegram, che lo spyware usa per inviare ciò che raccoglie",
+      "a API de bots do Telegram, que o spyware usa para enviar o que recolhe",
+    ),
+  ],
+  [
+    "contacted by the phone",
+    t(
+      "contactado por el móvil",
+      "contacted by the phone",
+      "contacté par le téléphone",
+      "vom Telefon kontaktiert",
+      "contattato dal telefono",
+      "contactado pelo telemóvel",
+    ),
+  ],
+  [
+    "private DNS server",
+    t(
+      "servidor DNS privado",
+      "private DNS server",
+      "serveur DNS privé",
+      "privater DNS-Server",
+      "server DNS privato",
+      "servidor DNS privado",
+    ),
+  ],
+  [
+    "HTTP proxy",
+    t(
+      "proxy HTTP",
+      "HTTP proxy",
+      "proxy HTTP",
+      "HTTP-Proxy",
+      "proxy HTTP",
+      "proxy HTTP",
+    ),
+  ],
+  [
+    "attributed network packet:",
+    t(
+      "paquete de red del móvil:",
+      "attributed network packet:",
+      "paquet réseau du téléphone :",
+      "Netzwerkpaket des Telefons:",
+      "pacchetto di rete del telefono:",
+      "pacote de rede do telemóvel:",
+    ),
+  ],
+  [
+    "attributed DNS question:",
+    t(
+      "consulta DNS del móvil:",
+      "attributed DNS question:",
+      "requête DNS du téléphone :",
+      "DNS-Anfrage des Telefons:",
+      "richiesta DNS del telefono:",
+      "consulta DNS do telemóvel:",
+    ),
+  ],
+  [
+    "attributed DNS alias:",
+    t(
+      "alias DNS del móvil:",
+      "attributed DNS alias:",
+      "alias DNS du téléphone :",
+      "DNS-Alias des Telefons:",
+      "alias DNS del telefono:",
+      "alias DNS do telemóvel:",
+    ),
+  ],
+  [
+    "attributed TLS server name:",
+    t(
+      "nombre de servidor TLS del móvil:",
+      "attributed TLS server name:",
+      "nom de serveur TLS du téléphone :",
+      "TLS-Servername des Telefons:",
+      "nome del server TLS del telefono:",
+      "nome de servidor TLS do telemóvel:",
+    ),
+  ],
+  [
+    "attributed HTTP host:",
+    t(
+      "host HTTP del móvil:",
+      "attributed HTTP host:",
+      "hôte HTTP du téléphone :",
+      "HTTP-Host des Telefons:",
+      "host HTTP del telefono:",
+      "host HTTP do telemóvel:",
+    ),
+  ],
+  [
+    "an executable ran from a folder this analysis does not recognise",
+    t(
+      "se ejecutó un programa desde una carpeta que este análisis no reconoce",
+      "an executable ran from a folder this analysis does not recognise",
+      "un exécutable a tourné depuis un dossier que cette analyse ne reconnaît pas",
+      "ein Programm lief aus einem Ordner, den diese Analyse nicht kennt",
+      "un eseguibile è stato avviato da una cartella che questa analisi non riconosce",
+      "um executável correu a partir de uma pasta que esta análise não reconhece",
+    ),
+  ],
+  [
+    "an executable ran from ",
+    t(
+      "se ejecutó un programa desde ",
+      "an executable ran from ",
+      "un exécutable a tourné depuis ",
+      "ein Programm lief aus ",
+      "un eseguibile è stato avviato da ",
+      "um executável correu a partir de ",
+    ),
+  ],
+  [
+    ", where iOS and App Store apps never run code",
+    t(
+      ", donde iOS y las apps de la App Store nunca ejecutan código",
+      ", where iOS and App Store apps never run code",
+      ", où iOS et les apps de l’App Store n’exécutent jamais de code",
+      ", wo iOS und App-Store-Apps nie Code ausführen",
+      ", dove iOS e le app dell’App Store non eseguono mai codice",
+      ", onde o iOS e as apps da App Store nunca executam código",
+    ),
+  ],
+  [
+    "a system database folder",
+    t(
+      "una carpeta de bases de datos del sistema",
+      "a system database folder",
+      "un dossier de bases de données du système",
+      "einem Datenbankordner des Systems",
+      "una cartella di database di sistema",
+      "uma pasta de bases de dados do sistema",
+    ),
+  ],
+  [
+    "a temporary folder",
+    t(
+      "una carpeta temporal",
+      "a temporary folder",
+      "un dossier temporaire",
+      "einem temporären Ordner",
+      "una cartella temporanea",
+      "uma pasta temporária",
+    ),
+  ],
+  [
+    "the system administrator's folder",
+    t(
+      "la carpeta del administrador del sistema",
+      "the system administrator's folder",
+      "le dossier de l’administrateur du système",
+      "dem Ordner des Systemadministrators",
+      "la cartella dell’amministratore di sistema",
+      "a pasta do administrador do sistema",
+    ),
+  ],
+  [
+    "the user's data folder",
+    t(
+      "la carpeta de datos del usuario",
+      "the user's data folder",
+      "le dossier de données de l’utilisateur",
+      "dem Datenordner des Nutzers",
+      "la cartella dei dati dell’utente",
+      "a pasta de dados do utilizador",
+    ),
+  ],
+  [
+    "an app's data folder",
+    t(
+      "la carpeta de datos de una app",
+      "an app's data folder",
+      "le dossier de données d’une app",
+      "dem Datenordner einer App",
+      "la cartella dei dati di un’app",
+      "a pasta de dados de uma app",
+    ),
+  ],
+  [
+    "a shared data folder",
+    t(
+      "una carpeta de datos compartidos",
+      "a shared data folder",
+      "un dossier de données partagées",
+      "einem Ordner für gemeinsame Daten",
+      "una cartella di dati condivisi",
+      "uma pasta de dados partilhados",
+    ),
+  ],
+  [
+    "a disguised path",
+    t(
+      "una ruta disfrazada",
+      "a disguised path",
+      "un chemin déguisé",
+      "einem getarnten Pfad",
+      "un percorso camuffato",
+      "um caminho disfarçado",
+    ),
+  ],
+  [
+    "was running when the sysdiagnose was created",
+    t(
+      "estaba en ejecución al crearse el sysdiagnose",
+      "was running when the sysdiagnose was created",
+      "était en cours d’exécution à la création du sysdiagnose",
+      "lief, als die Sysdiagnose erstellt wurde",
+      "era in esecuzione quando è stato creato il sysdiagnose",
+      "estava em execução quando o sysdiagnose foi criado",
+    ),
+  ],
+  [
+    "its name imitates an Apple system service",
+    t(
+      "su nombre imita un servicio del sistema de Apple",
+      "its name imitates an Apple system service",
+      "son nom imite un service système d’Apple",
+      "sein Name ahmt einen Apple-Systemdienst nach",
+      "il suo nome imita un servizio di sistema Apple",
+      "o seu nome imita um serviço do sistema da Apple",
+    ),
+  ],
+  [
+    "SMS or iMessage",
+    t(
+      "SMS o iMessage",
+      "SMS or iMessage",
+      "SMS ou iMessage",
+      "SMS oder iMessage",
+      "SMS o iMessage",
+      "SMS ou iMessage",
+    ),
+  ],
+  [
+    "Safari history",
+    t(
+      "historial de Safari",
+      "Safari history",
+      "historique de Safari",
+      "Safari-Verlauf",
+      "cronologia di Safari",
+      "histórico do Safari",
+    ),
+  ],
+  [
+    "Chrome history",
+    t(
+      "historial de Chrome",
+      "Chrome history",
+      "historique de Chrome",
+      "Chrome-Verlauf",
+      "cronologia di Chrome",
+      "histórico do Chrome",
+    ),
+  ],
+  [
+    "Firefox history",
+    t(
+      "historial de Firefox",
+      "Firefox history",
+      "historique de Firefox",
+      "Firefox-Verlauf",
+      "cronologia di Firefox",
+      "histórico do Firefox",
+    ),
+  ],
   [
     "disabled Google Play Services apps verification",
     t(
@@ -728,10 +1124,194 @@ export const FRAGMENTS: Array<[string, T]> = [
 ];
 
 const LANGS: Language[] = ["es", "en", "fr", "de", "it", "pt"];
+/** Enigm's phrases that carry data ($1, $2…): reasons, counts and dates. */
+/** Enigm's phrases that carry data ($1, $2…): reasons, counts and dates.
+ *  Applied before FRAGMENTS, which then translate the phrases around them. */
+export const PATTERNS: Array<[RegExp, T]> = [
+  [
+    /delayed (\d+) reboot\(s\) in shutdown\.log/g,
+    t(
+      "reinicios retrasados en shutdown.log: $1",
+      "delayed $1 reboot(s) in shutdown.log",
+      "redémarrages retardés dans shutdown.log : $1",
+      "verzögerte Neustarts in shutdown.log: $1",
+      "riavvii ritardati in shutdown.log: $1",
+      "reinícios atrasados em shutdown.log: $1",
+    ),
+  ],
+  [
+    /crashed (\d+) time\(s\)/g,
+    t(
+      "fallos registrados: $1",
+      "crashed $1 time(s)",
+      "plantages : $1",
+      "Abstürze: $1",
+      "arresti anomali: $1",
+      "falhas registadas: $1",
+    ),
+  ],
+  [
+    /^(\d+) crashes of the services that process incoming iMessages \((.+?)\) between (\S+) and (\S+)$/,
+    t(
+      "$1 fallos de los servicios que procesan los iMessage entrantes ($2) entre $3 y $4",
+      "$1 crashes of the services that process incoming iMessages ($2) between $3 and $4",
+      "$1 plantages des services qui traitent les iMessage entrants ($2) entre $3 et $4",
+      "$1 Abstürze der Dienste, die eingehende iMessages verarbeiten ($2), zwischen $3 und $4",
+      "$1 arresti dei servizi che elaborano gli iMessage in arrivo ($2) tra $3 e $4",
+      "$1 falhas dos serviços que processam os iMessage recebidos ($2) entre $3 e $4",
+    ),
+  ],
+  [
+    /internationalised domain (\S+) imitates (\S+) with look-alike letters/,
+    t(
+      "el dominio internacionalizado $1 imita a $2 con letras parecidas",
+      "internationalised domain $1 imitates $2 with look-alike letters",
+      "le domaine internationalisé $1 imite $2 avec des lettres semblables",
+      "die internationalisierte Domain $1 ahmt $2 mit ähnlichen Buchstaben nach",
+      "il dominio internazionalizzato $1 imita $2 con lettere simili",
+      "o domínio internacionalizado $1 imita $2 com letras semelhantes",
+    ),
+  ],
+  [
+    /internationalised domain (\S+) mixes Latin letters with look-alike letters from another alphabet/,
+    t(
+      "el dominio internacionalizado $1 mezcla letras latinas con letras parecidas de otro alfabeto",
+      "internationalised domain $1 mixes Latin letters with look-alike letters from another alphabet",
+      "le domaine internationalisé $1 mélange des lettres latines et des lettres semblables d’un autre alphabet",
+      "die internationalisierte Domain $1 mischt lateinische Buchstaben mit ähnlichen aus einem anderen Alphabet",
+      "il dominio internazionalizzato $1 mescola lettere latine con lettere simili di un altro alfabeto",
+      "o domínio internacionalizado $1 mistura letras latinas com letras semelhantes de outro alfabeto",
+    ),
+  ],
+  [
+    /(\S+) is used as a subdomain of (\S+), which (\S+) does not own/,
+    t(
+      "$1 se usa como subdominio de $2, que no pertenece a $3",
+      "$1 is used as a subdomain of $2, which $3 does not own",
+      "$1 est utilisé comme sous-domaine de $2, qui n’appartient pas à $3",
+      "$1 wird als Subdomain von $2 verwendet, die nicht $3 gehört",
+      "$1 è usato come sottodominio di $2, che non appartiene a $3",
+      "$1 é usado como subdomínio de $2, que não pertence a $3",
+    ),
+  ],
+  [
+    /(\S+) combines the name (\S+) with other words but is not owned by \2/,
+    t(
+      "$1 combina el nombre $2 con otras palabras, pero no pertenece a $2",
+      "$1 combines the name $2 with other words but is not owned by $2",
+      "$1 associe le nom $2 à d’autres mots mais n’appartient pas à $2",
+      "$1 verbindet den Namen $2 mit anderen Wörtern, gehört aber nicht $2",
+      "$1 combina il nome $2 con altre parole ma non appartiene a $2",
+      "$1 combina o nome $2 com outras palavras, mas não pertence a $2",
+    ),
+  ],
+  [
+    /(\S+) uses the name (\S+) on a domain \2 does not own/,
+    t(
+      "$1 usa el nombre $2 en un dominio que no pertenece a $2",
+      "$1 uses the name $2 on a domain $2 does not own",
+      "$1 utilise le nom $2 sur un domaine qui n’appartient pas à $2",
+      "$1 verwendet den Namen $2 auf einer Domain, die nicht $2 gehört",
+      "$1 usa il nome $2 su un dominio che non appartiene a $2",
+      "$1 usa o nome $2 num domínio que não pertence a $2",
+    ),
+  ],
+  [
+    /(\S+) spells (\S+) with look-alike characters/,
+    t(
+      "$1 escribe $2 con caracteres parecidos",
+      "$1 spells $2 with look-alike characters",
+      "$1 écrit $2 avec des caractères semblables",
+      "$1 schreibt $2 mit ähnlichen Zeichen",
+      "$1 scrive $2 con caratteri simili",
+      "$1 escreve $2 com caracteres semelhantes",
+    ),
+  ],
+  [
+    /(\S+) is one letter away from (\S+)/,
+    t(
+      "$1 se diferencia de $2 en una sola letra",
+      "$1 is one letter away from $2",
+      "$1 ne diffère de $2 que d’une lettre",
+      "$1 unterscheidet sich nur durch einen Buchstaben von $2",
+      "$1 differisce da $2 per una sola lettera",
+      "$1 difere de $2 numa só letra",
+    ),
+  ],
+  [
+    /\. Seen (\d+) time\(s\) in (.+?) between (\S+) and (\S+), e\.g\. /,
+    t(
+      ". Apariciones: $1, en $2, entre $3 y $4. Ejemplo: ",
+      ". Seen $1 time(s) in $2 between $3 and $4, e.g. ",
+      ". Occurrences : $1, dans $2, entre $3 et $4. Exemple : ",
+      ". Vorkommen: $1, in $2, zwischen $3 und $4. Beispiel: ",
+      ". Occorrenze: $1, in $2, tra $3 e $4. Esempio: ",
+      ". Ocorrências: $1, em $2, entre $3 e $4. Exemplo: ",
+    ),
+  ],
+  [
+    /\. Seen (\d+) time\(s\) in (.+?) on (\S+), e\.g\. /,
+    t(
+      ". Apariciones: $1, en $2, el $3. Ejemplo: ",
+      ". Seen $1 time(s) in $2 on $3, e.g. ",
+      ". Occurrences : $1, dans $2, le $3. Exemple : ",
+      ". Vorkommen: $1, in $2, am $3. Beispiel: ",
+      ". Occorrenze: $1, in $2, il $3. Esempio: ",
+      ". Ocorrências: $1, em $2, em $3. Exemplo: ",
+    ),
+  ],
+  [
+    /\. Seen (\d+) time\(s\) in (.+?), e\.g\. /,
+    t(
+      ". Apariciones: $1, en $2. Ejemplo: ",
+      ". Seen $1 time(s) in $2, e.g. ",
+      ". Occurrences : $1, dans $2. Exemple : ",
+      ". Vorkommen: $1, in $2. Beispiel: ",
+      ". Occorrenze: $1, in $2. Esempio: ",
+      ". Ocorrências: $1, em $2. Exemplo: ",
+    ),
+  ],
+  [
+    /while not on screen (\d+) min ago/g,
+    t(
+      "while not on screen hace $1 min",
+      "while not on screen $1 min ago",
+      "while not on screen il y a $1 min",
+      "while not on screen vor $1 Min.",
+      "while not on screen $1 min fa",
+      "while not on screen há $1 min",
+    ),
+  ],
+  [
+    /while not on screen (\d+) h ago/g,
+    t(
+      "while not on screen hace $1 h",
+      "while not on screen $1 h ago",
+      "while not on screen il y a $1 h",
+      "while not on screen vor $1 Std.",
+      "while not on screen $1 h fa",
+      "while not on screen há $1 h",
+    ),
+  ],
+  [
+    /while not on screen (\d+) days ago/g,
+    t(
+      "while not on screen hace $1 días",
+      "while not on screen $1 days ago",
+      "while not on screen il y a $1 jours",
+      "while not on screen vor $1 Tagen",
+      "while not on screen $1 giorni fa",
+      "while not on screen há $1 dias",
+    ),
+  ],
+];
+
 /** Replace Enigm's own phrases inside an evidence line; data stays as it is. */
 export function translateFragments(value: string, language: Language) {
   if (language === "en") return value;
   let out = value;
+  for (const [pattern, tr] of PATTERNS)
+    out = out.replace(pattern, tr[language]);
   for (const [english, tr] of FRAGMENTS)
     out = out.split(english).join(tr[language]);
   return out;
@@ -923,12 +1503,12 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
     [
       /(\d+) suspicious domain\(s\).*?; (\d+) profile\(s\) for review/s,
       t(
-        "Enlaces de mensajes, historial y consultas DNS revisados en busca de dominios que suplantan marcas, letras parecidas, enlaces a direcciones IP y perfiles capaces de interceptar el tráfico. Dominios sospechosos: {0}. Perfiles a revisar: {1}. Un enlace con aspecto legítimo también puede ser malicioso.",
-        "Links in messages, browsing history and DNS lookups checked for domains impersonating brands, look-alike letters, bare IP links and profiles able to intercept traffic. Suspicious domains: {0}. Profiles to review: {1}. A link that looks legitimate can still be malicious.",
-        "Liens des messages, historique et requêtes DNS vérifiés pour repérer les domaines usurpant des marques, les lettres trompeuses, les liens vers des adresses IP et les profils capables d’intercepter le trafic. Domaines suspects : {0}. Profils à vérifier : {1}. Un lien d’apparence légitime peut aussi être malveillant.",
-        "Links in Nachrichten, Browserverlauf und DNS-Anfragen auf Domains geprüft, die Marken nachahmen, ähnliche Buchstaben, IP-Links und Profile, die Verkehr abfangen können. Verdächtige Domains: {0}. Zu prüfende Profile: {1}. Auch ein seriös wirkender Link kann schädlich sein.",
-        "Link nei messaggi, cronologia e richieste DNS controllati per domini che imitano marchi, lettere simili, link a indirizzi IP e profili in grado di intercettare il traffico. Domini sospetti: {0}. Profili da verificare: {1}. Anche un link dall’aspetto legittimo può essere dannoso.",
-        "Ligações em mensagens, histórico e consultas DNS verificadas quanto a domínios que imitam marcas, letras semelhantes, ligações para endereços IP e perfis capazes de intercetar o tráfego. Domínios suspeitos: {0}. Perfis a rever: {1}. Uma ligação com aspeto legítimo também pode ser maliciosa.",
+        "Enlaces de mensajes, historial y consultas DNS revisados en busca de dominios que suplantan marcas, letras parecidas, enlaces a direcciones IP, a DNS dinámico o a túneles, y perfiles capaces de interceptar el tráfico. Dominios sospechosos: {0}. Perfiles a revisar: {1}. Un enlace con aspecto legítimo también puede ser malicioso.",
+        "Links in messages, browsing history and DNS lookups checked for domains impersonating brands, look-alike letters, bare IP links, links to dynamic DNS or tunnels, and profiles able to intercept traffic. Suspicious domains: {0}. Profiles to review: {1}. A link that looks legitimate can still be malicious.",
+        "Liens des messages, historique et requêtes DNS vérifiés pour repérer les domaines usurpant des marques, les lettres trompeuses, les liens vers des adresses IP, des DNS dynamiques ou des tunnels, et les profils capables d’intercepter le trafic. Domaines suspects : {0}. Profils à vérifier : {1}. Un lien d’apparence légitime peut aussi être malveillant.",
+        "Links in Nachrichten, Browserverlauf und DNS-Anfragen auf Domains geprüft, die Marken nachahmen, ähnliche Buchstaben, Links zu IP-Adressen, dynamischem DNS oder Tunneln sowie Profile, die Verkehr abfangen können. Verdächtige Domains: {0}. Zu prüfende Profile: {1}. Auch ein seriös wirkender Link kann schädlich sein.",
+        "Link nei messaggi, cronologia e richieste DNS controllati per domini che imitano marchi, lettere simili, link a indirizzi IP, a DNS dinamici o a tunnel, e profili in grado di intercettare il traffico. Domini sospetti: {0}. Profili da verificare: {1}. Anche un link dall’aspetto legittimo può essere dannoso.",
+        "Ligações em mensagens, histórico e consultas DNS verificadas quanto a domínios que imitam marcas, letras semelhantes, ligações para endereços IP, DNS dinâmico ou túneis, e perfis capazes de intercetar o tráfego. Domínios suspeitos: {0}. Perfis a rever: {1}. Uma ligação com aspeto legítimo também pode ser maliciosa.",
       ),
     ],
   ],

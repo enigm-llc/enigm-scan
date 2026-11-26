@@ -227,6 +227,22 @@ const NAMES: Record<string, T> = {
     "Log di spegnimento dell’iPhone",
     "Registo de encerramento do iPhone",
   ),
+  ios_running_processes: t(
+    "Procesos en ejecución del iPhone",
+    "iPhone running processes",
+    "Processus en cours sur l’iPhone",
+    "Laufende Prozesse des iPhone",
+    "Processi in esecuzione sull’iPhone",
+    "Processos em execução no iPhone",
+  ),
+  ios_lockdown_mode: t(
+    "Modo de aislamiento",
+    "Lockdown Mode",
+    "Mode Isolement",
+    "Blockierungsmodus",
+    "Modalità di isolamento",
+    "Modo de Isolamento",
+  ),
   ios_diagnostics_finding_limit: t(
     "Límite de indicios de diagnóstico",
     "Diagnostics finding limit",
@@ -708,14 +724,64 @@ const DETAILS: Record<string, Rule[]> = {
     [
       /^(\d+) MVT heuristics omitted/,
       t(
-        "{0} avisos habituales en móviles sin infectar (actualizaciones de apps, servicios del fabricante, apps de tiendas, la propia depuración USB del análisis y el Modo de aislamiento del iPhone activado) no se muestran. Ninguno coincidía con un indicador firmado.",
-        "{0} alerts that are common on phones that are not infected (app updates, the manufacturer’s services, store apps, the scan’s own USB debugging and iPhone’s Lockdown Mode being on) are not shown. None matched a signed indicator.",
-        "{0} alertes courantes sur des téléphones sains (mises à jour d’applications, services du fabricant, applications des boutiques, le débogage USB de l’analyse elle-même et le mode Isolement de l’iPhone activé) ne sont pas affichées. Aucune ne correspondait à un indicateur signé.",
-        "{0} auf nicht infizierten Geräten übliche Warnungen (App-Updates, Herstellerdienste, Store-Apps, das USB-Debugging der Analyse selbst und der aktivierte Blockierungsmodus des iPhone) werden nicht angezeigt. Keine entsprach einem signierten Indikator.",
-        "{0} avvisi comuni sui telefoni non infetti (aggiornamenti delle app, servizi del produttore, app degli store, il debug USB dell’analisi stessa e la modalità di isolamento dell’iPhone attiva) non vengono mostrati. Nessuno corrispondeva a un indicatore firmato.",
-        "{0} alertas habituais em telemóveis sem infeção (atualizações de apps, serviços do fabricante, apps de lojas, a própria depuração USB da análise e o Modo de Isolamento do iPhone ativo) não são mostrados. Nenhum correspondia a um indicador assinado.",
+        "{0} avisos habituales en móviles sin infectar (actualizaciones de apps, servicios del fabricante, apps de tiendas, la propia depuración USB del análisis y la instalación o retirada de perfiles de configuración, que se revisan aparte) no se muestran. Ninguno coincidía con un indicador firmado.",
+        "{0} alerts that are common on phones that are not infected (app updates, the manufacturer’s services, store apps, the scan’s own USB debugging and configuration profiles being installed or removed, which are checked separately) are not shown. None matched a signed indicator.",
+        "{0} alertes courantes sur des téléphones sains (mises à jour d’applications, services du fabricant, applications des boutiques, le débogage USB de l’analyse elle-même et l’installation ou la suppression de profils de configuration, vérifiés à part) ne sont pas affichées. Aucune ne correspondait à un indicateur signé.",
+        "{0} auf nicht infizierten Geräten übliche Warnungen (App-Updates, Herstellerdienste, Store-Apps, das USB-Debugging der Analyse selbst und das Installieren oder Entfernen von Konfigurationsprofilen, die gesondert geprüft werden) werden nicht angezeigt. Keine entsprach einem signierten Indikator.",
+        "{0} avvisi comuni sui telefoni non infetti (aggiornamenti delle app, servizi del produttore, app degli store, il debug USB dell’analisi stessa e l’installazione o rimozione di profili di configurazione, controllati a parte) non vengono mostrati. Nessuno corrispondeva a un indicatore firmato.",
+        "{0} alertas habituais em telemóveis sem infeção (atualizações de apps, serviços do fabricante, apps de lojas, a própria depuração USB da análise e a instalação ou remoção de perfis de configuração, verificados à parte) não são mostrados. Nenhum correspondia a um indicador assinado.",
       ),
       ["n"],
+    ],
+  ],
+  ios_running_processes: [
+    [
+      /^(\d+) process\(es\) were running when the sysdiagnose was created on (\S+)\./,
+      t(
+        "{0} procesos estaban en ejecución al crearse el sysdiagnose, el {1}. Cada uno se comparó con los indicadores firmados de procesos y rutas, y se comprobó si se ejecutaba desde carpetas inusuales.",
+        "{0} processes were running when the sysdiagnose was created, on {1}. Each was compared with the signed process and path indicators and checked for running from unusual folders.",
+        "{0} processus étaient en cours d’exécution à la création du sysdiagnose, le {1}. Chacun a été comparé aux indicateurs signés de processus et de chemins, et vérifié pour une exécution depuis des dossiers inhabituels.",
+        "{0} Prozesse liefen, als die Sysdiagnose am {1} erstellt wurde. Jeder wurde mit den signierten Prozess- und Pfadindikatoren abgeglichen und auf Ausführung aus ungewöhnlichen Ordnern geprüft.",
+        "{0} processi erano in esecuzione quando è stato creato il sysdiagnose, il {1}. Ognuno è stato confrontato con gli indicatori firmati di processi e percorsi e controllato per l’esecuzione da cartelle insolite.",
+        "{0} processos estavam em execução quando o sysdiagnose foi criado, em {1}. Cada um foi comparado com os indicadores assinados de processos e caminhos e verificado quanto à execução a partir de pastas invulgares.",
+      ),
+      ["n", "d"],
+    ],
+    [
+      /^(\d+) process\(es\) were running when the sysdiagnose was created\./,
+      t(
+        "{0} procesos estaban en ejecución al crearse el sysdiagnose. Cada uno se comparó con los indicadores firmados de procesos y rutas, y se comprobó si se ejecutaba desde carpetas inusuales.",
+        "{0} processes were running when the sysdiagnose was created. Each was compared with the signed process and path indicators and checked for running from unusual folders.",
+        "{0} processus étaient en cours d’exécution à la création du sysdiagnose. Chacun a été comparé aux indicateurs signés de processus et de chemins, et vérifié pour une exécution depuis des dossiers inhabituels.",
+        "{0} Prozesse liefen, als die Sysdiagnose erstellt wurde. Jeder wurde mit den signierten Prozess- und Pfadindikatoren abgeglichen und auf Ausführung aus ungewöhnlichen Ordnern geprüft.",
+        "{0} processi erano in esecuzione quando è stato creato il sysdiagnose. Ognuno è stato confrontato con gli indicatori firmati di processi e percorsi e controllato per l’esecuzione da cartelle insolite.",
+        "{0} processos estavam em execução quando o sysdiagnose foi criado. Cada um foi comparado com os indicadores assinados de processos e caminhos e verificado quanto à execução a partir de pastas invulgares.",
+      ),
+      ["n"],
+    ],
+  ],
+  ios_lockdown_mode: [
+    [
+      /^Lockdown Mode is on/,
+      t(
+        "El Modo de aislamiento está activado: es la protección más fuerte de Apple contra el spyware mercenario.",
+        "Lockdown Mode is on: Apple’s strongest protection against mercenary spyware.",
+        "Le mode Isolement est activé : c’est la protection la plus forte d’Apple contre les logiciels espions mercenaires.",
+        "Der Blockierungsmodus ist aktiviert: Apples stärkster Schutz gegen Söldner-Spyware.",
+        "La modalità di isolamento è attiva: è la protezione più forte di Apple contro lo spyware mercenario.",
+        "O Modo de Isolamento está ativo: é a proteção mais forte da Apple contra o spyware mercenário.",
+      ),
+    ],
+    [
+      /^Lockdown Mode is off/,
+      t(
+        "El Modo de aislamiento está desactivado. Si corres riesgo de spyware dirigido, puedes activarlo en Ajustes > Privacidad y seguridad.",
+        "Lockdown Mode is off. If you are at risk of targeted spyware, you can turn it on in Settings > Privacy & Security.",
+        "Le mode Isolement est désactivé. Si vous risquez d’être visé par un logiciel espion, vous pouvez l’activer dans Réglages > Confidentialité et sécurité.",
+        "Der Blockierungsmodus ist deaktiviert. Wenn Sie gezielter Spyware ausgesetzt sein könnten, aktivieren Sie ihn unter Einstellungen > Datenschutz & Sicherheit.",
+        "La modalità di isolamento è disattivata. Se rischi di essere preso di mira da spyware, puoi attivarla in Impostazioni > Privacy e sicurezza.",
+        "O Modo de Isolamento está desativado. Se corre risco de spyware dirigido, pode ativá-lo em Definições > Privacidade e segurança.",
+      ),
     ],
   ],
   evidence_correlation: [

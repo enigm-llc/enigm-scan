@@ -270,6 +270,26 @@ fn read_bounded(path: &Path, limit: u64) -> Option<String> {
 struct Sighting {
     reboots: Vec<Option<i64>>,
     crashes: Vec<Option<String>>,
+    /// Listed among the processes running when the sysdiagnose was created.
+    running: bool,
+}
+/// The commands of the processes in a sysdiagnose's `ps.txt` (the `ps`
+/// output with a `COMMAND` column, which holds the executable's full path).
+pub fn parse_process_list(text: &str) -> Vec<String> {
+    let mut lines = text.lines();
+    if !lines.by_ref().any(|line| line.contains("COMMAND")) {
+        return Vec::new();
+    }
+    // The columns before the command (user, ids, times) never hold a '/',
+    // so the command starts at the first one, wherever the columns align.
+    lines
+        .filter_map(|line| {
+            let start = line.find(" /")? + 1;
+            Some(line[start..].trim_end())
+        })
+        .take(10_000)
+        .map(|command| bounded(command, 1024))
+        .collect()
 }
 
 pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
@@ -316,6 +336,47 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
         shutdown_detail = format!(
             "{reboots} reboot record(s){span}; {} process(es) delayed a reboot. Each was checked against signed process and path indicators and for executables running from unusual folders (the method Kaspersky used to find Pegasus).",
             entries.len()
+        );
+    }
+    // Processes running when the sysdiagnose was created: an active infection
+    // shows here even if it never crashed or delayed a reboot.
+    let running = read_bounded(&dir.join("ps.txt"), 8 * 1024 * 1024)
+        .map(|text| parse_process_list(&text))
+        .unwrap_or_default();
+    let created = status.sysdiagnose.modified.and_then(rfc3339);
+    for command in &running {
+        let executable = command.split_whitespace().next().unwrap_or(command);
+        let name = executable.rsplit('/').next().unwrap_or("");
+        let artifact = format!(
+            "process running when the sysdiagnose was created{}",
+            created
+                .as_deref()
+                .map(|w| format!(" on {w}"))
+                .unwrap_or_default()
+        );
+        matches.inspect(
+            report,
+            Kind::FilePath,
+            executable,
+            &artifact,
+            created.clone(),
+        );
+        matches.inspect(report, Kind::ProcessName, name, &artifact, created.clone());
+        // Only folders where code never runs: an unrecognised but plausible
+        // system folder in a full process list would be noise.
+        if matches!(location(command), Location::Suspicious(_)) {
+            places.entry(executable.to_string()).or_default().running = true;
+        }
+    }
+    if !running.is_empty() {
+        report.check(
+            "ios_running_processes",
+            "completed",
+            &format!(
+                "{} process(es) were running when the sysdiagnose was created{}. Each was checked against signed process and path indicators and for executables running from unusual folders.",
+                running.len(),
+                created.as_deref().map(|w| format!(" on {w}")).unwrap_or_default()
+            ),
         );
     }
     let sysdiagnose = &status.sysdiagnose;
@@ -420,6 +481,9 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
         if !seen.crashes.is_empty() {
             facts.push(format!("crashed {} time(s)", seen.crashes.len()));
         }
+        if seen.running {
+            facts.push("was running when the sysdiagnose was created".into());
+        }
         if imitates_apple(name) {
             facts.push("its name imitates an Apple system service".into());
         }
@@ -429,6 +493,7 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
             .flatten()
             .filter_map(|t| rfc3339(*t))
             .chain(seen.crashes.iter().flatten().cloned())
+            .chain(seen.running.then(|| created.clone()).flatten())
             .max();
         let item = match location(path) {
             Location::Suspicious(what) => {
@@ -713,6 +778,51 @@ SIGTERM: [1732600000]
             .find(|c| c.id == "ios_crash_reports")
             .unwrap();
         assert!(crashes.detail.starts_with("2 crash report(s) from 2026-11-20T10:10:10.00+01:00 to 2026-11-20T11:00:00.00+01:00 read over USB (1 other"), "{}", crashes.detail);
+    }
+    #[test]
+    fn processes_running_from_unusual_folders_are_detected_from_the_process_list() {
+        let ps = "USER  UID  PID  PPID %CPU STARTED      TIME COMMAND
+root    0    1     0  0.0 9:00AM   0:01.00 /sbin/launchd
+mobile 501  300     1  0.0 9:00AM   0:00.10 /usr/libexec/backboardd
+mobile 501  412     1  0.0 9:01AM   0:00.02 /private/var/containers/Bundle/Application/AB12/Some App.app/Some App -launchedBy x
+root    0  666     1  0.0 9:02AM   0:00.01 /private/var/db/com.apple.xpc.roleaccountd.staging/msgacntd --daemon
+mobile 501  700     1  0.0 9:03AM   0:00.01 /Library/Unknown/helper
+root    0    0     0  0.0 9:00AM   0:10.00 (kernel_task)
+";
+        let dir = tempfile::tempdir().unwrap();
+        write(
+            dir.path(),
+            serde_json::json!({"crashReports": {"status": "completed", "files": 0, "skipped": 0}, "sysdiagnose": {"status": "completed", "archive": "sysdiagnose_2026.11.24.tar.gz", "modified": 1732600000}}),
+            None,
+            &[],
+        );
+        std::fs::write(dir.path().join("ps.txt"), ps).unwrap();
+        let mut report = Report::new("ios", 1);
+        analyze(dir.path(), &rules(), &mut report);
+        let unusual: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.category == "ios_unusual_process")
+            .collect();
+        // Only the process in a folder where code never runs; an unknown but
+        // plausible folder in a full process list is not reported.
+        assert_eq!(unusual.len(), 1);
+        assert!(unusual[0].evidence.starts_with(
+            "/private/var/db/com.apple.xpc.roleaccountd.staging/msgacntd: an executable ran from a system database folder"
+        ));
+        assert!(unusual[0]
+            .evidence
+            .contains("was running when the sysdiagnose was created"));
+        assert!(!report
+            .findings
+            .iter()
+            .any(|f| f.category == "ios_unrecognised_process"));
+        let check = report
+            .checks
+            .iter()
+            .find(|c| c.id == "ios_running_processes")
+            .unwrap();
+        assert!(check.detail.starts_with("5 process(es) were running when the sysdiagnose was created on 2024-11-26T05:46:40Z"), "{}", check.detail);
     }
     #[test]
     fn repeated_imessage_parser_crashes_within_an_hour_are_a_review_point() {

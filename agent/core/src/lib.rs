@@ -150,6 +150,7 @@ pub fn hex(bytes: &[u8]) -> String {
 pub mod android;
 pub mod behavior;
 pub mod extractions;
+pub mod infrastructure;
 pub mod ios_diagnostics;
 pub mod links;
 pub mod model;

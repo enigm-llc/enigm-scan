@@ -37,11 +37,16 @@ prove that a phone is not being spied on, and the report says so.
   identifiers, process names and other indicators published by Amnesty
   International's Security Lab, the MVT project, Echap and ESET Research.
   The bundle is signed, so the app only uses indicators that come from us.
-- **Android behaviour.** Apps that hide their icon, use accessibility or
-  notification access, act as device administrators, or use the microphone and
-  camera in the background, read over USB without root.
+- **Android behaviour.** Apps that hide their icon, were installed from a
+  computer over USB, use accessibility or notification access, act as device
+  administrators, or use the microphone, camera and location in the
+  background, read over USB without root.
 - **iPhone traces.** Crash reports and, if you choose the deep check, the
-  shutdown log of a sysdiagnose, where some spyware leaves processes behind.
+  shutdown log and running processes of a sysdiagnose, where some spyware
+  leaves processes behind.
+- **Where spyware reports.** Hosts on dynamic DNS, tunnel and data collection
+  services and the Telegram bot API, which spyware without servers of its own
+  uses, in the phone's traffic, DNS and proxy settings and message links.
 - **Optional network check.** On iPhone the app watches the phone's own
   traffic while it copies, and reads the servers it contacts, even over
   encrypted connections; on Android it reads the open connections and which

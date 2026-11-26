@@ -182,7 +182,7 @@ pub fn analyze(dir: &Path, report: &mut Report) {
             s.severity,
             &evidence,
             s.last.clone(),
-            "Review point: the domain imitates a trusted brand or uses a bare address. Spyware and phishing are often delivered this way, but this alone does not show that the link was opened or that anything was installed.",
+            "Review point: the domain imitates a trusted brand, is a bare address or is on a free service that hides who runs it. Spyware and phishing are often delivered this way, but this alone does not show that the link was opened or that anything was installed.",
             "Do not open the link. If you opened it, note when, keep the phone as it is and ask an expert to review the device; the date helps them look for traces.",
         ));
     }
@@ -216,7 +216,7 @@ pub fn analyze(dir: &Path, report: &mut Report) {
         "enigm_link_and_profile_analysis",
         "completed",
         &format!(
-            "{}, {} and {} were checked for domains impersonating trusted brands, look-alike letters, bare IP links and profiles able to intercept traffic or manage the phone. {suspicious} suspicious domain(s){}; {risky_profiles} profile(s) for review. A link that looks legitimate can still be malicious.",
+            "{}, {} and {} were checked for domains impersonating trusted brands, look-alike letters, bare IP links, links to dynamic DNS names or tunnels, and profiles able to intercept traffic or manage the phone. {suspicious} suspicious domain(s){}; {risky_profiles} profile(s) for review. A link that looks legitimate can still be malicious.",
             part(message_links, "links in messages"),
             part(visits, "browser visits"),
             part(profile_count, "configuration profiles"),

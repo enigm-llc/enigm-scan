@@ -51,8 +51,9 @@ pub const SENSITIVE_PERMISSIONS: &[(&str, &str)] = &[
     ("PROCESS_OUTGOING_CALLS", "call log"),
     ("READ_CONTACTS", "contacts"),
 ];
-/// Operations queried with `dumpsys appops --op`.
-pub const WATCHED_OPS: &[&str] = &["RECORD_AUDIO", "CAMERA"];
+/// Operations queried with `dumpsys appops --op`: microphone, camera and
+/// location, the three things stalkerware follows while out of sight.
+pub const WATCHED_OPS: &[&str] = &["RECORD_AUDIO", "CAMERA", "FINE_LOCATION", "COARSE_LOCATION"];
 /// Window in which an access counts as recent.
 const RECENT: u64 = 14 * 86400;
 
@@ -439,8 +440,12 @@ enum Origin {
     Store,
     /// Another installer app: F-Droid, an MDM agent, a third-party store.
     OtherInstaller,
-    /// Installed from an APK file or over USB.
+    /// Installed from an APK file.
     ApkFile,
+    /// Installed from a computer over USB (ADB): how police and border
+    /// spyware such as NoviSpy and EagleMsgSpy is installed with the phone
+    /// in hand.
+    Usb,
 }
 fn origin(package: &Package) -> Origin {
     if package.system {
@@ -451,6 +456,8 @@ fn origin(package: &Package) -> Origin {
         .is_some_and(|i| crate::android::STORES.contains(&i))
     {
         Origin::Store
+    } else if package.installer.as_deref() == Some("com.android.shell") {
+        Origin::Usb
     } else if package
         .installer
         .as_deref()
@@ -532,21 +539,28 @@ fn profile(inventory: &Inventory, package: &Package) -> Profile {
     p.imitates_system = SYSTEM_NAMESPACES.iter().any(|ns| id.starts_with(ns));
     p.disguise_words = words(id, DISGUISE_WORDS);
     p.monitoring_words = words(id, MONITORING_WORDS);
+    // The most recent access of each kind while the app was not on screen;
+    // precise and approximate location count as one.
+    let mut latest: BTreeMap<&'static str, u64> = BTreeMap::new();
     for op in inventory.app_ops.iter().filter(|o| o.package == id) {
         let off_screen = op
             .state
             .as_deref()
             .is_some_and(|s| !["top", "pers"].contains(&s));
         if off_screen && op.seconds_ago <= RECENT {
-            let what = if op.op == "CAMERA" {
-                "camera"
-            } else {
-                "microphone"
+            let what = match op.op.as_str() {
+                "CAMERA" => "the camera",
+                "RECORD_AUDIO" => "the microphone",
+                _ => "location",
             };
-            p.background_use.push(format!(
-                "used the {what} while not on screen {}",
-                ago(op.seconds_ago)
-            ));
+            let seconds = latest.entry(what).or_insert(op.seconds_ago);
+            *seconds = (*seconds).min(op.seconds_ago);
+        }
+    }
+    for what in ["the microphone", "the camera", "location"] {
+        if let Some(seconds) = latest.get(what) {
+            p.background_use
+                .push(format!("used {what} while not on screen {}", ago(*seconds)));
         }
     }
     p
@@ -573,11 +587,14 @@ fn verdict(origin: Origin, id: &str, p: &Profile) -> Verdict {
                 Verdict::None
             }
         }
-        Origin::ApkFile | Origin::OtherInstaller => {
-            let strong = origin == Origin::ApkFile
+        Origin::ApkFile | Origin::Usb | Origin::OtherInstaller => {
+            // Installed over USB, hidden and with access to the owner's life:
+            // the phone was in someone's hands.
+            let usb = origin == Origin::Usb && (channels >= 1 || sensitive >= 2);
+            let strong = origin != Origin::OtherInstaller
                 && !KNOWN_MANUAL_SYSTEM.contains(&id)
                 && conceals
-                && ((channels >= 1 && sensitive >= 2) || sensitive >= 4 || background);
+                && (usb || (channels >= 1 && sensitive >= 2) || sensitive >= 4 || background);
             if strong {
                 Verdict::SpywareBehaviour
             } else if channels >= 1
@@ -597,6 +614,7 @@ fn verdict(origin: Origin, id: &str, p: &Profile) -> Verdict {
 fn describe(package: &Package, origin: Origin, p: &Profile) -> String {
     let mut facts: Vec<String> = vec![match origin {
         Origin::ApkFile => "installed from an APK file, not from an app store".into(),
+        Origin::Usb => "installed from a computer over USB (ADB), not from an app store".into(),
         Origin::OtherInstaller => format!(
             "installed by {}",
             package.installer.as_deref().unwrap_or("another app")
@@ -693,7 +711,7 @@ fn coverage(inventory: &Inventory) -> (String, &'static str) {
     );
     part(
         inventory.app_ops_status == "completed",
-        "recent microphone and camera use",
+        "recent microphone, camera and location use",
     );
     part(
         inventory.integrity_status == "completed",
@@ -1102,6 +1120,69 @@ mod tests {
         }
     }
     #[test]
+    fn hidden_app_installed_over_usb_with_one_special_access_is_spyware_behaviour() {
+        let mut inv = inventory(vec![
+            package("com.police.agent", Some("com.android.shell"), &[]),
+            // Same access from an APK file: a review point, as before.
+            package("com.other.agent", None, &[]),
+        ]);
+        inv.accessibility_services = vec![
+            "com.police.agent/.Acc".into(),
+            "com.other.agent/.Acc".into(),
+        ];
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        let usb = report
+            .findings
+            .iter()
+            .find(|f| f.evidence.starts_with("com.police.agent"))
+            .unwrap();
+        assert_eq!(usb.rule, "enigm.behavior.android_spyware_profile");
+        assert!(usb
+            .evidence
+            .contains("installed from a computer over USB (ADB), not from an app store"));
+        let apk = report
+            .findings
+            .iter()
+            .find(|f| f.evidence.starts_with("com.other.agent"))
+            .unwrap();
+        assert_eq!(
+            apk.rule,
+            "enigm.heuristic.android_surveillance_capabilities"
+        );
+    }
+    #[test]
+    fn background_location_is_one_fact_with_the_latest_access() {
+        let mut inv = inventory(vec![package(
+            "com.example.notes",
+            None,
+            &["ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION"],
+        )]);
+        inv.app_ops = ["FINE_LOCATION", "COARSE_LOCATION"]
+            .iter()
+            .zip([7200, 600])
+            .map(|(op, seconds_ago)| AppOp {
+                package: "com.example.notes".into(),
+                op: op.to_string(),
+                seconds_ago,
+                state: Some("bg".into()),
+            })
+            .collect();
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        let f = &report.findings[0];
+        assert_eq!(f.rule, "enigm.heuristic.android_surveillance_capabilities");
+        assert_eq!(
+            f.evidence
+                .matches("used location while not on screen")
+                .count(),
+            1
+        );
+        assert!(f
+            .evidence
+            .contains("used location while not on screen 10 min ago"));
+    }
+    #[test]
     fn unknown_launcher_never_claims_hidden_icons_and_missing_sources_reduce_coverage() {
         let mut inv = inventory(vec![package(
             "com.evil.spy",
@@ -1125,7 +1206,7 @@ mod tests {
             .unwrap();
         assert_eq!(check.status, "skipped");
         assert!(check.detail.contains(
-            "Not available on this phone: launcher icons, recent microphone and camera use"
+            "Not available on this phone: launcher icons, recent microphone, camera and location use"
         ));
     }
     #[test]

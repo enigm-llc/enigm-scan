@@ -147,12 +147,20 @@ const labels: Record<string, Record<Language, string>> = {
     pt: "Sistema modificado (root ou desbloqueio)",
   },
   suspicious_link: {
-    es: "Enlace que suplanta una marca",
-    en: "Link impersonating a brand",
-    fr: "Lien usurpant une marque",
-    de: "Link, der eine Marke imitiert",
-    it: "Link che imita un marchio",
-    pt: "Ligação que imita uma marca",
+    es: "Enlace sospechoso",
+    en: "Suspicious link",
+    fr: "Lien suspect",
+    de: "Verdächtiger Link",
+    it: "Link sospetto",
+    pt: "Ligação suspeita",
+  },
+  network_suspicious_hosting: {
+    es: "Servicio que usa el spyware para enviar datos",
+    en: "Service spyware uses to send data",
+    fr: "Service utilisé par les logiciels espions pour envoyer des données",
+    de: "Dienst, über den Spyware Daten sendet",
+    it: "Servizio usato dallo spyware per inviare dati",
+    pt: "Serviço que o spyware usa para enviar dados",
   },
   ios_configuration_profile: {
     es: "Perfil que puede interceptar o gestionar el iPhone",
@@ -305,6 +313,7 @@ const kindOf: Record<string, keyof typeof kinds> = {
   ios_message_parser_crashes: "messages",
   android_private_dns: "network",
   network_periodic_connections: "network",
+  network_suspicious_hosting: "network",
   android_background_upload: "app",
 };
 /** One word for what a sign concerns (App, File, Domain…), or nothing for a

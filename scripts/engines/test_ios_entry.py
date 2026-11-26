@@ -96,11 +96,16 @@ class FakeCrashReports:
     async def aclose(self): self.closed = True
 
 
+PROCESS_LIST = b"USER UID PID COMMAND\nroot 0 1 /sbin/launchd\nmobile 501 77 /private/var/db/x/bh\n"
+
+
 def sysdiagnose_archive(shutdown_log):
     import io, tarfile
     buffer = io.BytesIO()
     with tarfile.open(fileobj=buffer, mode="w:gz") as tar:
-        for name, data in (("sysdiagnose_x/logs/personal.log", b"private system log"),
+        for name, data in (("sysdiagnose_x/ps.txt", PROCESS_LIST),
+                           ("sysdiagnose_x/logs/personal.log", b"private system log"),
+                           ("sysdiagnose_x/logs/ps.txt", b"a nested file of the same name is ignored"),
                            ("sysdiagnose_x/system_logs.logarchive/Extra/shutdown.log", shutdown_log),
                            ("../../escape/Extra/shutdown.log.bak", b"ignored")):
             info = tarfile.TarInfo(name)
@@ -133,8 +138,9 @@ class DiagnosticsTests(unittest.IsolatedAsyncioTestCase):
             "DiagnosticLogs/sysdiagnose/sysdiagnose_2026.11.24_new.tar.gz": (sysdiagnose_archive(log), 200),
         }
         status, kept, shutdown = await self.collect(files)
+        # Of the sysdiagnose, only the shutdown log and the process list are kept.
         self.assertEqual(kept, ["crash/Retired/IMTranscoderAgent-2026-11-19-101010.ips",
-                                "crash/WebContent-2026-11-20-101010.ips", "shutdown.log", "status.json"])
+                                "crash/WebContent-2026-11-20-101010.ips", "ps.txt", "shutdown.log", "status.json"])
         self.assertEqual(shutdown, log)
         self.assertEqual(status["crashReports"], {"status": "completed", "files": 2, "bytes": 23, "skipped": 1})
         self.assertEqual(status["sysdiagnose"]["status"], "completed")

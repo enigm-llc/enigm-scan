@@ -300,6 +300,24 @@ fn analyze(
             ),
         );
     }
+    // Dynamic DNS, tunnels and the Telegram bot API: where spyware without
+    // its own servers reports.
+    let mut hosted = 0;
+    for (name, at) in &questions {
+        let Some(hosting) = crate::infrastructure::classify(name) else {
+            continue;
+        };
+        hosted += 1;
+        if hosted > 10 || report.findings.len() >= 500 {
+            continue;
+        }
+        report.findings.push(crate::infrastructure::finding(
+            name,
+            &hosting,
+            "contacted by the phone",
+            at.clone(),
+        ));
+    }
     // Connections opened again and again at a steady pace to a bare address
     // that was never named (no DNS lookup, no server name): how spyware can
     // report to its server without leaving a domain behind. Apps checking in
@@ -954,6 +972,42 @@ mod tests {
             .unwrap()
             .detail;
         assert!(detail.contains("0 packets not decoded"), "{detail}");
+    }
+    #[test]
+    fn hosts_on_dynamic_dns_or_tunnels_are_review_points() {
+        let report = analyzed(&[
+            (
+                1000,
+                ip4(
+                    PHONE,
+                    SERVER,
+                    Some(0x18),
+                    50000,
+                    443,
+                    &client_hello("panel.duckdns.org"),
+                ),
+            ),
+            (
+                1001,
+                ip4(
+                    PHONE,
+                    SERVER,
+                    Some(0x18),
+                    50001,
+                    443,
+                    &client_hello("www.example.com"),
+                ),
+            ),
+        ]);
+        let hosted: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.rule == "enigm.heuristic.suspicious_hosting")
+            .collect();
+        assert_eq!(hosted.len(), 1);
+        assert!(hosted[0]
+            .evidence
+            .starts_with("contacted by the phone: panel.duckdns.org: a dynamic DNS name"));
     }
     #[test]
     fn rejects_dns_compression_loops() {

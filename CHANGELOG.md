@@ -14,8 +14,24 @@
   says when encrypted DNS or iCloud Private Relay hide the lookups. On
   Android, apps installed outside the stores or acting like spyware that send
   a lot of data in the background are points to review.
-- iPhone's Lockdown Mode being on is no longer shown as a point to review:
-  it is Apple's strongest protection against spyware, not a sign of it.
+- Spyware without servers of its own is found by where it reports: hosts on
+  dynamic DNS services, tunnels that expose a computer to the internet,
+  services that keep what is sent to them, and the Telegram bot API, when
+  the phone contacts them, uses one as its private DNS or proxy, or receives
+  a link to one in a message.
+- On iPhone, the deep check also reads the processes running when the
+  sysdiagnose was created, so spyware running from folders where iOS never
+  runs code is found even if it never delayed a reboot or crashed.
+- On Android, an app installed from a computer over USB (ADB), as police
+  and border spyware is, with its icon hidden and special access, is shown
+  as spyware behaviour; using the location in the background counts like
+  the microphone and camera.
+- iPhone's Lockdown Mode is reported as a check, on or off, and is no longer
+  shown as a point to review: it is Apple's strongest protection against
+  spyware, not a sign of it. Configuration profiles being installed or
+  removed are routine too; the profiles themselves are still checked.
+- Evidence of suspicious links, iPhone processes and app behaviour is shown
+  in the report's language.
 - Android, as on iPhone: its connections check starts off, the waves show
   during its copy when it is on, and the copy shows how many MB have been
   copied so far.

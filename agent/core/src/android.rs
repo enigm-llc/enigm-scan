@@ -457,6 +457,28 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
         matches.inspect(report, Kind::Domain, host, "HTTP proxy", None);
         matches.inspect(report, Kind::Ip, host, "HTTP proxy", None);
     }
+    // A private DNS server or a proxy on dynamic DNS or a tunnel: where the
+    // phone's traffic is sent to someone's own computer.
+    for (host, artifact) in [
+        (inventory.private_dns_host.as_deref(), "private DNS server"),
+        (
+            inventory
+                .http_proxy
+                .as_deref()
+                .map(|p| p.rsplit_once(':').map_or(p, |(h, _)| h)),
+            "HTTP proxy",
+        ),
+    ] {
+        if let Some((host, hosting)) =
+            host.and_then(|h| Some((h, crate::infrastructure::classify(h)?)))
+        {
+            if report.findings.len() < 500 {
+                report.findings.push(crate::infrastructure::finding(
+                    host, &hosting, artifact, None,
+                ));
+            }
+        }
+    }
     let third_party: Vec<&Package> = inventory
         .packages
         .iter()
@@ -548,6 +570,24 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn a_private_dns_on_a_tunnel_is_a_review_point() {
+        let (b, key) = crate::rules::tests::fixture(1000);
+        let rules = VerifiedRules::verify(&b, &key, 1000, 1).unwrap();
+        let inventory = Inventory {
+            private_dns_mode: Some("hostname".into()),
+            private_dns_host: Some("abc.trycloudflare.com".into()),
+            ..Default::default()
+        };
+        let mut report = Report::new("android", 1);
+        analyze(&inventory, &rules, &mut report);
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.rule == "enigm.heuristic.suspicious_hosting"
+                && f.evidence
+                    .starts_with("private DNS server: abc.trycloudflare.com: a tunnel")));
+    }
     #[test]
     fn package_user_ids_are_read() {
         let packages = parse_packages(
