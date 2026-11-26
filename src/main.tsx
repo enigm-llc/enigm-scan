@@ -1,6 +1,7 @@
 import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import { isDesktop } from "./core/agent";
+import { markNativeShell } from "./desktop/native-shell";
 import "@fontsource-variable/roboto/wght.css";
 import "./styles.css";
 import "./design.css";
@@ -14,6 +15,8 @@ installTouchFeedback();
 // The website, the desktop app and its About window share this entry but not
 // their code: each loads only its own screens.
 const about = new URLSearchParams(window.location.search).has("about");
+// The app's windows look native to their system; the website keeps its own.
+if (about || isDesktop()) markNativeShell();
 const Root = about
   ? lazy(() => import("./desktop/AboutWindow"))
   : isDesktop()

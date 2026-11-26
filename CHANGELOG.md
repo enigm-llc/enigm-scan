@@ -10,6 +10,10 @@
 - Help also opens the documentation.
 - Desktop type sizes throughout the app, and a window that opens at 1120 by
   740, the size its content needs.
+- The app looks native on each system: the system's typeface (San Francisco,
+  Segoe UI, the desktop's font on Linux) and its window greys in light and
+  dark, instead of the website's near-black. The app icon is drawn at twice
+  its previous resolution.
 - Buttons keep their colours under the pointer, and disabled buttons no
   longer react to it.
 - The executable and the downloads are named enigm-scan.

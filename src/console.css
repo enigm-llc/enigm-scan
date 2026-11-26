@@ -6085,7 +6085,7 @@ body:has(.promo-backdrop) {
 }
 
 /* ---------- Desktop app: About window ---------- */
-/* Laid out like the system's About panel, in the system typeface. */
+/* Laid out like the system's About panel. */
 .about-window {
   display: flex;
   flex-direction: column;
@@ -6094,8 +6094,6 @@ body:has(.promo-backdrop) {
   gap: 12px;
   min-height: 100vh;
   padding: 26px 28px;
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   text-align: center;
   -webkit-user-select: none;
   user-select: none;
@@ -6113,7 +6111,6 @@ body:has(.promo-backdrop) {
 .about-window h1 {
   margin: 4px 0 0;
   color: var(--dot);
-  font-family: inherit;
   font-size: 17px;
   font-weight: 700;
   letter-spacing: 0;
@@ -6220,4 +6217,111 @@ body:has(.promo-backdrop) {
   min-height: 40px;
   min-width: 220px;
   font-size: var(--app-text);
+}
+
+/* ---------- Desktop app: native look per system ----------
+   The app's windows use the system's typeface and its window greys, light
+   and dark, instead of the website's near-black and page grey. main.tsx sets
+   data-shell and data-os before the first paint (src/desktop/native-shell.ts). */
+:root[data-shell="app"] {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI",
+    system-ui, Cantarell, Ubuntu, "Noto Sans", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-kerning: normal;
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+}
+/* macOS: window background and content greys of the system appearance. */
+:root[data-shell="app"][data-os="macos"] {
+  --bg: #ececec;
+  --soft: #e3e3e3;
+  --raised: #ffffff;
+  --border: #d4d4d4;
+  --hair: rgba(0, 0, 0, 0.1);
+  --band: #e4e4e4;
+  --band-line: #d6d6d6;
+  --text: #1e1e1e;
+  --dot: #1e1e1e;
+  --tone: #565656;
+  --muted: #565656;
+}
+:root[data-shell="app"][data-os="macos"][data-theme="dark"] {
+  --bg: #1e1e1e;
+  --soft: #262626;
+  --raised: #2a2a2a;
+  --border: #3d3d3d;
+  --hair: rgba(255, 255, 255, 0.1);
+  --band: #252525;
+  --band-line: #303030;
+  --text: #ececec;
+  --dot: #ececec;
+  --tone: #a6a6a6;
+  --muted: #a6a6a6;
+}
+/* Windows 11: the Mica base greys and card surfaces. */
+:root[data-shell="app"][data-os="windows"] {
+  --bg: #f3f3f3;
+  --soft: #eaeaea;
+  --raised: #ffffff;
+  --border: #e0e0e0;
+  --hair: rgba(0, 0, 0, 0.09);
+  --band: #ebebeb;
+  --band-line: #dedede;
+  --text: #1b1b1b;
+  --dot: #1b1b1b;
+  --tone: #5c5c5c;
+  --muted: #5c5c5c;
+}
+:root[data-shell="app"][data-os="windows"][data-theme="dark"] {
+  --bg: #202020;
+  --soft: #2d2d2d;
+  --raised: #2b2b2b;
+  --border: #3b3b3b;
+  --hair: rgba(255, 255, 255, 0.09);
+  --band: #272727;
+  --band-line: #333333;
+  --text: #ffffff;
+  --dot: #ffffff;
+  --tone: #ababab;
+  --muted: #ababab;
+}
+/* Linux: the GNOME (Adwaita) window and card greys. */
+:root[data-shell="app"][data-os="linux"] {
+  --bg: #fafafa;
+  --soft: #ebebeb;
+  --raised: #ffffff;
+  --border: #dedede;
+  --hair: rgba(0, 0, 0, 0.1);
+  --band: #f0f0f0;
+  --band-line: #e0e0e0;
+  --text: #242424;
+  --dot: #242424;
+  --tone: #5e5e5e;
+  --muted: #5e5e5e;
+}
+:root[data-shell="app"][data-os="linux"][data-theme="dark"] {
+  --bg: #242424;
+  --soft: #2e2e2e;
+  --raised: #303030;
+  --border: #3d3d3d;
+  --hair: rgba(255, 255, 255, 0.1);
+  --band: #2a2a2a;
+  --band-line: #363636;
+  --text: #ffffff;
+  --dot: #ffffff;
+  --tone: #a8a8a8;
+  --muted: #a8a8a8;
+}
+:root[data-shell="app"] .report-band::before {
+  background: var(--band);
+  border-color: var(--band-line);
+}
+/* System typefaces are drawn at their own spacing; the website's tight
+   tracking is for Roboto. */
+.app-window .scan-main .console-copy h1,
+.app-window .scan-main .console-copy .phase-copy,
+.app-window .result-summary.verdict h2 {
+  letter-spacing: -0.015em !important;
 }
