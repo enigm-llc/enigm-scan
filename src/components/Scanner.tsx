@@ -782,10 +782,14 @@ export function Scanner({
                         title:
                           shown.name ||
                           (platform === "ios" ? "iPhone" : "Android"),
+                        // While either phone shows its prompt, the same
+                        // line says what it waits for.
                         detail:
-                          shown.authorized || trusted
-                            ? f.viaUsb
-                            : f.bannerUnlock,
+                          prep?.phase === "awaiting_trust" || androidAsking
+                            ? f.problemTrust[1]
+                            : shown.authorized || trusted
+                              ? f.viaUsb
+                              : f.bannerUnlock,
                         items: [
                           { value: shown.id.slice(0, 18), label: f.deviceId },
                         ],
@@ -1107,12 +1111,14 @@ export function Scanner({
                   disabled={
                     !consent ||
                     finding ||
+                    // Waiting for the phone's own prompt, on either phone.
                     pairing ||
+                    androidAsking ||
                     (!!caps && !caps.androidUsb && !caps.iosUsb)
                   }
                   onClick={() => void find()}
                 >
-                  {(finding || pairing) && (
+                  {(finding || pairing || androidAsking) && (
                     <LoaderCircle
                       size={18}
                       className="busy-icon"

@@ -587,6 +587,11 @@ it("shows USB debugging not allowed within three minutes like a refused Trust", 
   );
   fireEvent.click(detect);
   await screen.findByText(a.androidAllow, { exact: false });
+  // As with an iPhone asking for Trust, the search waits for the phone.
+  expect(
+    (screen.getByRole("button", { name: "Find my phone" }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
   await vi.advanceTimersByTimeAsync(182_000);
   expect((await screen.findByRole("alert")).textContent).toBe(
     a.androidAllowTimeout,
