@@ -58,7 +58,7 @@ const en = {
     "Checking every file against {n} signed indicators of known spyware and stalkerware, from public sources and Enigm.",
   actCleanup:
     "Deleting the temporary files of the copy. This computer keeps only the report, if you choose to save it.",
-  statDiscarded: "photos and videos skipped",
+  statDiscarded: "media files skipped",
   unlock: "Unlock it and accept the prompt on the phone.",
   code: "Single-use pairing key",
   error: "We couldn’t finish the scan. Please try again.",
@@ -155,7 +155,7 @@ const es: AgentCopy = {
   deviceCancelled:
     "La copia se canceló desde el iPhone. Pulsa «Reintentar» cuando quieras.",
   elapsed: "Llevamos {t}",
-  remaining: "Tiempo restante estimado: {t}",
+  remaining: "Restante: {t}",
   estimateNote: "Estimación según el avance que informa el propio teléfono.",
   lessThanMinute: "menos de un minuto",
   actCapture:
@@ -286,7 +286,7 @@ const fr: AgentCopy = {
     "Comparaison de chaque fichier avec {n} indicateurs signés de logiciels espions et de stalkerwares connus, issus de sources publiques et d’Enigm.",
   actCleanup:
     "Suppression des fichiers temporaires de la copie. Cet ordinateur ne garde que le rapport, si vous choisissez de l’enregistrer.",
-  statDiscarded: "photos et vidéos ignorées",
+  statDiscarded: "médias ignorés",
   unlock: "Déverrouillez-le et acceptez l’alerte du téléphone.",
   code: "Clé d’appairage à usage unique",
   error: "Impossible de terminer l’analyse. Réessayez.",
@@ -399,7 +399,7 @@ const de: AgentCopy = {
     "Jede Datei wird mit {n} signierten Indikatoren bekannter Spyware und Stalkerware abgeglichen, aus öffentlichen Quellen und von Enigm.",
   actCleanup:
     "Die temporären Dateien der Kopie werden gelöscht. Auf diesem Computer bleibt nur der Bericht, wenn Sie ihn speichern.",
-  statDiscarded: "Fotos und Videos übersprungen",
+  statDiscarded: "Medien übersprungen",
   unlock: "Entsperren Sie es und bestätigen Sie die Meldung auf dem Handy.",
   code: "Einmaliger Kopplungsschlüssel",
   error:
@@ -497,7 +497,7 @@ const it: AgentCopy = {
   deviceCancelled:
     "La copia è stata annullata sull’iPhone. Premi «Riprova» quando vuoi.",
   elapsed: "Trascorso: {t}",
-  remaining: "Tempo rimanente stimato: {t}",
+  remaining: "Rimanente: {t}",
   estimateNote: "Stima basata sull’avanzamento indicato dal telefono.",
   lessThanMinute: "meno di un minuto",
   actCapture:
@@ -610,7 +610,7 @@ const pt: AgentCopy = {
   deviceCancelled:
     "A cópia foi cancelada no iPhone. Prima «Tentar novamente» quando quiser.",
   elapsed: "Decorrido: {t}",
-  remaining: "Tempo restante estimado: {t}",
+  remaining: "Restante: {t}",
   estimateNote: "Estimativa com base no progresso indicado pelo telefone.",
   lessThanMinute: "menos de um minuto",
   actCapture:

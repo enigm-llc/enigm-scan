@@ -174,7 +174,7 @@ it("closing deletes the session at once, then shows the Enigm invitation", async
   await waitFor(() =>
     expect(app.state.calls).toContainEqual([
       "open_link",
-      { url: "https://app.enigm.io" },
+      { url: "https://enigm.io" },
     ]),
   );
   await waitFor(() => expect(app.called("close_application")).toBe(true));

@@ -6733,10 +6733,40 @@ body:has(.promo-backdrop) {
    the window's edge, where the scroll cue points. */
 @media (min-width: 1024px) {
   .app-window .report .result-summary.verdict {
+    /* As much room below as the page leaves above it, so the result sits
+       in the middle of the window. */
     min-height: calc(calc(100 * var(--vh)) - 104px);
-    padding-bottom: 48px;
+    padding-bottom: 104px;
   }
   .app-window .report .result-summary.verdict + .report-band {
     margin-top: 0;
   }
+}
+
+/* The progress card's Pause and Cancel are round icon buttons, so what the
+   card says always fits on one line, in every language and window size. */
+.progress-card-actions {
+  gap: 6px;
+}
+.progress-card .quiet-action {
+  justify-content: center;
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--soft);
+}
+.progress-card-text b,
+.progress-card-text small {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The welcome mark in the window's appearance. */
+:root:not([data-theme="dark"]) .welcome-icon.is-white,
+:root[data-theme="dark"] .welcome-icon.is-black {
+  display: none;
 }

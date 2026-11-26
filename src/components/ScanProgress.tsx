@@ -560,21 +560,27 @@ export function ScanProgress({
               )}
             </span>
             <span className="progress-card-actions">
+              {/* Round icon buttons, named for screen readers and on hover,
+                  so the line beside them always fits on one line. */}
               <button
                 className="quiet-action"
                 title={paused ? a.resumeMotion : a.pauseMotion}
+                aria-label={paused ? a.resumeLabel : a.pauseLabel}
                 onClick={() => setPaused(!paused)}
               >
                 {paused ? (
-                  <Play size={15} aria-hidden="true" />
+                  <Play size={16} aria-hidden="true" />
                 ) : (
-                  <Pause size={15} aria-hidden="true" />
+                  <Pause size={16} aria-hidden="true" />
                 )}
-                {paused ? a.resumeLabel : a.pauseLabel}
               </button>
-              <button className="quiet-action" onClick={onCancel}>
-                <X size={15} aria-hidden="true" />
-                {cancelLabel ?? a.cancel}
+              <button
+                className="quiet-action"
+                title={cancelLabel ?? a.cancel}
+                aria-label={cancelLabel ?? a.cancel}
+                onClick={onCancel}
+              >
+                <X size={16} aria-hidden="true" />
               </button>
             </span>
           </div>

@@ -229,7 +229,7 @@ it("shows the phone's own copy progress, what it is doing and an estimate", () =
   // After a minute at 20 %, an estimate of the time left appears.
   act(() => vi.advanceTimersByTime(30_000));
   expect(screen.getByTitle(a.estimateNote).textContent).toMatch(
-    /^Tiempo restante estimado: /,
+    /^Restante: /,
   );
   // A long silence from the phone is explained, not hidden.
   act(() => vi.advanceTimersByTime(91_000));

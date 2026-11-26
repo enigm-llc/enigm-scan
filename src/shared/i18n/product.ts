@@ -47,10 +47,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "No queda espacio libre suficiente. Libera espacio en el ordenador y vuelve a empezar.",
     webShare: "Compartir enlace",
     webShared: "Enlace compartido",
-    offerTitle: "Ahora, habla en privado",
+    offerTitle: "Conoce Enigm",
     offerBody:
-      "Mensajería y llamadas privadas de los creadores de Enigm Scan, con entornos dedicados para equipos.",
-    offerAction: "Probar Enigm",
+      "Protege tus mensajes y llamadas del spyware con la mensajería privada de los creadores de Enigm Scan.",
+    offerAction: "Ir a enigm.io",
     offerDetails: "Todo el ecosistema Enigm",
     offerProducts: [
       {
@@ -115,10 +115,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Not enough free space. Free up space on your computer and start again.",
     webShare: "Share link",
     webShared: "Link shared",
-    offerTitle: "Now, talk in private",
+    offerTitle: "Meet Enigm",
     offerBody:
-      "Private messaging and calls from the makers of Enigm Scan, with dedicated environments for teams.",
-    offerAction: "Try Enigm",
+      "Protect your messages and calls from spyware with private messaging from the makers of Enigm Scan.",
+    offerAction: "Visit enigm.io",
     offerDetails: "The whole Enigm ecosystem",
     offerProducts: [
       {
@@ -184,10 +184,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Espace libre insuffisant. Libérez de l’espace sur l’ordinateur et recommencez.",
     webShare: "Partager le lien",
     webShared: "Lien partagé",
-    offerTitle: "Maintenant, parlez en privé",
+    offerTitle: "Découvrez Enigm",
     offerBody:
-      "Messagerie et appels privés par les créateurs d’Enigm Scan, avec des environnements dédiés aux équipes.",
-    offerAction: "Essayer Enigm",
+      "Protégez vos messages et appels des logiciels espions avec la messagerie privée des créateurs d’Enigm Scan.",
+    offerAction: "Aller sur enigm.io",
     offerDetails: "Tout l’écosystème Enigm",
     offerProducts: [
       {
@@ -253,10 +253,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Nicht genug freier Speicher. Schaffe Platz auf dem Computer und starte neu.",
     webShare: "Link teilen",
     webShared: "Link geteilt",
-    offerTitle: "Jetzt privat sprechen",
+    offerTitle: "Enigm kennenlernen",
     offerBody:
-      "Private Nachrichten und Anrufe von den Machern von Enigm Scan, mit eigenen Umgebungen für Teams.",
-    offerAction: "Enigm ausprobieren",
+      "Schützen Sie Nachrichten und Anrufe vor Spyware mit privater Kommunikation von den Machern von Enigm Scan.",
+    offerAction: "Zu enigm.io",
     offerDetails: "Das gesamte Enigm-Ökosystem",
     offerProducts: [
       {
@@ -322,10 +322,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Spazio libero insufficiente. Libera spazio sul computer e ricomincia.",
     webShare: "Condividi link",
     webShared: "Link condiviso",
-    offerTitle: "Ora parla in privato",
+    offerTitle: "Scopri Enigm",
     offerBody:
-      "Messaggi e chiamate private dai creatori di Enigm Scan, con ambienti dedicati ai team.",
-    offerAction: "Prova Enigm",
+      "Proteggi messaggi e chiamate dallo spyware con la messaggistica privata dei creatori di Enigm Scan.",
+    offerAction: "Vai su enigm.io",
     offerDetails: "Tutto l’ecosistema Enigm",
     offerProducts: [
       {
@@ -390,10 +390,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Espaço livre insuficiente. Liberta espaço no computador e recomeça.",
     webShare: "Partilhar ligação",
     webShared: "Ligação partilhada",
-    offerTitle: "Agora, fala em privado",
+    offerTitle: "Conheça o Enigm",
     offerBody:
-      "Mensagens e chamadas privadas dos criadores do Enigm Scan, com ambientes dedicados para equipas.",
-    offerAction: "Experimentar o Enigm",
+      "Proteja as suas mensagens e chamadas do spyware com as mensagens privadas dos criadores do Enigm Scan.",
+    offerAction: "Ir para enigm.io",
     offerDetails: "Todo o ecossistema Enigm",
     offerProducts: [
       {

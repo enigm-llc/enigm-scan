@@ -16,21 +16,18 @@ export function Welcome({
   return (
     <section className="welcome" aria-labelledby="welcome-title">
       {/* The app's radar mark, without its tile: white on a dark window,
-          black on a light one. */}
-      <picture>
-        <source
-          srcSet="/brand/enigm-scan-mark-white.svg"
-          media="(prefers-color-scheme: dark)"
-        />
+          black on a light one, following the window's own appearance. */}
+      {(["black", "white"] as const).map((tone) => (
         <img
-          className="welcome-icon"
-          src="/brand/enigm-scan-mark-black.svg"
+          key={tone}
+          className={`welcome-icon is-${tone}`}
+          src={`/brand/enigm-scan-mark-${tone}.svg`}
           alt=""
           width={190}
           height={190}
           draggable={false}
         />
-      </picture>
+      ))}
       <h1 id="welcome-title">{f.welcomeTitle}</h1>
       <p className="welcome-body">{f.welcomeBody}</p>
       <button className="welcome-start" onClick={onStart}>

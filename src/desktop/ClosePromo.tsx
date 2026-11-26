@@ -5,7 +5,8 @@ import { flowCopy } from "../shared/i18n/flow";
 import { productCopy } from "../shared/i18n/product";
 import type { Language } from "../shared/i18n/i18n";
 
-const ENIGM = "https://app.enigm.io";
+// The public website, where Enigm is presented.
+const ENIGM = "https://enigm.io";
 
 /**
  * Shown when the app is closed, after the session has been deleted: only the
