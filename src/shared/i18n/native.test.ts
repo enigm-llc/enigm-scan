@@ -108,3 +108,78 @@ it("translates common MVT evidence", () => {
     "Definição package_verifier_enable = 0 (verificação de pacotes APK desativada)",
   );
 });
+
+it("translates what the network analysis writes", () => {
+  const es = "es" as const;
+  // Check names.
+  for (const id of [
+    "network_names",
+    "network_encrypted_dns",
+    "network_periodic_connections",
+    "android_background_upload",
+  ])
+    expect(checkName(id, es)).not.toBe(id);
+  // Check details, as the app writes them.
+  const details: Array<[string, string, string]> = [
+    [
+      "network_observation",
+      "Observed for 342 seconds (at least 120, longer while the copy ran). Observation completed; a threat that stays quiet meanwhile may not show up.",
+      "Red observada durante 342 s",
+    ],
+    [
+      "network_observation",
+      "Observed for 61 of at least 120 seconds: the phone ended the capture and it could not be resumed.",
+      "el móvil cerró la captura y no se pudo reanudar",
+    ],
+    [
+      "network_observation",
+      "Observed for 0 of at least 120 seconds: the capture could not start.",
+      "la captura no pudo empezar",
+    ],
+    [
+      "network_names",
+      "12 destination names read (0 DNS lookups, 11 TLS server names, 1 HTTP hosts) and compared with known spyware domains.",
+      "12 destinos leídos",
+    ],
+    [
+      "network_encrypted_dns",
+      "No unencrypted DNS lookups were seen across 9 encrypted connections; iCloud Private Relay is on: destinations were read from the server names of encrypted connections and their addresses.",
+      "iCloud Private Relay está activado",
+    ],
+    [
+      "network_periodic_connections",
+      "2 destination(s) contacted repeatedly at a steady pace.",
+      "2 destinos contactados",
+    ],
+    [
+      "android_background_upload",
+      "31 apps sent data in the background; 1 worth reviewing (installed outside the stores or acting like spyware).",
+      "31 apps enviaron datos",
+    ],
+  ];
+  for (const [id, detail, expected] of details)
+    expect(checkDetail(id, detail, es)).toContain(expected);
+  // Limitations and recommendations.
+  for (const text of [
+    "Captured for at least 120 seconds, and while the copy ran up to 15 minutes, through the selected phone’s authorized USB service. This is a limited observation, not continuous monitoring or proof of no surveillance.",
+    "Network coverage is partial: the observation did not reach 120 seconds or could not be verified. The captured traffic is analyzed without implying a complete observation.",
+    "IP endpoints, DNS questions and answers, TLS server names and HTTP hosts are decoded. QUIC (HTTP/3) and encrypted Client Hello hide server names, and encrypted DNS, tunnels, IP fragments and missing packets reduce coverage. No exfiltration inference is made.",
+    "Review point: the phone contacted this address at a steady pace without ever looking up a name for it, which spyware does to leave no domain behind. Some services also connect by address.",
+    "If you do not recognise this destination, find which app uses it and ask an expert to review the phone.",
+    "Review point: spyware sends what it collects in the background, but backups and sync do too. The phone counts this since its usage statistics were last reset.",
+    "If you do not recognise this app or why it sends so much, uninstall it and ask an expert to review the phone.",
+  ])
+    expect(nativeText(text, es)).not.toBe(text);
+  // Evidence lines.
+  expect(
+    evidenceText(
+      "4 connections to api.example.com (port 443) about every 60 seconds",
+      es,
+    ),
+  ).toBe(
+    "4 conexiones a api.example.com (puerto 443) cada 60 segundos aproximadamente",
+  );
+  expect(evidenceText("com.example.x sent 30 MB in the background", es)).toBe(
+    "com.example.x envió 30 MB en segundo plano",
+  );
+});

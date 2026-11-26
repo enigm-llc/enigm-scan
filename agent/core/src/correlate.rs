@@ -14,6 +14,9 @@ fn network(finding: &Finding) -> bool {
         && [
             "attributed network packet:",
             "attributed DNS question:",
+            "attributed DNS alias:",
+            "attributed TLS server name:",
+            "attributed HTTP host:",
             "USB captured network packet:",
         ]
         .iter()

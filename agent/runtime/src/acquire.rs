@@ -453,6 +453,30 @@ pub fn android_inventory(
         Some(_) => inventory.network_status = "unsupported".into(),
         None => inventory.network_status = "failed".into(),
     }
+    // What each app sent in the background, from the phone's own network
+    // usage statistics (readable without root, unlike live connections on
+    // Android 10 and later).
+    inventory.upload_status = if !connections {
+        "skipped".into()
+    } else {
+        match shell("dumpsys netstats detail", 90) {
+            Some(text) if text.contains("UID stats:") => {
+                let sent = android::parse_background_upload(&text);
+                let mut apps: Vec<(String, u64)> = inventory
+                    .packages
+                    .iter()
+                    .filter_map(|p| Some((p.id.clone(), *sent.get(&p.uid?)?)))
+                    .filter(|(_, bytes)| *bytes > 0)
+                    .collect();
+                apps.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+                apps.truncate(200);
+                inventory.background_upload = apps;
+                "completed".into()
+            }
+            Some(_) => "unsupported".into(),
+            None => "failed".into(),
+        }
+    };
     let setting = |name: &str| {
         shell(&format!("settings get global {name}"), 30)
             .map(|v| v.trim().to_string())

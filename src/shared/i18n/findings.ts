@@ -2,6 +2,22 @@ import type { Language } from "./i18n";
 import { moduleLabel } from "./native";
 /** Readable names for indicator categories; unknown categories stay as reported. */
 const labels: Record<string, Record<Language, string>> = {
+  network_periodic_connections: {
+    es: "Conexiones periódicas a un destino",
+    en: "Periodic connections to one destination",
+    fr: "Connexions périodiques vers une destination",
+    de: "Regelmäßige Verbindungen zu einem Ziel",
+    it: "Connessioni periodiche verso una destinazione",
+    pt: "Ligações periódicas a um destino",
+  },
+  android_background_upload: {
+    es: "App que envía datos en segundo plano",
+    en: "App sending data in the background",
+    fr: "Application envoyant des données en arrière-plan",
+    de: "App sendet Daten im Hintergrund",
+    it: "App che invia dati in background",
+    pt: "App que envia dados em segundo plano",
+  },
   known_domain_indicator: {
     es: "Dominio asociado a spyware",
     en: "Domain linked to spyware",
@@ -288,6 +304,8 @@ const kindOf: Record<string, keyof typeof kinds> = {
   ios_unrecognised_process: "process",
   ios_message_parser_crashes: "messages",
   android_private_dns: "network",
+  network_periodic_connections: "network",
+  android_background_upload: "app",
 };
 /** One word for what a sign concerns (App, File, Domain…), or nothing for a
  *  category without one. */

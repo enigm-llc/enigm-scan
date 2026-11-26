@@ -100,10 +100,23 @@ in plain words.
 ## Network check
 
 On iPhone the optional check captures the phone's own traffic through its USB
-packet service for 120 seconds (at most 32 MiB or 100,000 packets) and
-compares the addresses and DNS names with the indicators. On Android the app
-reads the addresses of the open connections. There is no interception, no
-certificate installed and no decryption.
+packet service for at least 120 seconds and, while the copy runs, up to 15
+minutes (at most 256 MiB: each packet keeps only its headers and what the
+analysis reads, never the content). If the phone ends the capture early it is started
+again, and the report says how long it lasted and why it ended. The analysis
+reads the addresses, the DNS questions and answers, the server names that
+encrypted connections announce in their TLS Client Hello and the hosts of
+unencrypted HTTP requests, and compares them with the signed indicators. It
+also marks as a point to review an address contacted again and again at a
+steady pace without ever being looked up by name, and says when encrypted DNS
+or iCloud Private Relay hide the lookups.
+
+On Android, which does not allow capturing traffic without root, the app reads
+the open connections where the system still allows it, and the network usage
+statistics: apps installed outside the stores, or acting like spyware, that
+send a lot of data in the background are points to review.
+
+There is no interception, no certificate installed and no decryption.
 
 ## The website and the download server
 

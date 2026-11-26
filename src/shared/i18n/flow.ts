@@ -119,9 +119,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionsLabel: "Opciones del análisis",
     optionNetwork: "Revisar también sus conexiones",
     optionNetworkIos:
-      "Observa el tráfico del iPhone durante 2 minutos mientras se copia.",
+      "Observa el tráfico del iPhone mientras se copia, al menos 2 minutos.",
     optionNetworkAndroid:
-      "Compara las conexiones abiertas del móvil con servidores de spyware conocidos. No añade espera.",
+      "Revisa sus conexiones y qué apps envían datos en segundo plano. No añade espera.",
     optionDeep: "Análisis profundo",
     optionDeepHelp:
       "Revisa el registro de apagado del iPhone. Añade unos 10 minutos.",
@@ -235,9 +235,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionsLabel: "Scan options",
     optionNetwork: "Also check its connections",
     optionNetworkIos:
-      "Watches the iPhone’s traffic for 2 minutes while it copies.",
+      "Watches the iPhone’s traffic while it copies, for at least 2 minutes.",
     optionNetworkAndroid:
-      "Compares the phone’s open connections with known spyware servers. Adds no waiting.",
+      "Checks its connections and which apps send data in the background. Adds no waiting.",
     optionDeep: "Deep check",
     optionDeepHelp: "Reviews the iPhone’s shutdown log. Adds about 10 minutes.",
     recommended: "Recommended",
@@ -350,9 +350,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionsLabel: "Options de l’analyse",
     optionNetwork: "Vérifier aussi ses connexions",
     optionNetworkIos:
-      "Observe le trafic de l’iPhone pendant 2 minutes pendant la copie.",
+      "Observe le trafic de l’iPhone pendant la copie, au moins 2 minutes.",
     optionNetworkAndroid:
-      "Compare les connexions ouvertes du téléphone avec des serveurs de logiciels espions connus. Sans attente.",
+      "Vérifie ses connexions et les applications qui envoient des données en arrière-plan. Sans attente.",
     optionDeep: "Analyse approfondie",
     optionDeepHelp:
       "Examine le journal d’arrêt de l’iPhone. Comptez environ 10 minutes de plus.",
@@ -471,9 +471,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionsLabel: "Analyseoptionen",
     optionNetwork: "Auch seine Verbindungen prüfen",
     optionNetworkIos:
-      "Beobachtet den Datenverkehr des iPhones 2 Minuten lang während des Kopierens.",
+      "Beobachtet den Datenverkehr des iPhones während des Kopierens, mindestens 2 Minuten.",
     optionNetworkAndroid:
-      "Gleicht die offenen Verbindungen des Telefons mit bekannten Spyware-Servern ab. Ohne Wartezeit.",
+      "Prüft die Verbindungen und welche Apps im Hintergrund Daten senden. Ohne Wartezeit.",
     optionDeep: "Tiefenprüfung",
     optionDeepHelp:
       "Prüft das Ausschaltprotokoll des iPhones. Dauert etwa 10 Minuten länger.",
@@ -596,9 +596,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionsLabel: "Opzioni dell’analisi",
     optionNetwork: "Controlla anche le sue connessioni",
     optionNetworkIos:
-      "Osserva il traffico dell’iPhone per 2 minuti durante la copia.",
+      "Osserva il traffico dell’iPhone durante la copia, almeno 2 minuti.",
     optionNetworkAndroid:
-      "Confronta le connessioni aperte del telefono con server di spyware noti. Nessuna attesa in più.",
+      "Controlla le connessioni e quali app inviano dati in background. Nessuna attesa in più.",
     optionDeep: "Analisi approfondita",
     optionDeepHelp:
       "Controlla il registro di spegnimento dell’iPhone. Aggiunge circa 10 minuti.",
@@ -715,9 +715,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionsLabel: "Opções da análise",
     optionNetwork: "Verificar também as ligações",
     optionNetworkIos:
-      "Observa o tráfego do iPhone durante 2 minutos enquanto copia.",
+      "Observa o tráfego do iPhone enquanto copia, pelo menos 2 minutos.",
     optionNetworkAndroid:
-      "Compara as ligações abertas do telemóvel com servidores de spyware conhecidos. Sem espera adicional.",
+      "Verifica as ligações e que apps enviam dados em segundo plano. Sem espera adicional.",
     optionDeep: "Análise profunda",
     optionDeepHelp:
       "Revê o registo de encerramento do iPhone. Acrescenta cerca de 10 minutos.",

@@ -19,6 +19,38 @@ const t = (
 ): T => ({ es, en, fr, de, it, pt });
 
 const NAMES: Record<string, T> = {
+  network_names: t(
+    "Destinos de red",
+    "Network destinations",
+    "Destinations réseau",
+    "Netzwerkziele",
+    "Destinazioni di rete",
+    "Destinos de rede",
+  ),
+  network_encrypted_dns: t(
+    "DNS cifrado",
+    "Encrypted DNS",
+    "DNS chiffré",
+    "Verschlüsseltes DNS",
+    "DNS cifrato",
+    "DNS encriptado",
+  ),
+  network_periodic_connections: t(
+    "Conexiones periódicas",
+    "Periodic connections",
+    "Connexions périodiques",
+    "Regelmäßige Verbindungen",
+    "Connessioni periodiche",
+    "Ligações periódicas",
+  ),
+  android_background_upload: t(
+    "Datos enviados en segundo plano",
+    "Data sent in the background",
+    "Données envoyées en arrière-plan",
+    "Im Hintergrund gesendete Daten",
+    "Dati inviati in background",
+    "Dados enviados em segundo plano",
+  ),
   evidence_snapshot: t(
     "Copia de las pruebas",
     "Evidence copy",
@@ -700,32 +732,6 @@ const DETAILS: Record<string, Rule[]> = {
       ["n"],
     ],
   ],
-  network_observation: [
-    [
-      /^Observed for ([\d.]+) seconds of the planned 120 seconds\. Observation window completed/,
-      t(
-        "Red observada durante {0} s de los 120 previstos. Una amenaza inactiva en ese intervalo puede no aparecer.",
-        "Network observed for {0} s of the planned 120. A threat that stays quiet during that window may not show up.",
-        "Réseau observé pendant {0} s sur les 120 prévues. Une menace inactive pendant cet intervalle peut ne pas apparaître.",
-        "Netzwerk {0} s von geplanten 120 beobachtet. Eine in diesem Zeitraum inaktive Bedrohung wird möglicherweise nicht sichtbar.",
-        "Rete osservata per {0} s dei 120 previsti. Una minaccia inattiva in quell’intervallo potrebbe non comparire.",
-        "Rede observada durante {0} s dos 120 previstos. Uma ameaça inativa nesse intervalo pode não aparecer.",
-      ),
-      ["s"],
-    ],
-    [
-      /^Observed for ([\d.]+) seconds of the planned 120 seconds/,
-      t(
-        "Red observada solo {0} s de los 120 previstos: la captura terminó antes o no se pudo verificar su duración.",
-        "Network observed for only {0} s of the planned 120: the capture ended early or its length could not be verified.",
-        "Réseau observé seulement {0} s sur les 120 prévues : la capture s’est arrêtée plus tôt ou sa durée n’a pas pu être vérifiée.",
-        "Netzwerk nur {0} s von geplanten 120 beobachtet: Die Aufzeichnung endete früher oder ihre Dauer ließ sich nicht prüfen.",
-        "Rete osservata solo per {0} s dei 120 previsti: la cattura è terminata prima o la sua durata non è verificabile.",
-        "Rede observada apenas {0} s dos 120 previstos: a captura terminou antes ou a sua duração não pôde ser verificada.",
-      ),
-      ["s"],
-    ],
-  ],
   network_pcap: [
     [
       /^(\d+) device-attributed packets, (\d+) unique bidirectional flows.*?(\d+) packets not decoded/s,
@@ -1049,17 +1055,6 @@ const TEXTS: Rule[] = [
     ),
   ],
   [
-    /^Captured for up to 120 seconds/,
-    t(
-      "La red se observó un máximo de 120 segundos por el servicio USB autorizado del móvil. Es una observación limitada, no una vigilancia continua ni una prueba de que no haya espionaje.",
-      "The network was observed for up to 120 seconds through the phone’s authorised USB service. It is a limited observation, not continuous monitoring or proof that there is no surveillance.",
-      "Le réseau a été observé jusqu’à 120 secondes via le service USB autorisé du téléphone. C’est une observation limitée, pas une surveillance continue ni la preuve d’une absence d’espionnage.",
-      "Das Netzwerk wurde bis zu 120 Sekunden über den autorisierten USB-Dienst beobachtet. Das ist eine begrenzte Beobachtung, keine Dauerüberwachung und kein Beweis, dass keine Überwachung stattfindet.",
-      "La rete è stata osservata fino a 120 secondi tramite il servizio USB autorizzato del telefono. È un’osservazione limitata, non un monitoraggio continuo né una prova di assenza di sorveglianza.",
-      "A rede foi observada até 120 segundos através do serviço USB autorizado do telemóvel. É uma observação limitada, não uma monitorização contínua nem prova de que não há vigilância.",
-    ),
-  ],
-  [
     /^Cleanup refers only to the temporary workspace/,
     t(
       "La limpieza se refiere solo al espacio temporal del análisis. Las pruebas que elegiste y los informes descargados se conservan, y el borrado no equivale a un borrado seguro.",
@@ -1079,28 +1074,6 @@ const TEXTS: Rule[] = [
       "Ein erfolgreicher MVT-Lauf heißt nicht, dass alle Module abgeschlossen wurden: Verschlüsselte, fehlende oder nicht unterstützte Daten können übersprungen werden.",
       "Il completamento di MVT non garantisce che tutti i moduli siano andati a buon fine: dati cifrati, mancanti o non supportati possono essere saltati.",
       "O MVT terminar bem não garante que todos os módulos foram concluídos: dados encriptados, ausentes ou não suportados podem ficar por analisar.",
-    ),
-  ],
-  [
-    /^Network coverage is partial/,
-    t(
-      "La cobertura de red es parcial: no se completaron ni verificaron los 120 segundos. Se analiza el tráfico capturado sin suponer que la observación fue completa.",
-      "Network coverage is partial: the full 120 seconds were not completed or verified. The captured traffic is analysed without assuming a complete observation.",
-      "La couverture réseau est partielle : les 120 secondes n’ont pas été complétées ou vérifiées. Le trafic capturé est analysé sans supposer une observation complète.",
-      "Die Netzwerkabdeckung ist unvollständig: Die 120 Sekunden wurden nicht abgeschlossen oder geprüft. Der erfasste Verkehr wird ohne Annahme einer vollständigen Beobachtung analysiert.",
-      "La copertura di rete è parziale: i 120 secondi non sono stati completati o verificati. Il traffico catturato è analizzato senza supporre un’osservazione completa.",
-      "A cobertura da rede é parcial: os 120 segundos não foram concluídos nem verificados. O tráfego capturado é analisado sem assumir uma observação completa.",
-    ),
-  ],
-  [
-    /^Only classic PCAP IPv4\/IPv6 IP endpoints and UDP DNS questions are decoded/,
-    t(
-      "Solo se leen las direcciones IP y las consultas DNS sin cifrar. El DNS o TLS cifrado, los túneles y los paquetes perdidos reducen la cobertura.",
-      "Only IP addresses and unencrypted DNS queries are read. Encrypted DNS or TLS, tunnels and lost packets reduce coverage.",
-      "Seules les adresses IP et les requêtes DNS non chiffrées sont lues. Le DNS ou TLS chiffré, les tunnels et les paquets perdus réduisent la couverture.",
-      "Nur IP-Adressen und unverschlüsselte DNS-Anfragen werden gelesen. Verschlüsseltes DNS oder TLS, Tunnel und verlorene Pakete verringern die Abdeckung.",
-      "Vengono letti solo gli indirizzi IP e le richieste DNS non cifrate. DNS o TLS cifrati, tunnel e pacchetti persi riducono la copertura.",
-      "Só são lidos os endereços IP e as consultas DNS não encriptadas. DNS ou TLS encriptado, túneis e pacotes perdidos reduzem a cobertura.",
     ),
   ],
   [
@@ -1145,6 +1118,30 @@ export function nativeText(value: string, language: Language) {
 
 /** Evidence lines from Enigm and MVT; identifiers are kept exactly. */
 const EVIDENCE: Rule[] = [
+  [
+    /^(\d+) connections to (.+) \(port (\d+)\) about every (\d+) seconds$/s,
+    t(
+      "{0} conexiones a {1} (puerto {2}) cada {3} segundos aproximadamente",
+      "{0} connections to {1} (port {2}) about every {3} seconds",
+      "{0} connexions vers {1} (port {2}) environ toutes les {3} secondes",
+      "{0} Verbindungen zu {1} (Port {2}) etwa alle {3} Sekunden",
+      "{0} connessioni a {1} (porta {2}) circa ogni {3} secondi",
+      "{0} ligações a {1} (porta {2}) a cada {3} segundos, aproximadamente",
+    ),
+    ["n", "raw", "raw", "n"],
+  ],
+  [
+    /^(.+) sent (\d+) MB in the background$/s,
+    t(
+      "{0} envió {1} MB en segundo plano",
+      "{0} sent {1} MB in the background",
+      "{0} a envoyé {1} Mo en arrière-plan",
+      "{0} hat {1} MB im Hintergrund gesendet",
+      "{0} ha inviato {1} MB in background",
+      "{0} enviou {1} MB em segundo plano",
+    ),
+    ["raw", "n"],
+  ],
   [
     /^Found accessibility service:? "?([^"(]+?)"?(?: \([^)]*\))?$/s,
     t(

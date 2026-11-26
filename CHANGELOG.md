@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- A deeper network check. On iPhone the traffic is watched while the copy
+  runs (at least 2 minutes, up to 15), keeps only the headers and what the
+  analysis reads of each packet (up to 256 MB, millions of packets, so
+  downloads no longer cut it short), resumes if the phone ends it early,
+  and the report says how long it lasted and why it ended. The servers that
+  encrypted connections announce, and the hosts of unencrypted requests, are
+  compared with the indicators too, so encrypted DNS no longer hides them;
+  connections repeated at a steady pace to an address never looked up by
+  name are points to review; and the report
+  says when encrypted DNS or iCloud Private Relay hide the lookups. On
+  Android, apps installed outside the stores or acting like spyware that send
+  a lot of data in the background are points to review.
 - iPhone's Lockdown Mode being on is no longer shown as a point to review:
   it is Apple's strongest protection against spyware, not a sign of it.
 - Android, as on iPhone: its connections check starts off, the waves show

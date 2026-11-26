@@ -18,6 +18,105 @@ const t = (
 /** Whole sentences: recommendations and limitations. Groups are kept as-is. */
 export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
+    /^Captured for at least 120 seconds, and while the copy ran up to 15 minutes/,
+    t(
+      "La red se observó al menos 120 segundos, y mientras duró la copia hasta 15 minutos, por el servicio USB autorizado del móvil. Es una observación limitada, no una vigilancia continua ni una prueba de que no haya espionaje.",
+      "The network was observed for at least 120 seconds, and while the copy ran up to 15 minutes, through the phone’s authorised USB service. It is a limited observation, not continuous monitoring or proof that there is no surveillance.",
+      "Le réseau a été observé au moins 120 secondes, et jusqu’à 15 minutes tant que la copie durait, via le service USB autorisé du téléphone. C’est une observation limitée, pas une surveillance continue ni la preuve d’une absence d’espionnage.",
+      "Das Netzwerk wurde mindestens 120 Sekunden und während der Kopie bis zu 15 Minuten über den autorisierten USB-Dienst beobachtet. Das ist eine begrenzte Beobachtung, keine Dauerüberwachung und kein Beweis, dass keine Überwachung stattfindet.",
+      "La rete è stata osservata almeno 120 secondi, e fino a 15 minuti mentre durava la copia, tramite il servizio USB autorizzato del telefono. È un’osservazione limitata, non un monitoraggio continuo né una prova di assenza di sorveglianza.",
+      "A rede foi observada pelo menos 120 segundos, e até 15 minutos enquanto durou a cópia, através do serviço USB autorizado do telemóvel. É uma observação limitada, não uma monitorização contínua nem prova de que não há vigilância.",
+    ),
+  ],
+  [
+    /^Network coverage is partial: the observation did not reach 120 seconds/,
+    t(
+      "La cobertura de red es parcial: la observación no llegó a 120 segundos o no se pudo verificar. Se analiza el tráfico capturado sin suponer que la observación fue completa.",
+      "Network coverage is partial: the observation did not reach 120 seconds or could not be verified. The captured traffic is analysed without assuming a complete observation.",
+      "La couverture réseau est partielle : l’observation n’a pas atteint 120 secondes ou n’a pas pu être vérifiée. Le trafic capturé est analysé sans supposer une observation complète.",
+      "Die Netzwerkabdeckung ist unvollständig: Die Beobachtung erreichte keine 120 Sekunden oder ließ sich nicht prüfen. Der erfasste Verkehr wird ohne Annahme einer vollständigen Beobachtung analysiert.",
+      "La copertura di rete è parziale: l’osservazione non ha raggiunto 120 secondi o non è verificabile. Il traffico catturato è analizzato senza supporre un’osservazione completa.",
+      "A cobertura da rede é parcial: a observação não chegou a 120 segundos ou não pôde ser verificada. O tráfego capturado é analisado sem assumir uma observação completa.",
+    ),
+  ],
+  [
+    /^IP endpoints, DNS questions and answers, TLS server names and HTTP hosts are decoded/,
+    t(
+      "Se leen las direcciones IP, las consultas y respuestas DNS, los nombres de servidor de las conexiones cifradas y los hosts HTTP. QUIC (HTTP/3) y el Client Hello cifrado ocultan el nombre del servidor, y el DNS cifrado, los túneles y los paquetes perdidos reducen la cobertura.",
+      "IP addresses, DNS questions and answers, the server names of encrypted connections and HTTP hosts are read. QUIC (HTTP/3) and encrypted Client Hello hide the server name, and encrypted DNS, tunnels and lost packets reduce coverage.",
+      "Les adresses IP, les requêtes et réponses DNS, les noms de serveur des connexions chiffrées et les hôtes HTTP sont lus. QUIC (HTTP/3) et le Client Hello chiffré masquent le nom du serveur, et le DNS chiffré, les tunnels et les paquets perdus réduisent la couverture.",
+      "Gelesen werden IP-Adressen, DNS-Anfragen und -Antworten, die Servernamen verschlüsselter Verbindungen und HTTP-Hosts. QUIC (HTTP/3) und verschlüsseltes Client Hello verbergen den Servernamen; verschlüsseltes DNS, Tunnel und verlorene Pakete verringern die Abdeckung.",
+      "Vengono letti gli indirizzi IP, le richieste e risposte DNS, i nomi di server delle connessioni cifrate e gli host HTTP. QUIC (HTTP/3) e il Client Hello cifrato nascondono il nome del server, e DNS cifrato, tunnel e pacchetti persi riducono la copertura.",
+      "São lidos os endereços IP, as consultas e respostas DNS, os nomes de servidor das ligações encriptadas e os anfitriões HTTP. O QUIC (HTTP/3) e o Client Hello encriptado ocultam o nome do servidor, e o DNS encriptado, os túneis e os pacotes perdidos reduzem a cobertura.",
+    ),
+  ],
+  [
+    /^Review point: the phone contacted this address at a steady pace/,
+    t(
+      "Punto a revisar: el móvil contactó con esta dirección a un ritmo constante sin buscar nunca un nombre para ella, algo que hace el spyware para no dejar dominios. Algunos servicios también se conectan por dirección.",
+      "Point to review: the phone contacted this address at a steady pace without ever looking up a name for it, which spyware does to leave no domain behind. Some services also connect by address.",
+      "Point à vérifier : le téléphone a contacté cette adresse à un rythme régulier sans jamais en chercher le nom, ce que fait un logiciel espion pour ne pas laisser de domaine. Certains services se connectent aussi par adresse.",
+      "Zu prüfender Punkt: Das Gerät hat diese Adresse in festem Takt kontaktiert, ohne je einen Namen dafür abzufragen; so vermeidet Spyware Domains. Manche Dienste verbinden sich ebenfalls direkt per Adresse.",
+      "Punto da verificare: il telefono ha contattato questo indirizzo a ritmo costante senza mai cercarne il nome, come fa lo spyware per non lasciare domini. Anche alcuni servizi si collegano per indirizzo.",
+      "Ponto a rever: o telemóvel contactou este endereço a um ritmo constante sem nunca procurar um nome para ele, o que o spyware faz para não deixar domínios. Alguns serviços também se ligam por endereço.",
+    ),
+  ],
+  [
+    /^If you do not recognise this destination, find which app uses it/,
+    t(
+      "Si no reconoces este destino, averigua qué app lo usa y pide a un experto que revise el móvil.",
+      "If you do not recognise this destination, find which app uses it and ask an expert to review the phone.",
+      "Si vous ne reconnaissez pas cette destination, trouvez quelle application l’utilise et faites examiner le téléphone par un expert.",
+      "Wenn Sie dieses Ziel nicht kennen, finden Sie heraus, welche App es nutzt, und lassen Sie das Gerät von einer Fachperson prüfen.",
+      "Se non riconosci questa destinazione, scopri quale app la usa e fai controllare il telefono da un esperto.",
+      "Se não reconhece este destino, descubra que app o usa e peça a um especialista que reveja o telemóvel.",
+    ),
+  ],
+  [
+    /^Review point: spyware sends what it collects in the background/,
+    t(
+      "Punto a revisar: el spyware envía lo que recoge en segundo plano, pero las copias de seguridad y la sincronización también. El móvil lo cuenta desde la última vez que se reiniciaron sus estadísticas de uso.",
+      "Point to review: spyware sends what it collects in the background, but backups and sync do too. The phone counts this since its usage statistics were last reset.",
+      "Point à vérifier : un logiciel espion envoie ce qu’il collecte en arrière-plan, mais les sauvegardes et la synchronisation aussi. Le téléphone compte cela depuis la dernière remise à zéro de ses statistiques d’utilisation.",
+      "Zu prüfender Punkt: Spyware sendet Gesammeltes im Hintergrund, aber auch Backups und Synchronisierung tun das. Das Gerät zählt seit dem letzten Zurücksetzen seiner Nutzungsstatistik.",
+      "Punto da verificare: lo spyware invia in background ciò che raccoglie, ma lo fanno anche backup e sincronizzazione. Il telefono lo conta dall’ultimo azzeramento delle statistiche di utilizzo.",
+      "Ponto a rever: o spyware envia o que recolhe em segundo plano, mas as cópias de segurança e a sincronização também. O telemóvel conta isto desde a última vez que as estatísticas de utilização foram repostas.",
+    ),
+  ],
+  [
+    /^If you do not recognise this app or why it sends so much/,
+    t(
+      "Si no reconoces esta app o por qué envía tanto, desinstálala y pide a un experto que revise el móvil.",
+      "If you do not recognise this app or why it sends so much, uninstall it and ask an expert to review the phone.",
+      "Si vous ne reconnaissez pas cette application ou pourquoi elle envoie autant, désinstallez-la et faites examiner le téléphone par un expert.",
+      "Wenn Sie diese App nicht kennen oder nicht wissen, warum sie so viel sendet, deinstallieren Sie sie und lassen Sie das Gerät von einer Fachperson prüfen.",
+      "Se non riconosci questa app o perché invia così tanto, disinstallala e fai controllare il telefono da un esperto.",
+      "Se não reconhece esta app ou porque envia tanto, desinstale-a e peça a um especialista que reveja o telemóvel.",
+    ),
+  ],
+  [
+    /^Review point: the phone looked up a domain that imitates a trusted brand/,
+    t(
+      "Punto a revisar: el móvil consultó un dominio que imita a una marca de confianza. El phishing y el spyware usan nombres así, pero una consulta no muestra qué se envió.",
+      "Point to review: the phone looked up a domain that imitates a trusted brand. Phishing and spyware use such names, but a lookup alone does not show what was sent.",
+      "Point à vérifier : le téléphone a consulté un domaine qui imite une marque de confiance. Le hameçonnage et les logiciels espions utilisent de tels noms, mais une requête ne montre pas ce qui a été envoyé.",
+      "Zu prüfender Punkt: Das Gerät hat eine Domain abgefragt, die eine vertrauenswürdige Marke nachahmt. Phishing und Spyware nutzen solche Namen, aber eine Abfrage zeigt nicht, was gesendet wurde.",
+      "Punto da verificare: il telefono ha cercato un dominio che imita un marchio affidabile. Phishing e spyware usano nomi simili, ma una ricerca non mostra cosa è stato inviato.",
+      "Ponto a rever: o telemóvel consultou um domínio que imita uma marca de confiança. O phishing e o spyware usam nomes assim, mas uma consulta não mostra o que foi enviado.",
+    ),
+  ],
+  [
+    /^Find which app or link led to this domain/,
+    t(
+      "Averigua qué app o enlace llevó a este dominio. Si no lo reconoces, pide a un experto que revise el móvil.",
+      "Find which app or link led to this domain. If you do not recognise it, ask an expert to review the phone.",
+      "Trouvez quelle application ou quel lien a mené à ce domaine. Si vous ne le reconnaissez pas, faites examiner le téléphone par un expert.",
+      "Finden Sie heraus, welche App oder welcher Link zu dieser Domain führte. Wenn Sie sie nicht kennen, lassen Sie das Gerät von einer Fachperson prüfen.",
+      "Scopri quale app o link ha portato a questo dominio. Se non lo riconosci, fai controllare il telefono da un esperto.",
+      "Descubra que app ou ligação levou a este domínio. Se não o reconhece, peça a um especialista que reveja o telemóvel.",
+    ),
+  ],
+  [
     /^Related network evidence (\S+) matches the same signed indicator within five minutes\./,
     t(
       "La evidencia de red {0} coincide con el mismo indicador firmado en menos de cinco minutos. No se verifica la precisión del reloj; esta relación no confirma una infección.",
@@ -641,6 +740,148 @@ export function translateFragments(value: string, language: Language) {
 type Detail = [RegExp, T];
 /** Check details of the new engines; {n} are the captured numbers. */
 export const EXTRA_DETAILS: Record<string, Detail[]> = {
+  network_observation: [
+    [
+      /^Observed for (\d+) seconds \(at least 120, longer while the copy ran\)/,
+      t(
+        "Red observada durante {0} s (al menos 120, y más mientras duró la copia). Una amenaza que permanezca inactiva en ese tiempo puede no aparecer.",
+        "Network observed for {0} s (at least 120, longer while the copy ran). A threat that stays quiet meanwhile may not show up.",
+        "Réseau observé pendant {0} s (au moins 120, plus tant que la copie durait). Une menace restée inactive pendant ce temps peut ne pas apparaître.",
+        "Netzwerk {0} s beobachtet (mindestens 120, länger während der Kopie). Eine in dieser Zeit inaktive Bedrohung wird möglicherweise nicht sichtbar.",
+        "Rete osservata per {0} s (almeno 120, di più mentre durava la copia). Una minaccia inattiva in quel tempo potrebbe non comparire.",
+        "Rede observada durante {0} s (pelo menos 120, mais enquanto durou a cópia). Uma ameaça inativa nesse tempo pode não aparecer.",
+      ),
+    ],
+    [
+      /^Observed for (\d+) of at least 120 seconds: the\ phone\ ended\ the\ capture\ and\ it\ could\ not\ be\ resumed/,
+      t(
+        "Red observada solo {0} de al menos 120 s: el móvil cerró la captura y no se pudo reanudar.",
+        "Network observed for only {0} of at least 120 s: the phone ended the capture and it could not be resumed.",
+        "Réseau observé seulement {0} s sur au moins 120 : le téléphone a arrêté la capture et elle n’a pas pu reprendre.",
+        "Netzwerk nur {0} von mindestens 120 s beobachtet: das Gerät hat die Aufzeichnung beendet und sie ließ sich nicht fortsetzen.",
+        "Rete osservata solo {0} s su almeno 120: il telefono ha chiuso la cattura e non è stato possibile riprenderla.",
+        "Rede observada apenas {0} de pelo menos 120 s: o telemóvel terminou a captura e não foi possível retomá-la.",
+      ),
+    ],
+    [
+      /^Observed for (\d+) of at least 120 seconds: the\ capture\ could\ not\ start/,
+      t(
+        "Red observada solo {0} de al menos 120 s: la captura no pudo empezar.",
+        "Network observed for only {0} of at least 120 s: the capture could not start.",
+        "Réseau observé seulement {0} s sur au moins 120 : la capture n’a pas pu démarrer.",
+        "Netzwerk nur {0} von mindestens 120 s beobachtet: die Aufzeichnung konnte nicht starten.",
+        "Rete osservata solo {0} s su almeno 120: la cattura non è potuta partire.",
+        "Rede observada apenas {0} de pelo menos 120 s: a captura não conseguiu começar.",
+      ),
+    ],
+    [
+      /^Observed for (\d+) of at least 120 seconds: the\ capture\ was\ interrupted/,
+      t(
+        "Red observada solo {0} de al menos 120 s: la captura se interrumpió.",
+        "Network observed for only {0} of at least 120 s: the capture was interrupted.",
+        "Réseau observé seulement {0} s sur au moins 120 : la capture a été interrompue.",
+        "Netzwerk nur {0} von mindestens 120 s beobachtet: die Aufzeichnung wurde unterbrochen.",
+        "Rete osservata solo {0} s su almeno 120: la cattura è stata interrotta.",
+        "Rede observada apenas {0} de pelo menos 120 s: a captura foi interrompida.",
+      ),
+    ],
+    [
+      /^Observed for (\d+) of at least 120 seconds: the\ capture\ reached\ its\ size\ limit/,
+      t(
+        "Red observada solo {0} de al menos 120 s: la captura llegó a su tamaño máximo.",
+        "Network observed for only {0} of at least 120 s: the capture reached its size limit.",
+        "Réseau observé seulement {0} s sur au moins 120 : la capture a atteint sa taille maximale.",
+        "Netzwerk nur {0} von mindestens 120 s beobachtet: die Aufzeichnung hat ihre Größengrenze erreicht.",
+        "Rete osservata solo {0} s su almeno 120: la cattura ha raggiunto la dimensione massima.",
+        "Rede observada apenas {0} de pelo menos 120 s: a captura atingiu o tamanho máximo.",
+      ),
+    ],
+    [
+      /^Observed for (\d+) of at least 120 seconds: its\ length\ could\ not\ be\ verified/,
+      t(
+        "Red observada solo {0} de al menos 120 s: no se pudo verificar su duración.",
+        "Network observed for only {0} of at least 120 s: its length could not be verified.",
+        "Réseau observé seulement {0} s sur au moins 120 : sa durée n’a pas pu être vérifiée.",
+        "Netzwerk nur {0} von mindestens 120 s beobachtet: ihre Dauer ließ sich nicht prüfen.",
+        "Rete osservata solo {0} s su almeno 120: la sua durata non è verificabile.",
+        "Rede observada apenas {0} de pelo menos 120 s: a sua duração não pôde ser verificada.",
+      ),
+    ],
+  ],
+  network_names: [
+    [
+      /^(\d+) destination names read \((\d+) DNS lookups, (\d+) TLS server names, (\d+) HTTP hosts\)/,
+      t(
+        "{0} destinos leídos ({1} consultas DNS, {2} nombres de servidor de conexiones cifradas y {3} hosts HTTP) y comparados con dominios de spyware conocidos.",
+        "{0} destination names read ({1} DNS lookups, {2} server names of encrypted connections, {3} HTTP hosts) and compared with known spyware domains.",
+        "{0} noms de destination lus ({1} requêtes DNS, {2} noms de serveur de connexions chiffrées, {3} hôtes HTTP) et comparés aux domaines de logiciels espions connus.",
+        "{0} Zielnamen gelesen ({1} DNS-Anfragen, {2} Servernamen verschlüsselter Verbindungen, {3} HTTP-Hosts) und mit bekannten Spyware-Domains abgeglichen.",
+        "{0} nomi di destinazione letti ({1} richieste DNS, {2} nomi di server di connessioni cifrate, {3} host HTTP) e confrontati con domini di spyware noti.",
+        "{0} nomes de destino lidos ({1} consultas DNS, {2} nomes de servidor de ligações encriptadas, {3} anfitriões HTTP) e comparados com domínios de spyware conhecidos.",
+      ),
+    ],
+  ],
+  network_encrypted_dns: [
+    [
+      /^No unencrypted DNS lookups were seen across (\d+) encrypted connections; iCloud Private Relay is on/,
+      t(
+        "No se vieron consultas DNS sin cifrar en {0} conexiones cifradas: iCloud Private Relay está activado. Los destinos se leyeron de los nombres de servidor de las conexiones cifradas y de sus direcciones.",
+        "No unencrypted DNS lookups were seen across {0} encrypted connections: iCloud Private Relay is on. Destinations were read from the server names of encrypted connections and their addresses.",
+        "Aucune requête DNS non chiffrée sur {0} connexions chiffrées : iCloud Private Relay est activé. Les destinations ont été lues dans les noms de serveur des connexions chiffrées et leurs adresses.",
+        "Keine unverschlüsselten DNS-Anfragen in {0} verschlüsselten Verbindungen: iCloud Privat-Relay ist aktiv. Die Ziele wurden aus den Servernamen verschlüsselter Verbindungen und ihren Adressen gelesen.",
+        "Nessuna richiesta DNS non cifrata su {0} connessioni cifrate: iCloud Private Relay è attivo. Le destinazioni sono state lette dai nomi di server delle connessioni cifrate e dai loro indirizzi.",
+        "Nenhuma consulta DNS não encriptada em {0} ligações encriptadas: o iCloud Private Relay está ativo. Os destinos foram lidos dos nomes de servidor das ligações encriptadas e dos seus endereços.",
+      ),
+    ],
+    [
+      /^No unencrypted DNS lookups were seen across (\d+) encrypted connections/,
+      t(
+        "No se vieron consultas DNS sin cifrar en {0} conexiones cifradas: el móvil usa DNS cifrado o iCloud Private Relay. Los destinos se leyeron de los nombres de servidor de las conexiones cifradas y de sus direcciones.",
+        "No unencrypted DNS lookups were seen across {0} encrypted connections: the phone uses encrypted DNS or iCloud Private Relay. Destinations were read from the server names of encrypted connections and their addresses.",
+        "Aucune requête DNS non chiffrée sur {0} connexions chiffrées : le téléphone utilise un DNS chiffré ou iCloud Private Relay. Les destinations ont été lues dans les noms de serveur des connexions chiffrées et leurs adresses.",
+        "Keine unverschlüsselten DNS-Anfragen in {0} verschlüsselten Verbindungen: Das Gerät nutzt verschlüsseltes DNS oder iCloud Privat-Relay. Die Ziele wurden aus den Servernamen verschlüsselter Verbindungen und ihren Adressen gelesen.",
+        "Nessuna richiesta DNS non cifrata su {0} connessioni cifrate: il telefono usa DNS cifrato o iCloud Private Relay. Le destinazioni sono state lette dai nomi di server delle connessioni cifrate e dai loro indirizzi.",
+        "Nenhuma consulta DNS não encriptada em {0} ligações encriptadas: o telemóvel usa DNS encriptado ou o iCloud Private Relay. Os destinos foram lidos dos nomes de servidor das ligações encriptadas e dos seus endereços.",
+      ),
+    ],
+  ],
+  network_periodic_connections: [
+    [
+      /^(\d+) destination\(s\) contacted repeatedly at a steady pace/,
+      t(
+        "{0} destinos contactados una y otra vez a un ritmo constante.",
+        "{0} destination(s) contacted again and again at a steady pace.",
+        "{0} destination(s) contactée(s) à plusieurs reprises à un rythme régulier.",
+        "{0} Ziel(e) wiederholt in festem Takt kontaktiert.",
+        "{0} destinazioni contattate più volte a ritmo costante.",
+        "{0} destino(s) contactado(s) repetidamente a um ritmo constante.",
+      ),
+    ],
+  ],
+  android_background_upload: [
+    [
+      /^Background data per app was not reviewed/,
+      t(
+        "No se revisaron los datos enviados en segundo plano: no se pidió.",
+        "Data sent in the background was not reviewed: it was not asked for.",
+        "Les données envoyées en arrière-plan n’ont pas été vérifiées : ce n’était pas demandé.",
+        "Im Hintergrund gesendete Daten wurden nicht geprüft: Das war nicht gewünscht.",
+        "I dati inviati in background non sono stati controllati: non era richiesto.",
+        "Os dados enviados em segundo plano não foram verificados: não foi pedido.",
+      ),
+    ],
+    [
+      /^(\d+) apps sent data in the background; (\d+) worth reviewing/,
+      t(
+        "{0} apps enviaron datos en segundo plano; {1} merecen revisión (instaladas fuera de las tiendas o con comportamiento de spyware).",
+        "{0} apps sent data in the background; {1} worth reviewing (installed outside the stores or acting like spyware).",
+        "{0} applications ont envoyé des données en arrière-plan ; {1} à vérifier (installées hors des boutiques ou agissant comme un logiciel espion).",
+        "{0} Apps haben im Hintergrund Daten gesendet; {1} sind zu prüfen (außerhalb der Stores installiert oder mit Spyware-Verhalten).",
+        "{0} app hanno inviato dati in background; {1} da verificare (installate fuori dagli store o con comportamento da spyware).",
+        "{0} apps enviaram dados em segundo plano; {1} merecem revisão (instaladas fora das lojas ou com comportamento de spyware).",
+      ),
+    ],
+  ],
   android_behavior: [
     [
       /^(\d+) apps not pre-installed were checked for spyware behaviour.*?(\d+) matched the spyware profile and (\d+) are listed for review/s,

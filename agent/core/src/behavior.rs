@@ -953,6 +953,7 @@ mod tests {
             system: false,
             granted: granted.iter().map(|g| g.to_string()).collect(),
             first_install: Some("2026-11-20 09:13:44".into()),
+            uid: None,
         }
     }
     fn inventory(packages: Vec<Package>) -> Inventory {

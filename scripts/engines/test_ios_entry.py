@@ -422,11 +422,15 @@ class Tests(unittest.IsolatedAsyncioTestCase):
             async def __aexit__(self, *args): pass
             async def watch(self, packets_count):
                 yield SimpleNamespace(data=b"\0"*14 + b"\x60" + b"\0"*39, seconds=1000, microseconds=123)
-        with tempfile.TemporaryDirectory() as work, patch.object(importlib.import_module("pymobiledevice3.services.pcapd"), "PcapdService", Capture):
+        with tempfile.TemporaryDirectory() as work, patch.object(importlib.import_module("pymobiledevice3.services.pcapd"), "PcapdService", Capture), \
+                patch.object(adapter, "CAPTURE_RESTART_PAUSE", 0):
             result = await adapter.capture_network(FakeClient(), Path(work))
+            # The phone kept ending the capture: it was started again each time,
+            # then reported as partial with the reason.
             self.assertEqual(result["status"], "partial")
             self.assertEqual(result["reason"], "stream_ended")
-            self.assertEqual(result["packets"], 1)
+            self.assertEqual(result["restarts"], adapter.CAPTURE_RESTARTS)
+            self.assertEqual(result["packets"], 1 + adapter.CAPTURE_RESTARTS)
             data = (Path(work) / "device-network.pcap").read_bytes()
         self.assertEqual(struct.unpack("<I", data[20:24])[0], 101)
         self.assertEqual(struct.unpack("<IIII", data[24:40]), (1000, 123, 40, 40))
@@ -446,6 +450,69 @@ class Tests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["status"], "completed")
         self.assertGreaterEqual(result["durationSeconds"], 0.02)
         self.assertEqual(result["packets"], 0)
+
+    def test_capture_keeps_only_what_the_analysis_reads(self):
+        def ip4(proto, sport, dport, data, tcp_flags=0x18):
+            transport = struct.pack(">HH", sport, dport) + (
+                struct.pack(">IIBBHHH", 0, 0, 5 << 4, tcp_flags, 0, 0, 0) if proto == 6
+                else struct.pack(">HH", 8 + len(data), 0))
+            body = transport + data
+            return struct.pack(">BBHHHBBH4s4s", 0x45, 0, 20 + len(body), 0, 0, 64, proto, 0, b"\xc0\0\2\1", b"\xc6\x33\x64\7") + body
+        download = ip4(6, 443, 50000, b"\x17\x03\x03" + b"x" * 1400)
+        self.assertEqual(adapter.kept_length(download), 20 + 20 + adapter.CAPTURE_TAIL)
+        hello = ip4(6, 50000, 443, b"\x16\x03\x01" + b"h" * 600)
+        self.assertEqual(adapter.kept_length(hello), len(hello))
+        dns = ip4(17, 53, 50000, b"d" * 300)
+        self.assertEqual(adapter.kept_length(dns), len(dns))
+        request = ip4(6, 50000, 80, b"GET / HTTP/1.1\r\nHost: a.b\r\n\r\n" + b"b" * 9000)
+        self.assertEqual(adapter.kept_length(request), 20 + 20 + 4096)
+        quic = ip4(17, 50000, 443, b"q" * 1200)
+        self.assertEqual(adapter.kept_length(quic), 20 + 8 + adapter.CAPTURE_TAIL)
+
+    async def test_capture_resumes_when_the_phone_ends_it_early(self):
+        class Capture:
+            sessions = 0
+            def __init__(self, client): pass
+            async def __aenter__(self):
+                type(self).sessions += 1
+                return self
+            async def __aexit__(self, *args): pass
+            async def watch(self, packets_count):
+                if type(self).sessions == 1:
+                    return  # the phone closes the first capture at once
+                await asyncio.sleep(10)
+                if False: yield None
+        with tempfile.TemporaryDirectory() as work, patch.object(importlib.import_module("pymobiledevice3.services.pcapd"), "PcapdService", Capture), \
+                patch.object(adapter, "NETWORK_SECONDS", 0.3), patch.object(adapter, "CAPTURE_RESTART_PAUSE", 0):
+            result = await adapter.capture_network(FakeClient(), Path(work))
+        self.assertEqual((result["status"], result["reason"], result["restarts"]), ("completed", "duration_reached", 1))
+        self.assertGreaterEqual(result["durationSeconds"], 0.3)
+
+    async def test_capture_goes_on_while_the_copy_runs_up_to_its_limit(self):
+        class Capture:
+            def __init__(self, client): pass
+            async def __aenter__(self): return self
+            async def __aexit__(self, *args): pass
+            async def watch(self, packets_count):
+                await asyncio.sleep(10)
+                if False: yield None
+        pcapd = importlib.import_module("pymobiledevice3.services.pcapd")
+        with tempfile.TemporaryDirectory() as work, patch.object(pcapd, "PcapdService", Capture), \
+                patch.object(adapter, "NETWORK_SECONDS", 0.02), patch.object(adapter, "NETWORK_MAX_SECONDS", 0.3):
+            copied = asyncio.Event()
+            loop = asyncio.get_running_loop()
+            loop.call_later(0.15, copied.set)
+            result = await adapter.capture_network(FakeClient(), Path(work), copied=copied)
+            # Past the minimum, until the copy ended.
+            self.assertGreaterEqual(result["durationSeconds"], 0.15)
+            self.assertLess(result["durationSeconds"], 0.3)
+        # A copy that never ends is still bounded.
+        with tempfile.TemporaryDirectory() as work, patch.object(pcapd, "PcapdService", Capture), \
+                patch.object(adapter, "NETWORK_SECONDS", 0.02), patch.object(adapter, "NETWORK_MAX_SECONDS", 0.1):
+            result = await adapter.capture_network(FakeClient(), Path(work), copied=asyncio.Event())
+        self.assertEqual(result["status"], "completed")
+        self.assertGreaterEqual(result["durationSeconds"], 0.1)
+        self.assertLess(result["durationSeconds"], 0.5)
 
     async def test_large_media_frames_are_drained_in_small_chunks_without_storage(self):
         from pymobiledevice3.services.device_link import CODE_FILE_DATA, CODE_SUCCESS, SIZE_FORMAT, CODE_FORMAT
@@ -662,7 +729,8 @@ class Tests(unittest.IsolatedAsyncioTestCase):
         work = tempfile.TemporaryDirectory()
         self.addCleanup(work.cleanup)
         with patch.object(adapter, "api", return_value=(None, connect, backup_cls)), \
-                patch.object(pcapd, "PcapdService", capture_cls), patch.object(adapter, "NETWORK_SECONDS", seconds):
+                patch.object(pcapd, "PcapdService", capture_cls), patch.object(adapter, "NETWORK_SECONDS", seconds), \
+                patch.object(adapter, "CAPTURE_RESTART_PAUSE", 0):
             try:
                 await adapter.acquire("device-1", Path(work.name), False, capture=True)
                 error = None
@@ -726,7 +794,7 @@ class Tests(unittest.IsolatedAsyncioTestCase):
         work, network, error = await self.run_with_network(Backup, Unavailable)
         self.assertIsNone(error)
         self.assertTrue((work / "ios-backup/device-1/Manifest.db").is_file())
-        self.assertEqual((network["status"], network["reason"]), ("partial", "interrupted"))
+        self.assertEqual((network["status"], network["reason"]), ("partial", "not_started"))
 
     async def test_closing_the_passcode_prompt_restores_the_previous_phase(self):
         from pymobiledevice3.services import mobilebackup2 as backup

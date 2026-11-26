@@ -952,24 +952,44 @@ fn start_scan(
                     .and_then(|value| value["durationSeconds"].as_f64())
                     .filter(|seconds| seconds.is_finite() && *seconds >= 0.0)
                     .unwrap_or(0.0);
-                let complete = observation.as_ref().is_some_and(|value| {
-                    value["status"] == "completed"
-                        && value["reason"] == "duration_reached"
-                        && duration >= 120.0
-                });
-                report.check("network_observation", if complete { "completed" } else { "failed" },
-                    &format!("Observed for {:.1} seconds of the planned 120 seconds. {}",
-                        duration, if complete { "Observation window completed; inactive threats may remain undetected." }
-                        else { "Partial observation: capture ended early or its duration could not be verified." }));
+                let reason = observation
+                    .as_ref()
+                    .and_then(|value| value["reason"].as_str())
+                    .unwrap_or("");
+                // At least 120 seconds, and longer while the copy ran; the
+                // capture may have reached its size limit after that.
+                let complete = observation
+                    .as_ref()
+                    .is_some_and(|value| value["status"] == "completed")
+                    && ["duration_reached", "size_limit"].contains(&reason)
+                    && duration >= 120.0;
+                let detail = if complete {
+                    format!("Observed for {duration:.0} seconds (at least 120, longer while the copy ran). Observation completed; a threat that stays quiet meanwhile may not show up.")
+                } else {
+                    let why = match reason {
+                        "stream_ended" => "the phone ended the capture and it could not be resumed",
+                        "not_started" => "the capture could not start",
+                        "interrupted" => "the capture was interrupted",
+                        "size_limit" => "the capture reached its size limit",
+                        _ => "its length could not be verified",
+                    };
+                    format!("Observed for {duration:.0} of at least 120 seconds: {why}.")
+                };
+                report.check(
+                    "network_observation",
+                    if complete { "completed" } else { "failed" },
+                    &detail,
+                );
                 if !complete {
-                    report.limitations.push("Network coverage is partial: the full 120-second observation was not completed or verified. Available captured traffic is analyzed without implying a complete observation.".into());
+                    report.limitations.push("Network coverage is partial: the observation did not reach 120 seconds or could not be verified. The captured traffic is analyzed without implying a complete observation.".into());
                 }
                 let capture = work.path().join("device-network.pcap");
                 let result = (|| {
                     let mut bytes = Vec::new();
                     std::fs::File::open(capture)
                         .map_err(|_| "network_capture_unavailable".to_string())?
-                        .take(32 * 1024 * 1024 + 1)
+                        // The adapter's capture limit (CAPTURE_LIMIT_BYTES).
+                        .take(256 * 1024 * 1024 + 1)
                         .read_to_end(&mut bytes)
                         .map_err(|_| "network_capture_unavailable".to_string())?;
                     let mut candidate = report.clone();

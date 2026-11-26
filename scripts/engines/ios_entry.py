@@ -20,7 +20,20 @@ import sys
 import uuid
 
 VERSION = "11.45.0"
+# The phone's network is observed for at least this long and, while the copy
+# still runs, up to NETWORK_MAX_SECONDS.
 NETWORK_SECONDS = 120
+NETWORK_MAX_SECONDS = 900
+# The capture file's limit, well inside what the analysis reads. Packets keep
+# only what the analysis reads (see `kept_length`), so this holds millions of
+# them, even while the phone downloads photos or updates.
+CAPTURE_LIMIT_BYTES = 256 * 1024 ** 2
+# Bytes kept after the IP and transport headers of an ordinary packet.
+CAPTURE_TAIL = 32
+HTTP_METHODS = (b"GET ", b"POST ", b"HEAD ", b"PUT ", b"DELETE ", b"OPTIONS ", b"PATCH ")
+# If the phone ends the capture early it is started again, this many times.
+CAPTURE_RESTARTS = 5
+CAPTURE_RESTART_PAUSE = 1.0
 # Starting pcapd must not hold back the copy (and the phone's prompts) for long.
 CAPTURE_START_SECONDS = 20
 DISCOVERY_SECONDS = 12
@@ -254,60 +267,135 @@ def on_backup_progress(value):
         SESSION["percent"] = max(float(value), SESSION["percent"] or 0.0)
 
 
-async def capture_network(client, work, ready=None):
-    """Observe the phone's own traffic for NETWORK_SECONDS through pcapd.
+def kept_length(payload):
+    """How much of an IP packet the capture keeps: whole DNS messages, TLS
+    handshakes (the server name) and HTTP request headers; of everything
+    else, the IP and transport headers and a few bytes. Content the phone
+    downloads or sends is never stored, and the file stays small."""
+    version = payload[0] >> 4
+    if version == 4 and len(payload) >= 20:
+        header, proto = (payload[0] & 15) * 4, payload[9]
+    elif version == 6 and len(payload) >= 40:
+        header, proto = 40, payload[6]
+    else:
+        return len(payload)
+    if proto == 17 and len(payload) >= header + 8:
+        ports = struct.unpack(">HH", payload[header:header + 4])
+        if 53 in ports:
+            return len(payload)
+        return min(len(payload), header + 8 + CAPTURE_TAIL)
+    if proto == 6 and len(payload) >= header + 20:
+        start = header + (payload[header + 12] >> 4) * 4
+        data = payload[start:]
+        if data[:2] == b"\x16\x03":
+            return len(payload)
+        if data.startswith(HTTP_METHODS):
+            return min(len(payload), start + 4096)
+        return min(len(payload), start + CAPTURE_TAIL)
+    return min(len(payload), header + CAPTURE_TAIL)
+
+
+async def capture_network(client, work, ready=None, copied=None):
+    """Observe the phone's own traffic through pcapd: at least NETWORK_SECONDS
+    and, while the copy still runs (until `copied` is set), up to
+    NETWORK_MAX_SECONDS.
 
     Runs alongside the backup: pcapd and MobileBackup2 are separate services.
     `ready` is set once pcapd has been started (or failed to start), so the
-    caller can start the backup without interleaving lockdown requests.
-    The result is always written to network-status.json, also when cancelled;
-    "completed" only when the full window was observed."""
+    caller can start the backup without interleaving lockdown requests. If the
+    phone ends the capture early, it is started again (up to CAPTURE_RESTARTS
+    times) and the time observed adds up. The result, with the reason it
+    ended, is always written to network-status.json, also when cancelled;
+    "completed" only when at least NETWORK_SECONDS were observed."""
     from pymobiledevice3.services.pcapd import PcapdService
+    loop = asyncio.get_running_loop()
     target = work / "device-network.pcap"
     size = 24
     packets = 0
-    started = None
-    deadline = None
+    observed = 0.0
+    restarts = 0
+    began = False
     cancelled = False
-    reason = "stream_ended"
-    try:
-        async with PcapdService(client) as capture:
-            if ready is not None:
-                ready.set()
-            async with asyncio.timeout(NETWORK_SECONDS) as deadline:
-                started = asyncio.get_running_loop().time()
-                SESSION["capturing"] = True
+    reason = "not_started"
+
+    def finished():
+        return observed >= NETWORK_MAX_SECONDS or (
+            observed >= NETWORK_SECONDS and (copied is None or copied.is_set()))
+
+    async def pump(capture, output):
+        nonlocal size, packets
+        async for packet in capture.watch(packets_count=-1):
+            # watch() supplies an Ethernet envelope, including for cellular.
+            payload = packet.data[14:]
+            if not payload or payload[0] >> 4 not in (4, 6):
+                continue
+            if len(payload) > 65535 or not 0 <= packet.microseconds < 1000000:
+                continue
+            kept = kept_length(payload)
+            if size + 16 + kept > CAPTURE_LIMIT_BYTES:
+                return "size_limit"
+            output.write(struct.pack("<IIII", packet.seconds, packet.microseconds, kept, len(payload)))
+            output.write(payload[:kept])
+            size += 16 + kept
+            packets += 1
+        return "stream_ended"
+
+    with target.open("xb") as output:
+        output.write(struct.pack("<IHHIIII", 0xa1b2c3d4, 2, 4, 0, 0, 65535, 101))
+        try:
+            while True:
+                stop = False
+                session = None
+                try:
+                    async with PcapdService(client) as capture:
+                        if ready is not None:
+                            ready.set()
+                        began = True
+                        session = loop.time()
+                        SESSION["capturing"] = True
+                        publish(work)
+                        task = asyncio.create_task(pump(capture, output))
+                        try:
+                            while True:
+                                if task.done():
+                                    reason = task.result()
+                                    stop = reason == "size_limit"
+                                    break
+                                now = observed + loop.time() - session
+                                if now >= NETWORK_MAX_SECONDS or (
+                                        now >= NETWORK_SECONDS and (copied is None or copied.is_set())):
+                                    reason, stop = "duration_reached", True
+                                    break
+                                await asyncio.sleep(0.05)
+                        finally:
+                            if not task.done():
+                                task.cancel()
+                            await asyncio.gather(task, return_exceptions=True)
+                except asyncio.CancelledError:
+                    cancelled = True
+                    reason = "interrupted"
+                    raise
+                except Exception:
+                    reason = "interrupted" if began else "not_started"
+                finally:
+                    if session is not None:
+                        observed += loop.time() - session
+                    if ready is not None:
+                        ready.set()
+                if stop or finished() or restarts >= CAPTURE_RESTARTS:
+                    break
+                # The phone ended the capture early: start it again.
+                restarts += 1
+                SESSION["capturing"] = False
                 publish(work)
-                with target.open("xb") as output:
-                    output.write(struct.pack("<IHHIIII", 0xa1b2c3d4, 2, 4, 0, 0, 65535, 101))
-                    async for packet in capture.watch(packets_count=100000):
-                        # watch() supplies an Ethernet envelope, including for cellular.
-                        payload = packet.data[14:]
-                        if not payload or payload[0] >> 4 not in (4, 6):
-                            continue
-                        if len(payload) > 65535 or not 0 <= packet.microseconds < 1000000:
-                            continue
-                        if size + 16 + len(payload) > 32 * 1024 ** 2:
-                            reason = "size_limit"
-                            break
-                        output.write(struct.pack("<IIII", packet.seconds, packet.microseconds, len(payload), len(payload)))
-                        output.write(payload)
-                        size += 16 + len(payload)
-                        packets += 1
-    except TimeoutError:
-        reason = "duration_reached" if deadline is not None and started is not None and deadline.expired() else "interrupted"
-    except asyncio.CancelledError:
-        reason = "interrupted"
-        cancelled = True
-    except Exception:
-        reason = "interrupted"
-    finally:
-        if ready is not None:
-            ready.set()
-    elapsed = 0 if started is None else asyncio.get_running_loop().time() - started
-    complete = reason == "duration_reached" and elapsed >= NETWORK_SECONDS
-    result = {"status": "completed" if complete else "partial",
-              "reason": reason, "durationSeconds": elapsed, "packets": packets}
+                await asyncio.sleep(CAPTURE_RESTART_PAUSE)
+        except asyncio.CancelledError:
+            cancelled = True
+            reason = "interrupted"
+    complete = observed >= NETWORK_SECONDS and reason in ("duration_reached", "size_limit")
+    result = {"status": "completed" if complete else "partial", "reason": reason,
+              "durationSeconds": observed, "minimumSeconds": NETWORK_SECONDS,
+              "packets": packets, "restarts": restarts}
     (work / "network-status.json").write_text(json.dumps(result))
     SESSION["capturing"] = False
     publish(work)
@@ -681,9 +769,12 @@ async def copy_once(client, backup_api, work, output, password_supplied, capture
         # parallel. pcapd is started first because lockdown requests from
         # both services must not interleave on the shared connection.
         network = None
+        # Set when the copy ends: the observation may stop once it has also
+        # lasted NETWORK_SECONDS.
+        copied = asyncio.Event()
         if capture:
             ready = asyncio.Event()
-            network = asyncio.create_task(capture_network(client, work, ready))
+            network = asyncio.create_task(capture_network(client, work, ready, copied))
             try:
                 await asyncio.wait_for(ready.wait(), CAPTURE_START_SECONDS)
             except TimeoutError:
@@ -696,6 +787,7 @@ async def copy_once(client, backup_api, work, output, password_supplied, capture
             pass  # the copy and the later diagnostics work without it
         task = asyncio.create_task(backup.backup(full=True, backup_directory=output, filter_callback=select_file, patch_manifest=False,
                                                  progress_callback=on_backup_progress))
+        task.add_done_callback(lambda _: copied.set())
         guard = asyncio.create_task(budget())
         try:
             for awaited in (task, network):

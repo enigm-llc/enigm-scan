@@ -13,9 +13,12 @@ the scan runs on. This page lists everything the app reads, keeps and sends.
 - **The report.** It is kept in the app's memory until you close the session
   or the app. It is written to disk only if you save it as a PDF or JSON file,
   in a place you choose. Saved files are not deleted by the app.
-- **The network check** (optional). On iPhone, two minutes of the phone's own
-  traffic are captured into the same temporary folder and deleted with it. On
-  Android, only the addresses of the open connections are read.
+- **The network check** (optional). On iPhone, the phone's own traffic is
+  captured while the copy runs (at least two minutes, at most fifteen) into
+  the same temporary folder and deleted with it; only addresses and the names
+  of the servers it contacts are read, never the content. On Android, the
+  addresses of the open connections and how much each app sent in the
+  background are read.
 
 ## What the app keeps between sessions
 

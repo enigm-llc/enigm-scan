@@ -9,6 +9,7 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
+use std::collections::BTreeSet;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 
 /// Bounded so that a hostile or huge device listing cannot exhaust memory.
@@ -32,6 +33,9 @@ pub struct Package {
     /// `firstInstallTime` as reported by the phone, in its local time.
     #[serde(default)]
     pub first_install: Option<String>,
+    /// The app's user ID (`pm list packages -U`), to match network usage.
+    #[serde(default)]
+    pub uid: Option<u32>,
 }
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -42,6 +46,13 @@ pub struct Inventory {
     pub hashes_status: String,
     pub remote_addresses: Vec<String>,
     pub network_status: String,
+    /// Bytes each app sent in the background (package, bytes), largest first,
+    /// from the phone's network usage statistics.
+    #[serde(default)]
+    pub background_upload: Vec<(String, u64)>,
+    /// "completed", "skipped", "unsupported" or "failed".
+    #[serde(default)]
+    pub upload_status: String,
     pub private_dns_mode: Option<String>,
     pub private_dns_host: Option<String>,
     pub http_proxy: Option<String>,
@@ -115,10 +126,15 @@ pub fn parse_packages(text: &str) -> Vec<Package> {
             .find_map(|field| field.strip_prefix("installer="))
             .filter(|value| *value != "null" && package_id(value))
             .map(str::to_owned);
+        let uid = rest
+            .split_whitespace()
+            .find_map(|field| field.strip_prefix("uid:"))
+            .and_then(|value| value.split(',').next()?.parse().ok());
         packages.push(Package {
             id: id.into(),
             path: path.into(),
             installer,
+            uid,
             ..Default::default()
         });
         if packages.len() >= MAX_PACKAGES {
@@ -126,6 +142,48 @@ pub fn parse_packages(text: &str) -> Vec<Package> {
         }
     }
     packages
+}
+/// Bytes sent in the background per app user ID, from the "UID stats"
+/// section of `dumpsys netstats detail` (`set=DEFAULT` is background; only
+/// untagged totals, `tag=0x0`, so nothing is counted twice).
+pub fn parse_background_upload(text: &str) -> std::collections::HashMap<u32, u64> {
+    let mut sent = std::collections::HashMap::new();
+    let mut section = false;
+    let mut current: Option<u32> = None;
+    for line in text.lines().take(2_000_000) {
+        let trimmed = line.trim();
+        if trimmed.ends_with("stats:") && !trimmed.starts_with("ident=") {
+            section = trimmed == "UID stats:";
+            current = None;
+            continue;
+        }
+        if !section {
+            continue;
+        }
+        if trimmed.starts_with("ident=") {
+            let field = |name: &str| {
+                trimmed
+                    .split_whitespace()
+                    .find_map(|f| f.strip_prefix(name))
+                    .map(str::to_owned)
+            };
+            current = (field("set=").as_deref() == Some("DEFAULT")
+                && field("tag=").as_deref() == Some("0x0"))
+            .then(|| field("uid=")?.parse().ok())
+            .flatten();
+            continue;
+        }
+        let Some(uid) = current else { continue };
+        let bytes = trimmed
+            .split_whitespace()
+            .find_map(|f| f.strip_prefix("tb=").or_else(|| f.strip_prefix("txBytes=")))
+            .and_then(|value| value.parse::<u64>().ok());
+        if let Some(bytes) = bytes {
+            let total: &mut u64 = sent.entry(uid).or_default();
+            *total = total.saturating_add(bytes);
+        }
+    }
+    sent
 }
 /// Marks the packages listed by `pm list packages -s` as pre-installed.
 pub fn mark_system(packages: &mut [Package], text: &str) -> usize {
@@ -286,6 +344,48 @@ pub(crate) const STORES: &[&str] = &[
     "com.lenovo.leos.appstore",
     "com.motorola.ccc.ota",
 ];
+/// Apps that sent a lot in the background: a review point only for an app
+/// installed outside the stores (over 20 MB) or one that already acts like
+/// spyware (over 5 MB). Backups and sync of ordinary apps are only counted.
+fn background_upload(inventory: &Inventory, described: &BTreeSet<String>, report: &mut Report) {
+    const MB: u64 = 1024 * 1024;
+    if inventory.upload_status.is_empty() {
+        return;
+    }
+    let mut flagged = 0;
+    for (id, bytes) in &inventory.background_upload {
+        let package = inventory.packages.iter().find(|p| &p.id == id);
+        let spyware_like = described.contains(id);
+        let outside_stores = package.is_some_and(sideloaded);
+        if !((spyware_like && *bytes > 5 * MB) || (outside_stores && *bytes > 20 * MB)) {
+            continue;
+        }
+        flagged += 1;
+        if flagged > 10 || report.findings.len() >= 500 {
+            continue;
+        }
+        report.findings.push(heuristic(
+            "background_upload",
+            "android_background_upload",
+            if spyware_like { "medium" } else { "low" },
+            &format!("{id} sent {} MB in the background", bytes / MB),
+            "Review point: spyware sends what it collects in the background, but backups and sync do too. The phone counts this since its usage statistics were last reset.",
+            "If you do not recognise this app or why it sends so much, uninstall it and ask an expert to review the phone.",
+        ));
+    }
+    report.check(
+        "android_background_upload",
+        &inventory.upload_status,
+        &if inventory.upload_status == "skipped" {
+            "Background data per app was not reviewed: the person did not ask for it.".to_string()
+        } else {
+            format!(
+                "{} apps sent data in the background; {flagged} worth reviewing (installed outside the stores or acting like spyware).",
+                inventory.background_upload.len()
+            )
+        },
+    );
+}
 fn heuristic(
     id: &str,
     category: &str,
@@ -387,6 +487,7 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
         .saturating_add(inventory.remote_addresses.len() as u64);
     // Apps that act like spyware get their own finding with the evidence.
     let described = crate::behavior::analyze(inventory, report);
+    background_upload(inventory, &described, report);
     // Review points: never presented as infections.
     // Only apps installed from an APK file: other stores (F-Droid, work
     // profiles…) and updates of pre-installed apps are not review points.
@@ -447,6 +548,86 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn package_user_ids_are_read() {
+        let packages = parse_packages(
+            "package:/data/app/~~a==/x-1==/base.apk=com.example.x installer=com.android.vending uid:10234\n\
+             package:/system/app/Y/Y.apk=com.example.y installer=null uid:1000,1001\n\
+             package:/data/app/~~b==/z-1==/base.apk=com.example.z\n",
+        );
+        let uids: Vec<_> = packages.iter().map(|p| p.uid).collect();
+        assert_eq!(uids, vec![Some(10234), Some(1000), None]);
+    }
+    #[test]
+    fn background_upload_is_read_from_network_statistics() {
+        let text = "Dev stats:\n  ident=[{type=WIFI}] uid=-1 set=ALL tag=0x0\n    st=1 rb=1 rp=1 tb=999999 tp=1 op=0\n\
+UID stats:\n\
+  ident=[{type=WIFI}] uid=10234 set=DEFAULT tag=0x0\n\
+    NetworkStatsHistory: bucketDuration=7200\n\
+      st=1700000000 rb=5 rp=1 tb=1000 tp=2 op=0\n\
+      st=1700007200 rb=5 rp=1 tb=2000 tp=2 op=0\n\
+  ident=[{type=MOBILE}] uid=10234 set=FOREGROUND tag=0x0\n\
+      st=1700000000 rb=5 rp=1 tb=50000 tp=2 op=0\n\
+  ident=[{type=MOBILE}] uid=10234 set=DEFAULT tag=0xffffff01\n\
+      st=1700000000 rb=5 rp=1 tb=70000 tp=2 op=0\n\
+  ident=[{type=MOBILE}] uid=10500 set=DEFAULT tag=0x0\n\
+    NetworkStatsHistory: bucketDuration=3600\n\
+      bucketStart=1 activeTime=1 rxBytes=1 rxPackets=1 txBytes=300 txPackets=1 operations=0\n\
+UID tag stats:\n\
+  ident=[{type=WIFI}] uid=10500 set=DEFAULT tag=0x0\n\
+      st=1 rb=1 rp=1 tb=123456 tp=1 op=0\n";
+        let sent = parse_background_upload(text);
+        // Background, untagged totals only; both formats; other sections ignored.
+        assert_eq!(sent.get(&10234), Some(&3000));
+        assert_eq!(sent.get(&10500), Some(&300));
+        assert_eq!(sent.len(), 2);
+    }
+    #[test]
+    fn heavy_background_upload_is_a_review_point_only_for_unusual_apps() {
+        const MB: u64 = 1024 * 1024;
+        let app = |id: &str, installer: Option<&str>| Package {
+            id: id.into(),
+            path: format!("/data/app/~~x==/{id}-1==/base.apk"),
+            installer: installer.map(str::to_owned),
+            ..Default::default()
+        };
+        let inventory = Inventory {
+            packages: vec![
+                app("com.example.backup", Some("com.android.vending")),
+                app("com.example.sideloaded", None),
+                app("com.example.watcher", Some("com.android.vending")),
+            ],
+            upload_status: "completed".into(),
+            background_upload: vec![
+                ("com.example.backup".into(), 900 * MB),
+                ("com.example.sideloaded".into(), 30 * MB),
+                ("com.example.watcher".into(), 6 * MB),
+            ],
+            ..Default::default()
+        };
+        let mut report = Report::new("android", 1);
+        let described: BTreeSet<String> = ["com.example.watcher".to_string()].into();
+        background_upload(&inventory, &described, &mut report);
+        let found: Vec<_> = report
+            .findings
+            .iter()
+            .map(|f| (f.evidence.as_str(), f.severity.as_str()))
+            .collect();
+        // A store app's backups are only counted.
+        assert_eq!(
+            found,
+            vec![
+                ("com.example.sideloaded sent 30 MB in the background", "low"),
+                ("com.example.watcher sent 6 MB in the background", "medium"),
+            ]
+        );
+        assert!(report
+            .checks
+            .iter()
+            .any(|c| c.id == "android_background_upload"
+                && c.detail
+                    .starts_with("3 apps sent data in the background; 2 worth")));
+    }
     #[test]
     fn signed_families_name_the_threat_and_monitoring_apps_are_not_spyware() {
         let bytes = include_bytes!("../../../src-tauri/resources/intelligence/bundle-v2.json");
