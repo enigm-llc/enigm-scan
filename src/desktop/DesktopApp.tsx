@@ -4,6 +4,7 @@ import { native, type AgentStatus } from "../core/agent";
 import type { ScanReport } from "../core/report";
 import { forgetScanChoices } from "../core/scan-choices";
 import { useAppearance } from "../shared/appearance";
+import { revealWindow } from "./native-shell";
 import { agentDictionaries } from "../shared/i18n/agent";
 import { flowCopy } from "../shared/i18n/flow";
 import { useI18N } from "../shared/i18n/i18n";
@@ -49,6 +50,8 @@ declare global {
 export default function DesktopApp() {
   const { language, t } = useI18N();
   useAppearance("system");
+  // Shown once painted in the system's appearance, never white first.
+  useEffect(revealWindow, []);
   const a = agentDictionaries[language];
   const [report, setReport] = useState<ScanReport | null>(null);
   const [finishing, setFinishing] = useState(false);

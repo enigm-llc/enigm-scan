@@ -106,6 +106,8 @@ export type FlowCopy = {
   tryAgain: string;
   notFoundTitle: string;
   notFoundHelp: string;
+  /** The message at the top when a search finds no phone. */
+  notFoundMessage: string;
   searchAgain: string;
   downloadAgain: string;
   changeSystem: string;
@@ -186,6 +188,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     notFoundTitle: "Aún no vemos tu móvil",
     notFoundHelp:
       "Revisa que el cable transmita datos y que la pantalla esté desbloqueada. En Android, activa también la depuración USB.",
+    notFoundMessage: "No se ha encontrado ningún móvil.",
     searchAgain: "Buscar de nuevo",
     tryAgain: "Reintentar",
     problemUnplugged: ["Cable desconectado", "Vuelve a conectarlo para seguir"],
@@ -300,6 +303,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     notFoundTitle: "We can’t see your phone yet",
     notFoundHelp:
       "Check that the cable carries data and the screen is unlocked. On Android, also turn on USB debugging.",
+    notFoundMessage: "No phone was found.",
     searchAgain: "Search again",
     tryAgain: "Try again",
     problemUnplugged: ["Cable unplugged", "Plug it back in to continue"],
@@ -415,6 +419,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     notFoundTitle: "Nous ne voyons pas encore votre téléphone",
     notFoundHelp:
       "Vérifiez que le câble transmet des données et que l’écran est déverrouillé. Sur Android, activez aussi le débogage USB.",
+    notFoundMessage: "Aucun téléphone n’a été trouvé.",
     searchAgain: "Rechercher à nouveau",
     tryAgain: "Réessayer",
     problemUnplugged: ["Câble débranché", "Rebranchez-le pour continuer"],
@@ -537,6 +542,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     notFoundTitle: "Wir sehen Ihr Smartphone noch nicht",
     notFoundHelp:
       "Prüfen Sie, ob das Kabel Daten überträgt und der Bildschirm entsperrt ist. Aktivieren Sie unter Android auch USB-Debugging.",
+    notFoundMessage: "Es wurde kein Smartphone gefunden.",
     searchAgain: "Erneut suchen",
     tryAgain: "Erneut versuchen",
     problemUnplugged: ["Kabel getrennt", "Zum Fortfahren erneut anschließen"],
@@ -659,6 +665,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     notFoundTitle: "Non vediamo ancora il tuo telefono",
     notFoundHelp:
       "Controlla che il cavo trasmetta dati e che lo schermo sia sbloccato. Su Android, attiva anche il debug USB.",
+    notFoundMessage: "Non è stato trovato nessun telefono.",
     searchAgain: "Cerca di nuovo",
     tryAgain: "Riprova",
     problemUnplugged: ["Cavo scollegato", "Ricollegalo per continuare"],
@@ -778,6 +785,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     notFoundTitle: "Ainda não vemos o seu telemóvel",
     notFoundHelp:
       "Confirme que o cabo transmite dados e que o ecrã está desbloqueado. No Android, ative também a depuração USB.",
+    notFoundMessage: "Não foi encontrado nenhum telemóvel.",
     searchAgain: "Procurar novamente",
     tryAgain: "Tentar novamente",
     problemUnplugged: ["Cabo desligado", "Volte a ligá-lo para continuar"],

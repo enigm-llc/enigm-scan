@@ -23,3 +23,18 @@ export function markNativeShell(root = document.documentElement): void {
     ? "dark"
     : "light";
 }
+
+/**
+ * Show this app window once its first frame is painted in the system's
+ * appearance. The window starts hidden, so nothing white or in the wrong
+ * appearance shows while it loads (see `window_ready` in src-tauri).
+ */
+export function revealWindow(): void {
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      void import("@tauri-apps/api/core")
+        .then(({ invoke }) => invoke("window_ready"))
+        .catch(() => {});
+    }),
+  );
+}

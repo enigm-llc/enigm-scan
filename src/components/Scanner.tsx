@@ -14,6 +14,7 @@ import { productCopy } from "../shared/i18n/product";
 import type { Language, Copy } from "../shared/i18n/i18n";
 import { DeviceIcon } from "./Brand";
 import { PhoneStage, type PhoneScreen } from "./PhoneStage";
+import { toast } from "../desktop/toast";
 import { Notice } from "./Notice";
 import { flowCopy } from "../shared/i18n/flow";
 import { ScanProgress } from "./ScanProgress";
@@ -375,6 +376,8 @@ export function Scanner({
       });
       setDevices(list);
       setSearched(true);
+      // Besides the checks beside the phone, say it at the top.
+      if (list.length === 0) toast.error(f.notFoundMessage);
       const allowed = list.filter((d) => d.authorized || d.needsTrust);
       if (allowed.length === 1) {
         setSelected(allowed[0]);

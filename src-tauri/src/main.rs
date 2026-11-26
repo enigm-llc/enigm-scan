@@ -57,12 +57,41 @@ fn own_page(url: &tauri::Url) -> bool {
     }
     own
 }
-/// Windows start hidden and appear once their page has loaded, so the
-/// webview's blank white canvas never shows before the app's own colours.
-fn show_when_loaded(window: tauri::WebviewWindow, payload: tauri::webview::PageLoadPayload<'_>) {
-    if payload.event() == tauri::webview::PageLoadEvent::Finished {
+/// The window grey of each system in light and dark, as in console.css
+/// ("Desktop app: native look").
+fn window_grey(dark: bool) -> tauri::window::Color {
+    let (light, night) = if cfg!(target_os = "macos") {
+        (0xec, 0x1e)
+    } else if cfg!(windows) {
+        (0xf3, 0x20)
+    } else {
+        (0xfa, 0x24)
+    };
+    let grey = if dark { night } else { light };
+    tauri::window::Color(grey, grey, grey, 255)
+}
+/// Paint a window in the system's grey for its current appearance, so
+/// nothing white shows behind the page while it loads or resizes.
+fn paint_window(window: &tauri::WebviewWindow) {
+    let dark = matches!(window.theme(), Ok(tauri::Theme::Dark));
+    let _ = window.set_background_color(Some(window_grey(dark)));
+}
+/// Windows start hidden and are shown by their page once it has painted its
+/// first frame in the system's appearance (`revealWindow` in
+/// src/desktop/native-shell.ts). Showing them when the page had merely
+/// loaded let a white frame through: the webview's own canvas on macOS,
+/// and the page before its stylesheet knew the appearance. Each window only
+/// shows itself.
+#[tauri::command]
+fn window_ready(window: WebviewWindow) {
+    let _ = window.show();
+}
+/// If a page never reports that it painted, show its window anyway.
+fn show_later(window: tauri::WebviewWindow) {
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_secs(4));
         let _ = window.show();
-    }
+    });
 }
 /// The About window, opened from the macOS app menu, laid out like the
 /// system's own: the app icon, name, version, release date and copyright. It
@@ -99,7 +128,6 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
             .center()
             .visible(false)
             .incognito(true)
-            .on_page_load(show_when_loaded)
             .on_navigation(own_page)
             .on_new_window(|url, _| {
                 if let Some(link) = external_link(url.as_str()) {
@@ -114,7 +142,9 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
     let builder = builder
         .title_bar_style(tauri::TitleBarStyle::Overlay)
         .hidden_title(true);
-    builder.build()?;
+    let window = builder.build()?;
+    paint_window(&window);
+    show_later(window);
     Ok(())
 }
 const BUILTIN_BUNDLE: &[u8] = include_bytes!("../resources/intelligence/bundle-v2.json");
@@ -1406,7 +1436,6 @@ fn main() {
             )?
             .data_directory(browser_data)
             .visible(false)
-            .on_page_load(show_when_loaded)
             .incognito(true)
             // The window only ever shows the app. A link that would leave
             // it opens in the system browser instead (https only).
@@ -1423,11 +1452,8 @@ fn main() {
                 .title_bar_style(tauri::TitleBarStyle::Overlay)
                 .hidden_title(true);
             let window = main.build()?;
-            // If the page never reports that it loaded, show the window anyway.
-            std::thread::spawn(move || {
-                std::thread::sleep(std::time::Duration::from_secs(4));
-                let _ = window.show();
-            });
+            paint_window(&window);
+            show_later(window);
             Ok(())
         })
         .on_menu_event(|app, event| {
@@ -1441,6 +1467,12 @@ fn main() {
             }
         })
         .on_window_event(|window, event| {
+            // Each window follows the system's appearance as it changes.
+            if let tauri::WindowEvent::ThemeChanged(_) = event {
+                if let Some(webview) = window.app_handle().get_webview_window(window.label()) {
+                    paint_window(&webview);
+                }
+            }
             // Only the main window ends the session; the About window just
             // closes.
             if window.label() != "main" {
@@ -1477,6 +1509,7 @@ fn main() {
             cancel_scan,
             skip_deep_check,
             prepare_deep_check,
+            window_ready,
             begin_copy,
             finish_scan,
             save_export,

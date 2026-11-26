@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useAppearance } from "../shared/appearance";
+import { revealWindow } from "./native-shell";
 import { flowCopy } from "../shared/i18n/flow";
 import { useI18N, type Language } from "../shared/i18n/i18n";
 
@@ -27,6 +28,8 @@ function releaseDate(iso: string, language: Language): string {
 export default function AboutWindow() {
   const { language } = useI18N();
   useAppearance("system");
+  // Shown once painted in the system's appearance, never white first.
+  useEffect(revealWindow, []);
   const f = flowCopy[language];
   const version = fromAddress("version", /^\d+\.\d+\.\d+$/);
   const released = fromAddress("released", /^\d{4}-\d{2}-\d{2}$/);
