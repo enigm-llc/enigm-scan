@@ -1,6 +1,6 @@
 [package]
 name = "enigm-scan"
-version = "0.7.2"
+version = "0.7.3"
 edition = "2021"
 license = "PolyForm-Noncommercial-1.0.0"
 description = "Enigm Scan desktop app: checks an iPhone or Android phone for spyware, locally."

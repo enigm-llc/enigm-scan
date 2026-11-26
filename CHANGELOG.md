@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.3 — 26 November 2026
+
+- Windows open directly in the system's light or dark appearance, without
+  a white frame first, including About.
+- The Android guide shows USB debugging being switched on, with room
+  around the back arrow.
+- A search that finds no phone also says so in a message at the top.
+- The text keeps its full width on every step; the phone sits further
+  right instead.
+- The report's first screen fills the window, so the summary starts just
+  below it, where the arrow points.
+
 ## 0.7.2 — 26 November 2026
 
 - iPhone "Trust" moves to the search step, as Android's USB debugging: the
