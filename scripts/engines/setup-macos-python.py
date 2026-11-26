@@ -41,7 +41,10 @@ with tempfile.TemporaryDirectory(prefix='enigm-openssl-') as folder:
     with archive.open('rb') as source:
         if hashlib.file_digest(source, 'sha256').hexdigest() != openssl_sha:
             raise SystemExit('OpenSSL source checksum mismatch')
-    with tarfile.open(archive) as source: source.extractall(folder, filter='data')
+    # The archive is checked against its SHA-256 above, and the 'data' filter
+    # rejects absolute paths, links and members that would land outside folder.
+    with tarfile.open(archive) as source:  # nosemgrep: trailofbits.python.tarfile-extractall-traversal.tarfile-extractall-traversal
+        source.extractall(folder, filter='data')
     source_dir = pathlib.Path(folder) / 'openssl-3.5.9'
     notices = pathlib.Path('src-tauri/resources/engines/notices')
     notices.mkdir(parents=True, exist_ok=True)
