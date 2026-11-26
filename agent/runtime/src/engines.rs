@@ -472,7 +472,7 @@ pub fn analyze_mvt(
     // Enigm's own analysis of MVT's extracted records: impersonating links in
     // messages and browsers, and configuration profiles able to intercept.
     enigm_scan_core::extractions::analyze(&output, report);
-    report.check("mvt_routine_alerts", "completed", &format!("{} MVT heuristics omitted as routine on ordinary phones: app updates and uninstalls, the manufacturer's own accessibility services, apps from known stores allowed to install updates, the USB debugging session used by this scan, and configuration profiles being installed or removed (the profiles themselves are checked). None matched a signed indicator; indicator matches are never omitted.", routine.omitted));
+    report.check("mvt_routine_alerts", "completed", &format!("{} MVT heuristics omitted as routine on ordinary phones: app updates and uninstalls, the manufacturer's own accessibility services, apps from known stores allowed to install updates, the USB debugging session used by this scan, apps from Apple's TestFlight beta channel, and configuration profiles being installed or removed (the profiles themselves are checked). None matched a signed indicator; indicator matches are never omitted.", routine.omitted));
     if let Some(on) = routine.lockdown {
         report.check(
             "ios_lockdown_mode",
@@ -594,6 +594,12 @@ impl Routine {
             // Configuration profiles being installed or removed: routine
             // (VPNs, work profiles, betas). The profiles themselves are
             // analysed for interception and management in extractions.rs.
+            true
+        } else if message.starts_with("Suspicious app not installed from the App Store or MDM")
+            && event.get("sourceApp").and_then(|v| v.as_str()) == Some("com.apple.TestFlight")
+        {
+            // TestFlight is Apple's own beta channel: its apps are reviewed by
+            // Apple like those of the App Store.
             true
         } else if message.starts_with("Risky package 'com.android.shell'") {
             // ADB runs as com.android.shell: this is the scan's own session.
@@ -776,7 +782,9 @@ mod tests {
             {"level":"MEDIUM","module":"accessibility","message":"Found accessibility service: \"com.spy.helper/.A\" (enabled)","event":{"package_name":"com.spy.helper"}},
             {"level":"MEDIUM","module":"packages","message":"Found an installed package related to rooting/jailbreaking: \"com.topjohnwu.magisk\"","event":{"package_name":"com.topjohnwu.magisk"}},
             {"level":"LOW","module":"global_preferences","message":"Lockdown mode enabled","event":{"entry":"LDMGlobalEnabled","value":true}},
-            {"level":"LOW","module":"profile_events","message":"On 2026-11-20 10:00:00 process \"profiled\" started operation \"install\" of profile \"com.example.vpn\"","event":{}}
+            {"level":"LOW","module":"profile_events","message":"On 2026-11-20 10:00:00 process \"profiled\" started operation \"install\" of profile \"com.example.vpn\"","event":{}},
+            {"level":"MEDIUM","module":"applications","message":"Suspicious app not installed from the App Store or MDM: com.example.beta","event":{"sourceApp":"com.apple.TestFlight"}},
+            {"level":"MEDIUM","module":"applications","message":"Suspicious app not installed from the App Store or MDM: com.example.other","event":{"sourceApp":"com.example.installer"}}
         ]);
         let mut routine = Routine::default();
         let findings = parse_alerts_with_rules(
@@ -788,15 +796,22 @@ mod tests {
             &mut routine,
         )
         .unwrap();
-        // A sideloaded app with accessibility and a rooting app stay as review points.
-        assert_eq!(findings.len(), 2);
+        // A sideloaded app with accessibility, a rooting app and an iPhone app
+        // from an unknown installer stay as review points.
+        assert_eq!(findings.len(), 3);
         assert!(findings
             .iter()
             .all(|f| f.rule.starts_with("mvt.heuristic.")));
         assert!(findings[0].evidence.contains("com.spy.helper"));
         // Profile events are routine; Lockdown Mode, like the security patch,
         // becomes a check of its own. Neither is a point to review.
-        assert_eq!(routine.omitted, 6);
+        assert_eq!(routine.omitted, 7);
+        assert!(findings
+            .iter()
+            .any(|f| f.evidence.contains("com.example.other")));
+        assert!(!findings
+            .iter()
+            .any(|f| f.evidence.contains("com.example.beta")));
         assert_eq!(routine.lockdown, Some(true));
         assert!(routine.security_patch.unwrap().contains("2025-01-05"));
         // Without an inventory, accessibility services are never assumed trusted.
@@ -810,7 +825,7 @@ mod tests {
             &mut routine,
         )
         .unwrap();
-        assert_eq!(kept.len(), 4);
+        assert_eq!(kept.len(), 5);
     }
     #[test]
     fn parses_actual_v3_alert_shape() {

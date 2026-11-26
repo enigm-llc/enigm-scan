@@ -457,28 +457,6 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
         matches.inspect(report, Kind::Domain, host, "HTTP proxy", None);
         matches.inspect(report, Kind::Ip, host, "HTTP proxy", None);
     }
-    // A private DNS server or a proxy on dynamic DNS or a tunnel: where the
-    // phone's traffic is sent to someone's own computer.
-    for (host, artifact) in [
-        (inventory.private_dns_host.as_deref(), "private DNS server"),
-        (
-            inventory
-                .http_proxy
-                .as_deref()
-                .map(|p| p.rsplit_once(':').map_or(p, |(h, _)| h)),
-            "HTTP proxy",
-        ),
-    ] {
-        if let Some((host, hosting)) =
-            host.and_then(|h| Some((h, crate::infrastructure::classify(h)?)))
-        {
-            if report.findings.len() < 500 {
-                report.findings.push(crate::infrastructure::finding(
-                    host, &hosting, artifact, None,
-                ));
-            }
-        }
-    }
     let third_party: Vec<&Package> = inventory
         .packages
         .iter()
@@ -534,12 +512,23 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
         .as_ref()
         .filter(|p| !p.is_empty() && p.as_str() != ":0")
     {
+        // A proxy on dynamic DNS or a tunnel sends the phone's traffic to
+        // someone's own computer, not to a workplace or a provider.
+        let host = proxy.rsplit_once(':').map_or(proxy.as_str(), |(h, _)| h);
+        let hosting = crate::infrastructure::classify(host)
+            .filter(|h| h.class != crate::infrastructure::Class::Collector);
         if report.findings.len() < 500 {
             report.findings.push(heuristic(
                 "proxy",
                 "android_traffic_redirect",
-                "medium",
-                &format!("A global HTTP proxy is configured: {proxy}"),
+                if hosting.is_some() { "high" } else { "medium" },
+                &match &hosting {
+                    Some(h) => format!(
+                        "A global HTTP proxy is configured: {proxy} ({}, {})",
+                        h.kind, h.service
+                    ),
+                    None => format!("A global HTTP proxy is configured: {proxy}"),
+                },
                 "Some workplaces configure proxies on purpose. Malware can also use one to intercept traffic.",
                 "If you did not set this proxy, remove it in the network settings and review the device with an expert.",
             ));
@@ -571,22 +560,29 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
 mod tests {
     use super::*;
     #[test]
-    fn a_private_dns_on_a_tunnel_is_a_review_point() {
+    fn a_proxy_on_dynamic_dns_is_high_and_a_self_hosted_private_dns_is_not_flagged() {
         let (b, key) = crate::rules::tests::fixture(1000);
         let rules = VerifiedRules::verify(&b, &key, 1000, 1).unwrap();
         let inventory = Inventory {
             private_dns_mode: Some("hostname".into()),
-            private_dns_host: Some("abc.trycloudflare.com".into()),
+            private_dns_host: Some("adguard.duckdns.org".into()),
+            http_proxy: Some("relay.duckdns.org:8080".into()),
             ..Default::default()
         };
         let mut report = Report::new("android", 1);
         analyze(&inventory, &rules, &mut report);
-        assert!(report
+        let proxy: Vec<_> = report
             .findings
             .iter()
-            .any(|f| f.rule == "enigm.heuristic.suspicious_hosting"
-                && f.evidence
-                    .starts_with("private DNS server: abc.trycloudflare.com: a tunnel")));
+            .filter(|f| f.category == "android_traffic_redirect")
+            .collect();
+        assert_eq!(proxy.len(), 1);
+        assert_eq!(proxy[0].severity, "high");
+        assert!(proxy[0].evidence.contains("(a dynamic DNS name"));
+        assert!(!report
+            .findings
+            .iter()
+            .any(|f| f.evidence.contains("adguard")));
     }
     #[test]
     fn package_user_ids_are_read() {

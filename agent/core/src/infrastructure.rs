@@ -1,20 +1,30 @@
-//! Hosting that spyware reports to when it has no infrastructure of its own,
-//! and that ordinary apps almost never use: dynamic DNS names that follow a
-//! home or rented connection, tunnels that expose a computer to the internet,
-//! services that keep whatever is sent to them for someone to collect, and
-//! the Telegram bot API, which Android spyware and remote access tools use to
-//! send what they collect. Stalkerware and spyware sold as a service,
+//! Hosting that spyware reports to when it has no infrastructure of its own:
+//! dynamic DNS names that follow a home or rented connection, tunnels that
+//! expose a computer to the internet, and services that keep whatever is sent
+//! to them for someone to collect. Remote access tools and stalkerware,
 //! documented by ESET, Lookout, Cyble and others, rely on them because they
 //! cost nothing and hide who runs the server.
+//!
+//! Each class is used where it is specific enough not to accuse ordinary
+//! use: home servers, game servers and smart homes also use dynamic DNS and
+//! tunnels (see `network.rs`, `links.rs` and `android.rs`).
 //!
 //! A name only counts when it is a host inside one of these services (such as
 //! `name.duckdns.org`), never the provider's own website.
 
+/// The kind of service a host belongs to.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Class {
+    DynamicDns,
+    Tunnel,
+    Collector,
+}
 /// What a host is, when it belongs to such a service: the service and how it
 /// is described in the report.
 pub struct Hosting {
     pub service: &'static str,
     pub kind: &'static str,
+    pub class: Class,
 }
 
 const DYNAMIC_DNS: &[(&str, &str)] = &[
@@ -104,24 +114,10 @@ const COLLECTORS: &[(&str, &str, bool)] = &[
     ("oastify.com", "Burp Collaborator", false),
 ];
 
-impl Hosting {
-    /// Whether the host is where spyware sends data to, rather than where a
-    /// link in a message would lead.
-    pub fn reporting_only(&self) -> bool {
-        self.service == "Telegram"
-    }
-}
-
 /// The service `host` belongs to, if it is a host inside a dynamic DNS,
-/// tunnel or data collection service, or the Telegram bot API.
+/// tunnel or data collection service.
 pub fn classify(host: &str) -> Option<Hosting> {
     let host = host.trim_end_matches('.').to_ascii_lowercase();
-    if host == "api.telegram.org" {
-        return Some(Hosting {
-            service: "Telegram",
-            kind: "the Telegram bot API, which spyware uses to send what it collects",
-        });
-    }
     // A host inside the service, not the provider's own website.
     let inside = |suffix: &str| {
         host.len() > suffix.len() + 1
@@ -133,12 +129,14 @@ pub fn classify(host: &str) -> Option<Hosting> {
         return Some(Hosting {
             service,
             kind: "a dynamic DNS name, which follows a home or rented connection",
+            class: Class::DynamicDns,
         });
     }
     if let Some((_, service)) = TUNNELS.iter().find(|(suffix, _)| inside(suffix)) {
         return Some(Hosting {
             service,
             kind: "a tunnel that exposes a computer to the internet",
+            class: Class::Tunnel,
         });
     }
     COLLECTORS
@@ -147,21 +145,28 @@ pub fn classify(host: &str) -> Option<Hosting> {
         .map(|(_, service, _)| Hosting {
             service,
             kind: "a service that keeps what is sent to it for someone to collect",
+            class: Class::Collector,
         })
 }
 
-/// The review point for a host of such a service the phone used.
+/// The review point for a host of such a service the phone used; `pattern`
+/// adds how it was contacted when that is what makes it suspicious.
 pub fn finding(
     host: &str,
     hosting: &Hosting,
-    artifact: &str,
+    pattern: Option<String>,
     at: Option<String>,
 ) -> crate::model::Finding {
     crate::extractions::finding(
         "enigm.heuristic.suspicious_hosting",
         "network_suspicious_hosting",
         "medium",
-        &format!("{artifact}: {host}: {} ({})", hosting.kind, hosting.service),
+        &format!(
+            "contacted by the phone: {host}: {} ({}){}",
+            hosting.kind,
+            hosting.service,
+            pattern.map(|p| format!(", {p}")).unwrap_or_default()
+        ),
         at,
         "Review point: spyware without servers of its own often reports to such hosts. Few ordinary apps use them, though some home and gaming services do.",
         "Find which app uses this host. If you do not recognise it, ask an expert to review the phone.",
@@ -175,7 +180,7 @@ mod tests {
     fn hosts_inside_these_services_count_but_not_their_websites() {
         assert_eq!(classify("panel.duckdns.org").unwrap().service, "DuckDNS");
         assert_eq!(classify("A1.Ngrok-Free.App.").unwrap().service, "ngrok");
-        assert_eq!(classify("api.telegram.org").unwrap().service, "Telegram");
+        assert!(classify("api.telegram.org").is_none());
         assert_eq!(classify("webhook.site").unwrap().service, "Webhook.site");
         assert_eq!(
             classify("eo1x2y.m.pipedream.net").unwrap().service,
@@ -188,7 +193,8 @@ mod tests {
         assert!(classify("www.duckdns.org").is_none());
         assert!(classify("www.noip.com").is_none());
         assert!(classify("notduckdns.org").is_none());
-        assert!(classify("web.telegram.org").is_none());
+        assert_eq!(classify("x.duckdns.org").unwrap().class, Class::DynamicDns);
+        assert_eq!(classify("webhook.site").unwrap().class, Class::Collector);
         assert!(classify("example.com").is_none());
     }
 }

@@ -194,6 +194,17 @@ export const EXTRA_TEXTS: Array<[RegExp, T]> = [
     ),
   ],
   [
+    /^Review point: jailbreaking an iPhone/,
+    t(
+      "Punto a revisar: a veces es el propio dueño quien hace el jailbreak al iPhone. Aun así, elimina las protecciones que frenan al spyware y le permite esconderse de análisis como este.",
+      "Point to review: owners sometimes jailbreak their own iPhone. It still removes the protections that keep spyware out and lets it hide from scans like this one.",
+      "Point à vérifier : il arrive que le propriétaire jailbreake lui-même son iPhone. Cela supprime pourtant les protections contre les logiciels espions et leur permet de se cacher d’analyses comme celle-ci.",
+      "Zu prüfender Punkt: Manchmal jailbreakt der Besitzer sein iPhone selbst. Dennoch entfallen damit Schutzmechanismen gegen Spyware, die sich so vor Analysen wie dieser verbergen kann.",
+      "Punto da verificare: a volte è il proprietario a fare il jailbreak dell’iPhone. Ciò rimuove comunque le protezioni contro lo spyware e gli permette di nascondersi da analisi come questa.",
+      "Ponto a rever: às vezes é o próprio dono que faz jailbreak ao iPhone. Ainda assim, isso remove as proteções contra spyware e permite-lhe esconder-se de análises como esta.",
+    ),
+  ],
+  [
     /^Review point: rooting or unlocking a phone/,
     t(
       "Punto a revisar: a veces es el propio dueño quien rootea o desbloquea el móvil. Aun así, elimina las protecciones que frenan al spyware y le permite esconderse de análisis como este.",
@@ -374,6 +385,17 @@ export const EXTRA_TEXTS: Array<[RegExp, T]> = [
 /** Phrases that Enigm composes into evidence lines, longest first. */
 export const FRAGMENTS: Array<[string, T]> = [
   [
+    "the iPhone is jailbroken: programs ran from a jailbreak's folders",
+    t(
+      "el iPhone tiene jailbreak: se ejecutaron programas desde las carpetas de un jailbreak",
+      "the iPhone is jailbroken: programs ran from a jailbreak's folders",
+      "l’iPhone est jailbreaké : des programmes ont tourné depuis les dossiers d’un jailbreak",
+      "das iPhone ist gejailbreakt: Programme liefen aus den Ordnern eines Jailbreaks",
+      "l’iPhone ha il jailbreak: alcuni programmi sono stati eseguiti dalle cartelle di un jailbreak",
+      "o iPhone tem jailbreak: foram executados programas a partir das pastas de um jailbreak",
+    ),
+  ],
+  [
     "installed from a computer over USB (ADB), not from an app store",
     t(
       "instalada desde un ordenador por USB (ADB), no desde una tienda",
@@ -473,17 +495,6 @@ export const FRAGMENTS: Array<[string, T]> = [
     ),
   ],
   [
-    "the Telegram bot API, which spyware uses to send what it collects",
-    t(
-      "la API de bots de Telegram, que el spyware usa para enviar lo que recoge",
-      "the Telegram bot API, which spyware uses to send what it collects",
-      "l’API des bots Telegram, que les logiciels espions utilisent pour envoyer ce qu’ils collectent",
-      "die Telegram-Bot-API, über die Spyware Gesammeltes versendet",
-      "l’API dei bot di Telegram, che lo spyware usa per inviare ciò che raccoglie",
-      "a API de bots do Telegram, que o spyware usa para enviar o que recolhe",
-    ),
-  ],
-  [
     "contacted by the phone",
     t(
       "contactado por el móvil",
@@ -492,28 +503,6 @@ export const FRAGMENTS: Array<[string, T]> = [
       "vom Telefon kontaktiert",
       "contattato dal telefono",
       "contactado pelo telemóvel",
-    ),
-  ],
-  [
-    "private DNS server",
-    t(
-      "servidor DNS privado",
-      "private DNS server",
-      "serveur DNS privé",
-      "privater DNS-Server",
-      "server DNS privato",
-      "servidor DNS privado",
-    ),
-  ],
-  [
-    "HTTP proxy",
-    t(
-      "proxy HTTP",
-      "HTTP proxy",
-      "proxy HTTP",
-      "HTTP-Proxy",
-      "proxy HTTP",
-      "proxy HTTP",
     ),
   ],
   [
@@ -1128,6 +1117,17 @@ const LANGS: Language[] = ["es", "en", "fr", "de", "it", "pt"];
 /** Enigm's phrases that carry data ($1, $2…): reasons, counts and dates.
  *  Applied before FRAGMENTS, which then translate the phrases around them. */
 export const PATTERNS: Array<[RegExp, T]> = [
+  [
+    /, (\d+) connections \(port (\d+)\) about every (\d+) seconds$/,
+    t(
+      ", $1 conexiones (puerto $2) cada $3 segundos aproximadamente",
+      ", $1 connections (port $2) about every $3 seconds",
+      ", $1 connexions (port $2) environ toutes les $3 secondes",
+      ", $1 Verbindungen (Port $2) etwa alle $3 Sekunden",
+      ", $1 connessioni (porta $2) circa ogni $3 secondi",
+      ", $1 ligações (porta $2) a cada $3 segundos, aproximadamente",
+    ),
+  ],
   [
     /delayed (\d+) reboot\(s\) in shutdown\.log/g,
     t(

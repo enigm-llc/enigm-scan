@@ -447,13 +447,16 @@ pub fn assess_in(link: &str, context: Context) -> Option<Assessment> {
         });
     }
     if context == Context::Message {
-        if let Some(hosting) =
-            crate::infrastructure::classify(&host).filter(|h| !h.reporting_only())
-        {
+        if let Some(hosting) = crate::infrastructure::classify(&host) {
             return Some(Assessment {
                 reason: format!("link to {} ({})", hosting.kind, hosting.service),
                 host,
-                severity: "medium",
+                // Someone's home server is a dynamic DNS name too.
+                severity: if hosting.class == crate::infrastructure::Class::DynamicDns {
+                    "low"
+                } else {
+                    "medium"
+                },
             });
         }
     }
@@ -652,12 +655,15 @@ mod tests {
     #[test]
     fn message_links_to_dynamic_dns_or_tunnels_are_flagged_but_not_in_browsing() {
         let found = assess("https://update-now.duckdns.org/app.apk").unwrap();
-        assert_eq!(found.severity, "medium");
+        assert_eq!(found.severity, "low");
         assert_eq!(
             found.reason,
             "link to a dynamic DNS name, which follows a home or rented connection (DuckDNS)"
         );
-        assert!(assess("https://abc.trycloudflare.com/").is_some());
+        assert_eq!(
+            assess("https://abc.trycloudflare.com/").unwrap().severity,
+            "medium"
+        );
         assert!(assess_in("https://abc.trycloudflare.com/", Context::Browsing).is_none());
         assert!(assess("https://api.telegram.org/bot1/sendMessage").is_none());
         assert!(assess("https://www.duckdns.org/").is_none());

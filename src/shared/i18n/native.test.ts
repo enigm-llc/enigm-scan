@@ -208,16 +208,26 @@ it("translates the spyware intelligence texts", () => {
     "Review point: spyware without servers of its own often reports to such hosts. Few ordinary apps use them, though some home and gaming services do.",
     "Find which app uses this host. If you do not recognise it, ask an expert to review the phone.",
     "Review point: the domain imitates a trusted brand, is a bare address or is on a free service that hides who runs it. Spyware and phishing are often delivered this way, but this alone does not show that the link was opened or that anything was installed.",
+    "Review point: jailbreaking an iPhone is sometimes done by its owner. It also removes the protections that keep spyware out and lets it hide from scans like this one.",
   ])
-    expect(nativeText(text, es)).not.toBe(text);
+    for (const language of ["es", "fr", "de", "it", "pt"] as const)
+      expect(nativeText(text, language)).not.toBe(text);
   const evidence: Array<[string, string]> = [
     [
       "contacted by the phone: panel.duckdns.org: a dynamic DNS name, which follows a home or rented connection (DuckDNS)",
       "contactado por el móvil: panel.duckdns.org: un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada (DuckDNS)",
     ],
     [
-      "private DNS server: abc.trycloudflare.com: a tunnel that exposes a computer to the internet (Cloudflare Tunnel)",
-      "Servidor DNS privado: abc.trycloudflare.com: un túnel que expone un ordenador a internet (Cloudflare Tunnel)",
+      "contacted by the phone: panel.duckdns.org: a dynamic DNS name, which follows a home or rented connection (DuckDNS), 4 connections (port 443) about every 60 seconds",
+      "contactado por el móvil: panel.duckdns.org: un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada (DuckDNS), 4 conexiones (puerto 443) cada 60 segundos aproximadamente",
+    ],
+    [
+      "A global HTTP proxy is configured: relay.duckdns.org:8080 (a dynamic DNS name, which follows a home or rented connection, DuckDNS)",
+      "Hay un proxy de red configurado: relay.duckdns.org:8080 (un nombre de DNS dinámico, que sigue a una conexión doméstica o alquilada, DuckDNS)",
+    ],
+    [
+      "System integrity: the iPhone is jailbroken: programs ran from a jailbreak's folders (/var/jb/usr/sbin/sshd)",
+      "Integridad del sistema: el iPhone tiene jailbreak: se ejecutaron programas desde las carpetas de un jailbreak (/var/jb/usr/sbin/sshd)",
     ],
     [
       "x.duckdns.org: link to a dynamic DNS name, which follows a home or rented connection (DuckDNS). Seen 2 time(s) in SMS or iMessage between 2026-11-20T10:00:00Z and 2026-11-21T09:00:00Z, e.g. https://x.duckdns.org/app",
@@ -241,7 +251,7 @@ it("translates the spyware intelligence texts", () => {
   // Every other language of the app has them too, with no English phrase
   // left behind.
   const englishPhrases =
-    /contacted by|dynamic DNS name|tunnel that|link to|Seen \d|executable ran|never run code|reboot\(s\)|sysdiagnose was created|installed from a computer|while not on screen| ago\b/;
+    /contacted by|dynamic DNS name|tunnel that|link to|Seen \d|executable ran|never run code|reboot\(s\)|sysdiagnose was created|installed from a computer|while not on screen| ago\b|about every|jailbroken|jailbreak's|global HTTP proxy/;
   for (const language of ["fr", "de", "it", "pt"] as const) {
     for (const id of ["ios_running_processes", "ios_lockdown_mode"])
       expect(checkName(id, language)).not.toBe(id);

@@ -43,10 +43,10 @@ prove that a phone is not being spied on, and the report says so.
   background, read over USB without root.
 - **iPhone traces.** Crash reports and, if you choose the deep check, the
   shutdown log and running processes of a sysdiagnose, where some spyware
-  leaves processes behind.
-- **Where spyware reports.** Hosts on dynamic DNS, tunnel and data collection
-  services and the Telegram bot API, which spyware without servers of its own
-  uses, in the phone's traffic, DNS and proxy settings and message links.
+  leaves processes behind, and signs of a jailbreak.
+- **Where spyware reports.** Data collection services, tunnels and dynamic DNS
+  names checked in with at a steady pace, which spyware without servers of its
+  own uses, in the phone's traffic, proxy settings and message links.
 - **Optional network check.** On iPhone the app watches the phone's own
   traffic while it copies, and reads the servers it contacts, even over
   encrypted connections; on Android it reads the open connections and which

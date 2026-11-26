@@ -70,8 +70,8 @@ memory. The PDF is rendered locally with jsPDF.
    `agent/core` matches indicators, looks for spyware behaviour on Android,
    suspicious process locations on iPhone, look-alike links in messages
    and browsing history, and hosts on services spyware reports to
-   (`infrastructure.rs`: dynamic DNS, tunnels, data collection services and
-   the Telegram bot API).
+   (`infrastructure.rs`: data collection services, tunnels used for web
+   traffic, and dynamic DNS names checked in with at a steady pace).
 6. **Cleanup.** The temporary folder is deleted and the report says whether
    that succeeded.
 

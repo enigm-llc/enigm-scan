@@ -154,6 +154,14 @@ const labels: Record<string, Record<Language, string>> = {
     it: "Link sospetto",
     pt: "Ligação suspeita",
   },
+  ios_system_integrity: {
+    es: "Sistema modificado (jailbreak)",
+    en: "Modified system (jailbreak)",
+    fr: "Système modifié (jailbreak)",
+    de: "Verändertes System (Jailbreak)",
+    it: "Sistema modificato (jailbreak)",
+    pt: "Sistema modificado (jailbreak)",
+  },
   network_suspicious_hosting: {
     es: "Servicio que usa el spyware para enviar datos",
     en: "Service spyware uses to send data",
@@ -306,6 +314,7 @@ const kindOf: Record<string, keyof typeof kinds> = {
   android_spyware_behavior: "app",
   android_surveillance_capabilities: "app",
   android_system_integrity: "system",
+  ios_system_integrity: "system",
   suspicious_link: "link",
   ios_configuration_profile: "profile",
   ios_unusual_process: "process",

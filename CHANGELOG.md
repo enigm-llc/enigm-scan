@@ -14,18 +14,25 @@
   says when encrypted DNS or iCloud Private Relay hide the lookups. On
   Android, apps installed outside the stores or acting like spyware that send
   a lot of data in the background are points to review.
-- Spyware without servers of its own is found by where it reports: hosts on
-  dynamic DNS services, tunnels that expose a computer to the internet,
-  services that keep what is sent to them, and the Telegram bot API, when
-  the phone contacts them, uses one as its private DNS or proxy, or receives
-  a link to one in a message.
+- Spyware without servers of its own is found by where it reports: services
+  that keep what is sent to them, web traffic through tunnels that expose a
+  computer to the internet, and dynamic DNS names the phone checks in with at
+  a steady pace, as remote access tools do. Home servers, smart homes and game
+  servers on those services are not reported. A link to one in a message is
+  a point to review, and an Android proxy on one is reported as high.
 - On iPhone, the deep check also reads the processes running when the
   sysdiagnose was created, so spyware running from folders where iOS never
-  runs code is found even if it never delayed a reboot or crashed.
+  runs code is found even if it never delayed a reboot or crashed. A
+  jailbroken iPhone is reported, as a rooted Android phone is.
 - On Android, an app installed from a computer over USB (ADB), as police
   and border spyware is, with its icon hidden and special access, is shown
-  as spyware behaviour; using the location in the background counts like
-  the microphone and camera.
+  as spyware behaviour, and so is a hidden app following the location in the
+  background.
+- Fewer false alarms: genuine Google, Huawei and Honor apps installed from an
+  APK file no longer count as imitating the system; Apple's own programs that
+  share a name with a spyware process are recognised by where they run; iOS
+  update components and TestFlight betas are not points to review; phones
+  that leave the factory signed with test keys are a low point to review.
 - iPhone's Lockdown Mode is reported as a check, on or off, and is no longer
   shown as a point to review: it is Apple's strongest protection against
   spyware, not a sign of it. Configuration profiles being installed or

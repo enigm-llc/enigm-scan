@@ -166,8 +166,21 @@ pub enum Location {
     Expected,
     /// A folder no legitimate executable runs from (with a description).
     Suspicious(&'static str),
+    /// A jailbreak's own folders: the iPhone's protections are off.
+    Jailbreak,
     Unrecognised,
 }
+/// Where jailbreaks install their programs: rootless jailbreaks under a
+/// `jb-` folder of the preboot volume (reached as `/var/jb`), rootful ones
+/// as apps and a code injection framework.
+const JAILBREAK: &[&str] = &[
+    "/var/jb/",
+    "/private/var/jb/",
+    "/Applications/Cydia.app/",
+    "/Applications/Sileo.app/",
+    "/Applications/Zebra.app/",
+    "/Library/MobileSubstrate/",
+];
 const EXPECTED: &[&str] = &[
     "/System/",
     "/usr/",
@@ -181,6 +194,11 @@ const EXPECTED: &[&str] = &[
     "/var/containers/Bundle/",
     "/private/var/staged_system_apps/",
     "/var/staged_system_apps/",
+    // Apple's signed downloadable components, such as the update service
+    // that runs during an iOS update.
+    "/private/var/MobileAsset/",
+    "/var/MobileAsset/",
+    "/private/var/MobileSoftwareUpdate/",
 ];
 const SUSPICIOUS: &[(&str, &str)] = &[
     ("/private/var/db/", "a system database folder"),
@@ -200,6 +218,11 @@ pub fn location(path: &str) -> Location {
     if path.contains("/../") || path.contains("/./") {
         return Location::Suspicious("a disguised path");
     }
+    if JAILBREAK.iter().any(|p| path.starts_with(p))
+        || (path.starts_with("/private/preboot/") && path.contains("/jb-"))
+    {
+        return Location::Jailbreak;
+    }
     if let Some((_, what)) = SUSPICIOUS.iter().find(|(p, _)| path.starts_with(p)) {
         return Location::Suspicious(what);
     }
@@ -208,6 +231,44 @@ pub fn location(path: &str) -> Location {
     } else {
         Location::Unrecognised
     }
+}
+/// Apple's sealed system volume (iOS 15 and later) and its signed images:
+/// nothing outside Apple can place a program there. A program there sharing
+/// a name with a spyware process is Apple's own (such as `BackupAgent`).
+fn sealed(path: &str) -> bool {
+    [
+        "/System/",
+        "/usr/",
+        "/bin/",
+        "/sbin/",
+        "/Developer/",
+        "/private/preboot/Cryptexes/",
+    ]
+    .iter()
+    .any(|p| path.starts_with(p))
+        || (path.starts_with("/Applications/") && location(path) == Location::Expected)
+}
+/// The executable of a `ps` command line, without its arguments. Bundled
+/// programs are named after their bundle, which may contain spaces:
+/// `.../Some App.app/Some App -arg`.
+pub fn executable_of(command: &str) -> &str {
+    for marker in [".app/", ".appex/", ".xpc/"] {
+        let Some(at) = command.find(marker) else {
+            continue;
+        };
+        let bundle = command[..at].rsplit('/').next().unwrap_or("");
+        let rest = &command[at + marker.len()..];
+        if !bundle.is_empty()
+            && rest.starts_with(bundle)
+            && rest[bundle.len()..]
+                .chars()
+                .next()
+                .is_none_or(char::is_whitespace)
+        {
+            return &command[..at + marker.len() + bundle.len()];
+        }
+    }
+    command.split_whitespace().next().unwrap_or(command)
 }
 /// Services that parse incoming iMessages and their attachments.
 fn message_parser(name: &str) -> bool {
@@ -316,7 +377,9 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
             );
             let name = entry.path.rsplit('/').next().unwrap_or("");
             matches.inspect(report, Kind::FilePath, &entry.path, &artifact, when.clone());
-            matches.inspect(report, Kind::ProcessName, name, &artifact, when.clone());
+            if !sealed(&entry.path) {
+                matches.inspect(report, Kind::ProcessName, name, &artifact, when.clone());
+            }
             if location(&entry.path) != Location::Expected {
                 places
                     .entry(entry.path.clone())
@@ -345,7 +408,7 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
         .unwrap_or_default();
     let created = status.sysdiagnose.modified.and_then(rfc3339);
     for command in &running {
-        let executable = command.split_whitespace().next().unwrap_or(command);
+        let executable = executable_of(command);
         let name = executable.rsplit('/').next().unwrap_or("");
         let artifact = format!(
             "process running when the sysdiagnose was created{}",
@@ -361,10 +424,15 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
             &artifact,
             created.clone(),
         );
-        matches.inspect(report, Kind::ProcessName, name, &artifact, created.clone());
-        // Only folders where code never runs: an unrecognised but plausible
-        // system folder in a full process list would be noise.
-        if matches!(location(command), Location::Suspicious(_)) {
+        if !sealed(executable) {
+            matches.inspect(report, Kind::ProcessName, name, &artifact, created.clone());
+        }
+        // Only folders where code never runs, and jailbreaks: an unrecognised
+        // but plausible system folder in a full process list would be noise.
+        if matches!(
+            location(executable),
+            Location::Suspicious(_) | Location::Jailbreak
+        ) {
             places.entry(executable.to_string()).or_default().running = true;
         }
     }
@@ -425,13 +493,15 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
     let mut parser_crashes: Vec<(String, String)> = Vec::new();
     for (file, crash) in &crashes {
         let artifact = format!("crash report {file}");
-        matches.inspect(
-            report,
-            Kind::ProcessName,
-            &crash.name,
-            &artifact,
-            crash.at.clone(),
-        );
+        if !crash.path.as_deref().is_some_and(sealed) {
+            matches.inspect(
+                report,
+                Kind::ProcessName,
+                &crash.name,
+                &artifact,
+                crash.at.clone(),
+            );
+        }
         if let Some(path) = &crash.path {
             matches.inspect(report, Kind::FilePath, path, &artifact, crash.at.clone());
             if location(path) != Location::Expected {
@@ -450,6 +520,7 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
     }
     // Executables outside the system and installed apps.
     let mut detections = 0;
+    let mut jailbroken: Vec<(&String, Option<String>)> = Vec::new();
     for (path, seen) in &places {
         if report.findings.len() >= 500 {
             break;
@@ -496,6 +567,11 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
             .chain(seen.running.then(|| created.clone()).flatten())
             .max();
         let item = match location(path) {
+            // One finding for the phone, below.
+            Location::Jailbreak => {
+                jailbroken.push((path, last));
+                continue;
+            }
             Location::Suspicious(what) => {
                 detections += 1;
                 finding(
@@ -521,6 +597,24 @@ pub fn analyze(dir: &Path, rules: &VerifiedRules, report: &mut Report) {
             ),
         };
         report.findings.push(item);
+    }
+    // A jailbreak turns off the protections that keep spyware out, and
+    // stalkerware for iPhone that reads messages needs one.
+    if !jailbroken.is_empty() && report.findings.len() < 500 {
+        let paths: Vec<&str> = jailbroken.iter().take(5).map(|(p, _)| p.as_str()).collect();
+        report.findings.push(finding(
+            "enigm.heuristic.ios_jailbreak",
+            "ios_system_integrity",
+            "high",
+            "medium",
+            &format!(
+                "System integrity: the iPhone is jailbroken: programs ran from a jailbreak's folders ({})",
+                paths.join(", ")
+            ),
+            jailbroken.iter().filter_map(|(_, at)| at.clone()).max(),
+            "Review point: jailbreaking an iPhone is sometimes done by its owner. It also removes the protections that keep spyware out and lets it hide from scans like this one.",
+            "If you did not modify this phone, treat it as compromised: stop using it for sensitive communication and have it examined by an expert.",
+        ));
     }
     // Repeated crashes of the iMessage parsers within one hour.
     parser_crashes.sort();
@@ -707,6 +801,39 @@ SIGTERM: [1732600000]
             Location::Suspicious("a disguised path")
         );
         assert_eq!(location("/Library/Unknown/x"), Location::Unrecognised);
+        assert_eq!(location("/var/jb/usr/bin/sshd"), Location::Jailbreak);
+        assert_eq!(
+            location("/private/var/MobileAsset/AssetsV2/com_apple_MobileAsset_MobileSoftwareUpdate_UpdateBrain/a.asset/AssetData/com.apple.MobileSoftwareUpdate.UpdateBrainService.xpc/com.apple.MobileSoftwareUpdate.UpdateBrainService"),
+            Location::Expected
+        );
+        assert_eq!(
+            location("/private/preboot/AB12/jb-x1Y2/procursus/usr/libexec/x"),
+            Location::Jailbreak
+        );
+        assert_eq!(
+            location("/Applications/Sileo.app/Sileo"),
+            Location::Jailbreak
+        );
+        assert_eq!(
+            location("/private/preboot/Cryptexes/OS/usr/libexec/x"),
+            Location::Expected
+        );
+        // Arguments never change where the program lives.
+        assert_eq!(
+            executable_of(
+                "/private/var/containers/Bundle/Application/A/Some App.app/Some App -arg /../x"
+            ),
+            "/private/var/containers/Bundle/Application/A/Some App.app/Some App"
+        );
+        assert_eq!(
+            executable_of("/usr/libexec/xpcproxy com.apple.x /private/var/db/y"),
+            "/usr/libexec/xpcproxy"
+        );
+        assert!(sealed(
+            "/System/Library/PrivateFrameworks/MobileBackup.framework/BackupAgent"
+        ));
+        assert!(!sealed("/private/var/tmp/BackupAgent"));
+        assert!(!sealed("/Applications/Cydia.app/Cydia"));
     }
     #[test]
     fn executables_in_unusual_folders_are_detected_from_shutdown_log_and_crashes() {
@@ -787,6 +914,7 @@ mobile 501  300     1  0.0 9:00AM   0:00.10 /usr/libexec/backboardd
 mobile 501  412     1  0.0 9:01AM   0:00.02 /private/var/containers/Bundle/Application/AB12/Some App.app/Some App -launchedBy x
 root    0  666     1  0.0 9:02AM   0:00.01 /private/var/db/com.apple.xpc.roleaccountd.staging/msgacntd --daemon
 mobile 501  700     1  0.0 9:03AM   0:00.01 /Library/Unknown/helper
+root    0  800     1  0.0 9:04AM   0:00.01 /var/jb/usr/sbin/sshd -D
 root    0    0     0  0.0 9:00AM   0:10.00 (kernel_task)
 ";
         let dir = tempfile::tempdir().unwrap();
@@ -822,7 +950,18 @@ root    0    0     0  0.0 9:00AM   0:10.00 (kernel_task)
             .iter()
             .find(|c| c.id == "ios_running_processes")
             .unwrap();
-        assert!(check.detail.starts_with("5 process(es) were running when the sysdiagnose was created on 2024-11-26T05:46:40Z"), "{}", check.detail);
+        assert!(check.detail.starts_with("6 process(es) were running when the sysdiagnose was created on 2024-11-26T05:46:40Z"), "{}", check.detail);
+        // A jailbreak: one finding for the phone, not one per program.
+        let jailbreak: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.category == "ios_system_integrity")
+            .collect();
+        assert_eq!(jailbreak.len(), 1);
+        assert_eq!(
+            jailbreak[0].evidence,
+            "System integrity: the iPhone is jailbroken: programs ran from a jailbreak's folders (/var/jb/usr/sbin/sshd)"
+        );
     }
     #[test]
     fn repeated_imessage_parser_crashes_within_an_hour_are_a_review_point() {
@@ -873,6 +1012,17 @@ root    0    0     0  0.0 9:00AM   0:10.00 (kernel_task)
             dir.path(),
             serde_json::json!({"crashReports": {"status": "failed"}, "sysdiagnose": {"status": "completed"}}),
             Some("remaining client pid: 5 (/usr/libexec/roleaccountd)\nSIGTERM: [1732000000]\n"),
+            &[],
+        );
+        // On Apple's sealed system volume the name is Apple's own program.
+        let mut report = Report::new("ios", 1);
+        analyze(dir.path(), &signed, &mut report);
+        assert!(!report.findings.iter().any(|f| f.rule == process.id));
+        // Where Pegasus ran it.
+        write(
+            dir.path(),
+            serde_json::json!({"crashReports": {"status": "failed"}, "sysdiagnose": {"status": "completed"}}),
+            Some("remaining client pid: 5 (/private/var/db/com.apple.xpc.roleaccountd.staging/roleaccountd)\nSIGTERM: [1732000000]\n"),
             &[],
         );
         let mut report = Report::new("ios", 1);

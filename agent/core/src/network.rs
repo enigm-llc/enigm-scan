@@ -73,6 +73,9 @@ fn analyze(
     let mut dns_questions_seen = 0usize;
     let mut tls_names = 0usize;
     let mut http_hosts = 0usize;
+    // Names the phone opened web connections to (TLS or HTTP), not only
+    // looked up.
+    let mut web_names: HashSet<String> = HashSet::new();
     let mut encrypted_flows = HashSet::new();
     // When each TCP connection to a remote address and port was opened, to
     // find connections repeated at regular intervals.
@@ -205,6 +208,9 @@ fn analyze(
                         http_hosts += 1;
                     }
                     matcher.inspect(report, Kind::Domain, &name, artifact, time.clone());
+                    if web_names.len() < 20000 {
+                        web_names.insert(name.clone());
+                    }
                     if address_names.len() < 20000 {
                         address_names.entry(dst).or_insert_with(|| name.clone());
                     }
@@ -300,23 +306,67 @@ fn analyze(
             ),
         );
     }
-    // Dynamic DNS, tunnels and the Telegram bot API: where spyware without
-    // its own servers reports.
-    let mut hosted = 0;
+    // Where spyware without servers of its own reports. Each class counts
+    // only where ordinary use would not: data collection services always;
+    // tunnels when the phone opened web connections through them (raw game
+    // servers use them too); dynamic DNS names, which home servers, smart
+    // homes and game servers also use, only when the phone connected to them
+    // again and again at a steady pace, as remote access tools check in.
+    use crate::infrastructure::{classify, Class};
+    let mut hosted: BTreeMap<
+        String,
+        (
+            crate::infrastructure::Hosting,
+            Option<String>,
+            Option<String>,
+        ),
+    > = BTreeMap::new();
     for (name, at) in &questions {
-        let Some(hosting) = crate::infrastructure::classify(name) else {
+        if let Some(hosting) = classify(name).filter(|h| {
+            h.class == Class::Collector || (h.class == Class::Tunnel && web_names.contains(name))
+        }) {
+            hosted.insert(name.clone(), (hosting, None, at.clone()));
+        }
+    }
+    let mut beacons: Vec<(&(IpAddr, u16), &Vec<i64>)> = opened.iter().collect();
+    beacons.sort_by_key(|(key, _)| **key);
+    for ((address, port), times) in beacons {
+        let Some(name) = address_names.get(address) else {
             continue;
         };
-        hosted += 1;
-        if hosted > 10 || report.findings.len() >= 500 {
+        let Some(hosting) = classify(name).filter(|h| h.class != Class::Collector) else {
             continue;
+        };
+        let Some(pace) = steady_interval(times) else {
+            continue;
+        };
+        let pattern = format!(
+            "{} connections (port {port}) about every {} seconds",
+            times.len(),
+            (pace + 500_000) / 1_000_000
+        );
+        let at = times.iter().max().and_then(|micros| {
+            time::OffsetDateTime::from_unix_timestamp_nanos(*micros as i128 * 1000)
+                .ok()
+                .and_then(|x| {
+                    x.format(&time::format_description::well_known::Rfc3339)
+                        .ok()
+                })
+        });
+        hosted
+            .entry(name.clone())
+            .and_modify(|entry| {
+                entry.1.get_or_insert_with(|| pattern.clone());
+            })
+            .or_insert((hosting, Some(pattern), at));
+    }
+    for (name, (hosting, pattern, at)) in hosted.into_iter().take(10) {
+        if report.findings.len() >= 500 {
+            break;
         }
-        report.findings.push(crate::infrastructure::finding(
-            name,
-            &hosting,
-            "contacted by the phone",
-            at.clone(),
-        ));
+        report
+            .findings
+            .push(crate::infrastructure::finding(&name, &hosting, pattern, at));
     }
     // Connections opened again and again at a steady pace to a bare address
     // that was never named (no DNS lookup, no server name): how spyware can
@@ -974,40 +1024,45 @@ mod tests {
         assert!(detail.contains("0 packets not decoded"), "{detail}");
     }
     #[test]
-    fn hosts_on_dynamic_dns_or_tunnels_are_review_points() {
-        let report = analyzed(&[
+    fn hosting_counts_only_where_ordinary_use_would_not() {
+        let hosted = |packets: &[(u32, Vec<u8>)]| -> Vec<String> {
+            analyzed(packets)
+                .findings
+                .into_iter()
+                .filter(|f| f.rule == "enigm.heuristic.suspicious_hosting")
+                .map(|f| f.evidence)
+                .collect()
+        };
+        let hello = |sec: u32, port: u16, name: &str| {
             (
-                1000,
-                ip4(
-                    PHONE,
-                    SERVER,
-                    Some(0x18),
-                    50000,
-                    443,
-                    &client_hello("panel.duckdns.org"),
-                ),
-            ),
-            (
-                1001,
-                ip4(
-                    PHONE,
-                    SERVER,
-                    Some(0x18),
-                    50001,
-                    443,
-                    &client_hello("www.example.com"),
-                ),
-            ),
+                sec,
+                ip4(PHONE, SERVER, Some(0x18), port, 443, &client_hello(name)),
+            )
+        };
+        let syn = |sec: u32, port: u16| (sec, ip4(PHONE, SERVER, Some(0x02), port, 443, &[]));
+        // A home server or smart home on dynamic DNS, opened now and then.
+        assert!(hosted(&[hello(1000, 50000, "home.duckdns.org"), syn(1300, 50001)]).is_empty());
+        // A web page or service behind a tunnel, and a data collection service.
+        let found = hosted(&[
+            hello(1000, 50000, "abc.trycloudflare.com"),
+            hello(1001, 50001, "webhook.site"),
         ]);
-        let hosted: Vec<_> = report
-            .findings
-            .iter()
-            .filter(|f| f.rule == "enigm.heuristic.suspicious_hosting")
-            .collect();
-        assert_eq!(hosted.len(), 1);
-        assert!(hosted[0]
-            .evidence
-            .starts_with("contacted by the phone: panel.duckdns.org: a dynamic DNS name"));
+        assert_eq!(found.len(), 2);
+        assert!(found.iter().any(|e| e
+            == "contacted by the phone: abc.trycloudflare.com: a tunnel that exposes a computer to the internet (Cloudflare Tunnel)"));
+        // Dynamic DNS checked in with at a steady pace: how remote access tools
+        // report.
+        let mut beacon = vec![hello(999, 49999, "panel.duckdns.org")];
+        beacon.extend([
+            syn(1000, 50001),
+            syn(1060, 50002),
+            syn(1120, 50003),
+            syn(1180, 50004),
+        ]);
+        assert_eq!(
+            hosted(&beacon),
+            vec!["contacted by the phone: panel.duckdns.org: a dynamic DNS name, which follows a home or rented connection (DuckDNS), 4 connections (port 443) about every 60 seconds"]
+        );
     }
     #[test]
     fn rejects_dns_compression_loops() {

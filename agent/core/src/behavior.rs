@@ -136,6 +136,48 @@ const KNOWN_MANUAL_SYSTEM: &[&str] = &[
     "com.google.android.syncadapters.calendar",
 ];
 
+/// Genuine Google and manufacturer apps that people install from an APK file
+/// on phones that do not ship them: Google apps on Huawei phones, Huawei
+/// Health and AppGallery for Huawei watches on other phones. Their names are
+/// their own, not an imitation; hiding their icon would still count.
+const GENUINE_APKS: &[&str] = &[
+    "com.android.chrome",
+    "com.google.android.apps.maps",
+    "com.google.android.youtube",
+    "com.google.android.gm",
+    "com.google.android.apps.photos",
+    "com.google.android.apps.docs",
+    "com.google.android.googlequicksearchbox",
+    "com.google.android.apps.messaging",
+    "com.google.android.dialer",
+    "com.google.android.contacts",
+    "com.google.android.calendar",
+    "com.google.android.keep",
+    "com.google.android.apps.translate",
+    "com.google.android.apps.nbu.files",
+    "com.google.android.inputmethod.latin",
+    "com.google.android.GoogleCamera",
+    "com.google.android.apps.tachyon",
+    "com.google.android.apps.meetings",
+    "com.google.android.apps.authenticator2",
+    "com.google.android.apps.walletnfcrel",
+    "com.google.android.apps.chromecast.app",
+    "com.google.android.apps.fitness",
+    "com.google.android.wearable.app",
+    "com.google.android.projection.gearhead",
+    "com.google.android.apps.adm",
+    "com.google.android.tts",
+    "com.google.android.webview",
+    "com.google.android.apps.youtube.music",
+    "com.google.android.apps.subscriptions.red",
+    "com.huawei.health",
+    "com.huawei.appmarket",
+    "com.huawei.hwid",
+    "com.huawei.browser",
+    "com.huawei.maps.app",
+    "com.hihonor.health",
+];
+
 fn component_package(component: &str) -> Option<&str> {
     let (package, class) = component.trim().split_once('/')?;
     valid_package(package)
@@ -479,6 +521,11 @@ struct Profile {
     disguise_words: Vec<String>,
     monitoring_words: Vec<String>,
     background_use: Vec<String>,
+    /// The microphone or camera used while not on screen.
+    background_recording: bool,
+    /// Location followed while not on screen: ordinary for navigation and
+    /// fitness apps, so it only weighs together with concealment.
+    background_location: bool,
 }
 fn words(id: &str, list: &[&str]) -> Vec<String> {
     let mut found: Vec<String> = id
@@ -536,7 +583,8 @@ fn profile(inventory: &Inventory, package: &Package) -> Profile {
         .launchable
         .as_ref()
         .is_some_and(|ids| !ids.iter().any(|l| l == id));
-    p.imitates_system = SYSTEM_NAMESPACES.iter().any(|ns| id.starts_with(ns));
+    p.imitates_system =
+        SYSTEM_NAMESPACES.iter().any(|ns| id.starts_with(ns)) && !GENUINE_APKS.contains(&id);
     p.disguise_words = words(id, DISGUISE_WORDS);
     p.monitoring_words = words(id, MONITORING_WORDS);
     // The most recent access of each kind while the app was not on screen;
@@ -557,6 +605,9 @@ fn profile(inventory: &Inventory, package: &Package) -> Profile {
             *seconds = (*seconds).min(op.seconds_ago);
         }
     }
+    p.background_recording =
+        latest.contains_key("the microphone") || latest.contains_key("the camera");
+    p.background_location = latest.contains_key("location");
     for what in ["the microphone", "the camera", "location"] {
         if let Some(seconds) = latest.get(what) {
             p.background_use
@@ -577,7 +628,9 @@ fn verdict(origin: Origin, id: &str, p: &Profile) -> Verdict {
     let conceals = p.hidden || p.imitates_system;
     let sensitive = p.capabilities.len();
     let channels = p.channels.len();
-    let background = !p.background_use.is_empty();
+    // Recording out of sight always weighs; following the location only for
+    // an app that also hides.
+    let background = p.background_recording || (conceals && p.background_location);
     match origin {
         Origin::System => Verdict::None,
         Origin::Store => {
@@ -783,7 +836,7 @@ pub fn analyze(inventory: &Inventory, report: &mut Report) -> BTreeSet<String> {
             finding(
                 "enigm.heuristic.android_surveillance_capabilities",
                 "android_surveillance_capabilities",
-                if p.channels.len() >= 2 || !p.background_use.is_empty() || p.imitates_system { "medium" } else { "low" },
+                if p.channels.len() >= 2 || p.background_recording || p.imitates_system { "medium" } else { "low" },
                 "low",
                 &evidence,
                 vec!["Review point: these capabilities are needed by some legitimate apps (password managers, accessibility tools, smartwatch companions, security suites). They are not, on their own, a sign of infection.".into()],
@@ -829,11 +882,10 @@ fn integrity(inventory: &Inventory, report: &mut Report) {
             severity = "medium";
         }
     }
+    // Some low-cost phones leave the factory signed with test keys: a
+    // weakness, but alone not a sign that someone modified this one.
     if prop("ro.build.tags").is_some_and(|t| t.contains("test-keys")) {
         facts.push("the system is signed with test keys (custom or modified firmware)".into());
-        if severity == "low" {
-            severity = "medium";
-        }
     }
     if prop("ro.adb.secure") == Some("0") {
         facts.push("USB debugging accepts computers without asking".into());
@@ -1152,26 +1204,40 @@ mod tests {
         );
     }
     #[test]
-    fn background_location_is_one_fact_with_the_latest_access() {
+    fn background_location_weighs_only_for_an_app_that_hides() {
+        let ops = |id: &str| -> Vec<AppOp> {
+            ["FINE_LOCATION", "COARSE_LOCATION"]
+                .iter()
+                .zip([7200, 600])
+                .map(|(op, seconds_ago)| AppOp {
+                    package: id.into(),
+                    op: op.to_string(),
+                    seconds_ago,
+                    state: Some("bg".into()),
+                })
+                .collect()
+        };
+        // A navigation app from an APK file, with its icon: nothing to review.
         let mut inv = inventory(vec![package(
             "com.example.notes",
             None,
             &["ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION"],
         )]);
-        inv.app_ops = ["FINE_LOCATION", "COARSE_LOCATION"]
-            .iter()
-            .zip([7200, 600])
-            .map(|(op, seconds_ago)| AppOp {
-                package: "com.example.notes".into(),
-                op: op.to_string(),
-                seconds_ago,
-                state: Some("bg".into()),
-            })
-            .collect();
+        inv.app_ops = ops("com.example.notes");
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        assert!(report.findings.is_empty());
+        // The same with its icon hidden: how stalkerware follows someone.
+        let mut inv = inventory(vec![package(
+            "com.hidden.locator",
+            None,
+            &["ACCESS_FINE_LOCATION", "ACCESS_BACKGROUND_LOCATION"],
+        )]);
+        inv.app_ops = ops("com.hidden.locator");
         let mut report = Report::new("android", 1);
         analyze(&inv, &mut report);
         let f = &report.findings[0];
-        assert_eq!(f.rule, "enigm.heuristic.android_surveillance_capabilities");
+        assert_eq!(f.rule, "enigm.behavior.android_spyware_profile");
         assert_eq!(
             f.evidence
                 .matches("used location while not on screen")
@@ -1181,6 +1247,41 @@ mod tests {
         assert!(f
             .evidence
             .contains("used location while not on screen 10 min ago"));
+    }
+    #[test]
+    fn genuine_google_and_huawei_apps_from_an_apk_do_not_imitate_the_system() {
+        // Huawei Health on another phone, for a Huawei watch: notifications,
+        // contacts and call log, with its icon.
+        let mut inv = inventory(vec![package(
+            "com.huawei.health",
+            None,
+            &["READ_CONTACTS", "READ_CALL_LOG", "ACCESS_FINE_LOCATION"],
+        )]);
+        inv.launchable
+            .as_mut()
+            .unwrap()
+            .push("com.huawei.health".into());
+        inv.notification_listeners = vec!["com.huawei.health/.N".into()];
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        assert!(report
+            .findings
+            .iter()
+            .all(|f| f.rule != "enigm.behavior.android_spyware_profile"
+                && !f.evidence.contains("imitates")));
+        // A made-up name in a manufacturer's namespace still imitates one.
+        let mut inv = inventory(vec![package(
+            "com.huawei.system.update",
+            None,
+            &["READ_CONTACTS", "READ_CALL_LOG"],
+        )]);
+        inv.notification_listeners = vec!["com.huawei.system.update/.N".into()];
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        assert_eq!(
+            report.findings[0].rule,
+            "enigm.behavior.android_spyware_profile"
+        );
     }
     #[test]
     fn unknown_launcher_never_claims_hidden_icons_and_missing_sources_reduce_coverage() {
