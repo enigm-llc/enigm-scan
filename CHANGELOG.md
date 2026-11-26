@@ -5,8 +5,11 @@
 - Starting a scan no longer freezes the app on macOS. The second consent
   question is gone: the checkbox before searching already confirms that the
   phone is yours or that you have its owner's permission.
-- "About Enigm Scan" opens a window of its own, with the app icon at full
-  size, the version, the links and the licence.
+- "About Enigm Scan" opens a window laid out like the system's own: the app
+  icon, the version, the release date and the copyright.
+- Help also opens the documentation.
+- Desktop type sizes throughout the app, and a window that opens at 1120 by
+  740, the size its content needs.
 - Buttons keep their colours under the pointer, and disabled buttons no
   longer react to it.
 - The executable and the downloads are named enigm-scan.
