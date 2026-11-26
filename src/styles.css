@@ -466,7 +466,7 @@ dialog p {
   margin: 0;
   min-width: 0;
 }
-.scanner legend{
+.scanner legend {
   font-size: 16px;
   font-weight: 550;
   display: flex;
@@ -509,7 +509,7 @@ dialog p {
   font-size: 13px;
 }
 .field input,
-.field select{
+.field select {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
@@ -783,7 +783,7 @@ dialog[open]::backdrop {
   animation: phase-in 240ms var(--motion-ease) both;
 }
 
-.motion-paused .phase-copy{
+.motion-paused .phase-copy {
   animation: none !important;
   transition: none !important;
 }
@@ -1618,7 +1618,6 @@ header nav .nav-link:focus-visible {
   opacity: 1;
 }
 @media (prefers-reduced-motion: reduce) {
-  
   .scan-caption > p.scan-activity {
     animation: none;
   }

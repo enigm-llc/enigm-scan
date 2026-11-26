@@ -157,7 +157,7 @@
 .process-steps li {
   font-size: 12.5px;
 }
-.desktop-flow .compact-consent input{
+.desktop-flow .compact-consent input {
   width: 17px;
   height: 17px;
   accent-color: var(--text);

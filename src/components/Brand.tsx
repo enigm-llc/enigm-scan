@@ -1,5 +1,5 @@
 import { Monitor } from "lucide-react";
-/** Canonical, unmodified artwork from enigm-llc/enigm-design. */
+/** Official Enigm artwork, used unmodified. */
 export function BrandLogo() {
   return (
     <span className="brand-logo" aria-hidden="true">

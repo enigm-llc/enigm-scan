@@ -115,7 +115,8 @@ export function Honeycomb({
       const font =
         getComputedStyle(document.body).fontFamily || "Roboto, sans-serif";
       ctx.clearRect(0, 0, width, height);
-      const room = (anchor?.current?.getBoundingClientRect().height ?? 0) / zoom;
+      const room =
+        (anchor?.current?.getBoundingClientRect().height ?? 0) / zoom;
       const r = local
         ? Math.max(46, Math.min(78, width / 5.2, room ? room / 2.4 : 999))
         : Math.max(70, Math.min(118, width / 13));
@@ -149,7 +150,9 @@ export function Honeycomb({
       const reach = Math.hypot(width, height) || 1;
       // Quieter cells under the header and around the footer's menus.
       const own = element.getBoundingClientRect();
-      const head = document.querySelector(".scan-header")?.getBoundingClientRect();
+      const head = document
+        .querySelector(".scan-header")
+        ?.getBoundingClientRect();
       const prefs = document
         .querySelector(".footer-preferences")
         ?.getBoundingClientRect();
@@ -164,8 +167,16 @@ export function Honeycomb({
           k *= 0.22 + 0.78 * smooth(edge - 30, edge + 150, y);
         }
         if (prefs && prefs.width > 0) {
-          const bx = Math.max((prefs.left - own.left) / zoom - x, 0, x - (prefs.right - own.left) / zoom);
-          const by = Math.max((prefs.top - own.top) / zoom - y, 0, y - (prefs.bottom - own.top) / zoom);
+          const bx = Math.max(
+            (prefs.left - own.left) / zoom - x,
+            0,
+            x - (prefs.right - own.left) / zoom,
+          );
+          const by = Math.max(
+            (prefs.top - own.top) / zoom - y,
+            0,
+            y - (prefs.bottom - own.top) / zoom,
+          );
           k *= 0.18 + 0.82 * smooth(20, 260, Math.hypot(bx, by));
         }
         return k;

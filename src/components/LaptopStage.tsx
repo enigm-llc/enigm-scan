@@ -60,7 +60,11 @@ export function LaptopStage({
                 <span className="laptop-file">
                   <FileArchive size={28} strokeWidth={1.5} />
                   <small>
-                    {os === "windows" ? ".zip" : os === "linux" ? ".AppImage" : ".dmg"}
+                    {os === "windows"
+                      ? ".zip"
+                      : os === "linux"
+                        ? ".AppImage"
+                        : ".dmg"}
                   </small>
                 </span>
                 <span className="laptop-step">
