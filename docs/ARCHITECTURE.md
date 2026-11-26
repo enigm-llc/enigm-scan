@@ -10,7 +10,7 @@ project and offers the downloads. It never talks to the app.
 ┌──────────────── desktop app ─────────────────┐
 │ interface (src/, src/desktop/)                │
 │        │ Tauri commands (fixed list)          │
-│ src-tauri ── consent dialogs, file choosers   │
+│ src-tauri ── commands, menu, file choosers    │
 │        │                                      │
 │ agent/runtime ── engines, phone, temp folders │
 │        │                                      │
@@ -43,12 +43,13 @@ memory. The PDF is rendered locally with jsPDF.
 
 `src-tauri/src/main.rs` runs one scan at a time on a background thread:
 
-1. **Discovery.** iPhones are listed through the iOS adapter (Apple's USB
+1. **Consent.** Before the app looks for a phone, the person confirms that
+   it is theirs or that they have the owner's permission; the native side
+   refuses to search or scan without it. Watching the phone's connections is
+   a separate option the person ticks.
+2. **Discovery.** iPhones are listed through the iOS adapter (Apple's USB
    service), Android phones through a private adb server started for the
    session, on its own port, with network discovery turned off.
-2. **Consent.** Before anything is copied, a native dialog asks the person to
-   confirm that the phone is theirs or that they have the owner's permission.
-   Watching an iPhone's traffic needs a second confirmation.
 3. **Copy.** An iPhone is backed up over USB into a private temporary folder.
    Photos and videos from the personal library are skipped as they arrive; the
    rest of the backup, including its manifest, is kept. "Trust" creates a

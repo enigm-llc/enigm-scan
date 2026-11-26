@@ -303,12 +303,11 @@ it("offers iPhone-only discovery after automatic discovery fails, preserving con
   expect(native).toHaveBeenCalledWith("list_devices", {
     device: "ios",
     consent: true,
-    locale: "en",
   });
   expect(screen.queryByText("adb_server_failed")).toBeNull();
 });
 
-it("explains native consent refusal without displaying arbitrary native errors", async () => {
+it("explains a refused consent without displaying arbitrary native errors", async () => {
   const implementation = vi.mocked(native).getMockImplementation()!;
   vi.mocked(native).mockImplementation(async (command, args) => {
     if (command === "list_devices") throw new Error("consent_required");
@@ -326,7 +325,7 @@ it("explains native consent refusal without displaying arbitrary native errors",
     ).toBe(false),
   );
   fireEvent.click(screen.getByRole("button", { name: "Find my phone" }));
-  await screen.findByText(/Authorization in the Enigm Scan window is required/);
+  await screen.findByText(/Tick the box to confirm the phone is yours/);
 });
 it("prepares the user for iPhone prompts and explains each phone-side failure", async () => {
   for (const [error, message] of [

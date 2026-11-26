@@ -112,7 +112,7 @@ on Linux (macOS has it built in).
 | --- | --- |
 | `src/` | The interface (React and TypeScript): the website and the app's screens |
 | `src/desktop/` | The desktop app's shell |
-| `src-tauri/` | The desktop app (Tauri): window, native dialogs, scan orchestration |
+| `src-tauri/` | The desktop app (Tauri): window, menu, file choosers, scan orchestration |
 | `agent/core/` | Analysis in Rust: signed indicators, evidence parsing, behaviour rules |
 | `agent/runtime/` | Native runtime: engine verification, phone acquisition, temporary folders |
 | `scripts/engines/` | Engine adapters and their build scripts |

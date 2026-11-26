@@ -224,7 +224,6 @@ export function Scanner({
       const list = await native<Device[]>("list_devices", {
         device: platform,
         consent,
-        locale: language,
       });
       setDevices(list);
       setSearched(true);
@@ -254,7 +253,6 @@ export function Scanner({
         request: {
           device,
           consent,
-          locale: language,
           phoneIp: null,
           pcapConsent:
             method === "usb" &&

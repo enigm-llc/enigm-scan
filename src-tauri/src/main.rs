@@ -100,121 +100,6 @@ fn idle(a: &Agent) -> Result<(), String> {
         Ok(())
     }
 }
-async fn confirm(window: &WebviewWindow, locale: &str) -> bool {
-    let scan = match locale {
-        "es" => "¿Autorizas el análisis local de los datos seleccionados? Debes ser su propietario o tener su consentimiento explícito.",
-        "fr" => "Autorisez-vous l’analyse locale des données sélectionnées ? Vous devez en être le propriétaire ou avoir son consentement explicite.",
-        "de" => "Erlauben Sie die lokale Analyse der ausgewählten Daten? Sie müssen deren Eigentümer sein oder dessen ausdrückliche Zustimmung haben.",
-        "it" => "Autorizzi l’analisi locale dei dati selezionati? Devi esserne il proprietario o avere il suo consenso esplicito.",
-        "pt" => "Autoriza a análise local dos dados selecionados? Tem de ser o proprietário ou ter o seu consentimento explícito.",
-        _ => "Authorize local analysis of the selected data? You must own the data or have the owner's explicit consent.",
-    };
-    ask(window, locale, scan).await
-}
-async fn confirm_network(window: &WebviewWindow, locale: &str) -> bool {
-    let text = match locale {
-        "es" => "¿Autorizar hasta 120 segundos de observación de red del iPhone conectado? Puede incluir destinos y consultas DNS. Se analiza localmente, sin descifrar contenido ni instalar certificados.",
-        "fr" => "Autoriser jusqu’à 120 secondes d’observation réseau de l’iPhone connecté ? Peut inclure destinations et requêtes DNS. Analyse locale, sans déchiffrer le contenu ni installer de certificat.",
-        "de" => "Bis zu 120 Sekunden Netzwerkbeobachtung des verbundenen iPhones erlauben? Ziele und DNS-Anfragen können enthalten sein. Lokale Analyse ohne Inhaltsentschlüsselung oder Zertifikatsinstallation.",
-        "it" => "Autorizzare fino a 120 secondi di osservazione della rete dell’iPhone collegato? Può includere destinazioni e richieste DNS. Analisi locale, senza decifrare contenuti o installare certificati.",
-        "pt" => "Autorizar até 120 segundos de observação da rede do iPhone ligado? Pode incluir destinos e consultas DNS. Análise local, sem decifrar conteúdo nem instalar certificados.",
-        _ => "Allow up to 120 seconds of network observation from the connected iPhone? This may include destinations and DNS queries. Analysis is local, without decrypting content or installing certificates.",
-    };
-    ask(window, locale, text).await
-}
-/// A yes/no question from the app window, on every platform the same way:
-/// the window comes to the front and stays above other windows while it asks,
-/// then returns to normal. The person is usually in the browser, and systems
-/// refuse to bring a background app forward (Windows always, macOS 14+ and
-/// some Linux window managers), which hid the question behind the browser.
-/// On Linux the question is a GTK dialog, which is always present with this
-/// app; the default dialog backend there needs zenity, and without it the
-/// answer was silently "no". Windows attaches the question to the window.
-async fn ask(window: &WebviewWindow, locale: &str, text: &str) -> bool {
-    let _ = window.unminimize();
-    let _ = window.show();
-    let _ = window.set_always_on_top(true);
-    let _ = window.set_focus();
-    let answer = question(window, locale, text).await;
-    let _ = window.set_always_on_top(false);
-    answer
-}
-#[cfg(target_os = "linux")]
-async fn question(window: &WebviewWindow, locale: &str, text: &str) -> bool {
-    let (tx, rx) = std::sync::mpsc::channel();
-    let (no, yes) = match locale {
-        "es" => ("Cancelar", "Autorizar"),
-        "fr" => ("Annuler", "Autoriser"),
-        "de" => ("Abbrechen", "Erlauben"),
-        "it" => ("Annulla", "Consenti"),
-        "pt" => ("Cancelar", "Autorizar"),
-        _ => ("Cancel", "Allow"),
-    };
-    let (target, text) = (window.clone(), text.to_string());
-    // `blocking` only when asked from the GTK thread itself, where nobody else
-    // could wait for the answer.
-    let show = move |blocking: bool| {
-        use gtk::prelude::*;
-        let parent = target.gtk_window().ok();
-        let dialog = gtk::MessageDialog::new(
-            parent.as_ref(),
-            gtk::DialogFlags::MODAL | gtk::DialogFlags::DESTROY_WITH_PARENT,
-            gtk::MessageType::Question,
-            gtk::ButtonsType::None,
-            &text,
-        );
-        dialog.add_button(no, gtk::ResponseType::No);
-        dialog.add_button(yes, gtk::ResponseType::Yes);
-        dialog.set_default_response(gtk::ResponseType::Yes);
-        dialog.set_title("Enigm Scan");
-        dialog.set_keep_above(true);
-        if blocking {
-            let answer = dialog.run();
-            dialog.close();
-            let _ = tx.send(answer == gtk::ResponseType::Yes);
-            return;
-        }
-        // Answer through a callback, never a nested `run()`: the main loop
-        // keeps serving the browser (status, heartbeat) while the question is
-        // open. A blocking dialog made the page report the app as closed when
-        // the person took more than a few seconds to answer.
-        let sender = std::sync::Mutex::new(Some(tx));
-        dialog.connect_response(move |dialog, answer| {
-            if let Some(tx) = sender.lock().ok().and_then(|mut slot| slot.take()) {
-                let _ = tx.send(answer == gtk::ResponseType::Yes);
-            }
-            dialog.close();
-        });
-        dialog.present();
-    };
-    if gtk::is_initialized_main_thread() {
-        show(true);
-        return rx.recv().unwrap_or(false);
-    }
-    if window.run_on_main_thread(move || show(false)).is_err() {
-        return false;
-    }
-    tauri::async_runtime::spawn_blocking(move || rx.recv().unwrap_or(false))
-        .await
-        .unwrap_or(false)
-}
-#[cfg(not(target_os = "linux"))]
-async fn question(window: &WebviewWindow, _locale: &str, text: &str) -> bool {
-    let (owner, text) = (window.clone(), text.to_string());
-    tauri::async_runtime::spawn_blocking(move || {
-        let dialog = rfd::MessageDialog::new()
-            .set_title("Enigm Scan")
-            .set_description(&text)
-            .set_buttons(rfd::MessageButtons::YesNo);
-        #[cfg(target_os = "windows")]
-        let dialog = dialog.set_parent(&owner);
-        #[cfg(not(target_os = "windows"))]
-        let _ = &owner;
-        dialog.show() == rfd::MessageDialogResult::Yes
-    })
-    .await
-    .unwrap_or(false)
-}
 /// What a file chooser asks for.
 enum Pick {
     Folder,
@@ -495,11 +380,12 @@ async fn list_devices(
     state: State<'_, Agent>,
     device: String,
     consent: bool,
-    locale: String,
 ) -> Result<Vec<acquire::Device>, String> {
     local(&window)?;
     idle(&state)?;
-    if !consent || !confirm(&window, &locale).await {
+    // The owner confirms the phone is theirs, or that they have its owner's
+    // permission, with the checkbox before searching.
+    if !consent {
         return Err("consent_required".into());
     }
     let catalog = state.catalog.clone();
@@ -634,7 +520,6 @@ async fn refresh_devices(
 struct ScanRequest {
     device: String,
     consent: bool,
-    locale: String,
     phone_ip: Option<String>,
     pcap_consent: bool,
     usb_id: Option<String>,
@@ -659,7 +544,7 @@ fn start_scan(
     }) {
         return Err("backup_password_invalid".into());
     }
-    if !request.consent || !tauri::async_runtime::block_on(confirm(&window, &request.locale)) {
+    if !request.consent {
         return Err("consent_required".into());
     }
     let mut selection = state.selection.lock().map_err(|_| "state_unavailable")?;
@@ -680,12 +565,6 @@ fn start_scan(
     // iPhone: observe the phone's traffic for a fixed window. Android: read
     // the phone's open connections (no traffic). Both only when asked.
     let capture_network = request.pcap_consent && pcap.is_none() && request.usb_id.is_some();
-    if capture_network
-        && request.device == "ios"
-        && !tauri::async_runtime::block_on(confirm_network(&window, &request.locale))
-    {
-        return Err("pcap_consent_required".into());
-    }
 
     let phone = if pcap.is_some() {
         if !request.pcap_consent {

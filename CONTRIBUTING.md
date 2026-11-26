@@ -27,8 +27,9 @@ tests are easier to validate than broad refactors.
   A check that could not run is reported as reduced coverage.
 - Phone data stays on the computer. No uploads, telemetry or stored reports.
   Backups, bug reports and engine output are untrusted input.
-- A phone is only touched after the native consent dialog, not only a checkbox
-  in the interface.
+- A phone is only touched after the person confirms that it is theirs or that
+  they have its owner's permission; the native side refuses to search or scan
+  without that confirmation.
 - The interface reaches the native side through a fixed list of commands. Do
   not add commands that accept paths, URLs or command lines.
 - Every text the user sees exists in English, Spanish, French, German, Italian

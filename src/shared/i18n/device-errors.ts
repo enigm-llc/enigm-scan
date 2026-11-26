@@ -12,7 +12,7 @@ export const deviceErrorCopy: Record<Language, DeviceErrorCopy> = {
     failed:
       "No hemos podido detectar el móvil. Desbloquéalo, comprueba el cable y vuelve a intentarlo con su tipo de dispositivo.",
     consent:
-      "Falta aceptar la autorización en la ventana de Enigm Scan. Vuelve a intentarlo y acepta el permiso para consultar el móvil.",
+      "Marca la casilla para confirmar que el móvil es tuyo o que tienes permiso de su dueño, y vuelve a buscarlo.",
     permission:
       "Tu ordenador ve el móvil, pero no tiene permiso para abrirlo por USB. En Linux, instala las reglas de Android para USB (por ejemplo, el paquete android-sdk-platform-tools-common), desconecta y vuelve a conectar el cable, e inténtalo de nuevo.",
     ios: "Reintentar con iPhone",
@@ -23,7 +23,7 @@ export const deviceErrorCopy: Record<Language, DeviceErrorCopy> = {
     failed:
       "We could not detect the phone. Unlock it, check the cable and retry with its device type.",
     consent:
-      "Authorization in the Enigm Scan window is required. Try again and accept access to the phone.",
+      "Tick the box to confirm the phone is yours or that you have its owner’s permission, then search again.",
     permission:
       "Your computer sees the phone but isn’t allowed to open it over USB. On Linux, install the Android USB rules (for example, the android-sdk-platform-tools-common package), unplug and replug the cable, and try again.",
     ios: "Retry with iPhone",
@@ -34,7 +34,7 @@ export const deviceErrorCopy: Record<Language, DeviceErrorCopy> = {
     failed:
       "Le téléphone n’a pas pu être détecté. Déverrouillez-le, vérifiez le câble et réessayez avec son type d’appareil.",
     consent:
-      "L’autorisation dans la fenêtre d’Enigm Scan est requise. Réessayez et acceptez l’accès au téléphone.",
+      "Cochez la case pour confirmer que le téléphone est à vous ou que son propriétaire vous l’autorise, puis relancez la recherche.",
     permission:
       "Votre ordinateur voit le téléphone mais n’a pas le droit de l’ouvrir en USB. Sous Linux, installez les règles USB Android (par exemple le paquet android-sdk-platform-tools-common), débranchez puis rebranchez le câble et réessayez.",
     ios: "Réessayer avec iPhone",
@@ -45,7 +45,7 @@ export const deviceErrorCopy: Record<Language, DeviceErrorCopy> = {
     failed:
       "Das Telefon konnte nicht erkannt werden. Entsperren Sie es, prüfen Sie das Kabel und versuchen Sie es mit seinem Gerätetyp erneut.",
     consent:
-      "Die Freigabe im Fenster von Enigm Scan fehlt. Versuchen Sie es erneut und erlauben Sie den Zugriff auf das Smartphone.",
+      "Bestätigen Sie mit dem Kästchen, dass das Smartphone Ihnen gehört oder Sie die Erlaubnis des Eigentümers haben, und suchen Sie erneut.",
     permission:
       "Ihr Computer erkennt das Smartphone, darf es aber nicht über USB öffnen. Installieren Sie unter Linux die Android-USB-Regeln (zum Beispiel das Paket android-sdk-platform-tools-common), stecken Sie das Kabel neu ein und versuchen Sie es erneut.",
     ios: "Mit iPhone erneut versuchen",
@@ -56,7 +56,7 @@ export const deviceErrorCopy: Record<Language, DeviceErrorCopy> = {
     failed:
       "Non è stato possibile rilevare il telefono. Sbloccalo, controlla il cavo e riprova con il suo tipo di dispositivo.",
     consent:
-      "Serve l’autorizzazione nella finestra di Enigm Scan. Riprova e consenti l’accesso al telefono.",
+      "Seleziona la casella per confermare che il telefono è tuo o che hai il permesso del proprietario, poi cerca di nuovo.",
     permission:
       "Il computer vede il telefono ma non ha il permesso di aprirlo via USB. Su Linux, installa le regole USB per Android (per esempio il pacchetto android-sdk-platform-tools-common), scollega e ricollega il cavo e riprova.",
     ios: "Riprova con iPhone",
@@ -67,7 +67,7 @@ export const deviceErrorCopy: Record<Language, DeviceErrorCopy> = {
     failed:
       "Não foi possível detetar o telemóvel. Desbloqueie-o, verifique o cabo e tente novamente com o seu tipo de dispositivo.",
     consent:
-      "Falta aceitar a autorização na janela do Enigm Scan. Tente novamente e permita o acesso ao telemóvel.",
+      "Marque a caixa para confirmar que o telemóvel é seu ou que tem autorização do proprietário e procure de novo.",
     permission:
       "O computador vê o telemóvel, mas não tem permissão para o abrir por USB. No Linux, instale as regras USB do Android (por exemplo, o pacote android-sdk-platform-tools-common), desligue e volte a ligar o cabo e tente novamente.",
     ios: "Tentar com iPhone",

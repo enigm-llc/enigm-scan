@@ -174,7 +174,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     problemTrust: ["Sin autorización", "Acepta el aviso en el móvil"],
     problemError: ["Algo ha fallado", "Revisa el mensaje en el ordenador"],
     searchingHint:
-      "Buscando tu móvil… Acepta la autorización en la ventana de Enigm Scan y, si el móvil pide «Permitir depuración USB» o «Confiar», acéptalo también.",
+      "Buscando tu móvil… Si el móvil pide «Permitir depuración USB» o «Confiar», acéptalo.",
     devTitle: "Opciones de desarrollador",
     devMain: "Usar opciones de desarrollador",
     devSection: "Depuración",
@@ -279,7 +279,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     problemTrust: ["Not authorised", "Accept the prompt on the phone"],
     problemError: ["Something went wrong", "See the message on your computer"],
     searchingHint:
-      "Looking for your phone… Accept the authorization in the Enigm Scan window and, if the phone asks to “Allow USB debugging” or to “Trust”, accept that too.",
+      "Looking for your phone… If the phone asks to “Allow USB debugging” or to “Trust”, accept it.",
     devTitle: "Developer options",
     devMain: "Use developer options",
     devSection: "Debugging",
@@ -388,7 +388,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "Voir le message sur l’ordinateur",
     ],
     searchingHint:
-      "Recherche de votre téléphone… Acceptez l’autorisation dans la fenêtre d’Enigm Scan et, si le téléphone demande « Autoriser le débogage USB » ou « Se fier », acceptez aussi.",
+      "Recherche de votre téléphone… Si le téléphone demande « Autoriser le débogage USB » ou « Se fier », acceptez.",
     devTitle: "Options pour les développeurs",
     devMain: "Utiliser les options pour les développeurs",
     devSection: "Débogage",
@@ -503,7 +503,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "Siehe Meldung auf dem Computer",
     ],
     searchingHint:
-      "Wir suchen Ihr Smartphone … Bestätigen Sie die Freigabe im Fenster von Enigm Scan. Fragt das Smartphone nach „USB-Debugging zulassen“ oder „Vertrauen“, bestätigen Sie auch das.",
+      "Wir suchen Ihr Smartphone … Fragt es nach „USB-Debugging zulassen“ oder „Vertrauen“, bestätigen Sie das.",
     devTitle: "Entwickleroptionen",
     devMain: "Entwickleroptionen verwenden",
     devSection: "Debugging",
@@ -613,7 +613,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "Leggi il messaggio sul computer",
     ],
     searchingHint:
-      "Cerchiamo il telefono… Accetta l’autorizzazione nella finestra di Enigm Scan e, se il telefono chiede «Consentire il debug USB» o «Autorizza», accetta anche quella.",
+      "Cerchiamo il telefono… Se chiede «Consentire il debug USB» o «Autorizza», accetta.",
     devTitle: "Opzioni sviluppatore",
     devMain: "Usa Opzioni sviluppatore",
     devSection: "Debug",
@@ -720,7 +720,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     problemTrust: ["Sem autorização", "Aceite o aviso no telemóvel"],
     problemError: ["Algo correu mal", "Veja a mensagem no computador"],
     searchingHint:
-      "A procurar o seu telemóvel… Aceite a autorização na janela do Enigm Scan e, se o telemóvel pedir «Permitir depuração USB» ou «Confiar», aceite também.",
+      "A procurar o seu telemóvel… Se o telemóvel pedir «Permitir depuração USB» ou «Confiar», aceite.",
     devTitle: "Opções de programador",
     devMain: "Utilizar opções de programador",
     devSection: "Depuração",
