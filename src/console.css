@@ -6498,9 +6498,10 @@ body:has(.promo-backdrop) {
     animation: none;
   }
 }
-/* Nothing found: the severity tile's shield in the good colour. */
-.report-tile.is-clean > svg {
-  color: var(--good);
+/* An empty severity bar: no findings at any level. */
+.severity-bar.is-empty i {
+  flex-grow: 1;
+  background: var(--hair);
 }
 
 /* ---------- Desktop app: room between the words and the phone ---------- */

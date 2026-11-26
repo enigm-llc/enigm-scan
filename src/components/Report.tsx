@@ -5,7 +5,6 @@ import {
   LoaderCircle,
   FileSearch,
   ListChecks,
-  ShieldCheck,
   Timer,
   RotateCcw,
 } from "lucide-react";
@@ -277,35 +276,42 @@ export function Report({
       <section className="report-band" aria-labelledby="report-stats-title">
         <h2 id="report-stats-title">{r.statsTitle}</h2>
         <div className="report-tiles">
-          {total ? (
-            <div className="report-tile wide">
-              <span className="tile-label">{r.bySeverity}</span>
-              <div className="severity-bar" aria-hidden="true">
-                {counts.map(([level, n]) => (
-                  <i
-                    key={level}
-                    className={`sev-${level}`}
-                    style={{ flexGrow: n }}
-                  />
-                ))}
-              </div>
-              <ul className="severity-legend">
-                {counts.map(([level, n]) => (
-                  <li key={level}>
-                    <span className={`sev-dot sev-${level}`} />
-                    <b>{n.toLocaleString(language)}</b> {t[level]}
+          <div className="report-tile wide">
+            <span className="tile-label">{r.bySeverity}</span>
+            {total ? (
+              <>
+                <div className="severity-bar" aria-hidden="true">
+                  {counts.map(([level, n]) => (
+                    <i
+                      key={level}
+                      className={`sev-${level}`}
+                      style={{ flexGrow: n }}
+                    />
+                  ))}
+                </div>
+                <ul className="severity-legend">
+                  {counts.map(([level, n]) => (
+                    <li key={level}>
+                      <span className={`sev-dot sev-${level}`} />
+                      <b>{n.toLocaleString(language)}</b> {t[level]}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              // Nothing found: the same bar, empty, and one bold line.
+              <>
+                <div className="severity-bar is-empty" aria-hidden="true">
+                  <i />
+                </div>
+                <ul className="severity-legend">
+                  <li>
+                    <b>{r.noSignsAnyLevel}</b>
                   </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            // Nothing found: the same form as the tiles beside it.
-            <div className="report-tile wide is-clean">
-              <ShieldCheck size={18} aria-hidden="true" />
-              <b>{(0).toLocaleString(language)}</b>
-              <span className="tile-label">{r.noSignsAnyLevel}</span>
-            </div>
-          )}
+                </ul>
+              </>
+            )}
+          </div>
           <div className="report-tile">
             <ListChecks size={18} aria-hidden="true" />
             <b>
