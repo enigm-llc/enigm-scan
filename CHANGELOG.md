@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.7.1 — Unreleased
+## 0.7.1 — 26 November 2026
 
 - Starting a scan no longer freezes the app on macOS. The second consent
   question is gone: the checkbox before searching already confirms that the
