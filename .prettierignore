@@ -1,0 +1,3 @@
+# Embedded binary data: the report typeface and the logo for PDF export.
+src/core/report-font.ts
+src/core/report-brand.ts
