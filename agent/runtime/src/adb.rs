@@ -131,6 +131,31 @@ impl Session {
         )
     }
 }
+impl Session {
+    /// Like `run`, calling `observe` about once a second while it runs.
+    pub fn run_monitored(
+        &self,
+        catalog: &Catalog,
+        args: &[String],
+        work: &Path,
+        cancel: &AtomicBool,
+        timeout: Duration,
+        observe: &dyn Fn(),
+    ) -> Result<process::Output, String> {
+        if !self.alive() {
+            return Err("adb_session_expired".into());
+        }
+        let (program, _) = catalog.resolve("adb")?;
+        process::run_monitored(
+            &program,
+            &client_arguments(self.port, args),
+            work,
+            cancel,
+            timeout,
+            observe,
+        )
+    }
+}
 fn client_arguments(port: u16, args: &[String]) -> Vec<String> {
     // An explicit numeric host is treated as remote by ADB's server launcher.
     // If this owned server exits, clients fail instead of creating a detached daemon.

@@ -48,8 +48,9 @@ export function Scanner({
     [device, setDevice] = useState<"ios" | "android">("ios");
   // iPhone: observe its traffic for 2 minutes (off unless asked).
   const [networkConsent, setNetworkConsent] = useState(false);
-  // Android: read its open connections (no wait; on, as it always was).
-  const [androidConnections, setAndroidConnections] = useState(true);
+  // Android: read its open connections (no wait; off unless asked, as on
+  // iPhone).
+  const [androidConnections, setAndroidConnections] = useState(false);
   // iPhone deep check: the owner presses buttons during the copy.
   // Kept for this tab, so a reload during the copy still shows its steps.
   const [deepConsent, setDeepConsentState] = useState(
@@ -760,6 +761,12 @@ export function Scanner({
           t={t}
           encrypted={encrypted}
           network={method === "usb" && device === "ios" && networkConsent}
+          connections={
+            method === "usb" &&
+            device === "android" &&
+            !!caps?.androidUsb &&
+            androidConnections
+          }
           rules={caps?.rules}
           ios={method === "usb" && device === "ios"}
           diagnostics={!!caps?.iosUsb && deepConsent}
@@ -1132,8 +1139,9 @@ export function Scanner({
                 </button>
               )}
             </div>
+            {/* The spinning button says it is searching; said aloud too. */}
             {finding && (
-              <p className="flow-note" role="status">
+              <p className="visually-hidden" role="status">
                 {f.searchingHint}
               </p>
             )}

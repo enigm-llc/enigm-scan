@@ -261,12 +261,30 @@ pub fn acquire(
     };
     let (program, _) = catalog.resolve(tool)?;
     let out = if platform == "android" {
-        adb_session.ok_or("adb_session_required")?.run(
+        // The bug report arrives as one file: how much of it has been copied
+        // so far, measured on disk, is the copy's progress.
+        let evidence = target.parent().map(Path::to_path_buf).unwrap_or_default();
+        adb_session.ok_or("adb_session_required")?.run_monitored(
             catalog,
             &args,
             work,
             cancel,
             Duration::from_secs(1800),
+            &|| {
+                let copied = copied_bytes(&evidence);
+                if copied > 0 {
+                    on_progress(&Progress {
+                        phase: "acquiring".into(),
+                        percent: None,
+                        kept: 0,
+                        discarded: 0,
+                        received_bytes: 0,
+                        stored_bytes: copied,
+                        capturing: false,
+                        sysdiagnose: None,
+                    });
+                }
+            },
         )?
     } else {
         // The choice last handed to the adapter; it starts at "hold".
@@ -641,6 +659,20 @@ pub struct Progress {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sysdiagnose: Option<String>,
 }
+/// Bytes written so far by the files directly in `dir` (the Android bug
+/// report while ADB copies it).
+fn copied_bytes(dir: &Path) -> u64 {
+    std::fs::read_dir(dir)
+        .map(|entries| {
+            entries
+                .filter_map(Result::ok)
+                .filter_map(|entry| entry.metadata().ok())
+                .filter(|meta| meta.is_file())
+                .map(|meta| meta.len())
+                .sum()
+        })
+        .unwrap_or(0)
+}
 fn acquisition_progress(work: &Path) -> Option<Progress> {
     use std::io::Read;
     let mut bytes = Vec::new();
@@ -693,6 +725,15 @@ fn acquisition_progress(work: &Path) -> Option<Progress> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn the_android_copy_is_measured_by_the_bytes_on_disk() {
+        let dir = tempfile::tempdir().unwrap();
+        assert_eq!(copied_bytes(dir.path()), 0);
+        std::fs::write(dir.path().join("bugreport.zip"), vec![0u8; 4096]).unwrap();
+        std::fs::create_dir(dir.path().join("inner")).unwrap();
+        assert_eq!(copied_bytes(dir.path()), 4096);
+        assert_eq!(copied_bytes(&dir.path().join("missing")), 0);
+    }
     #[test]
     fn each_start_choice_has_the_word_the_ios_adapter_reads() {
         assert_eq!(start_word(START_HOLD), b"hold");

@@ -106,6 +106,7 @@ export function ScanProgress({
   t,
   encrypted,
   network,
+  connections = false,
   ios = false,
   diagnostics = false,
   rules,
@@ -117,6 +118,8 @@ export function ScanProgress({
   t: Copy;
   encrypted: boolean;
   network: boolean;
+  /** Android: its open connections are read with the copy, as chosen. */
+  connections?: boolean;
   /** iPhone USB acquisition: the phone may ask for its passcode. */
   ios?: boolean;
   /** The deep check was chosen for this iPhone scan. */
@@ -401,7 +404,9 @@ export function ScanProgress({
         paused={paused}
         attention={PROMPT_PHASES.includes(status.phase)}
         press={deepWait && !deepConfirmed}
-        network={!!sample?.capturing}
+        // The waves while the network is checked: the iPhone's traffic
+        // window, or the copy of an Android phone whose connections are read.
+        network={!!sample?.capturing || (connections && copying)}
         platform={ios ? "ios" : "android"}
         screen={
           status.phase === "awaiting_trust"

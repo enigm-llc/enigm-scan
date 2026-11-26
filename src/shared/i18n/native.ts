@@ -676,12 +676,12 @@ const DETAILS: Record<string, Rule[]> = {
     [
       /^(\d+) MVT heuristics omitted/,
       t(
-        "{0} avisos habituales en móviles sin infectar (actualizaciones de apps, servicios del fabricante, apps de tiendas y la propia depuración USB del análisis) no se muestran. Ninguno coincidía con un indicador firmado.",
-        "{0} alerts that are common on phones that are not infected (app updates, the manufacturer’s services, store apps and the scan’s own USB debugging) are not shown. None matched a signed indicator.",
-        "{0} alertes courantes sur des téléphones sains (mises à jour d’applications, services du fabricant, applications des boutiques et le débogage USB de l’analyse elle-même) ne sont pas affichées. Aucune ne correspondait à un indicateur signé.",
-        "{0} auf nicht infizierten Geräten übliche Warnungen (App-Updates, Herstellerdienste, Store-Apps und das USB-Debugging der Analyse selbst) werden nicht angezeigt. Keine entsprach einem signierten Indikator.",
-        "{0} avvisi comuni sui telefoni non infetti (aggiornamenti delle app, servizi del produttore, app degli store e il debug USB dell’analisi stessa) non vengono mostrati. Nessuno corrispondeva a un indicatore firmato.",
-        "{0} alertas habituais em telemóveis sem infeção (atualizações de apps, serviços do fabricante, apps de lojas e a própria depuração USB da análise) não são mostrados. Nenhum correspondia a um indicador assinado.",
+        "{0} avisos habituales en móviles sin infectar (actualizaciones de apps, servicios del fabricante, apps de tiendas, la propia depuración USB del análisis y el Modo de aislamiento del iPhone activado) no se muestran. Ninguno coincidía con un indicador firmado.",
+        "{0} alerts that are common on phones that are not infected (app updates, the manufacturer’s services, store apps, the scan’s own USB debugging and iPhone’s Lockdown Mode being on) are not shown. None matched a signed indicator.",
+        "{0} alertes courantes sur des téléphones sains (mises à jour d’applications, services du fabricant, applications des boutiques, le débogage USB de l’analyse elle-même et le mode Isolement de l’iPhone activé) ne sont pas affichées. Aucune ne correspondait à un indicateur signé.",
+        "{0} auf nicht infizierten Geräten übliche Warnungen (App-Updates, Herstellerdienste, Store-Apps, das USB-Debugging der Analyse selbst und der aktivierte Blockierungsmodus des iPhone) werden nicht angezeigt. Keine entsprach einem signierten Indikator.",
+        "{0} avvisi comuni sui telefoni non infetti (aggiornamenti delle app, servizi del produttore, app degli store, il debug USB dell’analisi stessa e la modalità di isolamento dell’iPhone attiva) non vengono mostrati. Nessuno corrispondeva a un indicatore firmato.",
+        "{0} alertas habituais em telemóveis sem infeção (atualizações de apps, serviços do fabricante, apps de lojas, a própria depuração USB da análise e o Modo de Isolamento do iPhone ativo) não são mostrados. Nenhum correspondia a um indicador assinado.",
       ),
       ["n"],
     ],

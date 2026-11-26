@@ -47,10 +47,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "No queda espacio libre suficiente. Libera espacio en el ordenador y vuelve a empezar.",
     webShare: "Compartir enlace",
     webShared: "Enlace compartido",
-    offerTitle: "Conoce Enigm",
+    offerTitle: "Protege tus conversaciones",
     offerBody:
       "Protege tus mensajes y llamadas del spyware con la mensajería privada de los creadores de Enigm Scan.",
-    offerAction: "Ir a enigm.io",
+    offerAction: "Conoce Enigm",
     offerDetails: "Todo el ecosistema Enigm",
     offerProducts: [
       {
@@ -115,10 +115,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Not enough free space. Free up space on your computer and start again.",
     webShare: "Share link",
     webShared: "Link shared",
-    offerTitle: "Meet Enigm",
+    offerTitle: "Protect your conversations",
     offerBody:
       "Protect your messages and calls from spyware with private messaging from the makers of Enigm Scan.",
-    offerAction: "Visit enigm.io",
+    offerAction: "Meet Enigm",
     offerDetails: "The whole Enigm ecosystem",
     offerProducts: [
       {
@@ -184,10 +184,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Espace libre insuffisant. Libérez de l’espace sur l’ordinateur et recommencez.",
     webShare: "Partager le lien",
     webShared: "Lien partagé",
-    offerTitle: "Découvrez Enigm",
+    offerTitle: "Protégez vos conversations",
     offerBody:
       "Protégez vos messages et appels des logiciels espions avec la messagerie privée des créateurs d’Enigm Scan.",
-    offerAction: "Aller sur enigm.io",
+    offerAction: "Découvrir Enigm",
     offerDetails: "Tout l’écosystème Enigm",
     offerProducts: [
       {
@@ -253,10 +253,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Nicht genug freier Speicher. Schaffe Platz auf dem Computer und starte neu.",
     webShare: "Link teilen",
     webShared: "Link geteilt",
-    offerTitle: "Enigm kennenlernen",
+    offerTitle: "Schützen Sie Ihre Gespräche",
     offerBody:
       "Schützen Sie Nachrichten und Anrufe vor Spyware mit privater Kommunikation von den Machern von Enigm Scan.",
-    offerAction: "Zu enigm.io",
+    offerAction: "Enigm kennenlernen",
     offerDetails: "Das gesamte Enigm-Ökosystem",
     offerProducts: [
       {
@@ -322,10 +322,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Spazio libero insufficiente. Libera spazio sul computer e ricomincia.",
     webShare: "Condividi link",
     webShared: "Link condiviso",
-    offerTitle: "Scopri Enigm",
+    offerTitle: "Proteggi le tue conversazioni",
     offerBody:
       "Proteggi messaggi e chiamate dallo spyware con la messaggistica privata dei creatori di Enigm Scan.",
-    offerAction: "Vai su enigm.io",
+    offerAction: "Scopri Enigm",
     offerDetails: "Tutto l’ecosistema Enigm",
     offerProducts: [
       {
@@ -390,10 +390,10 @@ export const productCopy: Record<Language, ProductCopy> = {
       "Espaço livre insuficiente. Liberta espaço no computador e recomeça.",
     webShare: "Partilhar ligação",
     webShared: "Ligação partilhada",
-    offerTitle: "Conheça o Enigm",
+    offerTitle: "Proteja as suas conversas",
     offerBody:
       "Proteja as suas mensagens e chamadas do spyware com as mensagens privadas dos criadores do Enigm Scan.",
-    offerAction: "Ir para enigm.io",
+    offerAction: "Conheça o Enigm",
     offerDetails: "Todo o ecossistema Enigm",
     offerProducts: [
       {

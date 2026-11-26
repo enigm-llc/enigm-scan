@@ -25,16 +25,13 @@ export function markNativeShell(root = document.documentElement): void {
 }
 
 /**
- * Show this app window once its first frame is painted in the system's
- * appearance. The window starts hidden, so nothing white or in the wrong
- * appearance shows while it loads (see `window_ready` in src-tauri).
+ * Show this app window as soon as its page is mounted, in the system's
+ * appearance (see `window_ready` in src-tauri). It does not wait for an
+ * animation frame: macOS gives none to a hidden window, so the window only
+ * appeared after the native side's four-second fallback.
  */
 export function revealWindow(): void {
-  requestAnimationFrame(() =>
-    requestAnimationFrame(() => {
-      void import("@tauri-apps/api/core")
-        .then(({ invoke }) => invoke("window_ready"))
-        .catch(() => {});
-    }),
-  );
+  void import("@tauri-apps/api/core")
+    .then(({ invoke }) => invoke("window_ready"))
+    .catch(() => {});
 }

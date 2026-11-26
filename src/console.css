@@ -6135,14 +6135,11 @@ body:has(.promo-backdrop) {
   user-select: none;
   cursor: default;
 }
+/* No shadow filter: WebKit on macOS drew it as a square around the icon. */
 .about-icon {
   width: 84px;
   height: 84px;
   -webkit-user-drag: none;
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.22));
-}
-:root[data-theme="dark"] .about-icon {
-  filter: drop-shadow(0 8px 22px rgba(255, 255, 255, 0.1));
 }
 .about-window h1 {
   margin: 4px 0 0;

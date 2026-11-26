@@ -70,15 +70,15 @@ it("requires consent for device discovery and selects the sole authorized device
         usbId: "test-device",
         consent: true,
         phoneIp: null,
-        // Android reads its open connections by default (the option starts on).
-        pcapConsent: true,
+        // Like the iPhone's, Android's connections check starts off.
+        pcapConsent: false,
       }),
     }),
   );
   fireEvent.click(await screen.findByRole("button", { name: a.cancel }));
   expect(native).toHaveBeenCalledWith("cancel_scan");
 });
-it("offers the same connections option on Android, on by default, and honours it", async () => {
+it("offers the same connections option on Android, off by default as on iPhone, and honours it", async () => {
   const original = vi.mocked(native).getMockImplementation()!;
   vi.mocked(native).mockImplementation(async (...args) =>
     args[0] === "capabilities" ? caps : original(...args),
@@ -94,7 +94,7 @@ it("offers the same connections option on Android, on by default, and honours it
   const connections = screen.getByRole("checkbox", {
     name: /^Also check its connections/,
   }) as HTMLInputElement;
-  expect(connections.checked).toBe(true);
+  expect(connections.checked).toBe(false);
   expect(screen.getByText(flowCopy.en.optionNetworkAndroid)).toBeTruthy();
   // The iPhone-only deep check is not offered for Android.
   expect(
@@ -108,7 +108,7 @@ it("offers the same connections option on Android, on by default, and honours it
     expect(native).toHaveBeenCalledWith("start_scan", {
       request: expect.objectContaining({
         device: "android",
-        pcapConsent: false,
+        pcapConsent: true,
       }),
     }),
   );

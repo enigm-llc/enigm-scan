@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased
+
+- iPhone's Lockdown Mode being on is no longer shown as a point to review:
+  it is Apple's strongest protection against spyware, not a sign of it.
+- Android, as on iPhone: its connections check starts off, the waves show
+  during its copy when it is on, and the copy shows how many MB have been
+  copied so far.
+- Windows open as soon as their page is ready, instead of after a few
+  seconds on macOS; About opens again at once, and its icon has no square
+  around it.
+- The closing invitation's title is "Protect your conversations" and its
+  button "Meet Enigm".
+- The line under "Find my phone" while it searches is gone; the spinning
+  button says it.
+
 ## 0.7.3 — 26 November 2026
 
 - Windows open directly in the system's light or dark appearance, without

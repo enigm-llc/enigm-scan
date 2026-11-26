@@ -472,7 +472,7 @@ pub fn analyze_mvt(
     // Enigm's own analysis of MVT's extracted records: impersonating links in
     // messages and browsers, and configuration profiles able to intercept.
     enigm_scan_core::extractions::analyze(&output, report);
-    report.check("mvt_routine_alerts", "completed", &format!("{} MVT heuristics omitted as routine on ordinary phones: app updates and uninstalls, the manufacturer's own accessibility services, apps from known stores allowed to install updates, and the USB debugging session used by this scan. None matched a signed indicator; indicator matches are never omitted.", routine.omitted));
+    report.check("mvt_routine_alerts", "completed", &format!("{} MVT heuristics omitted as routine on ordinary phones: app updates and uninstalls, the manufacturer's own accessibility services, apps from known stores allowed to install updates, the USB debugging session used by this scan, and iPhone's Lockdown Mode being on. None matched a signed indicator; indicator matches are never omitted.", routine.omitted));
     if let Some(patch) = routine.security_patch {
         report.check("android_security_patch", "completed", &format!("{patch} Install the latest system update; an outdated phone is easier to attack, but this is not a sign of spyware."));
     }
@@ -542,8 +542,8 @@ struct Alert {
 }
 /// MVT heuristics that fire on ordinary phones: package updates and
 /// uninstalls, the manufacturer's own accessibility services, apps from known
-/// stores that may install updates, and the USB debugging session this scan
-/// itself uses. They are counted, never silently dropped, and never applied
+/// stores that may install updates, the USB debugging session this scan
+/// itself uses, and iPhone's Lockdown Mode being on. They are counted, never silently dropped, and never applied
 /// to an alert that matches a signed indicator.
 #[derive(Default)]
 pub struct Routine {
@@ -570,6 +570,10 @@ impl Routine {
             || message.starts_with("Detected downgrade of package")
             || message.starts_with("The accessibility dump states")
         {
+            true
+        } else if message.starts_with("Lockdown mode enabled") {
+            // iPhone's Lockdown Mode is Apple's strongest protection against
+            // this kind of spyware: a safeguard, never a sign of it.
             true
         } else if message.starts_with("Risky package 'com.android.shell'") {
             // ADB runs as com.android.shell: this is the scan's own session.
@@ -750,7 +754,8 @@ mod tests {
             {"level":"MEDIUM","module":"appops","message":"Package 'org.mozilla.firefox' had risky permission 'REQUEST_INSTALL_PACKAGES' set to 'allow' at 2026","event":{"package_name":"org.mozilla.firefox"}},
             {"level":"MEDIUM","module":"getprop","message":"This phone has not received security updates for more than six months (last update: 2025-01-05).","event":{}},
             {"level":"MEDIUM","module":"accessibility","message":"Found accessibility service: \"com.spy.helper/.A\" (enabled)","event":{"package_name":"com.spy.helper"}},
-            {"level":"MEDIUM","module":"packages","message":"Found an installed package related to rooting/jailbreaking: \"com.topjohnwu.magisk\"","event":{"package_name":"com.topjohnwu.magisk"}}
+            {"level":"MEDIUM","module":"packages","message":"Found an installed package related to rooting/jailbreaking: \"com.topjohnwu.magisk\"","event":{"package_name":"com.topjohnwu.magisk"}},
+            {"level":"LOW","module":"global_preferences","message":"Lockdown mode enabled","event":{"entry":"LDMGlobalEnabled","value":true}}
         ]);
         let mut routine = Routine::default();
         let findings = parse_alerts_with_rules(
@@ -768,7 +773,8 @@ mod tests {
             .iter()
             .all(|f| f.rule.starts_with("mvt.heuristic.")));
         assert!(findings[0].evidence.contains("com.spy.helper"));
-        assert_eq!(routine.omitted, 5);
+        // Lockdown Mode being on is a safeguard, never a point to review.
+        assert_eq!(routine.omitted, 6);
         assert!(routine.security_patch.unwrap().contains("2025-01-05"));
         // Without an inventory, accessibility services are never assumed trusted.
         let mut routine = Routine::default();

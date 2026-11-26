@@ -76,12 +76,11 @@ fn paint_window(window: &tauri::WebviewWindow) {
     let dark = matches!(window.theme(), Ok(tauri::Theme::Dark));
     let _ = window.set_background_color(Some(window_grey(dark)));
 }
-/// Windows start hidden and are shown by their page once it has painted its
-/// first frame in the system's appearance (`revealWindow` in
+/// Windows start hidden, in the system's grey, and are shown by their page
+/// once it is mounted in the system's appearance (`revealWindow` in
 /// src/desktop/native-shell.ts). Showing them when the page had merely
-/// loaded let a white frame through: the webview's own canvas on macOS,
-/// and the page before its stylesheet knew the appearance. Each window only
-/// shows itself.
+/// loaded let a white frame through, before the stylesheet knew the
+/// appearance. Each window only shows itself.
 #[tauri::command]
 fn window_ready(window: WebviewWindow) {
     let _ = window.show();
@@ -1476,6 +1475,14 @@ fn main() {
             // Only the main window ends the session; the About window just
             // closes.
             if window.label() != "main" {
+                // About is hidden rather than closed, so it opens again at
+                // once.
+                if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                    if !QUITTING.load(Ordering::SeqCst) {
+                        api.prevent_close();
+                        let _ = window.hide();
+                    }
+                }
                 return;
             }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
