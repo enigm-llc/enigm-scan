@@ -234,9 +234,18 @@ for (const source of sources) {
     });
   }
 }
-const unique = [...new Map(rules.map((r) => [r.id, r])).values()].sort((a, b) =>
-  a.id.localeCompare(b.id, "en"),
-);
+// One rule per value: the same domain or hash published by several sources
+// would otherwise appear as several findings. Sources are listed with the
+// primary research first, so the rule kept names the original publication.
+const byValue = new Map();
+for (const rule of rules) {
+  const key = `${rule.kind}\0${rule.value}`;
+  if (!byValue.has(key)) byValue.set(key, rule);
+}
+const duplicates = rules.length - byValue.size;
+const unique = [
+  ...new Map([...byValue.values()].map((r) => [r.id, r])).values(),
+].sort((a, b) => a.id.localeCompare(b.id, "en"));
 if (!unique.length) throw Error("No supported indicators");
 // Schema 1 (domain/ip/sha256) stays at the original endpoint for released
 // apps; schema 2 adds the forensic types MVT matches natively.
@@ -288,6 +297,7 @@ writeFileSync(
       legacyRules: unique.filter((r) => LEGACY.has(r.kind)).length,
       omittedUnsupportedPatterns: omitted,
       omittedSharedInfrastructure: omittedShared,
+      duplicatesMerged: duplicates,
       issuedAt: now,
       expiresAt: expiry,
       publicKeySha256: createHash("sha256").update(publicRaw).digest("hex"),
@@ -306,5 +316,6 @@ console.log(
     rulesByKind: byKind,
     omittedUnsupportedPatterns: omitted,
     omittedSharedInfrastructure: omittedShared,
+    duplicatesMerged: duplicates,
   }),
 );

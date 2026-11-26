@@ -251,6 +251,14 @@ const NAMES: Record<string, T> = {
     "Limite di indizi diagnostici",
     "Limite de indícios de diagnóstico",
   ),
+  network_vpn: t(
+    "VPN durante la observación",
+    "VPN during the observation",
+    "VPN pendant l’observation",
+    "VPN während der Beobachtung",
+    "VPN durante l’osservazione",
+    "VPN durante a observação",
+  ),
   network_lookalike_domains: t(
     "Dominios que imitan a otros",
     "Look-alike domains",
@@ -784,6 +792,19 @@ const DETAILS: Record<string, Rule[]> = {
       ),
     ],
   ],
+  network_vpn: [
+    [
+      /^The phone's traffic went through a VPN/,
+      t(
+        "El tráfico del móvil pasó por una VPN (WireGuard): sus destinos viajan cifrados dentro de ella y no se pudieron leer. Para revisarlos, desconecta la VPN mientras el análisis observa la red.",
+        "The phone’s traffic went through a VPN (WireGuard): its destinations travel encrypted inside it and could not be read. To check them, disconnect the VPN while the scan observes the network.",
+        "Le trafic du téléphone est passé par un VPN (WireGuard) : ses destinations y circulent chiffrées et n’ont pas pu être lues. Pour les vérifier, déconnectez le VPN pendant que l’analyse observe le réseau.",
+        "Der Verkehr des Telefons lief über ein VPN (WireGuard): Seine Ziele sind darin verschlüsselt und konnten nicht gelesen werden. Um sie zu prüfen, trennen Sie das VPN, während die Analyse das Netzwerk beobachtet.",
+        "Il traffico del telefono è passato da una VPN (WireGuard): le sue destinazioni viaggiano cifrate al suo interno e non è stato possibile leggerle. Per controllarle, disconnetti la VPN mentre l’analisi osserva la rete.",
+        "O tráfego do telemóvel passou por uma VPN (WireGuard): os seus destinos viajam encriptados dentro dela e não foi possível lê-los. Para os verificar, desligue a VPN enquanto a análise observa a rede.",
+      ),
+    ],
+  ],
   evidence_correlation: [
     [
       /^(\d+) distinct/,
@@ -889,6 +910,17 @@ const DNS: Rule[] = [
       "DNS privado: {0}, comparado com servidores de spyware conhecidos.",
     ),
     ["raw"],
+  ],
+  [
+    /Private DNS uses Enigm DNS\./,
+    t(
+      "DNS privado: Enigm DNS.",
+      "Private DNS: Enigm DNS.",
+      "DNS privé : Enigm DNS.",
+      "Privates DNS: Enigm DNS.",
+      "DNS privato: Enigm DNS.",
+      "DNS privado: Enigm DNS.",
+    ),
   ],
   [
     /Private DNS is off\./,

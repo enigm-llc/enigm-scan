@@ -218,6 +218,16 @@ impl Inventory {
             .map(|p| p.system || p.installer.as_deref().is_some_and(|i| STORES.contains(&i)))
     }
 }
+/// The Enigm app, with its VPN and private proxy, is not reviewed when it
+/// comes from an app store or the system (Enigm OS). Installed from an APK
+/// file it is reviewed like any other app, so its name cannot disguise
+/// spyware.
+pub const ENIGM_APPS: &[&str] = &["io.enigm.app"];
+impl Inventory {
+    pub fn enigm_app(&self, id: &str) -> bool {
+        ENIGM_APPS.contains(&id) && self.trusted(id) == Some(true)
+    }
+}
 fn sideloaded(package: &Package) -> bool {
     !package.system
         && package.path.starts_with("/data/app/")
@@ -355,6 +365,9 @@ fn background_upload(inventory: &Inventory, described: &BTreeSet<String>, report
     let mut flagged = 0;
     for (id, bytes) in &inventory.background_upload {
         let package = inventory.packages.iter().find(|p| &p.id == id);
+        if inventory.enigm_app(id) {
+            continue;
+        }
         let spyware_like = described.contains(id);
         let outside_stores = package.is_some_and(sideloaded);
         if !((spyware_like && *bytes > 5 * MB) || (outside_stores && *bytes > 20 * MB)) {
@@ -494,7 +507,7 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
     let sideloaded: Vec<&str> = inventory
         .packages
         .iter()
-        .filter(|p| sideloaded(p) && !described.contains(&p.id))
+        .filter(|p| sideloaded(p) && !described.contains(&p.id) && !inventory.enigm_app(&p.id))
         .map(|p| p.id.as_str())
         .collect();
     if !sideloaded.is_empty() && report.findings.len() < 500 {
@@ -542,6 +555,8 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
             format!("Private DNS uses {host}, compared with known spyware infrastructure.")
         }
         (Some("off"), _) => "Private DNS is off.".into(),
+        // Enigm OS's own private DNS mode.
+        (Some("enigmdns"), _) => "Private DNS uses Enigm DNS.".into(),
         _ => "Private DNS is automatic or not reported.".into(),
     };
     let proxy = if inventory.http_proxy.is_some() {

@@ -100,6 +100,12 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+Emerging Threats Open mobile malware rules
+========================================================================
+Source: https://rules.emergingthreats.net/open/
+Attribution and licence (BSD, sids 2000000-2799999):
+intelligence/sources/ET_OPEN_ATTRIBUTION.txt
+
 Roboto
 ========================================================================
 License: SIL Open Font License 1.1 (public/fonts/Roboto-LICENSE.txt).

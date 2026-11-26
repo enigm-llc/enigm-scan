@@ -263,3 +263,31 @@ it("translates the spyware intelligence texts", () => {
     "Found a file on 2026-11-20, e.g. x",
   );
 });
+
+it("translates Enigm's own DNS and VPN notes", () => {
+  for (const language of ["es", "fr", "de", "it", "pt"] as const) {
+    expect(checkName("network_vpn", language)).not.toBe("network_vpn");
+    expect(
+      checkDetail(
+        "network_vpn",
+        "The phone's traffic went through a VPN (WireGuard): its destinations travel encrypted inside it and could not be read. To check them, disconnect the VPN while the scan observes the network.",
+        language,
+      ),
+    ).toContain("WireGuard");
+    expect(
+      checkDetail(
+        "android_network_settings",
+        "Private DNS uses Enigm DNS. No global HTTP proxy.",
+        language,
+      ),
+    ).toContain("Enigm DNS");
+  }
+  expect(
+    evidenceText(
+      "Apple warning about state-sponsored attack received on 2026-11-20 10:00:00",
+      "es",
+    ),
+  ).toBe(
+    "Aviso de Apple de un ataque dirigido recibido el 2026-11-20 10:00:00",
+  );
+});

@@ -39,6 +39,20 @@
   removed are routine too; the profiles themselves are still checked.
 - Evidence of suspicious links, iPhone processes and app behaviour is shown
   in the report's language.
+- More indicators: Amnesty's investigations into Pegasus (2018 and 2019),
+  FinSpy and Donot Team's Android spyware, and the mobile spyware domains
+  detected by Emerging Threats Open (APT-C-23, Bahamut, RealRAT,
+  PhantomLance and others). A value published by several sources now gives
+  one finding, not several. The new indicators reach the app with the next
+  signed release.
+- Apple's own notice of a mercenary spyware attack, received in Messages, is
+  a critical detection instead of a point to review.
+- The PDF report says what to do now, in order, based on what was found:
+  keeping the phone for an expert, safety first with stalkerware, Lockdown
+  Mode, removing unknown profiles. It is left out when nothing was found.
+- Enigm's own app, VPN and DNS are not points to review: the Enigm app from
+  a store or Enigm OS, Enigm OS's private DNS, and traffic carried by a
+  WireGuard VPN, which the report explains instead of reporting nothing.
 - Android, as on iPhone: its connections check starts off, the waves show
   during its copy when it is on, and the copy shows how many MB have been
   copied so far.

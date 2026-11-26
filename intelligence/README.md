@@ -17,7 +17,14 @@ listed with its SHA-256 in `sources/manifest.json`:
 - Android espionage families from ESET Research's public IOCs (AridSpy,
   BadBazaar, VajraSpy, GravityRAT and others), converted to STIX by
   `scripts/intel/eset-android.mjs` with its inputs recorded in
-  `sources/ESET_PROVENANCE.json`.
+  `sources/ESET_PROVENANCE.json`;
+- Amnesty's phone spyware investigations published as plain lists (Pegasus
+  in 2018 and 2019, FinSpy, Donot Team's Android spyware), converted by
+  `scripts/intel/amnesty-investigations.mjs`;
+- the domains that Emerging Threats Open detects for mobile spyware
+  (APT-C-23, Bahamut, RealRAT, PhantomLance, Hawkshaw, NSO and others),
+  converted by `scripts/intel/emerging-threats.mjs`, which keeps only spyware
+  families, whole domains and rules under ET's BSD licence.
 
 Each source keeps its license and attribution next to it (see
 [THIRD-PARTY-LICENSES.txt](../THIRD-PARTY-LICENSES.txt)).
@@ -32,6 +39,8 @@ its threat family and its source. Revoked, expired or not yet valid indicators
 are left out, as are addresses of shared infrastructure such as CDNs and
 cloud front ends (`shared-infrastructure.json`), which would match ordinary
 traffic. Patterns the compiler cannot match exactly are counted and omitted.
+A value published by several sources is kept once, with the first source in
+`sources/manifest.json`, so one domain never becomes several findings.
 
 The bundle is signed with an Ed25519 key that the maintainers keep offline;
 it is never in this repository or in the app. The app embeds the matching

@@ -7,6 +7,8 @@ import { reportCopy } from "../shared/i18n/report";
 import { productCopy } from "../shared/i18n/product";
 import { findingLabel } from "../shared/i18n/findings";
 import { splitFindings } from "./findings";
+import { actionsFor } from "./actions";
+import { actionCopy, actionsLead, actionsTitle } from "../shared/i18n/actions";
 import {
   checkDetail,
   checkName,
@@ -269,6 +271,28 @@ export async function buildPdf(
     INK,
   );
   y += 12;
+
+  // What to do, in order, from what was found. Absent when nothing was.
+  const steps = actionsFor(report.findings);
+  if (steps.length) {
+    heading(actionsTitle[language] ?? actionsTitle.en);
+    paragraph(actionsLead[language] ?? actionsLead.en, 10, TONE);
+    y += 6;
+    steps.forEach((step, i) => {
+      const rows = lines(
+        actionCopy[step][language] ?? actionCopy[step].en,
+        10,
+        CW - 30,
+      );
+      ensure(rows.length * 14.5 + 8);
+      fill(SOFT);
+      pdf.circle(M + 9, y - 3.5, 9, "F");
+      text(String(i + 1), M + 9, y, 9, INK, { bold: true, align: "center" });
+      rows.forEach((row, n) => text(row, M + 30, y + n * 14.5, 10, INK));
+      y += rows.length * 14.5 + 10;
+    });
+    y += 6;
+  }
 
   // Charts: signs by severity, and checks by status.
   const half = (CW - 24) / 2;

@@ -35,7 +35,8 @@ prove that a phone is not being spied on, and the report says so.
 
 - **Known spyware and stalkerware.** Domains, IP addresses, file hashes, app
   identifiers, process names and other indicators published by Amnesty
-  International's Security Lab, the MVT project, Echap and ESET Research.
+  International's Security Lab, the MVT project, Echap, ESET Research and
+  Emerging Threats Open.
   The bundle is signed, so the app only uses indicators that come from us.
 - **Android behaviour.** Apps that hide their icon, were installed from a
   computer over USB, use accessibility or notification access, act as device

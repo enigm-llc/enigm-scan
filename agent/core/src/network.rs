@@ -82,6 +82,8 @@ fn analyze(
     let mut opened: HashMap<(IpAddr, u16), Vec<i64>> = HashMap::new();
     // Which name each address answered for, to describe it in findings.
     let mut address_names: HashMap<IpAddr, String> = HashMap::new();
+    // WireGuard packets (the protocol of Enigm's VPN and many others).
+    let mut wireguard = 0usize;
     while at < bytes.len() {
         if cancel.load(Ordering::Relaxed) {
             return Err("cancelled".into());
@@ -219,6 +221,9 @@ fn analyze(
                     }
                 }
             }
+        }
+        if proto == 17 && wireguard_message(transport) {
+            wireguard += 1;
         }
         if proto == 17 && (sport == 53 || dport == 53) && transport.len() >= 8 {
             let udp_len = u16be(&transport[4..]).unwrap_or(0) as usize;
@@ -421,6 +426,16 @@ fn analyze(
             questions.len()
         ),
     );
+    // Traffic carried by a VPN is encrypted inside it: when that is all the
+    // phone sent, say why no destination could be read. Not a finding: a VPN
+    // such as Enigm's protects the phone.
+    if wireguard >= 10 && questions.is_empty() {
+        report.check(
+            "network_vpn",
+            "completed",
+            "The phone's traffic went through a VPN (WireGuard): its destinations travel encrypted inside it and could not be read. To check them, disconnect the VPN while the scan observes the network.",
+        );
+    }
     // Encrypted DNS or iCloud Private Relay hide lookups: say so.
     if dns_questions_seen == 0 && !encrypted_flows.is_empty() {
         let relay = questions
@@ -588,6 +603,29 @@ fn steady_interval(times: &[i64]) -> Option<i64> {
     gaps.iter()
         .all(|gap| (gap - mean).abs() * 100 <= mean * 15)
         .then_some(mean)
+}
+/// A WireGuard message by its fixed layout: type 1 to 4 followed by three
+/// reserved zero bytes, and the size each type has (data messages are padded
+/// to 16 bytes after a 16-byte header). The size is the one the UDP header
+/// declares, since captures keep only the start of each packet.
+fn wireguard_message(udp: &[u8]) -> bool {
+    let Some(size) = u16be(&udp[4.min(udp.len())..]).map(|l| l as usize) else {
+        return false;
+    };
+    let Some(head) = udp.get(8..12) else {
+        return false;
+    };
+    if size < 8 + 32 || head[1..4] != [0, 0, 0] {
+        return false;
+    }
+    let message = size - 8;
+    match head[0] {
+        1 => message == 148,
+        2 => message == 92,
+        3 => message == 64,
+        4 => (message - 16) % 16 == 0,
+        _ => false,
+    }
 }
 /// A host name as written in a TLS Client Hello or an HTTP Host header.
 fn host_name(bytes: &[u8]) -> Option<String> {
@@ -998,6 +1036,33 @@ mod tests {
             .checks
             .iter()
             .any(|c| c.id == "network_periodic_connections"));
+    }
+    #[test]
+    fn traffic_inside_a_vpn_is_explained_not_flagged() {
+        let data = |sec: u32| {
+            let mut message = vec![4, 0, 0, 0];
+            message.extend([0u8; 12 + 64]);
+            (sec, ip4(PHONE, SERVER, None, 51820, 51820, &message))
+        };
+        let report = analyzed(&(1000..1012).map(data).collect::<Vec<_>>());
+        assert!(report.findings.is_empty());
+        assert!(report
+            .checks
+            .iter()
+            .any(|c| c.id == "network_vpn" && c.detail.contains("WireGuard")));
+        // A handshake, kept as its headers and first bytes.
+        let handshake = ip4(
+            PHONE,
+            SERVER,
+            None,
+            51820,
+            51820,
+            &[[1u8, 0, 0, 0].as_slice(), &[0; 144]].concat(),
+        );
+        assert!(wireguard_message(&handshake[20..20 + 8 + 32]));
+        assert!(!wireguard_message(
+            &ip4(PHONE, SERVER, None, 5000, 5000, &[4, 0, 0, 0, 1])[20..]
+        ));
     }
     #[test]
     fn packets_kept_only_in_part_are_still_read() {

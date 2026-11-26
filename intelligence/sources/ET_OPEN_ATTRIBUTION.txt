@@ -1,0 +1,33 @@
+Mobile spyware domains detected by Emerging Threats Open (ET Open).
+Source: https://rules.emergingthreats.net/open/suricata-7.0/rules/emerging-mobile_malware.rules
+Ruleset SHA-256: a0c2bb8c49f1ac49fa9255e293d22d00cd1ad510e93c624a2b87b7e4d2f2307b (26 November 2026)
+et_open_mobile_spyware.stix2 is generated from it by scripts/intel/emerging-threats.mjs: only
+spyware families, only whole domains, only rules under ET's BSD licence (what was left out and why
+is in ET_OPEN_PROVENANCE.json). ET's licence for those rules:
+
+Rules with sids 2000000 through 2799999 are from Emerging Threats and are covered under the BSD License 
+as follows:
+
+*************************************************************
+Copyright (c) 2003-2026, Emerging Threats
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the 
+following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following 
+disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the 
+following disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of the nor the names of its contributors may be used to endorse or promote products derived 
+from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, 
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE 
+USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+*************************************************************

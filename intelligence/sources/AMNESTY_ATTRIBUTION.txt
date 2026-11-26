@@ -9,3 +9,13 @@ Additional Amnesty International Security Lab collections, same commit and licen
 - 2024-05-02_wintego_helios/wintego_helios.stix2 (Wintego Helios infrastructure)
 - 2024-12-16_serbia_novispy/novispy.stix2 (NoviSpy Android spyware)
 Source: https://github.com/AmnestyTech/investigations/tree/3d8f248a0d015f183724ae7d096a5c46a8bb5fc7
+
+Phone spyware investigations published as plain lists, converted to STIX by
+scripts/intel/amnesty-investigations.mjs into amnesty_phone_spyware.stix2
+(inputs and their SHA-256 in AMNESTY_PROVENANCE.json), same commit and licence:
+- 2018-08-01_nso (Pegasus infrastructure, domains)
+- 2019-10-10_nso_morocco (Pegasus against Moroccan human rights defenders)
+- 2020-09-25_finfisher (FinSpy domains and sample hashes)
+- 2021-10-07_donot (Donot Team Android spyware against activists in Togo)
+Only domains and hashes are used: the IP addresses of these investigations are
+several years old and have most likely been reassigned.

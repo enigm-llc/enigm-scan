@@ -118,5 +118,17 @@
     "url": "https://github.com/eset/malware-ioc/tree/8921a81d245cce3f9b7a199b123d221ed8f1fe33",
     "commit": "8921a81d245cce3f9b7a199b123d221ed8f1fe33",
     "sha256": "eb0db15832bbe5b051b89645dc2f91067b91757b2ddc61da78d53a9abb08df1a"
+  },
+  {
+    "file": "amnesty_phone_spyware.stix2",
+    "url": "https://github.com/AmnestyTech/investigations/tree/3d8f248a0d015f183724ae7d096a5c46a8bb5fc7",
+    "commit": "3d8f248a0d015f183724ae7d096a5c46a8bb5fc7",
+    "sha256": "26d5893d41e9ab3a4fbc13ef6b8b469c842f67c4a7210088deeaa8c8695c5475"
+  },
+  {
+    "file": "et_open_mobile_spyware.stix2",
+    "url": "https://rules.emergingthreats.net/open/suricata-7.0/rules/emerging-mobile_malware.rules",
+    "commit": "sha256:a0c2bb8c49f1ac49fa9255e293d22d00cd1ad510e93c624a2b87b7e4d2f2307b",
+    "sha256": "b00c5c113880c56536be708bf918a46d44f213c6a6bf8f185a1eef998c6bb0b7"
   }
 ]

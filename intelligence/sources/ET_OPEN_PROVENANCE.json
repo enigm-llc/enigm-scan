@@ -1,0 +1,32 @@
+{
+  "source": "https://rules.emergingthreats.net/open/suricata-7.0/rules/emerging-mobile_malware.rules",
+  "sha256": "a0c2bb8c49f1ac49fa9255e293d22d00cd1ad510e93c624a2b87b7e4d2f2307b",
+  "families": [
+    "APT-C-23",
+    "AndroRAT (Bitter)",
+    "Android spyware",
+    "Bahamut",
+    "Femas",
+    "GlanceLove",
+    "GolfSpy",
+    "Hawkshaw",
+    "Hermit",
+    "Operation Triangulation",
+    "Origami (Donot Team)",
+    "Pegasus",
+    "PhantomLance",
+    "Predator",
+    "RealRAT",
+    "SpyLoan"
+  ],
+  "omitted": {
+    "license": 0,
+    "notSpyware": 407,
+    "notWholeDomain": 79,
+    "sharedInfrastructure": [],
+    "reviewed": [
+      "new.filetea.me",
+      "new.filetea.me"
+    ]
+  }
+}

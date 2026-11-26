@@ -154,6 +154,14 @@ const labels: Record<string, Record<Language, string>> = {
     it: "Link sospetto",
     pt: "Ligação suspeita",
   },
+  apple_threat_notification: {
+    es: "Aviso de Apple: ataque con spyware mercenario",
+    en: "Apple notice: mercenary spyware attack",
+    fr: "Avis d’Apple : attaque par logiciel espion mercenaire",
+    de: "Apple-Hinweis: Angriff mit Söldner-Spyware",
+    it: "Avviso di Apple: attacco con spyware mercenario",
+    pt: "Aviso da Apple: ataque com spyware mercenário",
+  },
   ios_system_integrity: {
     es: "Sistema modificado (jailbreak)",
     en: "Modified system (jailbreak)",
@@ -315,6 +323,7 @@ const kindOf: Record<string, keyof typeof kinds> = {
   android_surveillance_capabilities: "app",
   android_system_integrity: "system",
   ios_system_integrity: "system",
+  apple_threat_notification: "messages",
   suspicious_link: "link",
   ios_configuration_profile: "profile",
   ios_unusual_process: "process",

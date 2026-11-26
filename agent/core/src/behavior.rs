@@ -807,7 +807,7 @@ pub fn analyze(inventory: &Inventory, report: &mut Report) -> BTreeSet<String> {
     let mut examined = 0;
     for package in inventory.packages.iter().take(crate::android::MAX_PACKAGES) {
         let origin = origin(package);
-        if origin == Origin::System {
+        if origin == Origin::System || inventory.enigm_app(&package.id) {
             continue;
         }
         examined += 1;
@@ -959,6 +959,28 @@ mod tests {
                 "com.google.android.gms/com.google.android.gms.mdm.receivers.MdmDeviceAdminReceiver",
                 "com.evil.spy/com.evil.spy.AdminReceiver"
             ]
+        );
+    }
+    #[test]
+    fn the_enigm_app_from_a_store_is_not_reviewed_but_its_name_from_an_apk_is() {
+        let mut inv = inventory(vec![package(
+            "io.enigm.app",
+            Some("com.android.vending"),
+            &["RECORD_AUDIO", "CAMERA"],
+        )]);
+        inv.always_on_vpn = Some("io.enigm.app".into());
+        inv.notification_listeners = vec!["io.enigm.app/.N".into()];
+        inv.accessibility_services = vec!["io.enigm.app/.A".into()];
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        assert!(report.findings.is_empty());
+        // The same name from an APK file, hidden: reviewed like any other app.
+        inv.packages = vec![package("io.enigm.app", None, &["RECORD_AUDIO", "CAMERA"])];
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        assert_eq!(
+            report.findings[0].rule,
+            "enigm.behavior.android_spyware_profile"
         );
     }
     #[test]

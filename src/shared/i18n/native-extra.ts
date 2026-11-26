@@ -18,6 +18,28 @@ const t = (
 /** Whole sentences: recommendations and limitations. Groups are kept as-is. */
 export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
+    /^Apple sends this notification when it detects an attack by mercenary spyware/,
+    t(
+      "Apple envía este aviso cuando detecta un ataque con spyware mercenario contra el móvil. Apple no explica cómo lo detectó ni si el ataque tuvo éxito.",
+      "Apple sends this notice when it detects an attack by mercenary spyware against the phone. Apple does not say how it found it or whether the attack succeeded.",
+      "Apple envoie cet avis lorsqu’elle détecte une attaque par logiciel espion mercenaire contre le téléphone. Apple n’explique pas comment elle l’a détectée ni si l’attaque a réussi.",
+      "Apple sendet diesen Hinweis, wenn es einen Angriff mit Söldner-Spyware auf das Telefon erkennt. Apple erklärt nicht, wie es ihn erkannt hat oder ob der Angriff erfolgreich war.",
+      "Apple invia questo avviso quando rileva un attacco con spyware mercenario contro il telefono. Apple non spiega come l’ha rilevato né se l’attacco è riuscito.",
+      "A Apple envia este aviso quando deteta um ataque com spyware mercenário contra o telemóvel. A Apple não explica como o detetou nem se o ataque teve êxito.",
+    ),
+  ],
+  [
+    /^Follow the steps in Apple's message, turn on Lockdown Mode/,
+    t(
+      "Sigue los pasos del mensaje de Apple, activa el Modo de aislamiento y pide ayuda experta cuanto antes. No restablezcas el móvil antes de que lo vea un experto.",
+      "Follow the steps in Apple’s message, turn on Lockdown Mode and ask for expert help right away. Do not reset the phone before an expert has seen it.",
+      "Suivez les étapes du message d’Apple, activez le mode Isolement et demandez sans attendre l’aide d’un expert. Ne réinitialisez pas le téléphone avant qu’un expert l’ait examiné.",
+      "Folgen Sie den Schritten in Apples Nachricht, aktivieren Sie den Blockierungsmodus und holen Sie sofort fachkundige Hilfe. Setzen Sie das Telefon nicht zurück, bevor eine Fachperson es gesehen hat.",
+      "Segui i passaggi del messaggio di Apple, attiva la modalità di isolamento e chiedi subito l’aiuto di un esperto. Non ripristinare il telefono prima che lo abbia visto un esperto.",
+      "Siga os passos da mensagem da Apple, ative o Modo de Isolamento e peça ajuda especializada de imediato. Não reponha o telemóvel antes de um especialista o ver.",
+    ),
+  ],
+  [
     /^Review point: spyware without servers of its own often reports to such hosts/,
     t(
       "Punto a revisar: el spyware que no tiene servidores propios suele enviar sus datos a este tipo de servicios. Pocas apps normales los usan, aunque algunos servicios domésticos y de juegos sí.",
@@ -1117,6 +1139,17 @@ const LANGS: Language[] = ["es", "en", "fr", "de", "it", "pt"];
 /** Enigm's phrases that carry data ($1, $2…): reasons, counts and dates.
  *  Applied before FRAGMENTS, which then translate the phrases around them. */
 export const PATTERNS: Array<[RegExp, T]> = [
+  [
+    /^Apple warning about state-sponsored attack received on (.+)$/,
+    t(
+      "Aviso de Apple de un ataque dirigido recibido el $1",
+      "Apple warning about a targeted attack received on $1",
+      "Avis d’Apple d’une attaque ciblée reçu le $1",
+      "Apple-Warnung vor einem gezielten Angriff erhalten am $1",
+      "Avviso di Apple di un attacco mirato ricevuto il $1",
+      "Aviso da Apple de um ataque dirigido recebido em $1",
+    ),
+  ],
   [
     /, (\d+) connections \(port (\d+)\) about every (\d+) seconds$/,
     t(

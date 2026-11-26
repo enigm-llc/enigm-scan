@@ -1,0 +1,34 @@
+{
+  "repository": "https://github.com/AmnestyTech/investigations",
+  "commit": "3d8f248a0d015f183724ae7d096a5c46a8bb5fc7",
+  "inputs": [
+    {
+      "path": "2018-08-01_nso/indicators.csv",
+      "sha256": "4e450de9219a6cb9a6888c352abb5e8b62fa33ebadd70238e5f69a5a08329579"
+    },
+    {
+      "path": "2019-10-10_nso_morocco/domains.txt",
+      "sha256": "29c183256cee9c04147e09bd50d29094f85a8b40dec500aa00ffcf02b368f63e"
+    },
+    {
+      "path": "2020-09-25_finfisher/domains.txt",
+      "sha256": "cc5d59d5f868984bae06df93989d95f49670d808dafbbefadd4bc0df0573b6de"
+    },
+    {
+      "path": "2020-09-25_finfisher/sha256.csv",
+      "sha256": "86d2eb4df9d1e9e155ae29bf709d370803e88247f98bc408848815efa700986e"
+    },
+    {
+      "path": "2021-10-07_donot/domains.txt",
+      "sha256": "699932857dbe4ede1e48375e894ec03073e15f67b41a9413f5deb92ce46952ac"
+    },
+    {
+      "path": "2021-10-07_donot/sha256.txt",
+      "sha256": "3ad279565f2e77f7680239e39df2d6643ae9e62c42bf2213f0d212bd4018285e"
+    }
+  ],
+  "omitted": {
+    "sharedInfrastructure": [],
+    "unparsable": 0
+  }
+}

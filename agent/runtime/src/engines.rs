@@ -696,6 +696,28 @@ fn parse_alerts_with_rules(
         if matched_rule.is_none() && routine.absorb(&a.message, &a.event, inventory) {
             continue;
         }
+        // Apple's own threat notification, received in Messages: Apple
+        // detected an attack by mercenary spyware. A detection, the strongest
+        // there is, not a heuristic.
+        if a.message
+            .starts_with("Apple warning about state-sponsored attack received")
+        {
+            findings.push(Finding {
+                id: format!("mvt.{hash}"),
+                category: "apple_threat_notification".into(),
+                source: "https://support.apple.com/102174".into(),
+                // The notice and its date; the message itself stays out.
+                evidence: bounded(&a.message, 300),
+                severity: "critical".into(),
+                confidence: "high".into(),
+                timestamp,
+                rule: "apple.threat_notification".into(),
+                rule_version: format!("{version}; bundle {bundle}"),
+                limitations: vec!["Apple sends this notification when it detects an attack by mercenary spyware against the phone. Apple does not say how it found it or whether the attack succeeded.".into()],
+                recommendation: "Follow the steps in Apple's message, turn on Lockdown Mode and ask for expert help right away. Do not reset the phone before an expert has seen it.".into(),
+            });
+            continue;
+        }
         // Only an alert tied to a signed indicator is a detection. MVT's
         // heuristics (unusual settings, sideloaded or rooting apps…) are
         // review points under `mvt.heuristic.*` with low confidence.
@@ -784,7 +806,8 @@ mod tests {
             {"level":"LOW","module":"global_preferences","message":"Lockdown mode enabled","event":{"entry":"LDMGlobalEnabled","value":true}},
             {"level":"LOW","module":"profile_events","message":"On 2026-11-20 10:00:00 process \"profiled\" started operation \"install\" of profile \"com.example.vpn\"","event":{}},
             {"level":"MEDIUM","module":"applications","message":"Suspicious app not installed from the App Store or MDM: com.example.beta","event":{"sourceApp":"com.apple.TestFlight"}},
-            {"level":"MEDIUM","module":"applications","message":"Suspicious app not installed from the App Store or MDM: com.example.other","event":{"sourceApp":"com.example.installer"}}
+            {"level":"MEDIUM","module":"applications","message":"Suspicious app not installed from the App Store or MDM: com.example.other","event":{"sourceApp":"com.example.installer"}},
+            {"level":"HIGH","module":"sms","message":"Apple warning about state-sponsored attack received on 2026-11-20 10:00:00","event":{}}
         ]);
         let mut routine = Routine::default();
         let findings = parse_alerts_with_rules(
@@ -797,10 +820,20 @@ mod tests {
         )
         .unwrap();
         // A sideloaded app with accessibility, a rooting app and an iPhone app
-        // from an unknown installer stay as review points.
-        assert_eq!(findings.len(), 3);
+        // from an unknown installer stay as review points; Apple's threat
+        // notification is a critical detection.
+        assert_eq!(findings.len(), 4);
+        let apple = findings
+            .iter()
+            .find(|f| f.category == "apple_threat_notification")
+            .unwrap();
+        assert_eq!(
+            (apple.severity.as_str(), apple.rule.as_str()),
+            ("critical", "apple.threat_notification")
+        );
         assert!(findings
             .iter()
+            .filter(|f| f.category != "apple_threat_notification")
             .all(|f| f.rule.starts_with("mvt.heuristic.")));
         assert!(findings[0].evidence.contains("com.spy.helper"));
         // Profile events are routine; Lockdown Mode, like the security patch,
@@ -825,7 +858,7 @@ mod tests {
             &mut routine,
         )
         .unwrap();
-        assert_eq!(kept.len(), 5);
+        assert_eq!(kept.len(), 6);
     }
     #[test]
     fn parses_actual_v3_alert_shape() {
