@@ -1,0 +1,109 @@
+{
+  "repository": "https://github.com/eset/malware-ioc",
+  "commit": "8921a81d245cce3f9b7a199b123d221ed8f1fe33",
+  "inputs": [
+    {
+      "path": "aridspy/samples.sha256",
+      "sha256": "502a679a55bae4dda6004079c6a63068af19917877890d36460c041413d66c5f"
+    },
+    {
+      "path": "aridspy/README.adoc",
+      "sha256": "0ac1480e3c3d4c7fc67d3e1f5278abe4ab55eee9332956ff132e8fea39402ac5"
+    },
+    {
+      "path": "gref/samples.sha256",
+      "sha256": "c3b26de62b04ec3a0d46087118ebc0f4b5b7728027236edf9e07f8b725200e80"
+    },
+    {
+      "path": "gref/README.adoc",
+      "sha256": "5367912ddd942de4463c4cd12c5629d1a8c16abc7ac9157461312aee301822a3"
+    },
+    {
+      "path": "vajraspy/samples.sha256",
+      "sha256": "f1e7f11b1b630984c65244e69290c9be4e439c428480f1393f2edfc200995321"
+    },
+    {
+      "path": "vajraspy/README.adoc",
+      "sha256": "07e6a3f78465499d9b2377d869c6094a03394a1db2f479b144b46814a8fce301"
+    },
+    {
+      "path": "prospytospy/samples.sha256",
+      "sha256": "dfafd8d7b1a2c1a1fcb2e41221dc7a933f335f369757b574f89b89f9dd89617c"
+    },
+    {
+      "path": "prospytospy/README.adoc",
+      "sha256": "0a567d6ee6f8327a77a49f76da6130b25a4b870e06548e7142425de2027c441a"
+    },
+    {
+      "path": "kamran/samples.sha256",
+      "sha256": "682d7fe344531f782b95e5e455b0454cbba80eeecf114b8dda33168e42bdae48"
+    },
+    {
+      "path": "kamran/README.adoc",
+      "sha256": "fe9ea6e8706a6d63ccf4ed9fe3b4735f80fc88dd2aa91dde9b99398522d42c53"
+    },
+    {
+      "path": "gravityrat/samples.sha256",
+      "sha256": "859c4d1aca4bd0b3be121310b19206d59157687b6401ef388a2fc3ea34feb012"
+    },
+    {
+      "path": "gravityrat/README.adoc",
+      "sha256": "407da84b8a9a13cf22e3d96d99feab597c001671e60e923ef1a4afefb1829c2d"
+    },
+    {
+      "path": "ghostchat/samples.sha256",
+      "sha256": "794178d20cdda322c0bd858815494227596a63260df9275b17164a118de3a9f1"
+    },
+    {
+      "path": "ghostchat/README.adoc",
+      "sha256": "d3a8fc32ba8bf0fcd3318a2767bcf3769230dd6016eac6829eb32de9373f529e"
+    },
+    {
+      "path": "promptspy/samples.sha256",
+      "sha256": "0069af7209a245ea3491347d15246e7d195e962f38ecd7ce4cd237c05d2d5d59"
+    },
+    {
+      "path": "promptspy/README.adoc",
+      "sha256": "b4641b8dc435a60c32ce94b1b38d1144a55852a41d47a7bc0ce253c922705077"
+    },
+    {
+      "path": "evilvideo/samples.sha256",
+      "sha256": "75465cb6367fc5082277702cf089b508eb782dc13b07968305655292354c5746"
+    },
+    {
+      "path": "evilvideo/README.adoc",
+      "sha256": "b5e08335425f562b60ae97b01ff854bc5722ceb296c14b32155249f7978c4a6c"
+    },
+    {
+      "path": "spyloan/samples.sha256",
+      "sha256": "b66597c697a5618a64f8904578e7c0630fb103c8c9c1dc0cfceb0b6edffc4923"
+    },
+    {
+      "path": "spyloan/README.adoc",
+      "sha256": "df9c1423db1f50c4bf7d9b9f7812e7bae7945e23cd9674398191f79784c8abf9"
+    },
+    {
+      "path": "scarcruft/samples.sha256",
+      "sha256": "8ab7d0d5148d27cbe438da26f7f5ca56df5a32f7d31c2d19347fb7fafb5110cc"
+    },
+    {
+      "path": "scarcruft/README.adoc",
+      "sha256": "26c9e766897403816f4ce91b071b715fcf16c4108086314e1976b1ceaf01ba64"
+    }
+  ],
+  "omitted": {
+    "sharedInfrastructure": [
+      "gravityrat: 75.2.37.224",
+      "gravityrat: 104.21.12.211",
+      "gravityrat: 104.21.24.109",
+      "gravityrat: 104.21.41.147",
+      "gravityrat: 172.67.196.90",
+      "gravityrat: 172.67.203.168"
+    ],
+    "reviewed": [
+      "gref: 82.180.174.230",
+      "gref: 156.67.73.71"
+    ],
+    "unparsable": 0
+  }
+}

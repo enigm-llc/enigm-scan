@@ -1,0 +1,5 @@
+# Regenerate: echo pymobiledevice3==11.45.0 | uv pip compile - --no-deps --universal --python-version 3.14 --generate-hashes --no-header
+pymobiledevice3==11.45.0 \
+    --hash=sha256:19ed34bdc02e32f2006f5539a86d5d2e4b4f1ae45200cf516ca9348d6f50a4c8 \
+    --hash=sha256:f5ccfe6a7babd47765998c96b9f11f95cf095780c93ce444f7a45e500a6c3b3f
+    # installed with --no-deps; its runtime subset is in ios-requirements.txt

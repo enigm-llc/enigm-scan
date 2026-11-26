@@ -1,0 +1,322 @@
+/*
+ * Enigm Scan design layer (loaded after styles.css).
+ * Monochrome identity, one action per screen and a shared “pulse” visual.
+ */
+:root {
+  --pulse-ink: var(--text);
+  --pulse-line: color-mix(in srgb, var(--text) 13%, transparent);
+  --pulse-fill: color-mix(in srgb, var(--raised) 86%, transparent);
+  --glass: var(--raised);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+:root[data-theme="dark"] {
+  --pulse-line: color-mix(in srgb, var(--text) 16%, transparent);
+}
+
+/* ---------- Shared building blocks ---------- */
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  animation: stage-in 700ms var(--ease) both;
+}
+.stage h1 {
+  margin: 34px 0 0;
+  max-width: 16ch;
+  font-size: clamp(34px, calc(5.2 * var(--vw)), 60px);
+  font-weight: 560;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+.stage .lede {
+  margin: 16px auto 0;
+  max-width: 36ch;
+  color: var(--muted);
+  font-size: clamp(15px, calc(1.5 * var(--vw)), 17px);
+  line-height: 1.55;
+}
+.stage .fine {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+@keyframes stage-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--glass);
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.pill strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+/* ---------- Landing ---------- */
+.web-workspace.stage .web-hero > p.lede {
+  max-width: 42ch;
+  margin: 18px auto 0;
+}
+.web-workspace.stage .web-action {
+  margin-top: 34px;
+}
+
+/* ---------- Phone preparation ---------- */
+.desktop-flow:not(.is-running) {
+  animation: stage-in 700ms var(--ease) both;
+}
+.desktop-flow:not(.is-running) > .pulse {
+  margin: 4px auto 8px;
+}
+.desktop-flow .flow-intro.lede {
+  margin-top: 10px;
+  max-width: 40ch;
+}
+.desktop-flow .connected-devices button {
+  border-radius: 18px;
+  background: var(--glass);
+  transition:
+    border-color 250ms var(--ease),
+    transform 250ms var(--ease);
+}
+.desktop-flow .connected-devices button[aria-pressed="true"] {
+  border-color: var(--text);
+}
+.desktop-flow .connected-devices {
+  width: min(100%, 520px);
+  margin-inline: auto;
+}
+.desktop-flow .connected-devices button {
+  justify-content: flex-start;
+  padding: 14px 18px;
+  text-align: left;
+}
+
+/* ---------- Progress ---------- */
+.scan-cinema .scan-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+}
+
+/* ---------- Report ---------- */
+.result-summary.verdict {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  padding: 30px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: var(--glass);
+  animation: stage-in 700ms var(--ease) both;
+}
+.result-summary.verdict h2 {
+  margin-top: 0;
+}
+.verdict-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin: 20px 0 0;
+}
+.verdict-stats > div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+.verdict-stats dt {
+  color: var(--muted);
+  font-size: 12px;
+}
+.verdict-stats dd {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 720px) {
+  .result-summary.verdict {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 22px;
+  }
+}
+.process-steps li {
+  font-size: 12.5px;
+}
+.desktop-flow .compact-consent input{
+  width: 17px;
+  height: 17px;
+  accent-color: var(--text);
+}
+.finding-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 0;
+}
+.finding-tags .tag {
+  padding: 2px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p,
+li,
+dd {
+  text-wrap: pretty;
+}
+::selection {
+  background: var(--text);
+  color: var(--bg);
+}
+:root {
+  caret-color: var(--text);
+  scrollbar-color: color-mix(in srgb, var(--text) 28%, transparent) transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+button:focus-visible,
+a:focus-visible {
+  border-radius: 999px;
+}
+a {
+  text-underline-offset: 3px;
+}
+.result-summary.verdict .coverage-note {
+  display: inline-block;
+  margin: 12px 0 0;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-left-width: 1px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.desktop-flow .flow-action {
+  gap: 16px;
+}
+.result-summary.verdict .coverage-note {
+  border-radius: 14px;
+}
+
+/* ---------- Cascade ---------- */
+.cascade-word > span {
+  display: inline-block;
+  white-space: pre;
+  transform-origin: 50% 60%;
+  animation: flap 420ms cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+@keyframes flap {
+  from {
+    opacity: 0;
+    transform: perspective(300px) rotateX(-88deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cascade-word > span {
+    animation: none;
+  }
+}
+
+/* ---------- Type system: architectural scale, rank by weight ---------- */
+.stage h1,
+.web-workspace.stage h1 {
+  margin-top: 40px;
+  max-width: 13ch;
+  font-size: clamp(46px, calc(6.4 * var(--vw)), 96px);
+  font-weight: 300;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+}
+.desktop-flow:not(.is-running) h1 {
+  font-size: clamp(34px, calc(3.4 * var(--vw)), 48px);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+}
+.scan-caption h3.phase-copy {
+  font-size: clamp(30px, calc(3 * var(--vw)), 42px);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.report h1 {
+  font-weight: 300;
+  letter-spacing: -0.04em;
+}
+.result-summary.verdict h2 {
+  font-size: clamp(30px, calc(3 * var(--vw)), 44px);
+  font-weight: 300;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.verdict-stats dd {
+  font-weight: 300;
+  font-size: 30px;
+}
+.primary,
+.button.primary {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  transition:
+    transform 300ms var(--ease),
+    background 300ms var(--ease);
+}
+.primary:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+/* ---------- Black and white; red only for errors ---------- */
+.error,
+p.error[role="alert"] {
+  color: var(--danger);
+  font-weight: 500;
+}
+.cascade-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+/* Pending steps stay legible: state is carried by the outline, not opacity. */
+.process-steps li,
+.process-steps li.done {
+  opacity: 1;
+  color: var(--muted);
+}
+.process-steps li:not(.done):not(.current) {
+  border-style: dashed;
+}
+.process-steps li.current {
+  color: var(--text);
+}
+.web-workspace.stage h1 {
+  margin-top: clamp(20px, calc(3.4 * var(--vh)), 40px);
+  font-size: clamp(44px, min(calc(6 * var(--vw)), calc(9.2 * var(--vh))), 92px);
+}
+.web-workspace.stage .web-hero > p.lede {
+  margin-top: clamp(12px, calc(2 * var(--vh)), 18px);
+}
+.web-workspace.stage .web-action {
+  margin-top: clamp(20px, calc(3.2 * var(--vh)), 34px);
+}

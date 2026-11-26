@@ -1,0 +1,4 @@
+Stalkerware indicators of compromise — Echap (AssoEchap/stalkerware-indicators) and contributors.
+Source: https://raw.githubusercontent.com/AssoEchap/stalkerware-indicators/426156175adc84af7fbdd41486c046f9ecb40436/generated/stalkerware.stix2
+Licensed under CC BY 4.0: https://creativecommons.org/licenses/by/4.0/ ; https://github.com/AssoEchap/stalkerware-indicators/blob/426156175adc84af7fbdd41486c046f9ecb40436/README.md
+Original STIX file retained unchanged. Enigm normalizes supported exact domain, app identifier and SHA-256 indicators into its signed rule bundle; unsupported patterns (app:cert.sha1, url) are counted and omitted.

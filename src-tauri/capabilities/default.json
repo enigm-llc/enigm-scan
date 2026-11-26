@@ -1,0 +1,6 @@
+{
+  "identifier": "main",
+  "description": "Local preview window with no privileged commands",
+  "windows": ["main"],
+  "permissions": []
+}

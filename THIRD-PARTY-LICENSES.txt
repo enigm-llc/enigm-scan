@@ -1,0 +1,119 @@
+Third-party software and data in Enigm Scan
+
+Enigm Scan's own code is licensed under the PolyForm Noncommercial License
+1.0.0 (LICENSE). The components below keep their own licenses. Engines are
+separate programs run as subprocesses, pinned to exact versions and checked
+against SHA-256 hashes before every run. When an engine is built, the license
+files of every Python package it contains are copied into the app's
+resources/engines/notices folder, with an inventory in
+resources/engines/python-sbom.json.
+
+
+Mobile Verification Toolkit (MVT) 2026.10.12
+========================================================================
+License: MVT License 1.1 (MPL 2.0 with an acceptable-use condition: devices
+may only be analysed with the consent of their owner).
+Source: https://github.com/mvt-project/mvt
+Developed by Amnesty International's Security Lab. Packaged unchanged as the
+mvt-engine engine by scripts/engines/build-mvt.py from the hash-locked list in
+scripts/engines/engines.lock. Its LICENSE ships with the app.
+
+pymobiledevice3 11.45.0
+========================================================================
+License: GPL-3.0 (LICENSES/GPL-3.0.txt).
+Source: https://github.com/doronz88/pymobiledevice3
+Packaged with scripts/engines/ios_entry.py as the ios-usb engine by
+scripts/engines/build-ios.py from scripts/engines/pymobiledevice3.lock. The
+complete corresponding source of that engine is ios_entry.py (GPL-3.0 or
+later) plus the exact package versions in that lock file.
+
+Android Debug Bridge (adb) 37.0.1
+========================================================================
+License: Apache License 2.0.
+Source: https://android.googlesource.com/platform/packages/modules/adb/
+Taken from Google's official Platform-Tools 37.0.1 archives (only adb, and
+on Windows its two USB libraries), with their SHA-256 pinned in
+scripts/engines/build-adb.py. The upstream NOTICE file ships with the app.
+
+MVT indicator collections
+========================================================================
+Files: intelligence/sources/*.stix2 (from the MVT project)
+
+MIT License
+
+Copyright (c) 2022 MVT
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Amnesty International Security Lab investigations
+========================================================================
+License: CC BY. Attribution: intelligence/sources/AMNESTY_ATTRIBUTION.txt
+Source: https://github.com/AmnestyTech/investigations
+
+Echap stalkerware indicators
+========================================================================
+License: CC BY 4.0. Attribution: intelligence/sources/ECHAP_ATTRIBUTION.txt
+Source: https://github.com/AssoEchap/stalkerware-indicators
+
+ESET Research malware IOCs
+========================================================================
+Source: https://github.com/eset/malware-ioc
+Attribution: intelligence/sources/ESET_ATTRIBUTION.txt
+
+Copyright (c) 2014-2018 ESET spol. s r.o.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Roboto
+========================================================================
+License: SIL Open Font License 1.1 (public/fonts/Roboto-LICENSE.txt).
+Used by the interface and embedded in PDF reports.
+
+Libraries
+========================================================================
+Interface: React (MIT), jsPDF (MIT), Lucide icons (ISC), Zod (MIT).
+Desktop app: Tauri (Apache-2.0 OR MIT) and Rust crates under MIT, Apache-2.0
+or similarly permissive licenses. `cargo metadata` and `npm ls` list every
+dependency and its license.
+
+Names and logos
+========================================================================
+The Enigm name and logo are not licensed under any of the terms above. You may
+refer to the project by name, but do not use the logo for other software or in
+a way that suggests an endorsement.

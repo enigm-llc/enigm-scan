@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  web:
+    # Interface, website and download server: tests, types, build, advisories.
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --audit-level=high
+      - run: npm audit signatures
+      - run: npm test
+      - run: npm run build
+
+  rust:
+    # The scanning core, its runtime and the desktop shell: format, lints
+    # with warnings as errors, tests and RustSec advisories.
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin/cargo-audit
+            src-tauri/target
+            agent/core/target
+            agent/runtime/target
+          key: ci-rust-${{ runner.os }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ci-rust-${{ runner.os }}-
+      - name: Desktop shell build dependencies
+        timeout-minutes: 15
+        run: |
+          sudo apt-get -o Acquire::Retries=3 update
+          sudo apt-get -o Acquire::Retries=3 install --no-install-recommends -y libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev
+      - run: rustup component add rustfmt clippy
+      # The desktop shell embeds the built interface.
+      - run: npm ci
+      - run: npm run build
+      - name: Format
+        run: |
+          cargo fmt --manifest-path agent/core/Cargo.toml --check
+          cargo fmt --manifest-path agent/runtime/Cargo.toml --check
+          cargo fmt --manifest-path src-tauri/Cargo.toml --check
+      - name: Lints
+        run: |
+          cargo clippy --manifest-path agent/core/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path agent/runtime/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path src-tauri/Cargo.toml --locked --all-targets -- -D warnings
+      - name: Tests
+        run: |
+          cargo test --manifest-path agent/core/Cargo.toml --locked
+          cargo test --manifest-path agent/runtime/Cargo.toml --locked
+          cargo test --manifest-path src-tauri/Cargo.toml --locked
+      - name: RustSec advisories
+        run: |
+          command -v cargo-audit || cargo install cargo-audit --locked
+          cargo audit --file agent/core/Cargo.lock
+          cargo audit --file agent/runtime/Cargo.lock
+          cargo audit --file src-tauri/Cargo.lock
+
+  engines:
+    # The Python adapters around MVT and the iOS USB transport, installed
+    # from the same hash-locked files as the shipped engines.
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+      - run: python -m pip install --require-hashes --no-deps -r scripts/engines/engines.lock
+      - run: python -m pip install --require-hashes --no-deps -r scripts/engines/pymobiledevice3.lock
+      - run: python scripts/engines/test_ios_entry.py
+      - run: python scripts/engines/test_mvt_entry.py
+      - name: Python advisories
+        run: |
+          python -m pip install pip-audit
+          pip-audit --strict --disable-pip --no-deps -r scripts/engines/engines.lock
+          pip-audit --strict --disable-pip --no-deps -r scripts/engines/pymobiledevice3.lock

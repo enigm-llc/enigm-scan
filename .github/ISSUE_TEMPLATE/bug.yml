@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a reproducible non-security defect.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include phone backups, reports, serial numbers, phone numbers, screenshots with personal data or suspected vulnerabilities. Use the private security reporting link for security issues.
+  - type: input
+    id: version
+    attributes:
+      label: App version or commit
+      placeholder: 0.7.0 or a full commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: phone
+    attributes:
+      label: Phone
+      options:
+        - iPhone
+        - Android
+        - Not related to a phone
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Observed behavior
+      description: What happened, at which step, and the error code shown by the app if there was one.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Computer operating system and version, phone model and system version.
+    validations:
+      required: true
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Privacy and security confirmation
+      options:
+        - label: This report does not describe a suspected security vulnerability and contains no personal or phone data.
+          required: true

@@ -1,0 +1,8 @@
+# Direct inputs for the packaged engines. Regenerate engines.lock with:
+#   uv pip compile scripts/engines/engines.in --universal --python-version 3.14 \
+#     --generate-hashes --no-header -o scripts/engines/engines.lock
+# pymobiledevice3 is installed without its own dependency tree (see
+# pymobiledevice3.lock); ios-requirements.txt lists the subset the adapter needs.
+mvt==2026.10.12
+pyinstaller==6.22.3
+-r ios-requirements.txt

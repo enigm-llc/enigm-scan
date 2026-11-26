@@ -1,0 +1,5892 @@
+/*
+ * Enigm Scan: "Constellation".
+ * Every signed indicator is a point and the points draw the phone. The page
+ * speaks in a manifesto voice: the essential sentence in ink, the rest in a
+ * grey of the same weight. Greys carry the interface; green only marks a clean
+ * result and live status, red only errors and real findings. Roboto only.
+ */
+:root {
+  --tone: #484848;
+  --dot: #0a0a0a;
+  --good: #127a3d;
+  --good-ink: #ffffff;
+  --bad: #fb4747;
+  --hair: rgba(10, 10, 10, 0.12);
+  --glow: 0;
+  --success: #127a3d;
+  --success-soft: #eaf8f0;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+:root[data-theme="dark"] {
+  --bg: #060607;
+  --tone: #a0a0a0;
+  --dot: #f4f4f5;
+  --good: #6bd898;
+  --good-ink: #04240f;
+  --bad: #fb4747;
+  --hair: rgba(244, 244, 245, 0.12);
+  --glow: 1;
+  --success: #6bd898;
+  --success-soft: rgba(22, 138, 69, 0.18);
+  background: var(--bg);
+}
+
+/* ---------- Constellation ---------- */
+.constellation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ---------- Manifesto voice ---------- */
+.console-copy h1,
+.console-copy .phase-copy,
+.result-summary.verdict h2 {
+  margin: 0;
+  /* Older layers set light headings; the brand headline is heavy. */
+  font-weight: 600 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.console-copy h1 + .lede,
+.console-copy .web-hero > p.lede,
+.console-copy .flow-intro.lede,
+.result-summary.verdict h2 + p {
+  margin: 0.12em 0 0;
+  color: var(--tone);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  text-wrap: pretty;
+}
+
+/* ---------- Steps ---------- */
+
+.console-copy .process-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 clamp(24px, calc(4 * var(--vh)), 44px);
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.console-copy .process-steps li {
+  counter-increment: step;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 13px 6px 6px;
+  border: 1px solid var(--hair);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tone);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
+}
+.console-copy .process-steps li::before {
+  content: counter(step);
+}
+
+.console-copy .process-steps li::before {
+  display: inline-grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--hair);
+  color: var(--tone);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.console-copy .process-steps li > svg {
+  display: none;
+}
+
+.console-copy .process-steps li.current {
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.console-copy .process-steps li.current::before {
+  background: var(--text);
+  color: var(--bg);
+}
+.console-copy .process-steps li.done {
+  color: var(--text);
+}
+.console-copy .process-steps li.done::before {
+  content: none;
+  display: none;
+  background: var(--hair);
+  color: var(--text);
+}
+
+/* ---------- Desktop layout: words left, constellation right ---------- */
+@media (min-width: 1024px) {
+  .scan-main:not(.has-report) {
+    max-width: 1320px;
+    padding-inline: clamp(32px, calc(4 * var(--vw)), 72px);
+  }
+  .scan-main .web-workspace.stage,
+  .scan-main .desktop-flow:not(.is-running),
+  .scan-main .desktop-flow.is-running > .scan-progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(40px, calc(5 * var(--vw)), 96px);
+    align-items: center;
+    width: 100%;
+    max-width: none;
+    min-height: clamp(560px, calc(calc(100 * var(--vh)) - 190px), 820px);
+    margin: 0 auto;
+    padding: clamp(8px, calc(2 * var(--vh)), 24px) 0 clamp(24px, calc(4 * var(--vh)), 48px);
+    text-align: left;
+    animation: console-in 800ms var(--ease) both;
+  }
+  .scan-main .desktop-flow.is-running {
+    display: block;
+    max-width: none;
+    width: 100%;
+    padding: 0;
+  }
+  .scan-main .web-workspace.stage > .constellation,
+  .scan-main .desktop-flow > .constellation,
+  .scan-main .scan-progress > .constellation {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+    justify-content: center;
+    margin: 0;
+  }
+  .scan-main .console-copy {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 620px;
+    margin: 0;
+    text-align: left;
+  }
+  .scan-main .web-workspace.stage > :not(.constellation):not(.console-copy),
+  .scan-main
+    .desktop-flow
+    > :not(.constellation):not(.console-copy):not(.scan-progress),
+  .scan-main .scan-progress > :not(.constellation):not(.console-copy) {
+    grid-column: 1;
+    max-width: 620px;
+  }
+  .scan-main .console-copy > *,
+  .scan-main .console-copy .web-hero,
+  .scan-main .console-copy .web-action,
+  .scan-main .console-copy .scan-caption {
+    margin-left: 0;
+    margin-right: 0;
+    text-align: left;
+  }
+  .scan-main .console-copy h1,
+  .scan-main .console-copy .phase-copy {
+    max-width: 16ch;
+    font-size: clamp(44px, min(calc(4.4 * var(--vw)), calc(7.6 * var(--vh))), 72px);
+    text-align: left;
+  }
+  .scan-main .console-copy h1 + .lede,
+  .scan-main .console-copy .web-hero > p.lede,
+  .scan-main .console-copy .flow-intro.lede {
+    max-width: 20ch;
+    font-size: clamp(30px, min(calc(2.7 * var(--vw)), calc(4.6 * var(--vh))), 44px);
+    text-align: left;
+  }
+  /* The landing is one long sentence: one size for both voices. */
+  .scan-main .web-workspace.stage .console-copy h1,
+  .scan-main .web-workspace.stage .console-copy .web-hero > p.lede {
+    max-width: 21ch;
+    font-size: clamp(38px, min(calc(3.6 * var(--vw)), calc(6.2 * var(--vh))), 58px);
+    line-height: 1.04;
+  }
+  .scan-main .console-copy .web-action,
+  .scan-main .console-copy .flow-action {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: clamp(28px, calc(4.4 * var(--vh)), 44px);
+  }
+  .scan-main .console-copy .download-focus,
+  .scan-main .console-copy .connected-devices {
+    justify-content: flex-start;
+  }
+  .scan-main .console-copy .connected-devices,
+  .scan-main .console-copy .device-options,
+  .scan-main .console-copy .consent,
+  .scan-main .console-copy .evidence-setup {
+    width: 100%;
+    max-width: 480px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .scan-main .console-copy details {
+    margin-left: 0;
+    text-align: left;
+  }
+  .scan-main .console-copy details > summary {
+    justify-content: flex-start;
+    text-align: left;
+  }
+  /* Progress */
+  .scan-main .scan-progress .console-copy .progress-topline {
+    order: 2;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 26px;
+    color: var(--tone);
+  }
+  .scan-main .scan-progress .scan-stage {
+    display: block;
+    width: 100%;
+    margin: 0;
+  }
+  .scan-main .scan-progress .scan-caption {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: none;
+    transform: none;
+  }
+  .scan-main .scan-progress .scan-caption > *,
+  .scan-main .scan-progress .scan-caption [role="status"] {
+    align-self: flex-start;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 0;
+    text-align: left;
+  }
+  .scan-main .scan-progress .scan-activity,
+  .scan-main .scan-progress .scan-hint{
+    justify-content: flex-start;
+    text-align: left;
+  }
+  .scan-main .scan-progress .scan-activity {
+    margin-top: 0.12em;
+    color: var(--tone);
+    font-size: clamp(26px, min(calc(2.4 * var(--vw)), calc(4 * var(--vh))), 38px);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1.06;
+  }
+}
+@keyframes console-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scan-main .web-workspace.stage,
+  .scan-main .desktop-flow:not(.is-running),
+  .scan-main .desktop-flow.is-running > .scan-progress {
+    animation: none;
+  }
+}
+
+/* ---------- Below desktop: constellation on top ---------- */
+@media (max-width: 1023px) {
+  .scan-main .constellation {
+    max-width: 560px;
+    margin: 0 auto 12px;
+  }
+  .console-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .console-copy h1,
+  .console-copy .phase-copy {
+    font-size: clamp(34px, calc(8 * var(--vw)), 48px);
+  }
+  .console-copy h1 + .lede,
+  .console-copy .web-hero > p.lede,
+  .console-copy .flow-intro.lede {
+    font-size: clamp(24px, calc(5.6 * var(--vw)), 34px);
+  }
+  
+  .console-copy .process-steps {
+    justify-content: center;
+  }
+}
+
+/* ---------- Report ---------- */
+.result-summary.verdict {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: clamp(24px, calc(4 * var(--vw)), 64px);
+  align-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.result-summary.verdict > .constellation {
+  grid-column: 2;
+  grid-row: 1;
+}
+.result-summary.verdict > div:not(.constellation) {
+  grid-column: 1;
+  grid-row: 1;
+  padding: 0;
+}
+.result-summary.verdict h2 {
+  font-size: clamp(40px, calc(4 * var(--vw)), 64px);
+}
+.result-summary.verdict h2 + p {
+  max-width: 32ch;
+  font-size: clamp(20px, calc(1.7 * var(--vw)), 26px);
+  line-height: 1.12;
+}
+.result-summary.verdict .verdict-stats {
+  margin-top: 30px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hair);
+}
+@media (max-width: 760px) {
+  .result-summary.verdict {
+    grid-template-columns: 1fr;
+  }
+  .result-summary.verdict > .constellation,
+  .result-summary.verdict > div:not(.constellation) {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}
+@media (min-width: 1024px) {
+  .scan-main.has-report {
+    max-width: 1240px;
+    padding-inline: clamp(32px, calc(4 * var(--vw)), 64px);
+  }
+  .scan-main.has-report .report {
+    width: 100%;
+    max-width: 1120px;
+    margin-inline: auto;
+  }
+}
+
+/* ---------- Errors and success ---------- */
+.error,
+p.error[role="alert"] {
+  color: var(--danger);
+}
+@media (min-width: 1024px) {
+  .scan-main .console-copy .flow-intro.lede + .connected-devices{
+    margin-top: 28px;
+  }
+}
+
+/* ---------- Footer menus, as in Enigm Command ---------- */
+.appearance-options:is(.login-footer *, .os-menu *) {
+  min-width: 220px;
+  width: auto;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--raised);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.28);
+}
+.appearance-options:is(.login-footer *, .os-menu *) button {
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+.appearance-options:is(.login-footer *, .os-menu *) button[aria-checked="true"] {
+  background: var(--soft);
+  font-weight: 500;
+}
+.appearance-options:is(.login-footer *, .os-menu *):has(button:hover)
+  button[aria-checked="true"]:not(:hover) {
+  background: transparent;
+}
+@media (hover: hover) and (pointer: fine) {
+  .appearance-options:is(.login-footer *, .os-menu *) button:hover {
+    background: var(--soft);
+  }
+  .login-footer .icon-button:hover,
+  .login-footer .locale-control:hover {
+    background: var(--soft);
+  }
+}
+.login-footer .locale-control .chevron-open {
+  transform: rotate(180deg);
+}
+.login-footer .locale-control > svg:last-child {
+  transition: transform 0.4s ease;
+}
+
+/* ---------- Air: fewer words, more space ---------- */
+@media (min-width: 1024px) {
+  .scan-main .console-copy h1,
+  .scan-main .console-copy .phase-copy {
+    font-size: clamp(40px, min(calc(3.8 * var(--vw)), calc(6.6 * var(--vh))), 64px);
+    line-height: 1.04;
+  }
+  .scan-main .console-copy h1 + .lede,
+  .scan-main .console-copy .flow-intro.lede {
+    max-width: 22ch;
+    margin-top: 0.3em;
+    font-size: clamp(22px, min(calc(1.9 * var(--vw)), calc(3.4 * var(--vh))), 30px);
+    line-height: 1.15;
+  }
+  .scan-main .web-workspace.stage .console-copy h1,
+  .scan-main .web-workspace.stage .console-copy .web-hero > p.lede {
+    line-height: 1.08;
+  }
+  .scan-main .web-workspace.stage .console-copy .web-hero > p.lede {
+    margin-top: 0.4em;
+  }
+  .scan-main .scan-progress .scan-activity {
+    margin-top: 0.35em;
+    font-size: clamp(20px, min(calc(1.8 * var(--vw)), calc(3.2 * var(--vh))), 28px);
+  }
+  .scan-main .console-copy .flow-action,
+  .scan-main .console-copy .web-action {
+    margin-top: clamp(36px, calc(6 * var(--vh)), 56px);
+  }
+}
+
+/* ---------- Measured green ---------- */
+.console-copy .process-steps li.done {
+  border-color: color-mix(in srgb, var(--good) 45%, transparent);
+}
+.console-copy .process-steps li.done::before {
+  background: var(--good);
+  color: var(--good-ink);
+}
+
+/* ---------- Phone visitors: what it is, then the computer ---------- */
+.computer-handoff {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  max-width: 420px;
+  margin: 8px auto 0;
+  text-align: left;
+}
+.computer-handoff h2 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.computer-handoff .handoff-what {
+  margin: -8px 0 0;
+  color: var(--tone);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.handoff-steps {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: handoff;
+  border-top: 1px solid var(--hair);
+}
+.handoff-steps li {
+  counter-increment: handoff;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--hair);
+  font-size: 15px;
+  font-weight: 600;
+}
+.handoff-steps li::before {
+  content: counter(handoff);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 12px;
+  font-weight: 700;
+}
+.computer-handoff .primary {
+  justify-content: center;
+  min-height: 52px;
+}
+.computer-handoff .handoff-feedback:empty {
+  display: none;
+}
+
+/* ---------- Landing: one sentence over a honeycomb ---------- */
+.honeycomb {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: calc(100 * var(--vw));
+  height: calc(100 * var(--vh));
+  pointer-events: none;
+}
+.scan-main:has(.landing) {
+  max-width: none;
+  padding: 0;
+}
+.landing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1440px;
+  min-height: calc(calc(100 * var(--vh)) - 150px);
+  margin: 0 auto;
+  padding: clamp(32px, calc(7 * var(--vh)), 72px) clamp(24px, calc(5 * var(--vw)), 72px) clamp(32px, calc(8 * var(--vh)), 96px);
+  text-align: left;
+}
+/* Animate the words only: a transform on .landing would pin the fixed
+   background to it instead of the viewport. */
+.landing > :not(.honeycomb) {
+  position: relative;
+  z-index: 1;
+  animation: console-in 800ms var(--ease) both;
+}
+.landing h1 {
+  max-width: min(1060px, 100%);
+  margin: 0;
+  font-size: clamp(40px, min(calc(4.3 * var(--vw)), calc(7 * var(--vh))), 62px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  text-wrap: pretty;
+}
+.landing h1 span {
+  color: var(--tone);
+}
+.landing-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px 28px;
+  margin-top: 48px;
+}
+.landing-go {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  height: 68px;
+  padding: 0 10px 0 32px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--text) 18%, transparent),
+    0 22px 60px -14px color-mix(in srgb, var(--text) 30%, transparent);
+  transition:
+    transform 300ms var(--ease),
+    box-shadow 300ms var(--ease);
+}
+.landing-go > span {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text);
+  transition: transform 300ms var(--ease);
+}
+@media (hover: hover) {
+  .landing-go:hover {
+    transform: translateY(-1px);
+  }
+  .landing-go:hover > span {
+    transform: translateX(3px);
+  }
+}
+.landing-go:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 4px;
+}
+.landing-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.landing-meta b {
+  font-size: 15px;
+  font-weight: 700;
+}
+.landing-meta span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  color: var(--tone);
+  font-size: 13px;
+  font-weight: 500;
+}
+.landing-meta span .platform-icon {
+  margin-left: 4px;
+}
+.landing-meta em {
+  margin-left: 6px;
+  font-style: normal;
+}
+body:has(.landing) .scan-header,
+body:has(.landing) .app-footer {
+  position: relative;
+  z-index: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing > :not(.honeycomb) {
+    animation: none;
+  }
+}
+
+/* ---------- The phone (every scan screen) ---------- */
+.phone-stage {
+  align-items: center;
+  justify-content: center;
+}
+.phone-wrap {
+  position: relative;
+  --ph: clamp(440px, calc(calc(100 * var(--vh)) - 260px), 640px);
+  width: calc(var(--ph) * 0.485);
+  height: var(--ph);
+  margin: 0 auto;
+}
+.phone-wrap::after {
+  content: "";
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: -40px;
+  height: 60px;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+  pointer-events: none;
+}
+:root:not([data-theme="dark"]) .phone-wrap::after {
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.18), transparent);
+}
+.phone {
+  position: absolute;
+  inset: 0;
+  padding: 3.2%;
+  border-radius: calc(var(--ph) * 0.094);
+  background: linear-gradient(145deg, #2a2a2a, #0d0d0d 40%, #1a1a1a);
+  box-shadow:
+    0 60px 90px -40px rgba(0, 0, 0, 0.85),
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.14);
+  transition: box-shadow 500ms var(--ease);
+}
+.phone::before,
+.phone::after {
+  content: "";
+  position: absolute;
+  width: 3px;
+  border-radius: 2px;
+  background: #2a2a2a;
+}
+.phone::before {
+  left: -3px;
+  top: 24%;
+  height: 11%;
+}
+.phone::after {
+  right: -3px;
+  top: 30%;
+  height: 16%;
+}
+.phone-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: calc(var(--ph) * 0.078);
+  background: linear-gradient(170deg, #1f1f1f 0%, #0b0b0b 60%);
+  color: #f4f4f5;
+  font-size: calc(var(--ph) / 620 * 14px);
+}
+.phone-bar {
+  position: absolute;
+  z-index: 5;
+  left: 9%;
+  right: 8%;
+  top: 2.6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1em;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.phone-bar span:last-child {
+  font-size: 0.7em;
+  letter-spacing: -1px;
+  opacity: 0.85;
+}
+.phone-bar .island {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 34%;
+  height: 2em;
+  transform: translateX(-50%);
+  border-radius: 1em;
+  background: #000;
+}
+.phone-clock {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  top: 15%;
+  text-align: center;
+}
+.phone-clock b {
+  display: block;
+  font-size: 5.4em;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.phone-clock small {
+  display: block;
+  margin-top: 0.5em;
+  font-size: 0.92em;
+  opacity: 0.7;
+}
+.phone-clock small::first-letter {
+  text-transform: uppercase;
+}
+.phone-clock.small {
+  top: 11%;
+}
+.phone-clock.small b {
+  font-size: 3.1em;
+}
+.phone-sheet {
+  position: absolute;
+  z-index: 6;
+  left: 6%;
+  right: 6%;
+  top: 42%;
+  overflow: hidden;
+  border-radius: 1.6em;
+  background: rgba(44, 44, 44, 0.97);
+  text-align: center;
+  animation: sheet-in 500ms var(--ease) both;
+}
+.phone-sheet b {
+  display: block;
+  padding: 1.4em 1.1em 1.2em;
+  font-size: 1.05em;
+}
+.phone-sheet div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.phone-sheet div span {
+  padding: 0.95em 0;
+  color: #cfcfd4;
+}
+.phone-sheet div .yes {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-weight: 600;
+}
+.phone-sheet.single b {
+  padding: 1.6em 1.2em;
+}
+/* Like the real screen: the title and dots up high, the keypad low, close
+   to the bottom of the phone, with room between the keys. */
+.phone-passcode {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 14%;
+  bottom: 7%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.phone-passcode b {
+  font-size: 1.1em;
+}
+.phone-passcode .dots {
+  display: flex;
+  gap: 1.1em;
+  margin-top: 1.4em;
+}
+.phone-passcode .dots i {
+  width: 0.9em;
+  height: 0.9em;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  transition: background-color 120ms ease;
+}
+.phone-passcode .dots i.filled {
+  background: #fff;
+}
+.phone-passcode .keys {
+  display: grid;
+  grid-template-columns: repeat(3, 4.6em);
+  gap: 1.15em 1.9em;
+  margin-top: auto;
+}
+.phone-passcode .keys i {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 1.8em;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 1;
+  transition:
+    background-color 260ms ease,
+    transform 260ms var(--motion-ease);
+}
+.phone-passcode .keys i small {
+  margin-top: 0.12em;
+  font-size: 0.32em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  opacity: 0.85;
+}
+/* A key being typed lights up for a moment, as on the phone. */
+.phone-passcode .keys i.pressed {
+  background: rgba(255, 255, 255, 0.42);
+  transform: scale(0.96);
+  transition-duration: 60ms;
+}
+/* The copy: a quiet bar of the real percentage under the clock, and data
+   blocks converging on the port, continued by the pulses in the cable. */
+.phone-progress {
+  display: block;
+  width: 9em;
+  height: 0.28em;
+  margin: 1.1em auto 0;
+  overflow: hidden;
+  border-radius: 1em;
+  background: rgba(255, 255, 255, 0.16);
+}
+.phone-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--good, #6bd898);
+  transition: width 900ms var(--ease);
+}
+.phone-transfer {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 17em;
+  pointer-events: none;
+}
+.phone-transfer i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--s) * 1em);
+  height: calc(var(--s) * 1em);
+  margin-left: calc(var(--s) * -0.5em);
+  border-radius: 0.2em;
+  background: rgba(107, 216, 152, 0.8);
+  opacity: 0;
+  animation: phone-transfer 3.6s cubic-bezier(0.4, 0, 0.8, 1) infinite;
+}
+.phone-transfer i:nth-child(3n) {
+  background: rgba(255, 255, 255, 0.55);
+}
+@keyframes phone-transfer {
+  0% {
+    transform: translate(var(--x), 0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(0, 17em) scale(0.4);
+    opacity: 0;
+  }
+}
+.motion-paused .phone-transfer i {
+  animation-play-state: paused;
+}
+
+/* iPhone sysdiagnose: the three buttons to press together, marked on the
+   phone's edges and pressing in sync. */
+.phone-stage.is-pressing .phone::before,
+.phone-stage.is-pressing .phone::after {
+  opacity: 0;
+}
+.phone-keys {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+.phone-keys .key {
+  position: absolute;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--good);
+  animation: key-press 2.8s var(--ease) infinite;
+}
+.phone-keys .key.up {
+  --push: 2px;
+  left: -4px;
+  top: 20%;
+  height: 6.5%;
+}
+.phone-keys .key.down {
+  --push: 2px;
+  left: -4px;
+  top: 28%;
+  height: 6.5%;
+}
+.phone-keys .key.side {
+  --push: -2px;
+  right: -4px;
+  top: 30%;
+  height: 12%;
+}
+.phone-keys .key b {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: var(--good);
+  color: var(--raised, #fff);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1;
+}
+/* Badges sit on the buttons themselves, clear of the facts beside. */
+.phone-keys .key b {
+  left: 50%;
+  margin-left: -11px;
+  box-shadow: 0 0 0 3px var(--bg, #f7f7f7);
+}
+@keyframes key-press {
+  0%,
+  34%,
+  100% {
+    transform: translateX(0);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--good) 0%, transparent);
+  }
+  6%,
+  14% {
+    transform: translateX(var(--push));
+    box-shadow: 0 0 10px 3px color-mix(in srgb, var(--good) 60%, transparent);
+  }
+  30% {
+    transform: translateX(0);
+    box-shadow: 0 0 24px 12px color-mix(in srgb, var(--good) 0%, transparent);
+  }
+}
+.motion-paused .phone-keys .key {
+  animation-play-state: paused;
+}
+.phone-beam {
+  position: absolute;
+  z-index: 7;
+  left: -18%;
+  right: -18%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #d6f5e3 18%,
+    #fff 50%,
+    #d6f5e3 82%,
+    transparent
+  );
+  box-shadow:
+    0 0 18px 4px rgba(107, 216, 152, 0.5),
+    0 0 60px 14px rgba(107, 216, 152, 0.18);
+  transition: top 900ms var(--ease);
+  pointer-events: none;
+}
+.phone-beam::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 2px;
+  height: calc(var(--ph) * 0.22);
+  background: linear-gradient(180deg, transparent, rgba(107, 216, 152, 0.1));
+  clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%);
+}
+.phone-beam.sweep {
+  animation: phone-sweep 4.5s ease-in-out infinite alternate;
+}
+@keyframes phone-sweep {
+  from {
+    top: 8%;
+  }
+  to {
+    top: 92%;
+  }
+}
+.motion-paused .phone-beam.sweep {
+  animation-play-state: paused;
+}
+.phone-hex {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+.phone-hex polygon {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 1;
+}
+.phone-hex-lit .glow {
+  fill: rgba(251, 71, 71, 0.16);
+  filter: blur(18px);
+}
+.phone-hex-lit .cell {
+  fill: rgba(251, 71, 71, 0.2);
+  stroke: #fb4747;
+  stroke-width: 1.6;
+}
+.phone-hex-lit text {
+  fill: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.phone-hex-lit text.caption {
+  fill: #f2a3a3;
+  font-size: 9px;
+  font-weight: 600;
+}
+.phone-clean {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    70% 50% at 50% 55%,
+    rgba(107, 216, 152, 0.24),
+    transparent 70%
+  );
+}
+.phone-result {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4em;
+  text-align: center;
+}
+.phone-result .mark {
+  display: grid;
+  place-items: center;
+  width: 6.6em;
+  height: 6.6em;
+  margin-bottom: 1em;
+  border-radius: 50%;
+  background: #6bd898;
+  color: #04240f;
+  box-shadow: 0 0 80px 20px rgba(107, 216, 152, 0.28);
+}
+.phone-result b {
+  padding: 0 1em;
+  font-size: 1.3em;
+}
+.phone-result small {
+  font-size: 0.85em;
+  opacity: 0.65;
+}
+.phone-note {
+  position: absolute;
+  z-index: 8;
+  top: 46%;
+  left: calc(100% + 20px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 34px;
+  transform: translateY(-50%);
+  color: var(--tone);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: top 900ms var(--ease);
+}
+.phone-note::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 26px;
+  height: 1px;
+  background: var(--tone);
+}
+.phone-note b {
+  color: var(--text);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1023px) {
+  .phone-wrap {
+    --ph: 420px;
+  }
+  .phone-note {
+    left: auto;
+    right: calc(100% + 12px);
+    padding: 0 30px 0 0;
+    align-items: flex-end;
+  }
+  .phone-note::before {
+    left: auto;
+    right: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-beam.sweep {
+    animation: none;
+    top: 50%;
+  }
+  .phone-transfer {
+    display: none;
+  }
+  .phone-keys .key {
+    animation: none;
+    box-shadow: 0 0 10px 3px color-mix(in srgb, var(--good) 50%, transparent);
+  }
+  .phone-progress span,
+  .phone-beam,
+  .phone-note,
+  .phone-sheet {
+    transition: none;
+    animation: none;
+  }
+}
+.result-summary.verdict > .phone-stage .phone-wrap {
+  --ph: clamp(420px, calc(60 * var(--vh)), 560px);
+}
+.how-hero .phone-stage .phone-wrap {
+  --ph: clamp(380px, calc(56 * var(--vh)), 520px);
+}
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .phone-stage,
+  .scan-main .desktop-flow > .phone-stage,
+  .scan-main .scan-progress > .phone-stage {
+    align-self: start;
+    position: sticky;
+    top: 24px;
+    min-height: 0;
+    padding-top: 8px;
+  }
+}
+.phone-hex-lit text {
+  font-size: 13px;
+}
+.phone-hex-lit text.caption {
+  font-size: 10.5px;
+}
+.result-summary.verdict {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.result-summary.verdict > .phone-stage {
+  padding: 8px 40px 40px;
+}
+
+.result-summary.verdict {
+  align-items: start;
+}
+.result-summary.verdict > div:not(.phone-stage) {
+  padding-top: clamp(24px, calc(6 * var(--vh)), 64px);
+}
+
+/* ---------- Command palette for errors ---------- */
+:root {
+  --danger: #fb4747;
+}
+:root[data-theme="dark"] {
+  --danger: #fb4747;
+}
+
+/* ---------- Phone captions ---------- */
+.phone-caption {
+  position: absolute;
+  z-index: 4;
+  left: 0;
+  right: 0;
+  bottom: 9%;
+  padding: 0 10%;
+  text-align: center;
+  font-size: 0.92em;
+  opacity: 0.75;
+}
+.phone-caption.top {
+  top: 10%;
+  bottom: auto;
+  font-weight: 700;
+  opacity: 0.9;
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- How it works: a commercial page ---------- */
+.scan-main:has(.how-page) {
+  max-width: none;
+  padding: 0;
+}
+.how-page {
+  max-width: none;
+  padding: 0;
+}
+.how-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: calc(calc(100 * var(--vh)) - 92px);
+  padding: 40px clamp(24px, calc(5 * var(--vw)), 72px) 80px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.how-hero > :not(.honeycomb) {
+  position: relative;
+  z-index: 1;
+}
+.how-hero h1 {
+  max-width: min(1060px, 100%);
+  margin: 0;
+  font-size: clamp(40px, min(calc(4.6 * var(--vw)), calc(7.4 * var(--vh))), 68px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+.how-hero h1 span,
+.how-band h2 span,
+.how-final h2 span {
+  color: var(--tone);
+}
+.how-hero-action {
+  margin-top: 48px;
+}
+.how-band {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: clamp(72px, calc(12 * var(--vh)), 128px) clamp(24px, calc(5 * var(--vw)), 72px) 0;
+  border: 0;
+  display: block;
+}
+.how-band h2 {
+  max-width: 24ch;
+  margin: 0 0 56px;
+  font-size: clamp(32px, calc(3.4 * var(--vw)), 50px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+}
+.how-band .how-steps {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, calc(4 * var(--vw)), 56px);
+}
+.how-band .how-steps li::before {
+  display: none;
+}
+.how-band .how-steps h3 {
+  font-size: 22px;
+}
+.how-families {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.how-families li {
+  display: grid;
+  grid-template-columns: minmax(160px, 260px) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+}
+.how-families b {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.how-families .bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--hair);
+  overflow: hidden;
+}
+.how-families .bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--bad);
+}
+.how-families li:not(:first-child) .bar i {
+  background: color-mix(in srgb, var(--bad) 55%, var(--tone));
+}
+.how-families .count {
+  color: var(--tone);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.how-total {
+  margin: 36px 0 20px;
+  color: var(--tone);
+  font-size: 16px;
+}
+.how-total b {
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.how-band.how-split {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+  gap: clamp(24px, calc(4 * var(--vw)), 64px);
+}
+.how-band.how-split h2 {
+  margin: 0;
+  font-size: clamp(28px, calc(2.6 * var(--vw)), 38px);
+}
+.how-final {
+  max-width: 1200px;
+  margin: clamp(72px, calc(12 * var(--vh)), 128px) auto 40px;
+  padding: clamp(48px, calc(7 * var(--vw)), 88px);
+  border-radius: 32px;
+  background: #0b0b0c;
+  color: #f4f4f5;
+  text-align: left;
+}
+.how-final h2 {
+  max-width: 20ch;
+  margin: 0 0 40px;
+  font-size: clamp(36px, calc(4.2 * var(--vw)), 60px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+.how-final h2 span {
+  color: #8e8e8e;
+}
+.how-final .landing-go {
+  background: #f4f4f5;
+  color: #0a0a0a;
+}
+.how-final .landing-go > span {
+  background: #0a0a0a;
+  color: #f4f4f5;
+}
+@media (max-width: 900px) {
+  .how-band .how-steps,
+  .how-band.how-split {
+    grid-template-columns: 1fr;
+  }
+  .how-families li {
+    grid-template-columns: 1fr auto;
+  }
+  .how-families .bar {
+    grid-column: 1 / -1;
+  }
+}
+
+.how-hero {
+  align-items: flex-start;
+}
+.how-hero-action {
+  align-self: flex-start;
+}
+.how-band h2 {
+  max-width: 30ch;
+}
+.how-families {
+  max-width: 900px;
+}
+
+.phone-hex-lit .glow {
+  fill: rgba(251, 71, 71, 0.3);
+  filter: blur(26px);
+}
+.phone-hex-lit .cell {
+  fill: rgba(251, 71, 71, 0.32);
+  stroke: #e04848;
+  stroke-width: 2;
+}
+.phone-hex-lit text {
+  font-size: 14px;
+}
+.phone-hex-lit text.caption {
+  font-size: 11px;
+}
+
+/* ---------- Phones: a page of their own ---------- */
+.scan-main:has(.mobile-landing) {
+  max-width: none;
+  padding: 0;
+}
+.mobile-landing {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 24px 22px 40px;
+  text-align: left;
+}
+.mobile-landing h1 {
+  margin: 0;
+  font-size: clamp(34px, calc(9.6 * var(--vw)), 46px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+}
+.mobile-landing h1 span {
+  color: var(--tone);
+}
+.computer-handoff.compact {
+  gap: 12px;
+  margin: 0;
+  max-width: none;
+}
+.computer-handoff.compact .primary {
+  min-height: 58px;
+  border-radius: 999px;
+  font-size: 16.5px;
+  font-weight: 600;
+}
+/* How it works on phones */
+@media (max-width: 760px) {
+  .how-hero {
+    min-height: 0;
+    padding: 64px 22px 40px;
+  }
+  .how-hero h1 {
+    font-size: clamp(32px, calc(9 * var(--vw)), 44px);
+  }
+  .how-band {
+    padding: 64px 22px 0;
+  }
+  .how-band h2 {
+    margin-bottom: 32px;
+    font-size: clamp(26px, calc(7.4 * var(--vw)), 34px);
+  }
+  .how-final {
+    margin: 64px 14px 28px;
+    padding: 32px 22px;
+    border-radius: 24px;
+  }
+  .how-final h2 {
+    font-size: clamp(28px, calc(8 * var(--vw)), 38px);
+  }
+  .how-final .computer-handoff.compact input {
+    color: #f4f4f5;
+  }
+  .how-families li {
+    gap: 8px 14px;
+  }
+  .how-hero .honeycomb {
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 560px) {
+  .scan-header nav {
+    gap: 14px;
+  }
+  .scan-header nav .nav-link {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- How it works: self-contained list styles ---------- */
+.how-page h1:focus,
+.how-page h1:focus-visible {
+  outline: none;
+}
+.how-page ol,
+.how-page ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.how-page .how-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, calc(4 * var(--vw)), 56px);
+}
+.how-page .how-steps li {
+  padding: 0;
+}
+.how-page .how-steps h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.how-page .how-steps p {
+  margin: 8px 0 0;
+  color: var(--tone);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+@media (max-width: 760px) {
+  .how-page .how-steps {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .how-page .how-steps li {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr);
+    gap: 4px 18px;
+    align-items: center;
+  }
+  .how-page .how-steps h3 {
+    align-self: end;
+    font-size: 19px;
+  }
+  .how-page .how-steps p {
+    align-self: start;
+    margin: 0;
+    font-size: 14.5px;
+  }
+  .how-page .how-band.how-split {
+    display: block;
+  }
+  .how-page .how-band.how-split h2 {
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 760px) {
+  .how-page .how-band h2 span,
+  .how-page .how-final h2 span {
+    font-size: 0.78em;
+    line-height: 1.12;
+  }
+  .how-hero .honeycomb {
+    opacity: 0.45;
+  }
+}
+.how-families li {
+  grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto;
+}
+.how-families b {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.phone-clock b {
+  white-space: nowrap;
+}
+.phone-bar span:first-child {
+  max-width: 30%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+@media (max-width: 760px) {
+  .phone-bar span:first-child {
+    font-size: 0.85em;
+  }
+}
+
+/* ---------- Phones: landing ---------- */
+.mobile-landing {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 40px;
+  min-height: calc(calc(100 * var(--vh)) - 150px);
+  max-width: none;
+  margin: 0;
+  padding: 28px 22px 32px;
+  overflow: hidden;
+}
+.honeycomb.local {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mobile-landing > :not(.honeycomb) {
+  position: relative;
+  z-index: 1;
+}
+.mobile-landing h1 {
+  font-size: clamp(30px, calc(8.6 * var(--vw)), 40px);
+  line-height: 1.07;
+}
+.mobile-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+.mobile-cta .landing-go {
+  justify-content: space-between;
+  height: 62px;
+  padding: 0 8px 0 26px;
+  font-size: 17px;
+  text-decoration: none;
+}
+.mobile-cta .landing-go > span {
+  width: 46px;
+  height: 46px;
+}
+.mobile-cta p {
+  margin: 0;
+  color: var(--tone);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ---------- Phones: How it works without the honeycomb ---------- */
+@media (max-width: 760px) {
+  .how-hero .honeycomb {
+    display: none;
+  }
+  .how-hero {
+    min-height: 0;
+    padding: 48px 22px 8px;
+  }
+  .how-page .how-steps li {
+    display: block;
+  }
+  .how-page .how-steps h3 {
+    font-size: 20px;
+  }
+  .how-page .how-steps p {
+    margin-top: 6px;
+  }
+  .how-total b {
+    font-size: 24px;
+  }
+}
+@media (max-width: 760px) {
+  .how-families {
+    gap: 16px;
+  }
+  .how-families li {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 12px;
+  }
+  .how-families b {
+    font-size: 16px;
+  }
+  .how-families .bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    height: 6px;
+  }
+  .how-families .count {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 12.5px;
+  }
+  .how-hero {
+    padding-top: 24px;
+  }
+  .how-hero h1 {
+    font-size: clamp(30px, calc(8.6 * var(--vw)), 40px);
+  }
+  .how-band {
+    padding-top: 56px;
+  }
+}
+
+/* ---------- How it works: schematic ---------- */
+.how-band h2 {
+  max-width: 30ch;
+  margin: 0 0 32px;
+  font-size: clamp(26px, calc(2.6 * var(--vw)), 36px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+.how-hero h1 {
+  font-weight: 600;
+}
+.how-lede {
+  max-width: 52ch;
+  margin: -16px 0 32px;
+  color: var(--tone);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.how-flow {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.how-flow::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: 28px;
+  right: calc(33.3% - 4px);
+  height: 1px;
+  background: var(--hair);
+}
+.how-flow li {
+  position: relative;
+}
+.flow-icon {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 1px solid var(--hair);
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--text);
+}
+.how-flow h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.how-flow p {
+  max-width: 34ch;
+  margin: 8px 0 0;
+  color: var(--tone);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.how-page .how-total {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--hair);
+}
+.how-page .how-total .counter {
+  font-size: clamp(56px, calc(7 * var(--vw)), 88px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.how-page .how-total > span:last-child {
+  color: var(--tone);
+  font-size: 18px;
+  font-weight: 500;
+}
+.how-counters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.how-counters li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.how-counters .counter {
+  font-size: clamp(32px, calc(3.4 * var(--vw)), 44px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
+.how-counters b {
+  color: var(--tone);
+  font-size: 14px;
+  font-weight: 500;
+}
+.how-band.how-split h2 {
+  font-size: clamp(24px, calc(2.2 * var(--vw)), 30px);
+}
+.how-final h2 {
+  font-weight: 600;
+}
+@media (max-width: 760px) {
+  .how-flow {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .how-flow::before {
+    top: 28px;
+    bottom: 28px;
+    left: 28px;
+    right: auto;
+    width: 1px;
+    height: auto;
+  }
+  .how-flow li {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    column-gap: 18px;
+    padding-bottom: 28px;
+  }
+  .how-flow .flow-icon {
+    grid-row: span 3;
+  }
+  .how-counters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px 16px;
+  }
+  .how-lede {
+    margin-top: -18px;
+  }
+}
+.how-page .how-total {
+  color: var(--text);
+}
+
+/* ---------- How it works: grey bands and an inverted close ---------- */
+:root {
+  --band: #f1f1f1;
+  --band-line: #e2e2e2;
+}
+:root[data-theme="dark"] {
+  --band: #111111;
+  --band-line: #1f1f1f;
+}
+.how-page {
+  overflow-x: clip;
+}
+.how-page .how-band {
+  isolation: isolate;
+  padding-bottom: clamp(64px, calc(10 * var(--vh)), 112px);
+}
+.how-page .how-band.alt::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - calc(50 * var(--vw)));
+  right: calc(50% - calc(50 * var(--vw)));
+  background: var(--band);
+  border-top: 1px solid var(--band-line);
+  border-bottom: 1px solid var(--band-line);
+}
+.how-page .how-band.alt .flow-icon {
+  background: var(--band);
+}
+.how-page .how-band + .how-band {
+  margin-top: 0;
+}
+/* The close is inverted against the page, in Command's greys. */
+.how-final {
+  --text: #f4f4f5;
+  --bg: #0b0b0b;
+  --tone: #a0a0a0;
+  --hair: rgba(255, 255, 255, 0.14);
+  --border: rgba(255, 255, 255, 0.2);
+  --raised: #171717;
+  background: var(--bg);
+  color: var(--text);
+  margin-top: clamp(64px, calc(10 * var(--vh)), 112px);
+}
+:root[data-theme="dark"] .how-final {
+  --text: #070707;
+  --bg: #f3f3f3;
+  --tone: #484848;
+  --hair: rgba(0, 0, 0, 0.12);
+  --border: #d1d1d1;
+  --raised: #ffffff;
+}
+.how-final h2 span {
+  color: var(--tone);
+}
+.how-final .landing-go {
+  background: var(--text);
+  color: var(--bg);
+  box-shadow: none;
+}
+.how-final .landing-go > span {
+  background: var(--bg);
+  color: var(--text);
+}
+.how-final .computer-handoff .primary {
+  border: 0;
+  background: var(--text);
+  color: var(--bg);
+}
+.how-final .computer-handoff input,
+.how-final .handoff-link {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--text);
+}
+.how-final .handoff-link button {
+  color: var(--text);
+}
+.how-final .handoff-link input,
+.how-final .computer-handoff.compact input {
+  background: transparent;
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+.how-final .handoff-link {
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+/* ---------- Fewer rules: surfaces instead of lines ---------- */
+.how-page .how-band.alt::before {
+  border: 0;
+}
+@media (max-width: 760px) {
+  .how-hero {
+    padding-bottom: 56px;
+  }
+}
+
+/* ---------- Honeycomb behind text: quieter where the words are ---------- */
+:root:not([data-theme="dark"]) .honeycomb {
+  -webkit-mask-image: linear-gradient(
+    160deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 35%,
+    #000 70%
+  );
+  mask-image: linear-gradient(
+    160deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 35%,
+    #000 70%
+  );
+}
+:root .honeycomb.local,
+:root:not([data-theme="dark"]) .honeycomb.local {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 18%,
+    #000 40%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 18%,
+    #000 40%
+  );
+}
+/* Phones: the landing fills the screen without crowding it. */
+.mobile-landing {
+  min-height: calc(calc(100 * var(--vh)) - 170px);
+  padding-top: 20px;
+}
+.mobile-landing h1 {
+  font-size: clamp(30px, calc(8.4 * var(--vw)), 38px);
+}
+
+/* ---------- FAQ toggle: a drawn cross that turns into a perfect x ---------- */
+
+.how-faq summary::after {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  color: var(--tone);
+  font-size: 0;
+  transform-origin: 50% 50%;
+  transition: transform 300ms var(--ease);
+}
+
+.how-faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+/* Compatibility: three facts side by side. */
+.how-compat {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.how-compat li {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 22px 20px;
+  border-radius: 16px;
+  background: var(--band);
+}
+.how-compat b {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.how-compat span.note {
+  color: var(--tone);
+  font-size: 14px;
+  line-height: 1.45;
+}
+@media (max-width: 760px) {
+  .how-compat {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Phones: words, a stage for the cell, then the action. */
+.mobile-landing {
+  justify-content: flex-start;
+  gap: 0;
+}
+.mobile-stage {
+  flex: 1 1 auto;
+  min-height: 200px;
+  margin: 28px 0;
+}
+.mobile-cta {
+  margin-top: 0;
+}
+:root .honeycomb.local,
+:root:not([data-theme="dark"]) .honeycomb.local {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 18%,
+    #000 40%,
+    #000 64%,
+    transparent 82%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.25) 18%,
+    #000 40%,
+    #000 64%,
+    transparent 82%
+  );
+}
+
+/* Compatibility: centred cards, platform logos with their names. */
+.how-compat li {
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 28px 22px;
+  text-align: center;
+}
+.how-compat b {
+  margin-top: 4px;
+}
+.how-compat span.note {
+  max-width: 26ch;
+}
+@media (max-width: 760px) {
+  .how-compat li {
+    padding: 22px 18px;
+  }
+}
+
+/* FAQ: the body clips while its height animates; the cross turns with it. */
+.how-faq .faq-body {
+  overflow: hidden;
+}
+.how-faq .faq-body p {
+  margin-top: -4px;
+}
+
+/* ---------- Compatibility: phones first, computer and cable beside ---------- */
+.how-compat2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 12px;
+}
+.compat-phones,
+.compat-computer {
+  border-radius: 20px;
+  background: var(--band);
+}
+.compat-phones {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 40px 24px;
+  text-align: center;
+}
+.compat-logos {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(36px, calc(6 * var(--vw)), 72px);
+}
+.compat-logos span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.compat-logos .platform-icon {
+  height: 64px;
+  width: auto;
+  margin: 0;
+}
+.compat-logos b {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+.compat-phones p,
+.compat-computer p {
+  margin: 0;
+  color: var(--tone);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.compat-side {
+  display: grid;
+  gap: 12px;
+}
+.compat-computer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+}
+.compat-mini {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+}
+.compat-mini .platform-icon {
+  width: auto;
+  height: 18px;
+  margin: 0;
+}
+.compat-computer b {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+@media (max-width: 760px) {
+  .how-compat2 {
+    grid-template-columns: 1fr;
+  }
+  .compat-phones {
+    padding: 32px 20px;
+  }
+}
+
+/* ---------- Interaction feedback, as in Enigm Command ----------
+   Desktop (fine pointer): primary actions lighten slightly; quiet actions,
+   links and rows get a 6% surface tint, 10% while pressed; icons only
+   change colour. Touch: no hover; a pressed fill on rows and a small
+   pulse on icon buttons. */
+:root {
+  --action-hover: rgba(0, 0, 0, 0.06);
+  --action-pressed: rgba(0, 0, 0, 0.1);
+  --primary-hover: #282828;
+}
+:root[data-theme="dark"] {
+  --action-hover: rgba(255, 255, 255, 0.06);
+  --action-pressed: rgba(255, 255, 255, 0.1);
+  --primary-hover: #f3f3f3;
+}
+button,
+a,
+summary {
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease;
+}
+.landing-go,
+.landing-go > span {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .landing-go:hover,
+  .landing-go:hover > span,
+  .primary:not(:disabled):hover,
+  .button.primary:hover{
+    transform: none;
+  }
+  .landing-go:hover,
+  .primary:not(:disabled):hover,
+  .button.primary:hover,
+  .computer-handoff .primary:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+  .landing-go:hover > span {
+    background: var(--bg);
+  }
+  .nav-link:hover,
+  .quiet-action:hover,
+  .login-footer .locale-control:hover,
+  .login-footer .icon-button:hover,
+  .how-faq summary:hover{
+    background: var(--action-hover);
+  }
+  .nav-link:active,
+  .quiet-action:active,
+  .login-footer .locale-control:active,
+  .login-footer .icon-button:active,
+  .how-faq summary:active {
+    background: var(--action-pressed);
+  }
+  .icon-link:hover {
+    color: var(--text);
+    opacity: 1;
+  }
+}
+.nav-link,
+.icon-link {
+  border-radius: 8px;
+}
+.nav-link {
+  padding: 6px 10px;
+}
+@media (max-width: 899.95px), (hover: none), (pointer: coarse) {
+  .nav-link:active,
+  .quiet-action:active,
+  .how-faq summary:active{
+    background: var(--action-pressed);
+  }
+  .landing-go:active,
+  .primary:not(:disabled):active,
+  .computer-handoff .primary:active{
+    background: var(--primary-hover);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button,
+  a,
+  summary {
+    transition: none;
+  }
+}
+
+/* Completed steps: Lucide check in a filled disc. */
+.console-copy .process-steps li > .step-check {
+  display: inline-grid;
+  place-items: center;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--good);
+  color: var(--good-ink);
+}
+.console-copy .process-steps li > .step-check svg {
+  display: block;
+}
+.phone-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ---------- FAQ toggle lives in its own icon (it can pulse on touch) ---------- */
+
+.how-faq summary::after {
+  content: none;
+  display: none;
+}
+.faq-icon {
+  position: relative;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  color: var(--tone);
+  transition: transform 300ms var(--ease);
+}
+.how-faq details[open] .faq-icon {
+  transform: rotate(45deg);
+}
+.how-faq details.is-closing .faq-icon {
+  transform: none;
+}
+
+/* ---------- Touch pulse, identical to Command ---------- */
+.icon-link,
+.icon-button,
+.locale-control,
+.handoff-link button {
+  position: relative;
+}
+[data-enigm-touch-pulse]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: currentColor;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: enigm-touch-pulse-a 700ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+[data-enigm-touch-pulse="b"]::after {
+  animation-name: enigm-touch-pulse-b;
+}
+@keyframes enigm-touch-pulse-a {
+  from {
+    opacity: 0.045;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  78.6% {
+    opacity: 0.045;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@keyframes enigm-touch-pulse-b {
+  from {
+    opacity: 0.045;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  78.6% {
+    opacity: 0.045;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+/* The faq icon rotates; keep its pulse upright and centred. */
+.faq-icon[data-enigm-touch-pulse]::after {
+  background: var(--text);
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-enigm-touch-pulse]::after {
+    animation: none;
+    opacity: 0.045;
+  }
+}
+/* Pressed rows and quiet controls on touch. */
+@media (max-width: 899.95px), (hover: none), (pointer: coarse) {
+  .nav-link[data-enigm-pressed],
+  .quiet-action[data-enigm-pressed],
+  .how-faq summary[data-enigm-pressed]{
+    background: var(--action-pressed);
+  }
+  .landing-go[data-enigm-pressed],
+  .primary[data-enigm-pressed],
+  .computer-handoff .primary[data-enigm-pressed] {
+    background: var(--primary-hover);
+  }
+}
+
+/* ---------- Button colours from Command ---------- */
+:root {
+  --btn-primary: #1c1c1c;
+  --primary-hover: #282828;
+  --btn-outlined: #f1f1f1;
+  --btn-outlined-hover: #e9e9e9;
+}
+:root[data-theme="dark"] {
+  --btn-primary: #ffffff;
+  --primary-hover: #f3f3f3;
+  --btn-outlined: #1f1f1f;
+  --btn-outlined-hover: #292929;
+}
+.landing-go,
+.scan-main .primary:not(:disabled),
+.scan-main .button.primary,
+.computer-handoff .primary{
+  border-color: var(--btn-primary);
+  background: var(--btn-primary);
+}
+/* Inverted surfaces keep their own button colours. */
+
+.how-final {
+  --btn-primary: #ffffff;
+  --primary-hover: #f3f3f3;
+  --btn-outlined: #1f1f1f;
+  --btn-outlined-hover: #292929;
+}
+:root[data-theme="dark"] .how-final {
+  --btn-primary: #1c1c1c;
+  --primary-hover: #282828;
+  --btn-outlined: #f1f1f1;
+  --btn-outlined-hover: #e9e9e9;
+}
+
+/* ---------- Footer menus: identical to Enigm Command's MenuItem ---------- */
+:root {
+  --menu-surface: #ffffff;
+  --menu-border: #e8e8e8;
+  --menu-shadow: 0 2px 12px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.06);
+  --menu-hover: rgba(0, 0, 0, 0.04);
+  --menu-selected: transparent;
+}
+:root[data-theme="dark"] {
+  --menu-surface: #171717;
+  --menu-border: rgba(255, 255, 255, 0.12);
+  --menu-shadow: 0 2px 16px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.5);
+  --menu-hover: rgba(255, 255, 255, 0.04);
+  --menu-selected: rgba(255, 255, 255, 0.16);
+}
+.appearance-options:is(.login-footer *, .os-menu *) {
+  min-width: 220px;
+  padding: 6px;
+  border: 1px solid var(--menu-border);
+  border-radius: 12px;
+  background: var(--menu-surface);
+  box-shadow: var(--menu-shadow);
+}
+.appearance-options:is(.login-footer *, .os-menu *) button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+}
+.appearance-options:is(.login-footer *, .os-menu *) button[aria-checked="true"] {
+  background: var(--menu-selected);
+  font-weight: 600;
+}
+.appearance-options:is(.login-footer *, .os-menu *) button[aria-checked="true"]::after {
+  content: "";
+  display: block;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-inline-start: auto;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m20 6-11 11-5-5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m20 6-11 11-5-5'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.appearance-options:is(.login-footer *, .os-menu *):has(button:hover)
+  button[aria-checked="true"]:not(:hover) {
+  background: var(--menu-selected);
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .appearance-options:is(.login-footer *, .os-menu *) button:hover {
+    background: var(--menu-hover);
+  }
+  :root[data-theme="dark"]
+    .appearance-options:is(.login-footer *, .os-menu *)
+    button[aria-checked="true"]:hover {
+    background: var(--menu-selected);
+  }
+}
+.appearance-options:is(.login-footer *, .os-menu *) button[data-enigm-pressed] {
+  background: var(--menu-hover);
+}
+.appearance-options:is(.login-footer *, .os-menu *) button:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: -2px;
+}
+
+/* ---------- One page frame for header, content and footer ---------- */
+:root {
+  --page-max: 1440px;
+  --page-pad: clamp(24px, calc(5 * var(--vw)), 72px);
+}
+.scan-header,
+.app-footer,
+.login-footer {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--page-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--page-pad);
+  padding-right: var(--page-pad);
+}
+@media (min-width: 1024px) {
+  .scan-main:not(.has-report),
+  .scan-main.has-report {
+    max-width: var(--page-max);
+    padding-left: var(--page-pad);
+    padding-right: var(--page-pad);
+  }
+  .scan-main:has(.landing),
+  .scan-main:has(.how-page) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .landing,
+  .how-hero {
+    padding-left: var(--page-pad);
+    padding-right: var(--page-pad);
+  }
+  .how-page .how-band {
+    max-width: var(--page-max);
+    padding-left: var(--page-pad);
+    padding-right: var(--page-pad);
+  }
+  .how-final {
+    max-width: calc(var(--page-max) - 2 * var(--page-pad));
+    margin-left: var(--page-pad);
+    margin-right: var(--page-pad);
+  }
+}
+@media (min-width: 1488px) {
+  .how-final {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ---------- Desktop landing: three lines, action close to them ---------- */
+@media (min-width: 900px) {
+  .landing {
+    justify-content: center;
+  }
+  .landing h1 {
+    max-width: 16.5em;
+    font-size: clamp(40px, min(calc(3.9 * var(--vw)), calc(6.8 * var(--vh))), 58px);
+    line-height: 1.08;
+  }
+  .landing-action {
+    margin-top: clamp(32px, calc(5 * var(--vh)), 48px);
+  }
+}
+
+/* ---------- How it works: no background, like phones ---------- */
+.how-hero {
+  min-height: auto;
+  padding-top: clamp(48px, calc(10 * var(--vh)), 112px);
+  padding-bottom: clamp(48px, calc(8 * var(--vh)), 96px);
+}
+
+/* ---------- Scan steps: one heading, then plain supporting text ---------- */
+@media (min-width: 1024px) {
+  .scan-main .console-copy h1 + .lede,
+  .scan-main .console-copy .flow-intro.lede,
+  .scan-main .console-copy .web-hero > p.lede {
+    max-width: 44ch;
+    margin-top: 16px;
+    color: var(--tone);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+  .scan-main .scan-progress .scan-activity,
+  .scan-main .scan-progress .scan-hint[role="alert"] {
+    max-width: 44ch;
+    margin-top: 14px;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+  .scan-main .console-copy h1,
+  .scan-main .console-copy .phase-copy {
+    font-size: clamp(36px, min(calc(3.2 * var(--vw)), calc(5.6 * var(--vh))), 52px);
+  }
+}
+
+/* ---------- Phone content at a natural size ---------- */
+.phone-screen {
+  font-size: calc(var(--ph) / 620 * 12px);
+}
+.phone-clock b {
+  font-size: 5em;
+}
+.phone-clock.small b {
+  font-size: 2.8em;
+}
+.phone-result .mark {
+  width: 5.2em;
+  height: 5.2em;
+}
+.phone-result .mark svg {
+  width: 2.4em;
+  height: 2.4em;
+}
+.phone-passcode .keys {
+  grid-template-columns: repeat(3, 3.9em);
+  gap: 1.05em 1.75em;
+}
+.phone-passcode .keys i {
+  font-size: 1.5em;
+}
+@media (min-width: 1024px) {
+  .phone-wrap {
+    --ph: clamp(420px, calc(calc(100 * var(--vh)) - 300px), 580px);
+  }
+}
+
+/* ---------- Operating system select: room for its chevron ---------- */
+.download-focus select {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 230px;
+  min-height: 52px;
+  padding: 0 48px 0 20px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background-color: var(--raised);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23484848' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  background-size: 16px;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+:root[data-theme="dark"] .download-focus select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+.download-focus {
+  gap: 12px;
+}
+.download-focus .button.primary {
+  min-height: 52px;
+  padding: 0 26px;
+}
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage .console-copy .web-hero > p.lede {
+    max-width: 44ch;
+    margin-top: 16px;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.55;
+  }
+  .scan-main .web-workspace.stage .console-copy h1 {
+    max-width: 22ch;
+    font-size: clamp(36px, min(calc(3.2 * var(--vw)), calc(5.6 * var(--vh))), 52px);
+  }
+}
+
+/* ---------- Laptop (steps on the computer) ---------- */
+.laptop {
+  --lw: clamp(420px, calc(40 * var(--vw)), 600px);
+  position: relative;
+  width: var(--lw);
+  margin: 0 auto;
+}
+.laptop-lid {
+  position: relative;
+  padding: 3.2% 3.2% 4%;
+  border-radius: calc(var(--lw) * 0.035) calc(var(--lw) * 0.035) 6px 6px;
+  background: linear-gradient(160deg, #2a2a2a, #0d0d0d 45%, #1a1a1a);
+  box-shadow:
+    0 50px 80px -40px rgba(0, 0, 0, 0.8),
+    inset 0 0 0 1.5px rgba(255, 255, 255, 0.12);
+}
+.laptop-camera {
+  position: absolute;
+  top: 1.4%;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2f2f2f;
+  transform: translateX(-50%);
+}
+.laptop-screen {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(170deg, #1f1f1f 0%, #0b0b0b 70%);
+  color: #f4f4f5;
+}
+.laptop-bar {
+  display: flex;
+  gap: 6px;
+  padding: 12px 14px;
+}
+.laptop-bar i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+.laptop-base {
+  position: relative;
+  width: 112%;
+  height: calc(var(--lw) * 0.03);
+  margin-left: -6%;
+  border-radius: 0 0 calc(var(--lw) * 0.04) calc(var(--lw) * 0.04);
+  background: linear-gradient(180deg, #3a3a3a, #1a1a1a);
+  box-shadow: 0 30px 40px -24px rgba(0, 0, 0, 0.7);
+}
+.laptop-base::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 16%;
+  height: 40%;
+  border-radius: 0 0 8px 8px;
+  background: #121212;
+  transform: translateX(-50%);
+}
+:root:not([data-theme="dark"]) .laptop-base {
+  background: linear-gradient(180deg, #d1d1d1, #a8a8a8);
+}
+:root:not([data-theme="dark"]) .laptop-base::before {
+  background: #8e8e8e;
+}
+.laptop-get{
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.laptop-app {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: calc(var(--lw) * 0.14);
+  height: calc(var(--lw) * 0.14);
+  border-radius: 22%;
+  background: #f4f4f5;
+  box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.6);
+}
+.laptop-app .brand-symbol,
+.laptop-app .brand-symbol img {
+  width: 44%;
+  height: 44%;
+}
+.laptop-app .brand-dark {
+  display: none !important;
+}
+.laptop-app .brand-light {
+  display: block !important;
+}
+.laptop-get b {
+  font-size: 14px;
+  font-weight: 600;
+}
+.laptop-arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #f4f4f5;
+  animation: laptop-drop 2.2s var(--ease) infinite;
+}
+@keyframes laptop-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  30%,
+  70% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.laptop-platform {
+  position: absolute;
+  right: 16px;
+  bottom: 14px;
+  opacity: 0.6;
+}
+.laptop-platform .platform-icon {
+  filter: invert(1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .laptop-arrow {
+    animation: none;
+  }
+}
+@media (max-width: 1023px) {
+  .laptop {
+    --lw: min(calc(86 * var(--vw)), 440px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .laptop-stage {
+    align-self: center;
+    position: static;
+  }
+}
+.scan-main .console-copy .web-hero,
+.scan-main .console-copy .web-hero > p.lede {
+  margin-left: 0;
+  padding-left: 0;
+}
+
+/* ---------- Laptop screen per operating system ---------- */
+.laptop-app .brand-symbol,
+.laptop-app .brand-symbol img {
+  width: 62%;
+  height: 62%;
+}
+.laptop-bar {
+  display: flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 12px;
+}
+.laptop-bar.mac {
+  background: rgba(255, 255, 255, 0.04);
+}
+.laptop-bar .lights {
+  display: flex;
+  gap: 6px;
+}
+.laptop-bar .lights i,
+.laptop-bar .tray i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+}
+.laptop-bar.linux {
+  justify-content: space-between;
+  background: #050505;
+}
+.laptop-bar.linux .activities {
+  width: 34px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.laptop-bar.linux .clock {
+  width: 46px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+}
+.laptop-bar.linux .tray {
+  display: flex;
+  gap: 5px;
+}
+.laptop-taskbar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.laptop-taskbar i {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+}
+.laptop-taskbar i.start {
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)) 0 0 /
+      5px 5px no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)) 7px
+      0 / 5px 5px no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)) 0
+      7px / 5px 5px no-repeat,
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)) 7px
+      7px / 5px 5px no-repeat;
+}
+.os-windows .laptop-platform {
+  bottom: 34px;
+}
+
+/* ---------- How it works: one aligned grid on desktop ---------- */
+.how-hero .how-hero-action {
+  margin-top: clamp(32px, calc(5 * var(--vh)), 48px);
+}
+.how-flow h3 {
+  margin-top: 20px;
+}
+@media (max-width: 760px) {
+  .how-flow h3 {
+    margin-top: 2px;
+  }
+}
+.how-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.how-tiles.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.how-tiles li {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--band);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.how-band.alt .how-tiles li,
+.how-band.alt .compat-phones,
+.how-band.alt .compat-computer {
+  background: var(--bg);
+}
+.how-tiles li svg {
+  color: var(--tone);
+}
+.how-tiles li span {
+  color: var(--text);
+}
+.how-tiles.two li span {
+  color: var(--tone);
+}
+.how-tiles.two li b {
+  color: var(--text);
+  font-weight: 600;
+}
+.how-page .how-band.how-split {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  align-items: start;
+}
+.how-page .how-band.how-split h2 {
+  position: sticky;
+  top: 24px;
+}
+@media (max-width: 1100px) {
+  .how-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .how-page .how-band.how-split {
+    grid-template-columns: 1fr;
+  }
+  .how-page .how-band.how-split h2 {
+    position: static;
+  }
+  .how-tiles,
+  .how-tiles.two {
+    grid-template-columns: 1fr;
+  }
+  .how-tiles li {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+  }
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .how-faq summary:hover {
+    background: transparent;
+  }
+}
+
+.laptop-taskbar .start {
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+}
+.laptop-taskbar .start .platform-icon {
+  width: 12px;
+  height: 12px;
+  filter: invert(1);
+  opacity: 0.75;
+}
+/* Steps: icon beside the words, not a tile stacked above a heading. */
+.how-flow li {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  column-gap: 18px;
+  align-items: start;
+}
+.how-flow .flow-icon {
+  grid-row: span 2;
+}
+.how-flow h3 {
+  margin-top: 4px;
+}
+.how-flow p {
+  margin-top: 6px;
+}
+.how-flow::before {
+  display: none;
+}
+.how-flow li {
+  grid-template-rows: auto 1fr;
+  align-content: start;
+}
+.how-flow h3 {
+  align-self: end;
+  margin-top: 6px;
+}
+
+/* ---------- How it works: one vertical rhythm ----------
+   Every section has the same room above and below its content, and the
+   closing banner sits that same distance from the last section. */
+.how-page {
+  --how-gap: clamp(88px, calc(11 * var(--vh)), 120px);
+}
+.how-page .how-band {
+  padding-top: var(--how-gap);
+  padding-bottom: var(--how-gap);
+}
+.how-page .how-hero {
+  padding-bottom: var(--how-gap);
+}
+.how-page .how-final {
+  margin-top: 0;
+}
+@media (max-width: 760px) {
+  .how-page {
+    --how-gap: 56px;
+  }
+  .how-page .how-hero {
+    padding-top: 24px;
+  }
+  .how-page .how-final {
+    margin-bottom: 28px;
+  }
+}
+
+/* The phone landing's action stays on one line in every language. */
+@media (max-width: 760px) {
+  .mobile-cta .landing-go {
+    white-space: nowrap;
+    padding-left: 22px;
+    font-size: min(17px, calc(4.3 * var(--vw)));
+  }
+}
+
+/* The app tile matches the real icon: the symbol centred at about half
+   the tile's height. */
+.laptop-app .brand-symbol {
+  display: grid;
+  place-items: center;
+  width: 56%;
+  height: 56%;
+}
+.laptop-app .brand-symbol img {
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+}
+
+/* The select's focus ring is its own border, drawn inside, not around it. */
+.download-focus select:focus,
+.download-focus select:focus-visible {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+
+/* On desktop the laptop starts on the same line as the steps. */
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .laptop-stage {
+    align-self: start;
+    padding-top: 0;
+    margin-top: 0;
+  }
+}
+
+/* Desktop landing sits at the optical centre, a little above the middle.
+   How it works keeps the same distance between title and action. */
+@media (min-width: 900px) {
+  .landing {
+    padding-bottom: clamp(72px, calc(15 * var(--vh)), 176px);
+  }
+}
+.how-page .how-hero {
+  gap: 0;
+}
+.how-page .how-hero .how-hero-action {
+  margin-top: clamp(32px, calc(5 * var(--vh)), 48px);
+}
+
+/* ---------- The phone as the real thing: iPhone or Android ---------- */
+/* The phone grows with the window's height; everything on it is in em. */
+.phone-stage {
+  --ph: clamp(420px, calc(calc(100 * var(--vh)) - 300px), 760px);
+}
+.phone-wrap {
+  --ph: inherit;
+}
+/* Android: even bezels, tighter corners, a punch-hole camera, both
+   buttons on the right. */
+.is-android .phone {
+  padding: 2.6%;
+  border-radius: calc(var(--ph) * 0.068);
+  background: linear-gradient(160deg, #262626, #101010 45%, #1c1c1c);
+}
+.is-android .phone-screen {
+  border-radius: calc(var(--ph) * 0.052);
+  background: linear-gradient(180deg, #1b1b1b 0%, #0c0c0c 70%);
+}
+.is-android .phone::before {
+  left: auto;
+  right: -3px;
+  top: 19%;
+  height: 7%;
+}
+.is-android .phone::after {
+  top: 30%;
+  height: 13%;
+}
+.phone-bar .punch {
+  position: absolute;
+  left: 50%;
+  top: 0.1em;
+  width: 0.95em;
+  height: 0.95em;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: #000;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.is-android .phone-bar {
+  left: 7%;
+  right: 6%;
+  top: 2.2%;
+  font-weight: 500;
+  font-size: 0.92em;
+}
+/* Android lock screen: the date, then hours over minutes. */
+.phone-clock.android {
+  top: 12%;
+}
+.phone-clock.android small {
+  margin: 0 0 0.6em;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+.phone-clock.android b {
+  display: flex;
+  flex-direction: column;
+  font-size: 5.2em;
+  font-weight: 400;
+  line-height: 0.92;
+  letter-spacing: -0.03em;
+}
+
+/* Home screen behind banners and system prompts. */
+.phone-home {
+  position: absolute;
+  inset: 0;
+  padding: 26% 9% 0;
+}
+.phone-home .grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5em 0.95em;
+}
+.phone-home .grid i {
+  aspect-ratio: 1;
+  border-radius: 24%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.phone-home.android .grid i {
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.075);
+}
+.phone-home .dock {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  bottom: 3.2%;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.95em;
+  padding: 0.85em 0.95em;
+  border-radius: 1.9em;
+  background: rgba(255, 255, 255, 0.07);
+}
+.phone-home .dock i {
+  aspect-ratio: 1;
+  border-radius: 24%;
+  background: rgba(255, 255, 255, 0.1);
+}
+.phone-home .search {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  bottom: 6%;
+  height: 2.9em;
+  border-radius: 1.45em;
+  background: rgba(255, 255, 255, 0.1);
+}
+.phone-home.android::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1.6%;
+  width: 30%;
+  height: 0.28em;
+  transform: translateX(-50%);
+  border-radius: 1em;
+  background: rgba(255, 255, 255, 0.55);
+}
+/* The detected phone: a system notification at the top. */
+.phone-banner {
+  position: absolute;
+  z-index: 6;
+  left: 4%;
+  right: 4%;
+  top: 7.5%;
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 0.85em 1em;
+  border-radius: 1.5em;
+  background: rgba(58, 58, 58, 0.86);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.8);
+  animation: sheet-in 600ms var(--ease) both;
+}
+.is-android .phone-banner {
+  top: 6.5%;
+  border-radius: 1.1em;
+  background: rgba(44, 44, 44, 0.95);
+}
+.phone-banner .badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.4em;
+  height: 2.4em;
+  border-radius: 24%;
+  background: #f4f4f5;
+  color: #0a0a0a;
+}
+.is-android .phone-banner .badge {
+  border-radius: 50%;
+}
+.phone-banner .badge .platform-icon {
+  width: 1.25em;
+  height: 1.25em;
+}
+.phone-banner > span:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+.phone-banner b {
+  font-size: 0.95em;
+  font-weight: 600;
+}
+.phone-banner small {
+  overflow: hidden;
+  font-size: 0.82em;
+  opacity: 0.75;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.phone-banner.ready small::before {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  margin-right: 0.4em;
+  border-radius: 50%;
+  background: var(--good, #6bd898);
+  vertical-align: 0.08em;
+}
+/* System prompts dim the home screen. */
+.phone-scrim {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.phone-sheet {
+  z-index: 6;
+}
+/* Android's USB debugging dialog, Material style in greys. */
+.phone-dialog {
+  position: absolute;
+  z-index: 6;
+  left: 7%;
+  right: 7%;
+  top: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+  padding: 1.4em 1.3em 1em;
+  border-radius: 1.7em;
+  background: #2b2b2b;
+  text-align: left;
+  animation: sheet-in 600ms var(--ease) both;
+}
+.phone-dialog b {
+  font-size: 1.12em;
+  font-weight: 500;
+  line-height: 1.25;
+}
+.phone-dialog small {
+  font-size: 0.8em;
+  opacity: 0.72;
+  line-height: 1.35;
+}
+.phone-dialog code {
+  font-size: 0.72em;
+  opacity: 0.6;
+  word-break: break-all;
+}
+.phone-dialog .check {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: 0.3em;
+  font-size: 0.8em;
+}
+.phone-dialog .check i {
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 0.2em;
+}
+.phone-dialog div {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.6em;
+  margin-top: 0.6em;
+  font-size: 0.86em;
+  font-weight: 500;
+}
+.phone-dialog div .yes {
+  padding: 0.35em 0.9em;
+  border-radius: 1em;
+  background: #f4f4f5;
+  color: #0a0a0a;
+}
+.phone-stage.attention .phone-dialog div .yes {
+  animation: phone-press 1.8s ease-in-out infinite;
+}
+@keyframes phone-press {
+  50% {
+    box-shadow: 0 0 0 0.45em rgba(255, 255, 255, 0.18);
+  }
+}
+
+/* The USB cable under the phone: waiting, plugged or carrying the copy. */
+.phone-cable {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  top: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.phone-cable .plug {
+  width: calc(var(--ph) * 0.05);
+  height: calc(var(--ph) * 0.045);
+  border-radius: 3px 3px 5px 5px;
+  background: linear-gradient(180deg, #3a3a3a, #232323);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.phone-cable .wire {
+  width: 4px;
+  height: calc(var(--ph) * 0.12);
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(180deg, #2c2c2c, rgba(44, 44, 44, 0));
+}
+:root:not([data-theme="dark"]) .phone-cable .plug {
+  background: linear-gradient(180deg, #d6d6d6, #bdbdbd);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+:root:not([data-theme="dark"]) .phone-cable .wire {
+  background: linear-gradient(180deg, #c4c4c4, rgba(196, 196, 196, 0));
+}
+.phone-cable.waiting {
+  animation: cable-wait 2.4s var(--ease) infinite;
+}
+@keyframes cable-wait {
+  0%,
+  100% {
+    transform: translate(-50%, 18px);
+  }
+  50% {
+    transform: translate(-50%, 6px);
+  }
+}
+.phone-cable.flow .wire {
+  background:
+    repeating-linear-gradient(
+        180deg,
+        var(--good, #6bd898) 0 3px,
+        transparent 3px 12px
+      )
+      0 0 / 100% 24px,
+    linear-gradient(180deg, #2c2c2c, rgba(44, 44, 44, 0));
+  -webkit-mask: linear-gradient(180deg, #000 30%, transparent);
+  mask: linear-gradient(180deg, #000 30%, transparent);
+  animation: cable-flow 0.9s linear infinite;
+}
+/* The light cable keeps the data pulses of the copy. */
+:root:not([data-theme="dark"]) .phone-cable.flow .wire {
+  background:
+    repeating-linear-gradient(
+        180deg,
+        var(--good, #127a3d) 0 3px,
+        transparent 3px 12px
+      )
+      0 0 / 100% 24px,
+    linear-gradient(180deg, #c4c4c4, rgba(196, 196, 196, 0));
+}
+@keyframes cable-flow {
+  to {
+    background-position:
+      0 24px,
+      0 0;
+  }
+}
+.motion-paused .phone-cable,
+.motion-paused .phone-cable .wire {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-cable,
+  .phone-cable .wire,
+  .phone-stage.attention .phone-dialog div .yes,
+  .phone-stage.attention .phone-sheet div .yes {
+    animation: none;
+  }
+  .phone-cable.waiting {
+    transform: translate(-50%, 12px);
+  }
+}
+
+/* ---------- How it works: one grey area from "What we check" down ---------- */
+.how-rest {
+  position: relative;
+  isolation: isolate;
+  padding-bottom: var(--how-gap);
+}
+.how-rest::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  bottom: 0;
+  left: calc(50% - calc(50 * var(--vw)));
+  right: calc(50% - calc(50 * var(--vw)));
+  background: var(--band);
+  border-top: 1px solid var(--band-line);
+}
+.how-rest .how-band + .how-band::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: var(--page-pad, 24px);
+  right: var(--page-pad, 24px);
+  height: 1px;
+  background: var(--band-line);
+}
+.how-rest .how-tiles li,
+.how-rest .compat-phones,
+.how-rest .compat-computer {
+  background: var(--bg);
+}
+.how-rest .how-final {
+  margin-bottom: 0;
+}
+.how-page .how-rest + * {
+  margin-top: 0;
+}
+
+/* ---------- Every step: the device and the words centred on the page ---------- */
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage,
+  .scan-main .desktop-flow:not(.is-running),
+  .scan-main .desktop-flow.is-running > .scan-progress {
+    grid-template-rows: auto;
+    align-items: center;
+    align-content: center;
+  }
+  .scan-main .web-workspace.stage > .constellation,
+  .scan-main .desktop-flow > .constellation,
+  .scan-main .scan-progress > .constellation {
+    grid-row: 1;
+    align-self: center;
+    position: static;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .scan-main .console-copy {
+    grid-row: 1;
+    align-self: center;
+  }
+  .scan-main .web-workspace.stage > .phone-stage,
+  .scan-main .desktop-flow > .phone-stage,
+  .scan-main .scan-progress > .phone-stage {
+    padding-bottom: calc(var(--ph, 560px) * 0.12);
+  }
+}
+.scan-main .console-copy .flow-action {
+  margin-top: 28px;
+}
+
+/* ---------- Laptop: the file opening as the app, the live link ---------- */
+.laptop-open {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--lw) * 0.04);
+}
+.laptop-file {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: calc(var(--lw) * 0.11);
+  height: calc(var(--lw) * 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  color: #d4d4d4;
+}
+.laptop-file small {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+.laptop-step {
+  color: rgba(255, 255, 255, 0.55);
+  animation: laptop-nudge 1.6s var(--ease) infinite;
+}
+@keyframes laptop-nudge {
+  50% {
+    transform: translateX(4px);
+  }
+}
+.laptop-app.opening {
+  animation: laptop-open 2.4s var(--ease) infinite;
+}
+@keyframes laptop-open {
+  0%,
+  100% {
+    box-shadow:
+      0 12px 24px -12px rgba(0, 0, 0, 0.6),
+      0 0 0 0 rgba(255, 255, 255, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 12px 24px -12px rgba(0, 0, 0, 0.6),
+      0 0 0 10px rgba(255, 255, 255, 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .laptop-step,
+  .laptop-app.opening{
+    animation: none;
+  }
+}
+
+/* The symbol centred in its tile exactly like the real app icon. */
+.laptop-app .brand-symbol {
+  display: block;
+  width: auto;
+  height: 54%;
+  aspect-ratio: 1500 / 1688;
+}
+.laptop-app .brand-symbol img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+}
+/* The badge is light in both themes: its logo stays black. */
+.phone-banner .badge .platform-icon {
+  filter: none;
+}
+/* Optional checks: one quiet list, the same on iPhone and Android. */
+.scan-main .console-copy .scan-options {
+  display: grid;
+  width: 100%;
+  max-width: 560px;
+  margin: 28px 0 0;
+}
+/* Lines only between items: none above the first, none below the last. */
+.scan-main .console-copy .scan-option:last-child{
+  border-bottom: 0;
+}
+.scan-main .console-copy .scan-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.scan-main .console-copy .scan-option input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin: 2px 0 0;
+  accent-color: var(--text);
+  cursor: pointer;
+}
+.scan-main .console-copy .scan-option-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.scan-main .console-copy .scan-option-text b {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--text);
+}
+.scan-main .console-copy .scan-option-text small {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.scan-main .console-copy .scan-options + .flow-action {
+  margin-top: 12px;
+}
+/* Full-bleed bands: clip sideways overflow at the page, not at the article,
+   so the grey reaches both edges on any screen width. */
+html,
+body {
+  overflow-x: clip;
+}
+.how-page {
+  overflow-x: visible;
+}
+.scan-main:has(.how-page) {
+  overflow: visible;
+}
+.how-page .how-band.how-split {
+  align-items: start;
+}
+
+/* While the phone is unknown: an iPhone and an Android phone in turn. */
+.phone-content {
+  position: absolute;
+  inset: 0;
+  animation: phone-swap 700ms var(--ease) both;
+}
+@keyframes phone-swap {
+  from {
+    opacity: 0;
+  }
+}
+.is-guessing .phone,
+.is-guessing .phone-screen {
+  transition:
+    border-radius 700ms var(--ease),
+    padding 700ms var(--ease),
+    background 700ms var(--ease);
+}
+.is-guessing .phone-bar .island,
+.is-guessing .phone-bar .punch {
+  animation: phone-swap 700ms var(--ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-content,
+  .is-guessing .phone-bar .island,
+  .is-guessing .phone-bar .punch {
+    animation: none;
+  }
+}
+.phone-note b {
+  font-size: clamp(22px, calc(var(--ph) / 620 * 26), 32px);
+}
+
+/* ---------- Phone steps: words wide, the phone and its note beside ---------- */
+@media (min-width: 1024px) {
+  .scan-main .desktop-flow:not(.is-running),
+  .scan-main .desktop-flow.is-running > .scan-progress {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: clamp(40px, calc(4.5 * var(--vw)), 88px);
+  }
+  .scan-main .desktop-flow > .phone-stage,
+  .scan-main .scan-progress > .phone-stage {
+    grid-column: 2;
+    width: auto;
+    padding-right: clamp(150px, calc(12 * var(--vw)), 190px);
+  }
+  .scan-main .desktop-flow .console-copy,
+  .scan-main .scan-progress .console-copy {
+    max-width: 680px;
+  }
+  .scan-main .desktop-flow .console-copy h1,
+  .scan-main .scan-progress .console-copy .phase-copy {
+    max-width: 18ch;
+  }
+}
+
+/* ---------- Download: what comes next, side by side ---------- */
+.next-steps {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  width: 100%;
+  margin-top: clamp(32px, calc(6 * var(--vh)), 72px);
+  padding-top: 28px;
+  border-top: 1px solid var(--hair);
+  text-align: left;
+}
+.next-steps h2 {
+  margin: 0 0 22px;
+  color: var(--tone);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.next-steps ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(20px, calc(3 * var(--vw)), 40px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.next-steps li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 14px;
+  row-gap: 4px;
+  align-items: start;
+}
+.next-icon {
+  display: grid;
+  grid-row: span 2;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  color: var(--text);
+}
+.next-steps li b {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.next-steps li > span:last-child {
+  color: var(--tone);
+  font-size: 14px;
+  line-height: 1.45;
+}
+@media (max-width: 1180px) {
+  .next-steps ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .next-steps {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    max-width: none;
+  }
+  /* Room for the note beside the phone, inside the page margins. */
+  .scan-main .desktop-flow > .phone-stage,
+  .scan-main .scan-progress > .phone-stage {
+    padding-right: 214px;
+  }
+  .scan-main .web-workspace.stage .laptop {
+    --lw: max(380px, min(calc(40 * var(--vw)), calc((calc(100 * var(--vh)) - 400px) * 1.4), 600px));
+  }
+}
+.phone-stage {
+  --ph: clamp(400px, calc(calc(100 * var(--vh)) - 330px), 760px);
+}
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .next-steps:not(.constellation):not(.console-copy) {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+}
+
+/* ---------- FAQ: its own white section, title over subtitle over rows ---------- */
+.how-rest {
+  padding-bottom: 0;
+}
+.how-rest::before {
+  border-bottom: 1px solid var(--hair);
+}
+.how-page .how-faq-section {
+  display: block;
+}
+.how-page .how-faq-section h2 {
+  margin-bottom: 14px;
+}
+.how-page .how-faq-section .how-lede {
+  margin: 0;
+}
+.how-page .how-faq-section .how-faq {
+  margin-top: clamp(32px, calc(5 * var(--vh)), 48px);
+}
+.how-page .how-faq-section + .how-final {
+  margin-top: 0;
+}
+
+/* Every separator is the same hairline, inside the page margins. */
+.how-rest .how-band + .how-band::after {
+  left: var(--page-pad, 72px);
+  right: var(--page-pad, 72px);
+  background: var(--hair);
+}
+@media (max-width: 1023px) {
+  .how-rest .how-band + .how-band::after {
+    left: 22px;
+    right: 22px;
+  }
+}
+
+/* ---------- Download: words start level with the laptop, and run wider ---------- */
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .console-copy,
+  .scan-main .web-workspace.stage > .laptop-stage {
+    align-self: start;
+  }
+  .scan-main .web-workspace.stage > .laptop-stage {
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .scan-main .web-workspace.stage .console-copy {
+    max-width: none;
+  }
+  .scan-main .web-workspace.stage .console-copy .web-hero {
+    width: 100%;
+  }
+  .scan-main .web-workspace.stage .console-copy .web-hero > p.lede {
+    max-width: 60ch;
+  }
+  .scan-main .web-workspace.stage .console-copy .web-hero h1 {
+    margin-top: 0;
+  }
+}
+
+/* The symbol sits exactly at the tile's centre, whatever the tile's size. */
+.laptop-app .brand-symbol {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 54%;
+  width: auto;
+  aspect-ratio: 1500 / 1688;
+  margin: 0;
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- Downloaded: the file, with download again and change ---------- */
+.download-file {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(100%, 520px);
+  margin-top: 8px;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--raised);
+}
+.download-file .file-os {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--soft);
+}
+.download-file .file-meta {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.download-file .file-meta b {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+.download-file .file-meta small {
+  color: var(--tone);
+  font-size: 13px;
+}
+.download-file .file-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+.download-file .quiet-action {
+  gap: 6px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 12px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.download-file .file-actions .quiet-action {
+  display: inline-flex;
+  align-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+  line-height: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .download-file .file-actions .quiet-action:hover {
+    background: var(--action-hover);
+  }
+}
+.download-file .file-actions .quiet-action[data-enigm-pressed] {
+  background: var(--action-pressed);
+}
+
+/* Download: the words centred on the laptop's height. */
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .console-copy,
+  .scan-main .web-workspace.stage > .laptop-stage {
+    align-self: center;
+  }
+}
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .laptop-stage.phone-stage {
+    padding-bottom: 0;
+  }
+}
+
+/* ---------- Computer chooser: the footer menu, opening downwards ---------- */
+.os-menu {
+  position: relative;
+}
+.os-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 230px;
+  min-height: 52px;
+  padding: 0 18px 0 20px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.os-trigger > span {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+.os-trigger > svg:last-child {
+  color: var(--tone);
+  transition: transform 0.4s ease;
+}
+.os-trigger .chevron-open {
+  transform: rotate(180deg);
+}
+.os-trigger[aria-expanded="true"],
+.os-trigger:focus-visible {
+  outline: none;
+  border-color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+@media (hover: hover) and (pointer: fine) {
+  .os-trigger:hover {
+    background: var(--raised);
+    border-color: var(--muted);
+  }
+}
+.os-menu .appearance-options {
+  top: calc(100% + 8px);
+  right: auto;
+  bottom: auto;
+  left: 0;
+  z-index: 20;
+  width: max(100%, 240px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .os-trigger > svg:last-child {
+    transition: none;
+  }
+}
+
+/* ---------- Landing entrance: the words arrive one after another ---------- */
+@keyframes landing-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.landing > :not(.honeycomb),
+.mobile-landing > :not(.honeycomb) {
+  animation: landing-in 1000ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.landing > h1,
+.mobile-landing h1 {
+  animation-delay: 120ms;
+}
+.landing > .landing-action,
+.mobile-landing .mobile-cta {
+  animation-delay: 380ms;
+}
+.landing .landing-meta {
+  animation: landing-in 1000ms cubic-bezier(0.22, 1, 0.36, 1) 560ms both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing > :not(.honeycomb),
+  .mobile-landing > :not(.honeycomb),
+  .landing .landing-meta {
+    animation: none;
+  }
+}
+
+/* Logos painted in the text colour around them. */
+.platform-icon.tinted {
+  display: inline-block;
+  flex-shrink: 0;
+  background-color: currentColor;
+  filter: none;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+/* More room between the file and its actions. */
+.download-file {
+  width: min(100%, 580px);
+}
+.download-file .file-actions {
+  gap: 6px;
+  margin-left: 24px;
+}
+
+/* ---------- Connect: the approved button size ---------- */
+.scan-main .console-copy .flow-action .primary{
+  min-height: 52px;
+  padding: 0 26px;
+  gap: 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ---------- Steps: a quiet progress line ---------- */
+.console-copy .process-steps {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+}
+.console-copy .process-steps li,
+.console-copy .process-steps li.current,
+.console-copy .process-steps li.done {
+  flex: none;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.console-copy .process-steps li {
+  color: var(--tone);
+}
+.console-copy .process-steps li.current {
+  color: var(--text);
+  font-weight: 600;
+}
+.console-copy .process-steps li.done {
+  color: var(--text);
+}
+.console-copy .process-steps li::before {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--tone);
+  font-size: 12px;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+.console-copy .process-steps li.current::before {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--bg);
+}
+.console-copy .process-steps li > .step-check {
+  width: 26px;
+  height: 26px;
+}
+.console-copy .process-steps li:not(:last-child)::after {
+  content: "";
+  flex: none;
+  width: clamp(18px, calc(2.4 * var(--vw)), 36px);
+  height: 1px;
+  margin: 0 12px 0 2px;
+  background: var(--border);
+}
+.console-copy .process-steps li.done:not(:last-child)::after {
+  background: color-mix(in srgb, var(--good) 55%, transparent);
+}
+
+/* ---------- Phone: what to do, on its own screen ---------- */
+.phone-steps {
+  position: absolute;
+  z-index: 4;
+  left: 6%;
+  right: 6%;
+  top: 36%;
+  padding: 1.1em 1.2em 1.2em;
+  border-radius: 1.6em;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  text-align: left;
+  animation: sheet-in 600ms var(--ease) both;
+}
+.is-android .phone-steps {
+  border-radius: 1.2em;
+  background: rgba(255, 255, 255, 0.06);
+}
+.phone-steps b {
+  display: block;
+  margin-bottom: 0.7em;
+  font-size: 0.95em;
+  font-weight: 600;
+}
+.phone-steps ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: phone-step;
+}
+.phone-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  font-size: 0.86em;
+  line-height: 1.3;
+  opacity: 0.9;
+  counter-increment: phone-step;
+}
+.phone-steps li::before {
+  content: counter(phone-step);
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+/* ---------- The cable, clearly visible in the light theme ---------- */
+:root:not([data-theme="dark"]) .phone-cable .plug {
+  background: linear-gradient(180deg, #8f8f8f, #6f6f6f);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+:root:not([data-theme="dark"]) .phone-cable .wire {
+  width: 4px;
+  background: linear-gradient(180deg, #7a7a7a, rgba(122, 122, 122, 0));
+}
+.scan-main .console-copy .flow-note {
+  margin: 16px 0 0;
+  color: var(--tone);
+  font-size: 15px;
+}
+
+/* ---------- Messages: calm, with the red only in the icon ---------- */
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin: 20px 0 0;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: left;
+}
+.notice > svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--danger);
+}
+.notice.is-info {
+  background: color-mix(in srgb, var(--text) 5%, transparent);
+}
+.notice.is-info > svg {
+  color: var(--tone);
+}
+.notice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.notice-body p {
+  margin: 0;
+}
+.notice-body .quiet-action {
+  align-self: flex-start;
+  margin-left: -10px;
+}
+.notice-body .device-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+.notice-body details summary {
+  color: var(--tone);
+  font-size: 13px;
+  cursor: pointer;
+}
+.notice-body code {
+  font-size: 12px;
+  color: var(--tone);
+}
+/* Older inline errors (app window, report, session) read the same way. */
+.error,
+p.error[role="alert"],
+.report p[role="alert"],
+.enigm-offer p[role="alert"] {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--danger) 7%, transparent);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: left;
+}
+.error::before,
+p.error[role="alert"]::before,
+.report p[role="alert"]::before,
+.enigm-offer p[role="alert"]::before {
+  content: "";
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  background-color: var(--danger);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.notice-body .device-options button {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.notice-body .device-options button .platform-icon {
+  width: 15px;
+  height: 15px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .notice-body .device-options button:not(:disabled):hover {
+    background: var(--bg);
+    border-color: var(--muted);
+  }
+}
+
+/* ---------- When something fails, the device shows it ---------- */
+.phone-problem {
+  position: absolute;
+  z-index: 4;
+  left: 8%;
+  right: 8%;
+  top: 34%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+  text-align: center;
+  animation: sheet-in 600ms var(--ease) both;
+}
+.phone-problem .badge {
+  display: grid;
+  place-items: center;
+  width: 4.6em;
+  height: 4.6em;
+  margin-bottom: 0.5em;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger, #fb4747) 22%, transparent);
+  box-shadow: 0 0 0 0.6em color-mix(in srgb, var(--danger, #fb4747) 9%, transparent);
+  color: #fb4747;
+  animation: problem-pulse 2.2s ease-in-out infinite;
+}
+.is-android .phone-problem .badge {
+  border-radius: 1.3em;
+}
+.phone-problem.is-locked .badge,
+.phone-problem.is-unplugged .badge {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 0.6em rgba(255, 255, 255, 0.04);
+  color: #f4f4f5;
+}
+.phone-problem b {
+  font-size: 1.15em;
+  font-weight: 600;
+}
+.phone-problem small {
+  font-size: 0.86em;
+  opacity: 0.72;
+  line-height: 1.35;
+}
+@keyframes problem-pulse {
+  50% {
+    box-shadow: 0 0 0 1em color-mix(in srgb, var(--danger, #fb4747) 4%, transparent);
+  }
+}
+/* Unplugged: the plug hangs clear of the port and stops. */
+.phone-cable.unplugged {
+  transform: translate(-50%, 26px);
+}
+.phone-cable.unplugged .plug {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 -6px 0 -4px color-mix(in srgb, var(--danger, #fb4747) 70%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-problem .badge {
+    animation: none;
+  }
+}
+
+/* Status bar: the time as quiet as the icons beside it. */
+.phone-bar > span:first-child {
+  font-size: 0.82em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.is-android .phone-bar > span:first-child {
+  font-size: 0.8em;
+  font-weight: 500;
+}
+/* Same proportion as the app icon itself. */
+.laptop-app .brand-symbol {
+  height: 66%;
+}
+
+/* FAQ answers use the whole width of the list. */
+
+.how-page .how-faq .faq-body p {
+  max-width: none;
+}
+
+/* Dark theme: the closing banner is a raised dark surface, not a white
+   block, so it keeps the page's contrast instead of glaring. */
+:root[data-theme="dark"] .how-final {
+  --text: #f4f4f5;
+  --bg: #141414;
+  --tone: #a0a0a0;
+  --hair: rgba(255, 255, 255, 0.12);
+  --border: rgba(255, 255, 255, 0.16);
+  --raised: #1c1c1c;
+  --btn-primary: #ffffff;
+  --primary-hover: #f3f3f3;
+  --btn-outlined: #1f1f1f;
+  --btn-outlined-hover: #292929;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+}
+/* The Enigm answers end with a quiet link to enigm.io. */
+.how-faq .faq-link {
+  padding-top: 0;
+}
+.how-faq .faq-link a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--text) 35%, transparent);
+  text-underline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .how-faq .faq-link a:hover {
+    text-decoration-color: var(--text);
+  }
+}
+
+/* ---------- Phone content scales with the phone itself ---------- */
+/* The old size formula was invalid (length × length), so the text stayed
+   at 16px whatever the phone's size. Size it from the phone's own width. */
+.phone {
+  container-type: inline-size;
+}
+.phone-screen {
+  font-size: 4.8cqw;
+}
+
+/* Android: Developer options, with USB debugging switched on. */
+.phone-settings {
+  position: absolute;
+  inset: 0;
+  padding: 16% 7% 0;
+  text-align: left;
+  animation: sheet-in 600ms var(--ease) both;
+}
+.phone-settings .bar {
+  height: 1.6em;
+  opacity: 0.85;
+}
+.phone-settings .title {
+  display: block;
+  margin: 0.4em 0 1.1em;
+  font-size: 1.55em;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.phone-settings .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8em;
+  padding: 0.85em 0;
+  font-size: 0.9em;
+}
+.phone-settings .row.main {
+  padding: 0.95em 1em;
+  border-radius: 1.6em;
+  background: rgba(255, 255, 255, 0.1);
+}
+.phone-settings .row span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  min-width: 0;
+}
+.phone-settings .row small {
+  font-size: 0.82em;
+  opacity: 0.65;
+  line-height: 1.3;
+}
+.phone-settings .row.focus {
+  margin: 0 -0.6em;
+  padding: 0.85em 0.6em;
+  border-radius: 1em;
+  background: rgba(255, 255, 255, 0.06);
+  animation: phone-focus 2.4s ease-in-out infinite;
+}
+.phone-settings .row.dim span {
+  width: 60%;
+  height: 0.7em;
+  border-radius: 1em;
+  background: rgba(255, 255, 255, 0.08);
+}
+.phone-settings .section {
+  display: block;
+  margin-top: 1.4em;
+  font-size: 0.78em;
+  opacity: 0.6;
+}
+.phone-settings .switch {
+  position: relative;
+  flex: none;
+  width: 2.5em;
+  height: 1.45em;
+  border-radius: 1em;
+  background: rgba(255, 255, 255, 0.16);
+}
+.phone-settings .switch::after {
+  content: "";
+  position: absolute;
+  top: 0.2em;
+  left: 0.2em;
+  width: 1.05em;
+  height: 1.05em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+}
+.phone-settings .switch.on {
+  background: #f4f4f5;
+}
+.phone-settings .switch.on::after {
+  left: auto;
+  right: 0.2em;
+  background: #0a0a0a;
+}
+@keyframes phone-focus {
+  50% {
+    background: rgba(255, 255, 255, 0.12);
+  }
+}
+
+/* iPhone: the Trust alert over the home screen. */
+.phone-alert {
+  position: absolute;
+  z-index: 6;
+  left: 12%;
+  right: 12%;
+  top: 34%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 1.2em;
+  background: rgba(50, 50, 50, 0.92);
+  backdrop-filter: blur(14px);
+  text-align: center;
+  animation: sheet-in 600ms var(--ease) both;
+}
+.phone-alert b {
+  padding: 1.1em 1em 0.3em;
+  font-size: 0.95em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.phone-alert small {
+  padding: 0 1em 1em;
+  font-size: 0.74em;
+  opacity: 0.8;
+  line-height: 1.35;
+}
+.phone-alert div {
+  display: flex;
+  flex-direction: column;
+}
+.phone-alert div span {
+  padding: 0.7em;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.9em;
+}
+.phone-alert div .yes {
+  font-weight: 600;
+  animation: phone-focus 2.4s ease-in-out infinite;
+}
+
+/* Beside the phone: which system it is, and what to do on it. */
+.phone-aside {
+  position: absolute;
+  z-index: 8;
+  top: 42%;
+  left: calc(100% + 28px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 168px;
+  color: var(--tone);
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: left;
+  animation: sheet-in 600ms var(--ease) both;
+}
+.phone-aside .platform-icon {
+  color: var(--text);
+}
+.phone-aside b {
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-settings .row.focus,
+  .phone-alert div .yes {
+    animation: none;
+  }
+}
+:root .platform-icon.tinted,
+:root[data-theme="dark"] .platform-icon.tinted {
+  filter: none;
+}
+.phone-screen {
+  font-size: 5.1cqw;
+}
+
+/* ---------- Command's red, in both themes ---------- */
+:root {
+  --danger: #fb4747;
+  --danger-soft: rgba(251, 71, 71, 0.08);
+}
+:root[data-theme="dark"] {
+  --danger: #fb4747;
+  --danger-soft: rgba(251, 71, 71, 0.125);
+}
+.notice.is-error,
+.error,
+p.error[role="alert"],
+.report p[role="alert"],
+.enigm-offer p[role="alert"] {
+  background: var(--danger-soft);
+}
+
+/* Beside the phone when something failed: a quiet list of things to check. */
+.phone-checks {
+  top: 50%;
+  width: 190px;
+  transform: translateY(-50%);
+  gap: 12px;
+}
+.phone-checks b {
+  font-size: 15px;
+}
+.phone-checks ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.phone-checks li {
+  position: relative;
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.phone-checks li::before {
+  content: "";
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--tone);
+  border-radius: 50%;
+}
+
+/* ---------- Large screens: the same layout, scaled up as a whole ---------- */
+/* Every size is designed for laptop and desktop screens; on 2K, 4K and
+   ultrawide displays the whole interface grows in proportion instead of
+   floating small in the middle. Limited by height so nothing is cut. */
+@media (min-width: 1800px) and (min-height: 1000px) {
+  :root {
+    zoom: 1.125;
+  }
+}
+@media (min-width: 2200px) and (min-height: 1300px) {
+  :root {
+    zoom: 1.333;
+  }
+}
+@media (min-width: 3000px) and (min-height: 1700px) {
+  :root {
+    zoom: 1.6;
+  }
+}
+@media (min-width: 3600px) and (min-height: 2000px) {
+  :root {
+    zoom: 2;
+  }
+}
+/* Viewport units that ignore the zoom above, so heights still fit. */
+:root {
+  --vh: 1vh;
+  --vw: 1vw;
+}
+@media (min-width: 1800px) and (min-height: 1000px) {
+  :root {
+    --vh: calc(1vh / 1.125);
+    --vw: calc(1vw / 1.125);
+  }
+}
+@media (min-width: 2200px) and (min-height: 1300px) {
+  :root {
+    --vh: calc(1vh / 1.333);
+    --vw: calc(1vw / 1.333);
+  }
+}
+@media (min-width: 3000px) and (min-height: 1700px) {
+  :root {
+    --vh: calc(1vh / 1.6);
+    --vw: calc(1vw / 1.6);
+  }
+}
+@media (min-width: 3600px) and (min-height: 2000px) {
+  :root {
+    --vh: calc(1vh / 2);
+    --vw: calc(1vw / 2);
+  }
+}
+
+/* Narrow screens: no room beside the phone, so its side notes step aside
+   (the same guidance is already in the words above the phone). */
+@media (max-width: 1099.95px) {
+  .phone-aside,
+  .phone-checks,
+  .phone-note {
+    display: none;
+  }
+}
+/* The phone leaves room for its cable on every screen height. */
+.phone-stage {
+  --ph: clamp(360px, calc(100 * var(--vh) - 350px), 760px);
+}
+/* Phones: the step line keeps every number but only the current label. */
+@media (max-width: 599.95px) {
+  .console-copy .process-steps li:not(.current) > span:not(.step-check) {
+    display: none;
+  }
+  .console-copy .process-steps li:not(:last-child)::after {
+    width: 14px;
+    margin: 0 8px 0 2px;
+  }
+}
+@media (min-width: 1024px) {
+  .scan-main .web-workspace.stage,
+  .scan-main .desktop-flow:not(.is-running),
+  .scan-main .desktop-flow.is-running > .scan-progress {
+    min-height: clamp(480px, calc(100 * var(--vh) - 190px), 820px);
+  }
+}
+@media (max-height: 820px) and (min-width: 1024px) {
+  .scan-main .web-workspace.stage > .next-steps:not(.constellation):not(.console-copy) {
+    margin-top: 20px;
+    padding-top: 20px;
+  }
+  .next-steps h2 {
+    margin-bottom: 14px;
+  }
+}
+@media (max-width: 1023.95px) {
+  .phone-stage {
+    padding-bottom: 64px;
+  }
+}
+
+/* ---------- Status bar icons scale with the phone, like the time ---------- */
+.phone-status {
+  gap: 0.3em;
+}
+.phone-status svg {
+  width: 1em;
+  height: 1em;
+}
+.phone-status svg:last-child {
+  width: 1.3em;
+  height: 1.3em;
+}
+
+/* ---------- Beside the phone: the device, the progress, the rules ---------- */
+.phone-facts {
+  top: 50%;
+  transform: translateY(-50%);
+  gap: 10px;
+  width: 190px;
+}
+.phone-facts b {
+  font-size: 17px;
+}
+.phone-facts > small {
+  margin-top: -4px;
+  font-size: 13px;
+}
+.phone-facts dl {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 6px 0 0;
+}
+.phone-facts dl div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.phone-facts dd {
+  margin: 0;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.phone-facts dt {
+  font-size: 12.5px;
+}
+.phone-facts dl div:first-child dd {
+  font-size: 28px;
+}
+
+/* ---------- The scan sweep stays inside the phone ---------- */
+@keyframes phone-sweep {
+  from {
+    top: 26%;
+  }
+  to {
+    top: 95%;
+  }
+}
+
+/* ---------- Progress: the optional deep check, then time and actions ---------- */
+/* Two cards: the iPhone's optional deep check (a task for the owner) and the
+   copy's time with Pause and Cancel. */
+.progress-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(100%, 600px);
+  margin-top: 28px;
+}
+.progress-panel .progress-card {
+  margin: 0;
+}
+.deep-check {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px 18px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--raised);
+  color: var(--text);
+}
+.progress-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(100%, 520px);
+  margin-top: 28px;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--raised);
+}
+.progress-card-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: var(--soft);
+  color: var(--text);
+}
+.progress-spinner {
+  animation: progress-spin 1.4s linear infinite;
+}
+.progress-spinner.is-paused {
+  animation-play-state: paused;
+}
+@keyframes progress-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress-spinner {
+    animation: none;
+  }
+}
+.progress-card-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+.progress-card-text b {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+}
+.progress-card-text small {
+  color: var(--tone);
+  font-size: 13px;
+}
+.progress-card-actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+}
+.progress-card .quiet-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  margin: 0;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+@media (hover: hover) and (pointer: fine) {
+  .progress-card .quiet-action:hover {
+    background: var(--action-hover);
+  }
+}
+/* Spinners take the button's own text colour, as in Command. */
+.primary .busy-icon,
+.quiet-action .busy-icon {
+  color: currentColor;
+}
+/* The identified device: its name leads, the identifier stays small. */
+.scan-main .desktop-flow:not(.is-running) > .phone-stage .phone-facts dl div:first-child dd {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0;
+  word-break: break-all;
+}
+
+/* ---------- Report: severity colours ---------- */
+:root {
+  --sev-critical: #fb4747;
+  --sev-high: #f2711c;
+  --sev-medium: #e09b13;
+  --sev-low: #c9a90c;
+  --sev-informational: #8a8a8a;
+}
+:root[data-theme="dark"] {
+  --sev-high: #ff8a3d;
+  --sev-medium: #f5b13d;
+  --sev-low: #e8cf4a;
+  --sev-informational: #a0a0a0;
+}
+.sev-critical { --sev: var(--sev-critical); }
+.sev-high { --sev: var(--sev-high); }
+.sev-medium { --sev: var(--sev-medium); }
+.sev-low { --sev: var(--sev-low); }
+.sev-informational { --sev: var(--sev-informational); }
+/* Review points: neutral, never coloured like a detection. */
+.report .finding.is-review { --sev: var(--border); }
+
+/* ---------- Report: result, figures and the PDF action ---------- */
+.report .result-summary.verdict {
+  border: 0;
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+.report .verdict-copy h2.is-findings {
+  color: var(--text);
+}
+.report .verdict-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.report .verdict-actions button {
+  min-height: 52px;
+  padding: 0 20px;
+  gap: 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ---------- Report: the summary band, edge to edge ---------- */
+.report-band {
+  position: relative;
+  isolation: isolate;
+  /* Room for the phone's shadow to fade out before the band starts. */
+  margin-top: clamp(120px, calc(16 * var(--vh)), 160px);
+  padding: clamp(40px, calc(6 * var(--vh)), 64px) 0;
+}
+.report-band::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 calc(50% - 50 * var(--vw));
+  background: var(--band, #f1f1f1);
+  border-top: 1px solid var(--band-line, #e2e2e2);
+  border-bottom: 1px solid var(--band-line, #e2e2e2);
+}
+:root[data-theme="dark"] .report-band::before {
+  background: #111111;
+  border-color: #1f1f1f;
+}
+.report-band h2,
+.report-findings h2 {
+  margin: 0 0 24px;
+  font-size: clamp(24px, 2.2vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+.report-tiles {
+  display: grid;
+  grid-template-columns: 2fr repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.report-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--bg);
+  color: var(--tone);
+}
+.report-tile > svg,
+.report-tile > .platform-icon {
+  color: var(--tone);
+}
+.report-tile b {
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.tile-label {
+  font-size: 13px;
+  line-height: 1.35;
+}
+.severity-bar {
+  display: flex;
+  gap: 3px;
+  height: 12px;
+  margin-top: 6px;
+  overflow: hidden;
+  border-radius: 6px;
+}
+.severity-bar i {
+  flex-basis: 0;
+  background: var(--sev);
+}
+.severity-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+.severity-legend b {
+  font-size: 15px;
+}
+.sev-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--sev);
+}
+.tile-clean {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 0;
+  color: var(--text);
+  font-size: 15px;
+}
+.tile-clean svg {
+  color: var(--good, #127a3d);
+}
+@media (max-width: 1100px) {
+  .report-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .report-tile.wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ---------- Report: each sign, coloured by severity ---------- */
+.report-findings {
+  margin-top: clamp(40px, calc(6 * var(--vh)), 72px);
+}
+.report-lead {
+  color: var(--tone);
+}
+.finding-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.report .finding {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--sev);
+  border-radius: 14px;
+  background: var(--raised);
+}
+.report .finding summary {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 18px;
+  list-style: none;
+  cursor: pointer;
+}
+.report .finding summary::-webkit-details-marker {
+  display: none;
+}
+.finding-index {
+  flex: none;
+  min-width: 30px;
+  color: var(--tone);
+  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.finding-head {
+  flex: 1;
+  min-width: 0;
+}
+.report .finding h3 {
+  margin: 8px 0 4px;
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.finding-preview {
+  margin: 0;
+  overflow: hidden;
+  color: var(--tone);
+  font-size: 13.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.report .finding-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+}
+.report .finding-tags .tag {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tone);
+  font-size: 12px;
+  font-weight: 600;
+}
+.report .finding-tags .tag.severity {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--sev) 16%, transparent);
+  color: var(--sev);
+}
+.report .finding > summary > svg {
+  flex: none;
+  margin-top: 4px;
+  color: var(--tone);
+  transition: transform 0.3s var(--ease);
+}
+.report .finding[open] > summary > svg {
+  transform: rotate(180deg);
+}
+.report .finding dl {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) 1fr;
+  gap: 10px 20px;
+  margin: 0;
+  padding: 4px 18px 18px 64px;
+  font-size: 14px;
+}
+.report .finding dt {
+  color: var(--tone);
+}
+.report .finding dd {
+  margin: 0;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.report .finding dd.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12.5px;
+}
+@media (max-width: 700px) {
+  .report .finding dl {
+    grid-template-columns: 1fr;
+    padding-left: 18px;
+  }
+}
+.report .report-tile .tile-clean {
+  color: var(--text);
+}
+
+/* ---------- Report: the same page frame and phone layout as every step ---------- */
+@media (min-width: 1024px) {
+  .scan-main.has-report .report {
+    max-width: none;
+    width: 100%;
+  }
+  .report .result-summary.verdict {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: clamp(40px, 4.5vw, 88px);
+    align-items: center;
+  }
+  .report .result-summary.verdict > .verdict-copy {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: 680px;
+    padding-top: 0;
+  }
+  .report .result-summary.verdict > .phone-stage {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 0 214px 0 0;
+  }
+}
+/* Report facts: the severity counts in their own colours. */
+.report .phone-facts dl div:first-child dd {
+  font-size: 22px;
+}
+
+/* Cards in the progress panel read left-aligned, also where the step's
+   column is centred (mobile). */
+.progress-panel,
+.progress-panel .progress-card-text {
+  text-align: left;
+}
+.progress-panel .deep-check p,
+.progress-panel .deep-check small {
+  max-width: none;
+}
+.progress-panel .deep-check :is(p, li, small) {
+  text-wrap: pretty;
+}
+
+/* Tile icons keep their size next to long text. */
+.how-tiles li > svg {
+  flex: none;
+}
+
+.progress-panel .progress-card {
+  width: 100%;
+}
+
+/* The deep check's button marks scale with the phone, like everything on it
+   (sizes in cqw of .phone; 1cqw ≈ 2.45px on a 245px phone). */
+.phone-keys .key {
+  width: 1.6cqw;
+  border-radius: 0.8cqw;
+}
+.phone-keys .key.up,
+.phone-keys .key.down {
+  --push: 0.8cqw;
+  left: -1.6cqw;
+}
+.phone-keys .key.side {
+  --push: -0.8cqw;
+  right: -1.6cqw;
+}
+.phone-keys .key b {
+  width: 9cqw;
+  height: 9cqw;
+  margin-top: -4.5cqw;
+  margin-left: -4.5cqw;
+  font-size: 6.2cqw;
+  box-shadow: 0 0 0 1.2cqw var(--bg, #f7f7f7);
+}
+.phone-keys .key b svg {
+  width: 5.4cqw;
+  height: 5.4cqw;
+}
+
+/* Narrow screens: the copy time keeps one line; Pause and Cancel move below. */
+@media (max-width: 560px) {
+  .progress-panel .progress-card {
+    flex-wrap: wrap;
+  }
+  .progress-panel .progress-card-text {
+    flex: 1 1 calc(100% - 60px);
+  }
+  .progress-panel .progress-card-actions {
+    flex: 1 1 100%;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+}
+
+/* Report: an opened finding shows its details on the card itself, with no
+   grey panel; the figures under the verdict read bold. */
+.report .finding dl {
+  margin: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.result-summary.verdict .verdict-stats dd {
+  font-weight: 600;
+}
+
+/* ---------- Scan line: the whole height of the phone ---------- */
+/* The line runs from the top to the bottom of the screen. Its aura trails
+   above it and grows with the distance from the top, so it never spills out
+   of the phone when the line is high. Both share one timing. */
+.phone-beam {
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #b9f0cf 14%,
+    #ffffff 50%,
+    #b9f0cf 86%,
+    transparent
+  );
+  box-shadow:
+    0 0 12px 3px rgba(107, 216, 152, 0.85),
+    0 0 42px 12px rgba(107, 216, 152, 0.32);
+}
+.phone-beam::before {
+  height: calc(var(--ph) * 0.02);
+  background: linear-gradient(180deg, transparent, rgba(107, 216, 152, 0.22));
+}
+.phone-beam.sweep {
+  animation: phone-sweep-full 5s ease-in-out infinite alternate;
+}
+.phone-beam.sweep::before {
+  animation: phone-sweep-aura 5s ease-in-out infinite alternate;
+}
+.motion-paused .phone-beam.sweep,
+.motion-paused .phone-beam.sweep::before {
+  animation-play-state: paused;
+}
+@keyframes phone-sweep-full {
+  from {
+    top: 5%;
+  }
+  to {
+    top: 94%;
+  }
+}
+/* Linear in the line's position: about 2% of the height at the top, 22% at
+   the bottom, always shorter than the space above the line. */
+@keyframes phone-sweep-aura {
+  from {
+    height: calc(var(--ph) * 0.02);
+  }
+  to {
+    height: calc(var(--ph) * 0.22);
+  }
+}
+/* The honeycomb on the screen, clearer on both themes. */
+.phone-hex polygon {
+  stroke: rgba(255, 255, 255, 0.11);
+}
+:root:not([data-theme="dark"]) .phone-hex polygon {
+  stroke: rgba(255, 255, 255, 0.14);
+}
+:root:not([data-theme="dark"]) .phone-beam {
+  box-shadow:
+    0 0 12px 3px rgba(107, 216, 152, 0.95),
+    0 0 46px 14px rgba(107, 216, 152, 0.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-beam.sweep,
+  .phone-beam.sweep::before {
+    animation: none;
+  }
+}
+
+/* One rhythm under every subtext: the first block after it sits 28px below. */
+.scan-main {
+  --after-lede: 28px;
+}
+.scan-main .console-copy .web-action,
+.scan-main .web-workspace.stage .web-action {
+  margin-top: var(--after-lede);
+}
+.scan-main .scan-cinema .scan-stage {
+  padding-bottom: 0;
+}
+.scan-main .scan-cinema .progress-panel {
+  margin-top: var(--after-lede);
+}
+.scan-main .scan-cinema .scan-caption {
+  min-height: 0;
+}
+
+/* Subtexts under each step title use the column's width (the cards below are
+   600px), so they wrap only when they must. */
+.scan-main .console-copy p.flow-intro.lede,
+.scan-main .scan-progress .scan-caption > p.scan-activity,
+.scan-main .scan-progress p.scan-activity,
+.scan-main .scan-progress .scan-caption > p.scan-hint,
+.scan-main .report .result-summary p {
+  max-width: min(100%, 600px);
+}
+/* The note under "Find my phone" while it searches: small print. */
+.scan-main .console-copy p.flow-note {
+  font-size: 13px;
+  line-height: 1.5;
+  max-width: min(100%, 600px);
+}
+/* The verdict and its subtext keep the same 16px gap as every step title. */
+.scan-main .report .result-summary h2 + p {
+  margin-top: 16px;
+}
+/* Keep the download illustration clear of the separator on every screen. */
+.scan-main .web-workspace.stage > .next-steps:not(.constellation):not(.console-copy) {
+  margin-top: clamp(48px, calc(7 * var(--vh)), 80px);
+}
+/* A labelled waiting time under a phone prompt: quiet, never a progress bar. */
+.scan-main .scan-caption .scan-wait,
+.scan-main .console-copy .wait-left {
+  color: var(--tone);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.scan-main .scan-caption .scan-wait {
+  margin: 8px 0 0;
+}
+.scan-main .console-copy .retry-scan {
+  align-self: flex-start;
+  margin-top: 12px;
+}
+
+/* ---------- Scan flow: calm changes from one moment to the next ----------
+   Whatever appears during a scan fades in instead of appearing at once, and
+   the steps above change colour gradually. Reduced motion turns all of it
+   off (styles.css). */
+.scan-main .console-copy .scan-options,
+.scan-main .console-copy .flow-note,
+.scan-main .console-copy .notice,
+.scan-main .console-copy .retry-scan,
+.scan-progress .scan-hint,
+.scan-progress .scan-wait,
+.scan-progress .deep-check,
+.scan-progress .progress-card {
+  animation: surface-in 420ms var(--motion-ease) both;
+}
+
+.scan-progress .progress-card-line {
+  animation: fade-in 480ms ease both;
+}
+.console-copy .process-steps li,
+.console-copy .process-steps li::before {
+  transition:
+    color 360ms ease,
+    background-color 360ms ease,
+    border-color 360ms ease;
+}
+.console-copy .process-steps li .step-check {
+  animation: phase-in 360ms var(--motion-ease) both;
+}
+
+/* ---------- Closing the app: the Enigm invitation ---------- */
+.promo-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(5, 5, 6, 0.72);
+  backdrop-filter: blur(6px);
+  animation: fade-in 300ms var(--ease) both;
+}
+.promo-dialog {
+  position: relative;
+  width: min(520px, 100%);
+  padding: 40px;
+  border-radius: 28px;
+  background: #0b0b0c;
+  color: #f4f4f5;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 40px 120px -20px rgba(0, 0, 0, 0.8);
+  animation: dialog-in 450ms var(--motion-ease) both;
+}
+.promo-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+/* The panel is always dark: always the white symbol. */
+.promo-head .brand-light {
+  display: none !important;
+}
+.promo-head .brand-dark {
+  display: block !important;
+}
+.promo-head img {
+  width: 24px;
+  height: auto;
+}
+.promo-dialog h2 {
+  margin: 26px 0 0;
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+.promo-dialog > p {
+  margin: 14px 0 30px;
+  color: #a0a0a8;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.promo-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 58px;
+  border: 0;
+  border-radius: 999px;
+  background: #f4f4f5;
+  color: #0a0a0a;
+  font-size: 16.5px;
+  font-weight: 600;
+}
+.promo-primary:hover {
+  background: #ffffff;
+}
+.promo-primary:focus-visible {
+  outline: 2px solid #f4f4f5;
+  outline-offset: 3px;
+}
+
+.promo-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #a0a0a8;
+}
+.promo-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f4f4f5;
+}
+.promo-close:focus-visible {
+  outline: 2px solid #f4f4f5;
+  outline-offset: 2px;
+}
+
+/* ---------- Native feel: an app, not a page ---------- */
+.app-window {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+.app-window button,
+.app-window label,
+.app-window a {
+  cursor: default;
+}
+/* What a person may want to copy stays selectable. */
+.app-window .report .finding,
+.app-window input,
+.app-window textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+/* The deep check's steps, under its option once chosen: one sentence and
+   the warning, in the option's own small print. */
+.scan-main .console-copy .scan-option-steps {
+  display: grid;
+  gap: 2px;
+  margin-top: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  animation: surface-in 360ms var(--motion-ease) both;
+}
+/* The deep check's buttons appear on the phone when it is chosen. */
+.phone-stage.is-pressing .phone-keys {
+  animation: fade-in 360ms ease both;
+}
+
+/* ---------- Desktop app: one window, no page chrome ---------- */
+.app-window {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.app-window .scan-main {
+  flex: 1;
+  margin: 0 auto;
+}
+/* The phone confirms the deep check: one white flash, as the real one does
+   when it takes the sysdiagnose, then a calm green check. */
+.phone-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #fff;
+  pointer-events: none;
+  animation: phone-flash 700ms ease-out both;
+}
+@keyframes phone-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.phone-confirmed .mark {
+  animation: confirm-mark 520ms var(--motion-ease) 280ms both;
+}
+@keyframes confirm-mark {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.scan-main .scan-progress .scan-caption > p.scan-hint.deep-confirmed {
+  margin-top: 14px;
+  color: var(--good);
+  font-size: 17px;
+  line-height: 1.55;
+}
+.scan-progress .deep-skip {
+  align-self: flex-start;
+  margin-top: 14px;
+}
+
+/* ---------- Desktop app: welcome ---------- */
+.app-window .scan-main.is-welcome {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: none;
+  padding: 48px 32px 72px;
+}
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 560px;
+  text-align: center;
+  animation: surface-in 520ms var(--ease) both;
+}
+.welcome-icon {
+  width: 190px;
+  height: 190px;
+  margin-bottom: 18px;
+  -webkit-user-drag: none;
+}
+.welcome h1 {
+  margin: 0;
+  color: var(--dot);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+.welcome-body {
+  margin: 14px 0 0;
+  color: var(--tone);
+  font-size: 15.5px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+.welcome-start {
+  margin-top: 34px;
+  min-width: 260px;
+  min-height: 50px;
+  padding: 0 30px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--dot);
+  color: var(--bg, #fff);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  transition:
+    transform 160ms var(--ease),
+    opacity 160ms ease;
+}
+.welcome-start:hover {
+  opacity: 0.88;
+}
+.welcome-start:active {
+  transform: scale(0.98);
+}
+.welcome-start:focus-visible {
+  outline: 2px solid var(--dot);
+  outline-offset: 4px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome {
+    animation: none;
+  }
+}
+
+/* The owner's consent reads like one of the scan options: the same type,
+   box and spacing, so "Connect" and "Ready" line up the same way. */
+.scan-main .console-copy .flow-action {
+  gap: 12px;
+}
+.scan-main .console-copy .flow-action > .compact-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  min-height: 0;
+  margin: 0;
+  padding: 14px 0;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+.scan-main .console-copy .flow-action > .compact-consent input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+}
+
+/* "Recommended", beside the title of the network and deep checks. */
+.scan-main .console-copy .scan-option-text b {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.scan-option-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--hair);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+}

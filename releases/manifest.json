@@ -1,0 +1,52 @@
+{
+  "version": "0.6.11",
+  "channel": "candidate",
+  "commit": "066b08ad6c84ca87770b9e92cb1ff0e1b259e601",
+  "run": 45685092479,
+  "files": [
+    {
+      "platform": "macOS",
+      "arch": "arm64",
+      "filename": "enigm-scanner-0.6.11-066b08a-macos-arm64.dmg",
+      "key": "candidates/066b08ad6c84ca87770b9e92cb1ff0e1b259e601/enigm-scanner-0.6.11-066b08a-macos-arm64.dmg",
+      "bytes": 102780102,
+      "sha256": "a259ac5de25b427bed5fb00b344557cec0d408914016254b905bf16a21b5686f",
+      "signed": false,
+      "etag": "de53c6f0099b6fe3bed3c1f1af9a031a",
+      "published": true
+    },
+    {
+      "platform": "macOS",
+      "arch": "x64",
+      "filename": "enigm-scanner-0.6.11-066b08a-macos-x86_64.dmg",
+      "key": "candidates/066b08ad6c84ca87770b9e92cb1ff0e1b259e601/enigm-scanner-0.6.11-066b08a-macos-x86_64.dmg",
+      "bytes": 107159562,
+      "sha256": "0d676b9a8d8c1b0ddcaeffebd84558342b1397763d09ea1e9391ae726822c330",
+      "signed": false,
+      "etag": "7b9d1bdcafbf34e8fdb90fce57f64a6f",
+      "published": true
+    },
+    {
+      "platform": "Windows",
+      "arch": "x64",
+      "filename": "enigm-scanner-0.6.11-066b08a-windows-x64.zip",
+      "key": "candidates/066b08ad6c84ca87770b9e92cb1ff0e1b259e601/enigm-scanner-0.6.11-066b08a-windows-x64.zip",
+      "bytes": 75734963,
+      "sha256": "a064a472e2a2d2e56e48885e045fd08e4db22c52c212c8dfab9b0c54f3c9d528",
+      "signed": false,
+      "etag": "9549e770ed70be20ae8f5b57ea9ffc8f",
+      "published": true
+    },
+    {
+      "platform": "Linux",
+      "arch": "x64",
+      "filename": "enigm-scanner-0.6.11-066b08a-linux-x64.AppImage",
+      "key": "candidates/066b08ad6c84ca87770b9e92cb1ff0e1b259e601/enigm-scanner-0.6.11-066b08a-linux-x64.AppImage",
+      "bytes": 150931960,
+      "sha256": "7cdf6078be1657c7c85e6496a378b87c83ef0de065da42725f38e88305eb0ec4",
+      "signed": false,
+      "etag": "ff3a3493f5d48ba1713d1d9273060322",
+      "published": true
+    }
+  ]
+}

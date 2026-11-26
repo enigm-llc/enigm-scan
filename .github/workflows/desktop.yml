@@ -1,0 +1,120 @@
+name: Build desktop app
+# Four platform builds, started by hand when a release is prepared.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: desktop-${{ github.ref }}
+  # A started build always finishes: cancelling wastes the time already spent.
+  cancel-in-progress: false
+jobs:
+  desktop:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            bundles: appimage
+          - os: windows-latest
+            bundles: none
+          - os: macos-latest
+            bundles: app
+          - os: macos-15-intel
+            bundles: app
+    runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "13.0"
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+            agent/core/target
+            agent/runtime/target
+          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Cargo.lock') }}-${{ github.sha }}
+          restore-keys: |
+            rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/Cargo.lock') }}-
+            rust-${{ runner.os }}-${{ runner.arch }}-
+      - name: Linux prerequisites
+        if: runner.os == 'Linux'
+        timeout-minutes: 15
+        # The Azure HTTP mirror stalled at ~40 KiB/s. Keep Ubuntu signatures
+        # and use the official HTTPS archive on this ephemeral runner.
+        run: |
+          sudo python3 - <<'PYAPT'
+          from pathlib import Path
+          import re
+          sources = [*Path('/etc/apt').glob('*mirrors*.txt'), Path('/etc/apt/sources.list'), *Path('/etc/apt/sources.list.d').glob('*.list'), *Path('/etc/apt/sources.list.d').glob('*.sources')]
+          for source in sources:
+              if source.is_file():
+                  original = source.read_text()
+                  updated = re.sub(r'https?://azure\.archive\.ubuntu\.com/ubuntu', 'https://archive.ubuntu.com/ubuntu', original)
+                  source.write_text(updated)
+                  if original != updated:
+                      print('Updated Ubuntu archive in', source.name)
+          PYAPT
+          sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update && sudo apt-get -o Acquire::ForceIPv4=true -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install --no-install-recommends -y libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev libfuse2t64 patchelf xvfb
+      - run: npm ci
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version: '3.14'
+      - name: Use official backward-compatible Python on Intel macOS
+        if: matrix.os == 'macos-15-intel'
+        run: python scripts/engines/setup-macos-python.py
+      # Every packaged Python distribution is version- and hash-locked, so a
+      # newly published dependency release cannot enter the shipped engines.
+      - name: Install hash-locked forensic engine, packager and adapter dependencies
+        run: python -m pip install --require-hashes --no-deps -r scripts/engines/engines.lock
+      - name: Install hash-locked USB-only iOS adapter
+        run: python -m pip install --require-hashes --no-deps -r scripts/engines/pymobiledevice3.lock
+      - name: Test and package iOS USB transport
+        run: |
+          python scripts/engines/test_ios_entry.py
+          python scripts/engines/build-ios.py
+      - name: Test pinned MVT coverage adapter
+        run: python scripts/engines/test_mvt_entry.py
+      - name: Package verified USB transport
+        run: python scripts/engines/build-adb.py
+      - name: Package offline engine with licenses and inventory
+        run: python scripts/engines/build-mvt.py
+      - run: npm test
+      - run: cargo test --manifest-path agent/core/Cargo.toml --locked
+      - run: cargo test --manifest-path agent/runtime/Cargo.toml --locked
+      - name: Verify packaged ADB lifecycle without USB access
+        run: cargo test --manifest-path agent/runtime/Cargo.toml --locked -- --ignored
+      # The restored cache can hold an earlier copy of the bundled resources in
+      # a different layout (an engine that was a file is now a folder); Tauri
+      # cannot copy over it. The engines themselves are rebuilt above.
+      - name: Drop cached copies of bundled resources
+        shell: bash
+        run: rm -rf src-tauri/target/release/resources src-tauri/target/release/bundle
+      - name: Build native application
+        if: runner.os != 'Windows'
+        run: npm exec tauri -- build --bundles ${{ matrix.bundles }}
+      - name: Build portable Windows executable without installer
+        if: runner.os == 'Windows'
+        run: npm exec tauri -- build --no-bundle
+      - name: Verify macOS architecture and deployment floor
+        if: runner.os == 'macOS'
+        run: python scripts/engines/check-macos.py
+      - name: Package portable application
+        run: python scripts/engines/package-portable.py
+      - name: Verify optimized Linux variant iterator regression
+        if: runner.os == 'Linux'
+        run: cargo test --manifest-path src-tauri/Cargo.toml --release --locked --test glib_regression
+      - name: Keep unsigned portable candidates
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: portable-candidate-${{ matrix.os }}
+          path: |
+            src-tauri/target/release/portable/*
+          if-no-files-found: error
+          retention-days: 14

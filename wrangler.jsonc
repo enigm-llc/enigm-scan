@@ -1,0 +1,24 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "enigm-scan",
+  "main": "worker/index.mjs",
+  "account_id": "d99d44fd83be9c81fb7687f0ec8ecf58",
+  "compatibility_date": "2026-10-25",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/downloads/*"],
+  },
+  "r2_buckets": [
+    { "binding": "RELEASES", "bucket_name": "enigm-scan-releases" },
+  ],
+  // Anonymous counts only (event, system, version, country). See docs/STATISTICS.md.
+  "analytics_engine_datasets": [
+    { "binding": "STATS", "dataset": "enigm_scan_stats" },
+  ],
+  "routes": [{ "pattern": "scan.enigm.io", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "observability": { "enabled": false },
+}

@@ -1,0 +1,11 @@
+Pegasus indicators of compromise — Amnesty International Security Lab and investigation partners.
+Source: https://raw.githubusercontent.com/AmnestyTech/investigations/3d8f248a0d015f183724ae7d096a5c46a8bb5fc7/2021-07-18_nso/pegasus.stix2
+Shared by Amnesty International under CC-BY; https://github.com/AmnestyTech/investigations/blob/3d8f248a0d015f183724ae7d096a5c46a8bb5fc7/README.md
+Original STIX file retained unchanged. Enigm normalizes supported exact domain/IP/SHA-256 indicators into its signed rule bundle; unsupported patterns are counted and omitted.
+Research: https://www.amnesty.org/en/latest/research/2021/07/forensic-methodology-report-how-to-catch-nso-groups-pegasus/
+
+Additional Amnesty International Security Lab collections, same commit and licence:
+- 2023-03-29_android_campaign/malware.stix2 (Android exploit campaign infrastructure)
+- 2024-05-02_wintego_helios/wintego_helios.stix2 (Wintego Helios infrastructure)
+- 2024-12-16_serbia_novispy/novispy.stix2 (NoviSpy Android spyware)
+Source: https://github.com/AmnestyTech/investigations/tree/3d8f248a0d015f183724ae7d096a5c46a8bb5fc7
