@@ -110,7 +110,7 @@ jobs:
       - name: Verify optimized Linux variant iterator regression
         if: runner.os == 'Linux'
         run: cargo test --manifest-path src-tauri/Cargo.toml --release --locked --test glib_regression
-      - name: Keep unsigned portable candidates
+      - name: Keep portable candidates
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: portable-candidate-${{ matrix.os }}

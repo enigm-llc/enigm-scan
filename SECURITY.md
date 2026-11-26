@@ -28,8 +28,7 @@ replaced with it.
 - The download server and the integrity of the published files.
 
 Out of scope: how many threats the indicators detect (a research question, not
-a vulnerability), the missing code signature of current builds (documented in
-the README), and defects in MVT, pymobiledevice3 or adb, which should be
+a vulnerability), and defects in MVT, pymobiledevice3 or adb, which should be
 reported to those projects.
 
 ## Commitments

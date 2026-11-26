@@ -7,11 +7,12 @@ partner's or relative's phone. It is free, it needs no account, and your data
 never leaves your computer.
 
 Download it from **[scan.enigm.io](https://scan.enigm.io)** for macOS (Apple
-Silicon and Intel), Windows and Linux.
+Silicon and Intel), Windows and Linux. Every download is listed with its
+SHA-256 in [releases/manifest.json](releases/manifest.json).
 
 **Status:** test releases (0.x). The app has been tried on real iPhones and
-Android phones, but builds are not code-signed yet and detection depends on
-published indicators: a clean report is not proof that a phone is safe. Read
+Android phones, and detection depends on published indicators: a clean
+report is not proof that a phone is safe. Read
 [Privacy](docs/PRIVACY.md) and [Security](SECURITY.md) before relying on it.
 
 ## How it works
@@ -60,14 +61,6 @@ exactly what is counted.
 The app is portable: it installs no service, driver or startup entry, and it
 removes its temporary folders when it closes (or the next time it starts, if
 it was killed).
-
-## Unsigned builds
-
-Current releases are not yet signed with an Apple Developer ID or a Windows
-code-signing certificate. On macOS, open the app once from System Settings ›
-Privacy & Security › Open Anyway. On Windows, SmartScreen may ask you to
-confirm. Every download is listed with its SHA-256 in
-[releases/manifest.json](releases/manifest.json).
 
 ## Building from source
 

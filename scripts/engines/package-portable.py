@@ -67,9 +67,7 @@ HOW TO USE IT
 3. Keep the phone connected until the report appears.
 
 macOS    Open the app straight from the mounted disk image; no need to
-         copy it to Applications. The first time, macOS says it cannot
-         verify the developer: open System Settings > Privacy & Security
-         and click "Open Anyway" next to Enigm Scan.
+         copy it to Applications.
 Windows  Extract the whole ZIP and open "Enigm Scan.exe". Keep the
          "resources" folder next to it. Needs Microsoft WebView2, which
          current Windows already includes. For iPhone, install Apple Devices.
@@ -79,8 +77,6 @@ Linux    Make the AppImage executable and open it. For iPhone, install
 
 GOOD TO KNOW
 
-- This is a test build and it is not code-signed yet, so your system may
-  warn you the first time you open it. Keep your system protections on.
 - Enigm Scan finds documented threats. A brand-new attack with no public
   indicators yet would not be detected; no scanner can promise otherwise.
 - When you are done, delete the download. Your saved reports stay; the
@@ -119,11 +115,10 @@ elif SYSTEM == 'Darwin':
     with tempfile.TemporaryDirectory(prefix='enigm-portable-') as staging:
         # ditto preserves the bundle's symlinks and executable permissions.
         subprocess.run(['ditto', str(RELEASE / 'bundle/macos/Enigm Scan.app'), staging + '/Enigm Scan.app'], check=True)
-        # Without a Developer ID the bundle still needs a complete signature:
-        # only the main executable carried the linker's ad-hoc signature, and a
-        # downloaded (quarantined) bundle without a sealed signature is reported
-        # by Gatekeeper as "damaged" instead of "unverified developer". Seal the
-        # bundle ad hoc. The engines keep their own signatures and bytes, which
+        # The bundle needs a complete signature: only the main executable
+        # carried the linker's ad-hoc signature, and a downloaded bundle
+        # without a sealed signature is reported as damaged. Seal the bundle
+        # ad hoc. The engines keep their own signatures and bytes, which
         # the embedded engine catalog verifies; they are sealed as resources.
         bundle = staging + '/Enigm Scan.app'
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', bundle], check=True)

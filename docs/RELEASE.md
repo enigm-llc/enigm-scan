@@ -3,9 +3,9 @@
 ## Release policy
 
 Enigm Scan is distributed as portable packages: a disk image for each Mac
-architecture, a ZIP for Windows and an AppImage for Linux. They are not
-code-signed yet. Packages are published only after every platform build
-passes and the app has been tried with real phones.
+architecture, a ZIP for Windows and an AppImage for Linux. Packages are
+published only after every platform build passes and the app has been tried
+with real phones.
 
 No workflow is started by editing this document. Builds, uploads and the
 publication of the download list are always manual steps.
