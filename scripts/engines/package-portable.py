@@ -13,7 +13,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 RELEASE = ROOT / 'src-tauri/target/release'
 OUT = RELEASE / 'portable'
 OUT.mkdir(exist_ok=True)
-for previous in OUT.glob('enigm-scanner-*'):
+for previous in OUT.glob('enigm-scan-*'):
     if previous.is_file() and not previous.is_symlink():
         previous.unlink()
 VERSION = json.loads((ROOT / 'src-tauri/tauri.conf.json').read_text())['version']
@@ -101,12 +101,12 @@ if SYSTEM == 'Windows':
     with tempfile.TemporaryDirectory(prefix='enigm-portable-') as staging:
         app = pathlib.Path(staging) / 'Enigm Scan'
         app.mkdir()
-        shutil.copy2(RELEASE / 'enigm-scanner.exe', app / 'Enigm Scan.exe')
+        shutil.copy2(RELEASE / 'enigm-scan.exe', app / 'Enigm Scan.exe')
         shutil.copytree(ROOT / 'src-tauri/resources', app / 'resources')
         for dll in RELEASE.glob('*.dll'):
             shutil.copy2(dll, app / dll.name)
         (app / 'README.txt').write_text(README, encoding='utf-8')
-        target = OUT / f'enigm-scanner-{VERSION}-windows-x64.zip'
+        target = OUT / f'enigm-scan-{VERSION}-windows-x64.zip'
         with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
             for path in sorted(app.rglob('*')):
                 if path.is_file():
@@ -129,7 +129,7 @@ elif SYSTEM == 'Darwin':
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', bundle], check=True)
         subprocess.run(['codesign', '--verify', '--strict', '--verbose=2', bundle], check=True)
         pathlib.Path(staging, 'README.txt').write_text(README, encoding='utf-8')
-        target = OUT / f'enigm-scanner-{VERSION}-macos-{platform.machine()}.dmg'
+        target = OUT / f'enigm-scan-{VERSION}-macos-{platform.machine()}.dmg'
         subprocess.run(['hdiutil', 'create', '-volname', 'Enigm Scan', '-srcfolder', staging, '-format', 'UDZO', '-ov', str(target)], check=True)
         # macOS /var is a symlink to /private/var. Tauri deliberately rejects
         # executable paths containing symlinks; launch from the physical path.
@@ -139,7 +139,7 @@ elif SYSTEM == 'Darwin':
         try:
             if (mount / 'Applications').exists():
                 raise SystemExit('Portable DMG must not contain an installation shortcut')
-            subprocess.run([str(mount / 'Enigm Scan.app/Contents/MacOS/enigm-scanner'), '--portable-self-check'], check=True, timeout=90)
+            subprocess.run([str(mount / 'Enigm Scan.app/Contents/MacOS/enigm-scan'), '--portable-self-check'], check=True, timeout=90)
         finally:
             # The just-exited self-check can keep the volume briefly busy, and a
             # failed eject may still unmount it. Retry; succeed once unmounted.
@@ -155,7 +155,7 @@ elif SYSTEM == 'Darwin':
                 raise SystemExit('Could not detach the portable DMG')
 else:
     source, = (RELEASE / 'bundle/appimage').glob('*.AppImage')
-    target = OUT / f'enigm-scanner-{VERSION}-linux-x64.AppImage'
+    target = OUT / f'enigm-scan-{VERSION}-linux-x64.AppImage'
     # linuxdeploy patches/strips ELF resources, invalidating the catalog embedded
     # before bundling. Restore the already verified engine bytes, then run only
     # the output plugin (not dependency deployment) to build the final container.

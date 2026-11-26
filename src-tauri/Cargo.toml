@@ -1,5 +1,5 @@
 [package]
-name = "enigm-scanner"
+name = "enigm-scan"
 version = "0.7.0"
 edition = "2021"
 license = "PolyForm-Noncommercial-1.0.0"
