@@ -130,3 +130,29 @@ it("offers the next phone next to the PDF in every language, and no promotion", 
     screen.queryByRole("button", { name: "Scan another phone" }),
   ).toBeNull();
 });
+
+it("lights at most the three most severe signs on the drawn phone", () => {
+  const signs = (["low", "critical", "medium", "high", "high"] as const).map(
+    (severity, i) => ({
+      ...finding(
+        `mvt.9a1b2c3d-0000-4000-a000-00000000000${i}`,
+        "known",
+        `evidence ${i}`,
+      ),
+      severity,
+    }),
+  );
+  const { container } = render(
+    <Report report={report(signs)} t={dictionaries.en} language="en" />,
+  );
+  // Critical #2, then the two high ones, #4 and #5; medium and low left out.
+  const cells = [...container.querySelectorAll(".phone-hex-lit")];
+  expect(cells.map((cell) => cell.getAttribute("class"))).toEqual([
+    "phone-hex-lit sev-critical",
+    "phone-hex-lit sev-high",
+    "phone-hex-lit sev-high",
+  ]);
+  expect(
+    cells.map((cell) => cell.querySelector("text.caption")?.textContent),
+  ).toEqual(["#2", "#4", "#5"]);
+});

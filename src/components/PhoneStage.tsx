@@ -141,12 +141,20 @@ const HEX_CELLS: Array<[number, number]> = [];
 for (let row = -1; row < 9; row++)
   for (let col = -1; col < 4; col++)
     HEX_CELLS.push([col * HEX_W + ((row & 1) * HEX_W) / 2, row * HEX_R * 1.5]);
-/** Where real findings light up, in order. */
-const FINDING_SPOTS: Array<[number, number]> = [
-  [140, 300],
-  [200, 470],
-  [80, 150],
-  [80, 470],
+/** Where the signs light up (at most three, the most severe first), read
+ *  from top to bottom; a single one sits in the middle. */
+const FINDING_SPOTS: Array<Array<[number, number]>> = [
+  [],
+  [[140, 300]],
+  [
+    [110, 220],
+    [170, 390],
+  ],
+  [
+    [80, 150],
+    [140, 300],
+    [200, 470],
+  ],
 ];
 const hexPoints = (x: number, y: number, r: number) =>
   Array.from({ length: 6 }, (_, k) => {
@@ -173,10 +181,9 @@ function Honeycomb({
 }: {
   cells?: Array<{ name: string; caption: string; severity?: string }>;
 }) {
-  const lit = (cells ?? []).slice(0, FINDING_SPOTS.length).map((cell, i) => ({
-    ...cell,
-    at: nearest(FINDING_SPOTS[i]),
-  }));
+  const shown = (cells ?? []).slice(0, FINDING_SPOTS.length - 1);
+  const spots = FINDING_SPOTS[shown.length];
+  const lit = shown.map((cell, i) => ({ ...cell, at: nearest(spots[i]) }));
   return (
     <svg className="phone-hex" viewBox="0 0 280 600" aria-hidden="true">
       {HEX_CELLS.map(([x, y]) => (

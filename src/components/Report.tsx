@@ -201,12 +201,21 @@ export function Report({
               ? {
                   kind: "findings",
                   subtitle: c.review,
-                  // Short labels: the severity, and the indicator's number.
-                  cells: detections.map((f, i) => ({
-                    name: t[f.severity],
-                    caption: `#${i + 1}`,
-                    severity: f.severity,
-                  })),
+                  // At most three cells, the most severe signs, so the
+                  // screen never fills up; each keeps its number in the list.
+                  cells: detections
+                    .map((f, i) => ({ f, i }))
+                    .sort(
+                      (a, b) =>
+                        SEVERITIES.indexOf(a.f.severity) -
+                          SEVERITIES.indexOf(b.f.severity) || a.i - b.i,
+                    )
+                    .slice(0, 3)
+                    .map(({ f, i }) => ({
+                      name: t[f.severity],
+                      caption: `#${i + 1}`,
+                      severity: f.severity,
+                    })),
                 }
               : enough
                 ? {
