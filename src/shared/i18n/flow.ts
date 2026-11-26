@@ -52,6 +52,10 @@ export type FlowCopy = {
   welcomeTitle: string;
   welcomeBody: string;
   welcomeAction: string;
+  /** A newer version on the website: {version} is its number. */
+  updateTitle: string;
+  updateBody: string;
+  updateAction: string;
   /** The phone step. */
   connectHelp: string;
   readyIos: string;
@@ -161,6 +165,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     welcomeBody:
       "Revisa tu iPhone o Android en busca de spyware conocido. Tus datos nunca salen de este ordenador y se borran al cerrar la app.",
     welcomeAction: "Analizar mi móvil",
+    updateTitle: "Hay una nueva versión de Enigm Scan",
+    updateBody:
+      "La versión {version} ya está disponible. Descarga la nueva desde la web y elimina esta para analizar con las últimas mejoras.",
+    updateAction: "Descargar",
     openTitle: "Abre Enigm Scan",
     openMac: "Abre el archivo .dmg y haz doble clic en Enigm Scan.",
     openWindows: "Descomprime el archivo .zip y abre Enigm Scan.",
@@ -276,6 +284,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     welcomeBody:
       "Checks your iPhone or Android for known spyware. Your data never leaves this computer and is deleted when you close the app.",
     welcomeAction: "Scan my phone",
+    updateTitle: "A new version of Enigm Scan is out",
+    updateBody:
+      "Version {version} is out. Download the new one from the website and delete this one to scan with the latest improvements.",
+    updateAction: "Download",
     openTitle: "Open Enigm Scan",
     openMac: "Open the .dmg file and double-click Enigm Scan.",
     openWindows: "Unzip the .zip file and open Enigm Scan.",
@@ -392,6 +404,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     welcomeBody:
       "Vérifie si votre iPhone ou Android contient un logiciel espion connu. Vos données ne quittent jamais cet ordinateur et sont effacées à la fermeture de l’app.",
     welcomeAction: "Analyser mon téléphone",
+    updateTitle: "Nouvelle version d’Enigm Scan",
+    updateBody:
+      "La version {version} est sortie. Téléchargez la nouvelle sur le site et supprimez celle-ci pour analyser avec les dernières améliorations.",
+    updateAction: "Télécharger",
     openTitle: "Ouvrez Enigm Scan",
     openMac: "Ouvrez le fichier .dmg et double-cliquez sur Enigm Scan.",
     openWindows: "Décompressez le fichier .zip et ouvrez Enigm Scan.",
@@ -515,6 +531,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     welcomeBody:
       "Prüft Ihr iPhone oder Android-Gerät auf bekannte Spyware. Ihre Daten verlassen diesen Computer nie und werden beim Schließen der App gelöscht.",
     welcomeAction: "Mein Telefon prüfen",
+    updateTitle: "Neue Version von Enigm Scan",
+    updateBody:
+      "Version {version} ist erschienen. Laden Sie die neue von der Website herunter und löschen Sie diese, um mit den neuesten Verbesserungen zu prüfen.",
+    updateAction: "Herunterladen",
     openTitle: "Öffnen Sie Enigm Scan",
     openMac: "Öffnen Sie die .dmg-Datei und doppelklicken Sie auf Enigm Scan.",
     openWindows: "Entpacken Sie die .zip-Datei und öffnen Sie Enigm Scan.",
@@ -638,6 +658,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     welcomeBody:
       "Controlla se il tuo iPhone o Android ha spyware noti. I tuoi dati non lasciano mai questo computer e vengono cancellati alla chiusura dell’app.",
     welcomeAction: "Analizza il mio telefono",
+    updateTitle: "Nuova versione di Enigm Scan",
+    updateBody:
+      "La versione {version} è uscita. Scarica la nuova dal sito ed elimina questa per analizzare con gli ultimi miglioramenti.",
+    updateAction: "Scarica",
     openTitle: "Apri Enigm Scan",
     openMac: "Apri il file .dmg e fai doppio clic su Enigm Scan.",
     openWindows: "Estrai il file .zip e apri Enigm Scan.",
@@ -758,6 +782,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     welcomeBody:
       "Verifica se o seu iPhone ou Android tem spyware conhecido. Os seus dados nunca saem deste computador e são apagados ao fechar a app.",
     welcomeAction: "Analisar o meu telemóvel",
+    updateTitle: "Há uma nova versão do Enigm Scan",
+    updateBody:
+      "A versão {version} já está disponível. Transfira a nova a partir do site e elimine esta para analisar com as últimas melhorias.",
+    updateAction: "Transferir",
     openTitle: "Abra o Enigm Scan",
     openMac: "Abra o ficheiro .dmg e faça duplo clique em Enigm Scan.",
     openWindows: "Descomprima o ficheiro .zip e abra o Enigm Scan.",

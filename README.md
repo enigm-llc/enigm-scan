@@ -60,11 +60,12 @@ used by security researchers.
 ## Privacy
 
 Scans happen entirely on your computer. Phone data is never uploaded and the
-app has no telemetry. It makes one kind of network request: it downloads the
-latest signed indicator bundle from `scan.enigm.io` when it starts. The
-download server keeps anonymous counts of downloads and bundle requests, with
-no IP address or identifier; [docs/STATISTICS.md](docs/STATISTICS.md) explains
-exactly what is counted.
+app has no telemetry. When it starts it makes two requests to `scan.enigm.io`:
+it downloads the latest signed indicator bundle, and it reads which version of
+the app is published, to point you to the download page when there is a newer
+one (it never updates itself). The download server keeps anonymous counts of
+downloads and bundle requests, with no IP address or identifier;
+[docs/STATISTICS.md](docs/STATISTICS.md) explains exactly what is counted.
 
 The app is portable: it installs no service, driver or startup entry, and it
 removes its temporary folders when it closes (or the next time it starts, if

@@ -14,6 +14,7 @@ import { ClosePromo } from "./ClosePromo";
 import { Toaster } from "./Toaster";
 import { clearToasts } from "./toast";
 import { Welcome } from "./Welcome";
+import { UpdateAvailable } from "./UpdateAvailable";
 
 /** Phases in which a scan is still working on the phone or its copy. */
 const RUNNING = [
@@ -64,6 +65,14 @@ export default function DesktopApp() {
   // The welcome screen shows until the owner starts, unless the app already
   // holds a scan (a report, or one still running).
   const [started, setStarted] = useState<boolean | null>(null);
+  // A newer version on the website, checked once at start: offered instead
+  // of the welcome screen.
+  const [update, setUpdate] = useState<string | null>(null);
+  useEffect(() => {
+    void native<string | null>("check_for_update")
+      .then((version) => setUpdate(version ?? null))
+      .catch(() => {});
+  }, []);
   const reportRef = useRef(report);
   reportRef.current = report;
   // The report continues below the window: a cue until the person scrolls.
@@ -173,7 +182,11 @@ export default function DesktopApp() {
       {/* Closing: the session is gone, only the invitation remains. */}
       {!closing && started === false && (
         <main className="scan-main is-welcome">
-          <Welcome language={language} onStart={() => setStarted(true)} />
+          {update ? (
+            <UpdateAvailable language={language} version={update} />
+          ) : (
+            <Welcome language={language} onStart={() => setStarted(true)} />
+          )}
         </main>
       )}
       {!closing && started && (

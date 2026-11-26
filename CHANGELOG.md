@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- When a newer version is published on the website, the app says so at
+  start, in place of the welcome screen, with a button to its download page.
+  It never downloads or installs anything itself.
 - A deeper network check. On iPhone the traffic is watched while the copy
   runs (at least 2 minutes, up to 15), keeps only the headers and what the
   analysis reads of each packet (up to 256 MB, millions of packets, so

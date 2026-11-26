@@ -48,10 +48,18 @@ computer.
 
 ## What the app sends
 
-One request: at start, it downloads the newest signed indicator bundle from
-`https://scan.enigm.io/downloads/intelligence-v2.json`. The request contains no
-phone data, no identifier and no report. The server keeps an anonymous count
-of these requests, described in [STATISTICS.md](STATISTICS.md).
+Two requests at start, both to scan.enigm.io:
+
+- it downloads the newest signed indicator bundle from
+  `https://scan.enigm.io/downloads/intelligence-v2.json`; the server keeps an
+  anonymous count of these requests, described in
+  [STATISTICS.md](STATISTICS.md);
+- it reads the version published in
+  `https://scan.enigm.io/downloads/manifest.json`, the same file the website
+  shows. When it is newer, the app offers its download page; it never
+  downloads or installs anything itself. This request is not counted.
+
+Neither contains phone data, an identifier or a report.
 
 Links you open from the app (help pages, the sources of a finding) open in
 your browser, as normal web visits.

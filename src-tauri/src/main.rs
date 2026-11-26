@@ -3,7 +3,7 @@ use enigm_scan_core::{model::Report, rules::VerifiedRules};
 use enigm_scan_runtime::{
     acquire, adb, awake,
     engines::{analyze_mvt, decrypt_ios_backup, Catalog},
-    intelligence,
+    intelligence, updates,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -1227,6 +1227,16 @@ fn open_in_browser(url: &tauri::Url) -> Result<(), String> {
         _ => Err("browser_unavailable".into()),
     }
 }
+/// The version published on the website, when it is newer than this one.
+/// The app only points to the download page; it never updates itself.
+#[tauri::command]
+async fn check_for_update(window: WebviewWindow) -> Result<Option<String>, String> {
+    local(&window)?;
+    let current = window.app_handle().package_info().version.to_string();
+    tauri::async_runtime::spawn_blocking(move || updates::check(&current))
+        .await
+        .map_err(|_| "update_check_failed".to_string())
+}
 #[tauri::command]
 async fn open_link(window: WebviewWindow, url: String) -> Result<(), String> {
     local(&window)?;
@@ -1524,6 +1534,7 @@ fn main() {
             }
         })
         .invoke_handler(tauri::generate_handler![
+            check_for_update,
             open_link,
             close_application,
             set_menu_language,

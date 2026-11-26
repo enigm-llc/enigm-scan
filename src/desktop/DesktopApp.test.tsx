@@ -280,3 +280,34 @@ it("cancelling clears the session and starts again from the first step", async (
     false,
   );
 });
+
+it("offers a newer version from the website instead of the welcome screen", async () => {
+  const app = nativeApp({ report: null });
+  const mock = vi.mocked(native).getMockImplementation()!;
+  vi.mocked(native).mockImplementation(async (command, args) =>
+    command === "check_for_update" ? "0.9.0" : mock(command, args),
+  );
+  render(<DesktopApp />);
+  const download = await screen.findByRole("button", { name: f.updateAction });
+  expect(screen.getByRole("heading", { name: f.updateTitle })).toBeTruthy();
+  expect(
+    screen.getByText(f.updateBody.replace("{version}", "0.9.0")),
+  ).toBeTruthy();
+  expect(screen.queryByRole("button", { name: f.welcomeAction })).toBeNull();
+  fireEvent.click(download);
+  await waitFor(() =>
+    expect(app.state.calls).toContainEqual([
+      "open_link",
+      { url: "https://scan.enigm.io/download" },
+    ]),
+  );
+});
+
+it("keeps the welcome screen when no newer version is published", async () => {
+  nativeApp({ report: null });
+  render(<DesktopApp />);
+  expect(
+    await screen.findByRole("button", { name: f.welcomeAction }),
+  ).toBeTruthy();
+  expect(screen.queryByRole("button", { name: f.updateAction })).toBeNull();
+});

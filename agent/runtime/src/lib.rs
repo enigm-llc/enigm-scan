@@ -7,5 +7,6 @@ pub mod engines;
 pub mod intelligence;
 pub mod process;
 pub mod session;
+pub mod updates;
 #[cfg(windows)]
 mod windows_job;
