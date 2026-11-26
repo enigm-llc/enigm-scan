@@ -1,5 +1,6 @@
 //! The macOS menu bar, in the system's own bar at the top of the screen: the
-//! app menu (About, Hide, Quit), Edit, Window and Help, in the system language.
+//! app menu (About, Hide, Quit), Edit, Window and Help (how it works and the
+//! documentation), in the interface language.
 //! Windows and Linux draw a menu bar inside the window, so the app sets none
 //! there: the window holds only the app.
 #![cfg_attr(not(target_os = "macos"), allow(dead_code))]
@@ -11,6 +12,9 @@ pub const ABOUT: &str = "about";
 /// The menu item that opens the "How it works" page in the browser.
 pub const HELP: &str = "help";
 pub const HELP_URL: &str = "https://scan.enigm.io/how-it-works";
+/// The menu item that opens the documentation in the browser.
+pub const DOCS: &str = "docs";
+pub const DOCS_URL: &str = "https://docs.enigm.io";
 
 struct Labels {
     about: &'static str,
@@ -18,6 +22,7 @@ struct Labels {
     window: &'static str,
     help: &'static str,
     how: &'static str,
+    docs: &'static str,
     hide: &'static str,
     hide_others: &'static str,
     show_all: &'static str,
@@ -40,6 +45,7 @@ fn labels(language: &str) -> Labels {
             window: "Ventana",
             help: "Ayuda",
             how: "Cómo funciona Enigm Scan",
+            docs: "Documentación",
             hide: "Ocultar Enigm Scan",
             hide_others: "Ocultar otros",
             show_all: "Mostrar todo",
@@ -59,6 +65,7 @@ fn labels(language: &str) -> Labels {
             window: "Fenêtre",
             help: "Aide",
             how: "Fonctionnement d’Enigm Scan",
+            docs: "Documentation",
             hide: "Masquer Enigm Scan",
             hide_others: "Masquer les autres",
             show_all: "Tout afficher",
@@ -78,6 +85,7 @@ fn labels(language: &str) -> Labels {
             window: "Fenster",
             help: "Hilfe",
             how: "So funktioniert Enigm Scan",
+            docs: "Dokumentation",
             hide: "Enigm Scan ausblenden",
             hide_others: "Andere ausblenden",
             show_all: "Alle einblenden",
@@ -97,6 +105,7 @@ fn labels(language: &str) -> Labels {
             window: "Finestra",
             help: "Aiuto",
             how: "Come funziona Enigm Scan",
+            docs: "Documentazione",
             hide: "Nascondi Enigm Scan",
             hide_others: "Nascondi altre",
             show_all: "Mostra tutte",
@@ -116,6 +125,7 @@ fn labels(language: &str) -> Labels {
             window: "Janela",
             help: "Ajuda",
             how: "Como funciona o Enigm Scan",
+            docs: "Documentação",
             hide: "Ocultar Enigm Scan",
             hide_others: "Ocultar outros",
             show_all: "Mostrar tudo",
@@ -135,6 +145,7 @@ fn labels(language: &str) -> Labels {
             window: "Window",
             help: "Help",
             how: "How Enigm Scan works",
+            docs: "Documentation",
             hide: "Hide Enigm Scan",
             hide_others: "Hide Others",
             show_all: "Show All",
@@ -162,6 +173,7 @@ pub fn build(app: &AppHandle, language: &str) -> tauri::Result<Menu<Wry>> {
     // opens its own window instead (see `open_about` in main.rs).
     let about = MenuItem::with_id(app, ABOUT, l.about, true, None::<&str>)?;
     let how = MenuItem::with_id(app, HELP, l.how, true, None::<&str>)?;
+    let docs = MenuItem::with_id(app, DOCS, l.docs, true, None::<&str>)?;
     let separator = || PredefinedMenuItem::separator(app);
     let cut = PredefinedMenuItem::cut(app, Some(l.cut))?;
     let copy = PredefinedMenuItem::copy(app, Some(l.copy))?;
@@ -207,7 +219,7 @@ pub fn build(app: &AppHandle, language: &str) -> tauri::Result<Menu<Wry>> {
             &PredefinedMenuItem::close_window(app, Some(l.close))?,
         ],
     )?;
-    let help = Submenu::with_items(app, l.help, true, &[&how])?;
+    let help = Submenu::with_items(app, l.help, true, &[&how, &docs])?;
     Menu::with_items(app, &[&app_menu, &edit, &window, &help])
 }
 
@@ -218,7 +230,7 @@ mod tests {
     fn every_language_names_the_menus() {
         for language in ["en", "es", "fr", "de", "it", "pt", "zz"] {
             let l = labels(language);
-            for label in [l.about, l.quit, l.how, l.edit, l.help] {
+            for label in [l.about, l.quit, l.how, l.docs, l.edit, l.help] {
                 assert!(!label.is_empty(), "{language}");
             }
         }

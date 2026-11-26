@@ -77,7 +77,7 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
     let builder =
         tauri::WebviewWindowBuilder::new(app, "about", tauri::WebviewUrl::App(page.into()))
             .title(menu::about_title(&language))
-            .inner_size(400.0, 310.0)
+            .inner_size(340.0, 290.0)
             .resizable(false)
             .maximizable(false)
             .minimizable(false)
@@ -1333,10 +1333,15 @@ fn main() {
             if event.id() == menu::ABOUT {
                 let _ = open_about(app);
             }
-            if event.id() == menu::HELP {
-                if let Some(link) = external_link(menu::HELP_URL) {
-                    let _ = open_in_browser(&link);
-                }
+            let page = if event.id() == menu::HELP {
+                Some(menu::HELP_URL)
+            } else if event.id() == menu::DOCS {
+                Some(menu::DOCS_URL)
+            } else {
+                None
+            };
+            if let Some(link) = page.and_then(external_link) {
+                let _ = open_in_browser(&link);
             }
         })
         .on_window_event(|window, event| {
