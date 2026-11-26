@@ -742,7 +742,7 @@ mod tests {
         let executable = work.path().join("ios-fixture");
         std::fs::write(&executable, script).unwrap();
         std::fs::set_permissions(&executable, std::fs::Permissions::from_mode(0o755)).unwrap();
-        let manifest = serde_json::json!([{"id":"ios-usb","file":"ios-fixture","version":"fixture","sha256":format!("{:x}",Sha256::digest(script))}]);
+        let manifest = serde_json::json!([{"id":"ios-usb","file":"ios-fixture","version":"fixture","sha256":enigm_scan_core::hex(&Sha256::digest(script))}]);
         let catalog = Catalog::new(
             work.path().to_path_buf(),
             &serde_json::to_vec(&manifest).unwrap(),

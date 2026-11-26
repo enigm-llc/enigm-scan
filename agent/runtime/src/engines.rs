@@ -180,7 +180,7 @@ pub fn tree_digest(dir: &Path) -> Result<String, String> {
                 }
                 lines.push((
                     child_rel.clone(),
-                    format!("F\t{child_rel}\t{:x}", hash.finalize()),
+                    format!("F\t{child_rel}\t{}", enigm_scan_core::hex(&hash.finalize())),
                 ));
             } else {
                 return Err(bad());
@@ -193,7 +193,7 @@ pub fn tree_digest(dir: &Path) -> Result<String, String> {
         .map(|(_, line)| line)
         .collect::<Vec<_>>()
         .join("\n");
-    Ok(format!("{:x}", Sha256::digest(joined.as_bytes())))
+    Ok(enigm_scan_core::hex(&Sha256::digest(joined.as_bytes())))
 }
 pub struct Catalog {
     root: PathBuf,
@@ -315,7 +315,7 @@ impl Catalog {
             }
             hash.update(&chunk[..n]);
         }
-        if format!("{:x}", hash.finalize()) != expected.to_lowercase() {
+        if enigm_scan_core::hex(&hash.finalize()) != expected.to_lowercase() {
             return Err("engine_integrity_failed".into());
         }
         Ok(())
@@ -376,7 +376,7 @@ pub fn write_stix(rules: &VerifiedRules, path: &Path) -> Result<(), String> {
             }
         };
         // Deterministic UUIDv4-shaped IDs from rule IDs. Data values are normalized at verification.
-        let hash=format!("{:x}",Sha256::digest(r.id.as_bytes()));let id=format!("indicator--{}-{}-4{}-a{}-{}",&hash[0..8],&hash[8..12],&hash[13..16],&hash[17..20],&hash[20..32]);
+        let hash=enigm_scan_core::hex(&Sha256::digest(r.id.as_bytes()));let id=format!("indicator--{}-{}-4{}-a{}-{}",&hash[0..8],&hash[8..12],&hash[13..16],&hash[17..20],&hash[20..32]);
         serde_json::json!({"type":"indicator","spec_version":"2.1","id":id,"created":"2026-10-25T00:00:00Z","modified":"2026-10-25T00:00:00Z","valid_from":"2026-10-25T00:00:00Z","pattern_type":"stix","pattern":pattern,"name":r.id,"external_references":[{"source_name":"published research","url":r.source}]})
     }).collect();
     let bundle = serde_json::json!({"type":"bundle","id":"bundle--45f4475b-d00a-4fa4-8e43-e5dac3284143","objects":objects});
@@ -621,18 +621,15 @@ fn parse_alerts_with_rules(
             ),
             1800,
         );
-        let hash = format!(
-            "{:x}",
-            Sha256::digest(
-                format!(
-                    "{}{}{}",
-                    a.module,
-                    evidence,
-                    a.event_time.as_deref().unwrap_or("")
-                )
-                .as_bytes()
+        let hash = enigm_scan_core::hex(&Sha256::digest(
+            format!(
+                "{}{}{}",
+                a.module,
+                evidence,
+                a.event_time.as_deref().unwrap_or("")
             )
-        );
+            .as_bytes(),
+        ));
         let timestamp = a.event_time.filter(|s| {
             time::OffsetDateTime::parse(s, &time::format_description::well_known::Rfc3339).is_ok()
         });
@@ -874,8 +871,8 @@ mod tests {
         }
         let manifest = serde_json::to_vec(&serde_json::json!([{
             "id":"adb", "file":"adb", "version":"fixture",
-            "sha256":format!("{:x}", Sha256::digest(b"synthetic executable")),
-            "support":[{"file":"support.dll", "sha256":format!("{:x}", Sha256::digest(b"synthetic support"))}]
+            "sha256":enigm_scan_core::hex(&Sha256::digest(b"synthetic executable")),
+            "support":[{"file":"support.dll", "sha256":enigm_scan_core::hex(&Sha256::digest(b"synthetic support"))}]
         }])).unwrap();
         let catalog = Catalog::new(work.path().to_owned(), &manifest).unwrap();
         catalog.resolve("adb").unwrap();
@@ -919,7 +916,7 @@ mod tests {
         let manifest = |tree_sha: &str| {
             serde_json::to_vec(&serde_json::json!([{
                 "id":"ios-usb", "file":"engine/sub/b.bin", "version":"fixture",
-                "sha256":format!("{:x}", Sha256::digest(b"beta")),
+                "sha256":enigm_scan_core::hex(&Sha256::digest(b"beta")),
                 "tree":"engine", "tree_sha256":tree_sha
             }]))
             .unwrap()

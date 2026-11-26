@@ -652,7 +652,7 @@ fn finding(
 ) -> Finding {
     let digest = Sha256::digest(format!("{rule}\0{evidence}").as_bytes());
     Finding {
-        id: format!("behavior.{:x}", digest)[..49].into(),
+        id: format!("behavior.{}", crate::hex(&digest))[..49].into(),
         category: category.into(),
         source: "https://github.com/enigm-llc/enigm-scan".into(),
         evidence: bounded(evidence, 1800),
