@@ -1,6 +1,21 @@
 # Changelog
 
-## 0.7.0 — Unreleased
+## 0.7.1 — Unreleased
+
+- Starting a scan no longer freezes the app on macOS. The second consent
+  question is gone: the checkbox before searching already confirms that the
+  phone is yours or that you have its owner's permission.
+- "About Enigm Scan" opens a window of its own, with the app icon at full
+  size, the version, the links and the licence.
+- Buttons keep their colours under the pointer, and disabled buttons no
+  longer react to it.
+- The executable and the downloads are named enigm-scan.
+- The drawn phone shows "Connected to your computer" without a green dot.
+- The website: the questions on How it works have their design back, the
+  download page starts with "First, the app", the laptop shows the real app
+  icon, and the first visit downloads about 350 kB less.
+
+## 0.7.0 — 26 November 2026
 
 The whole scan now happens in the desktop app. The website explains Enigm
 Scan and offers the downloads; it no longer connects to the app.
