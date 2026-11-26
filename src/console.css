@@ -5750,6 +5750,17 @@ p.error[role="alert"],
   outline-offset: 3px;
 }
 
+/* Nothing scrolls behind the invitation, and it appears without motion when
+   the system asks for less. */
+body:has(.promo-backdrop) {
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-backdrop,
+  .promo-dialog {
+    animation: none;
+  }
+}
 .promo-close {
   position: absolute;
   top: 18px;
@@ -5973,4 +5984,161 @@ p.error[role="alert"],
   font-size: 11.5px;
   font-weight: 500;
   line-height: 1;
+}
+
+/* ---------- How it works: the questions ---------- */
+.how-page .how-faq {
+  border-top: 1px solid var(--hair);
+}
+.how-page .how-faq details {
+  border-bottom: 1px solid var(--hair);
+}
+.how-page .how-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  list-style: none;
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 700;
+}
+.how-page .how-faq summary::-webkit-details-marker {
+  display: none;
+}
+.how-page .how-faq summary::after {
+  content: "+";
+  flex: none;
+  color: var(--tone);
+  font-size: 22px;
+  font-weight: 400;
+  transition: transform 300ms var(--ease);
+}
+.how-page .how-faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+.how-page .how-faq details p {
+  max-width: 62ch;
+  margin: -6px 0 20px;
+  color: var(--tone);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+.how-page .how-faq summary {
+  font-weight: 500;
+}
+.how-page .how-faq summary {
+  font-size: 16px;
+}
+.how-page .how-faq summary::after {
+  content: "";
+  flex: none;
+  width: 14px;
+  height: 14px;
+  background:
+    linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat,
+    linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat;
+  color: var(--tone);
+  font-size: 0;
+  transform-origin: 50% 50%;
+  transition: transform 300ms var(--ease);
+}
+.how-page .how-faq details[open] summary::after {
+  transform: rotate(45deg);
+}
+.how-page .how-faq details.is-closing summary::after {
+  transform: none;
+}
+.how-page .how-faq summary {
+  margin: 0 -10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 8px;
+}
+.how-page .how-faq summary::after {
+  content: none;
+  display: none;
+}
+.how-page .how-faq summary {
+  margin: 0;
+  padding: 18px 0;
+  border-radius: 0;
+}
+.how-page .how-faq details {
+  padding: 0 16px;
+  margin: 0 -16px;
+  transition: background-color 150ms ease;
+}
+.how-page .how-faq details p {
+  margin: 0;
+  padding-bottom: 20px;
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .how-page .how-faq details:hover {
+    background: var(--action-hover);
+  }
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .how-page .how-faq details:hover .faq-icon {
+    color: var(--text);
+  }
+}
+.how-page .how-faq summary[data-enigm-pressed] {
+  background: transparent;
+}
+.how-page .how-faq details:has(summary[data-enigm-pressed]) {
+  background: var(--action-pressed);
+}
+.how-page .how-faq details {
+  border-bottom: 0;
+  background-image: linear-gradient(var(--hair), var(--hair));
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: calc(100% - 32px) 1px;
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .how-page .how-faq details:hover {
+    background-color: var(--action-hover);
+    background-image: linear-gradient(var(--hair), var(--hair));
+  }
+}
+.how-page .how-faq details:has(summary[data-enigm-pressed]) {
+  background-color: var(--action-pressed);
+  background-image: linear-gradient(var(--hair), var(--hair));
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .how-page .how-faq details:hover {
+    background-color: transparent;
+  }
+}
+@media (min-width: 900px) and (hover: hover) and (pointer: fine) {
+  .how-page .how-faq details:hover .faq-icon {
+    color: var(--text);
+  }
+}
+.how-page .how-faq details:has(summary[data-enigm-pressed]) {
+  background-color: transparent;
+}
+.how-page .how-faq details,
+.how-page .how-faq details:hover,
+.how-page .how-faq details:has(summary[data-enigm-pressed]) {
+  background-color: transparent;
+  background-image: linear-gradient(var(--hair), var(--hair));
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  background-size: calc(100% - 32px) 1px;
+}
+.how-page .how-faq details p {
+  max-width: none;
+}
+.how-page .how-faq summary,
+.how-page .how-faq summary:hover,
+.how-page .how-faq summary:active,
+.how-page .how-faq summary[data-enigm-pressed] {
+  background: transparent;
+  -webkit-tap-highlight-color: transparent;
+}
+.how-page .how-faq details:has(summary[data-enigm-pressed]) {
+  background-color: transparent;
 }
