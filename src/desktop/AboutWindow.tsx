@@ -1,27 +1,35 @@
 import { useEffect } from "react";
 import { useAppearance } from "../shared/appearance";
 import { flowCopy } from "../shared/i18n/flow";
-import { useI18N } from "../shared/i18n/i18n";
+import { useI18N, type Language } from "../shared/i18n/i18n";
 
-const WEBSITE = "https://scan.enigm.io";
-const SOURCE = "https://github.com/enigm-llc/enigm-scan";
+/** A value the app passes in the address, shown only if well formed. */
+function fromAddress(key: string, pattern: RegExp): string | null {
+  const value = new URLSearchParams(window.location.search).get(key);
+  return value && pattern.test(value) ? value : null;
+}
 
-/** The version the app passes in the address, shown only if well formed. */
-function versionFromAddress(): string | null {
-  const version = new URLSearchParams(window.location.search).get("version");
-  return version && /^\d+\.\d+\.\d+$/.test(version) ? version : null;
+/** The release date in the interface language's format, from an ISO date. */
+function releaseDate(iso: string, language: Language): string {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat(language, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(Date.UTC(year, month - 1, day)));
 }
 
 /**
- * The About window, opened from the macOS app menu: the app icon, its name and
- * version, what it does, where to find it and under which licence. Its links
- * open in the system browser (the app never shows other pages).
+ * The About window, opened from the macOS app menu and laid out like the
+ * system's own: the app icon, its name, what it is, the version, the release
+ * date and the copyright.
  */
 export default function AboutWindow() {
   const { language } = useI18N();
   useAppearance("system");
   const f = flowCopy[language];
-  const version = versionFromAddress();
+  const version = fromAddress("version", /^\d+\.\d+\.\d+$/);
+  const released = fromAddress("released", /^\d{4}-\d{2}-\d{2}$/);
   useEffect(() => {
     document.documentElement.lang = language;
     const menu = (event: MouseEvent) => event.preventDefault();
@@ -34,25 +42,21 @@ export default function AboutWindow() {
         className="about-icon"
         src="/brand/enigm-scan-app-icon.png"
         alt=""
-        width={112}
-        height={112}
+        width={84}
+        height={84}
         draggable={false}
       />
       <h1>Enigm Scan</h1>
-      {version && (
-        <p className="about-version">
-          {f.aboutVersion.replace("{v}", version)}
+      <p className="about-lines">
+        <span>{f.aboutBody}</span>
+        {version && <span>{f.aboutVersion.replace("{v}", version)}</span>}
+      </p>
+      {released && (
+        <p className="about-lines">
+          {f.aboutReleased.replace("{d}", releaseDate(released, language))}
         </p>
       )}
-      <p className="about-body">{f.aboutBody}</p>
-      <div className="about-links">
-        <a href={WEBSITE}>{f.aboutWebsite}</a>
-        <a href={SOURCE}>{f.aboutSource}</a>
-      </div>
-      <div className="about-legal">
-        <span>© 2026 Enigm</span>
-        <span>PolyForm Noncommercial 1.0.0</span>
-      </div>
+      <p className="about-lines">© 2026 Enigm</p>
     </main>
   );
 }

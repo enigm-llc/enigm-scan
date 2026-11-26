@@ -57,9 +57,9 @@ fn own_page(url: &tauri::Url) -> bool {
     }
     own
 }
-/// The About window, opened from the macOS app menu: the app icon, version,
-/// what the app does, its links and licence. It runs no native commands;
-/// its links open in the browser through `own_page`.
+/// The About window, opened from the macOS app menu, laid out like the
+/// system's own: the app icon, name, version, release date and copyright. It
+/// runs no native commands.
 fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
     if let Some(window) = app.get_webview_window("about") {
         window.show()?;
@@ -69,11 +69,15 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
         .lock()
         .map(|language| language.clone())
         .unwrap_or_default();
-    let page = format!("index.html?about&version={}", app.package_info().version);
+    let page = format!(
+        "index.html?about&version={}&released={}",
+        app.package_info().version,
+        env!("ENIGM_RELEASE_DATE")
+    );
     let builder =
         tauri::WebviewWindowBuilder::new(app, "about", tauri::WebviewUrl::App(page.into()))
             .title(menu::about_title(&language))
-            .inner_size(360.0, 440.0)
+            .inner_size(400.0, 310.0)
             .resizable(false)
             .maximizable(false)
             .minimizable(false)
@@ -86,10 +90,6 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
                 }
                 tauri::webview::NewWindowResponse::Deny
             });
-    #[cfg(target_os = "macos")]
-    let builder = builder
-        .title_bar_style(tauri::TitleBarStyle::Overlay)
-        .hidden_title(true);
     builder.build()?;
     Ok(())
 }

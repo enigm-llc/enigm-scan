@@ -16,24 +16,29 @@ afterEach(() => {
   window.history.replaceState(null, "", "/");
 });
 
-it("shows the app, its version and where to find it", () => {
-  window.history.replaceState(null, "", "/?about&version=0.7.0");
+it("shows the app, its version, release date and copyright", () => {
+  window.history.replaceState(
+    null,
+    "",
+    "/?about&version=0.7.1&released=2026-11-26",
+  );
   render(<AboutWindow />);
   expect(screen.getByRole("heading", { level: 1 }).textContent).toBe(
     "Enigm Scan",
   );
-  expect(screen.getByText("Version 0.7.0")).toBeTruthy();
-  expect(
-    screen.getByRole("link", { name: "Website" }).getAttribute("href"),
-  ).toBe("https://scan.enigm.io");
-  expect(
-    screen.getByRole("link", { name: "Source code" }).getAttribute("href"),
-  ).toBe("https://github.com/enigm-llc/enigm-scan");
-  expect(screen.getByText("PolyForm Noncommercial 1.0.0")).toBeTruthy();
+  expect(screen.getByText("Version 0.7.1")).toBeTruthy();
+  // The date follows the language's own format (in English, "Nov 26, 2026").
+  expect(screen.getByText(/^Released .*26.*2026$/)).toBeTruthy();
+  expect(screen.getByText("© 2026 Enigm")).toBeTruthy();
 });
 
-it("ignores a version that is not a plain number", () => {
-  window.history.replaceState(null, "", "/?about&version=<b>1</b>");
+it("ignores a version or a date that is not well formed", () => {
+  window.history.replaceState(
+    null,
+    "",
+    "/?about&version=<b>1</b>&released=yesterday",
+  );
   render(<AboutWindow />);
   expect(screen.queryByText(/Version/)).toBeNull();
+  expect(screen.queryByText(/Released/)).toBeNull();
 });
