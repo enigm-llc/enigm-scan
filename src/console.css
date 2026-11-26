@@ -6318,6 +6318,15 @@ body:has(.promo-backdrop) {
   background: var(--band);
   border-color: var(--band-line);
 }
+/* Titles use the whole width of their column and wrap only where the text
+   runs out of room: no width cap in characters, no balanced line breaks. */
+.app-window .scan-main .console-copy h1,
+.app-window .scan-main .console-copy .phase-copy,
+.app-window .result-summary.verdict h2,
+.app-window .welcome h1 {
+  max-width: none;
+  text-wrap: wrap;
+}
 /* System typefaces are drawn at their own spacing; the website's tight
    tracking is for Roboto. */
 .app-window .scan-main .console-copy h1,
