@@ -6,6 +6,8 @@ export type ReportCopy = {
   scanAnother: string;
   statsTitle: string;
   bySeverity: string;
+  /** The severity tile when nothing was found. */
+  noSignsAnyLevel: string;
   duration: string;
   reportTitle: string;
   execTitle: string;
@@ -37,6 +39,7 @@ export const reportCopy: Record<Language, ReportCopy> = {
     scanAnother: "Escanear otro móvil",
     statsTitle: "Resumen del análisis",
     bySeverity: "Indicios por criticidad",
+    noSignsAnyLevel: "Sin indicios en ningún nivel de criticidad",
     duration: "Duración",
     reportTitle: "Informe de análisis de spyware",
     execTitle: "Resumen ejecutivo",
@@ -80,6 +83,7 @@ export const reportCopy: Record<Language, ReportCopy> = {
     scanAnother: "Scan another phone",
     statsTitle: "Scan summary",
     bySeverity: "Signs by severity",
+    noSignsAnyLevel: "No signs at any severity level",
     duration: "Duration",
     reportTitle: "Spyware scan report",
     execTitle: "Executive summary",
@@ -120,6 +124,7 @@ export const reportCopy: Record<Language, ReportCopy> = {
     scanAnother: "Analyser un autre téléphone",
     statsTitle: "Résumé de l’analyse",
     bySeverity: "Indices par gravité",
+    noSignsAnyLevel: "Aucun indice, quel que soit le niveau de gravité",
     duration: "Durée",
     reportTitle: "Rapport d’analyse de logiciels espions",
     execTitle: "Synthèse",
@@ -163,6 +168,7 @@ export const reportCopy: Record<Language, ReportCopy> = {
     scanAnother: "Weiteres Telefon prüfen",
     statsTitle: "Zusammenfassung der Analyse",
     bySeverity: "Hinweise nach Schweregrad",
+    noSignsAnyLevel: "Keine Hinweise auf irgendeiner Schweregradstufe",
     duration: "Dauer",
     reportTitle: "Spyware-Analysebericht",
     execTitle: "Zusammenfassung",
@@ -203,6 +209,7 @@ export const reportCopy: Record<Language, ReportCopy> = {
     scanAnother: "Analizza un altro telefono",
     statsTitle: "Riepilogo dell’analisi",
     bySeverity: "Segni per gravità",
+    noSignsAnyLevel: "Nessun segno a nessun livello di gravità",
     duration: "Durata",
     reportTitle: "Rapporto di analisi dello spyware",
     execTitle: "Sintesi",
@@ -243,6 +250,7 @@ export const reportCopy: Record<Language, ReportCopy> = {
     scanAnother: "Analisar outro telemóvel",
     statsTitle: "Resumo da análise",
     bySeverity: "Sinais por gravidade",
+    noSignsAnyLevel: "Nenhum sinal em nenhum nível de gravidade",
     duration: "Duração",
     reportTitle: "Relatório de análise de spyware",
     execTitle: "Resumo executivo",

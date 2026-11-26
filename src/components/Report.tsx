@@ -5,6 +5,7 @@ import {
   LoaderCircle,
   FileSearch,
   ListChecks,
+  ShieldCheck,
   Timer,
   RotateCcw,
 } from "lucide-react";
@@ -276,45 +277,35 @@ export function Report({
       <section className="report-band" aria-labelledby="report-stats-title">
         <h2 id="report-stats-title">{r.statsTitle}</h2>
         <div className="report-tiles">
-          <div className="report-tile wide">
-            <span className="tile-label">{r.bySeverity}</span>
-            {total ? (
-              <>
-                <div className="severity-bar" aria-hidden="true">
-                  {counts.map(([level, n]) => (
-                    <i
-                      key={level}
-                      className={`sev-${level}`}
-                      style={{ flexGrow: n }}
-                    />
-                  ))}
-                </div>
-                <ul className="severity-legend">
-                  {counts.map(([level, n]) => (
-                    <li key={level}>
-                      <span className={`sev-dot sev-${level}`} />
-                      <b>{n.toLocaleString(language)}</b> {t[level]}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              // The same bar and legend as with findings: empty, all at 0.
-              <>
-                <div className="severity-bar is-empty" aria-hidden="true">
-                  <i />
-                </div>
-                <ul className="severity-legend">
-                  {SEVERITIES.map((level) => (
-                    <li key={level}>
-                      <span className={`sev-dot sev-${level}`} />
-                      <b>{(0).toLocaleString(language)}</b> {t[level]}
-                    </li>
-                  ))}
-                </ul>
-              </>
-            )}
-          </div>
+          {total ? (
+            <div className="report-tile wide">
+              <span className="tile-label">{r.bySeverity}</span>
+              <div className="severity-bar" aria-hidden="true">
+                {counts.map(([level, n]) => (
+                  <i
+                    key={level}
+                    className={`sev-${level}`}
+                    style={{ flexGrow: n }}
+                  />
+                ))}
+              </div>
+              <ul className="severity-legend">
+                {counts.map(([level, n]) => (
+                  <li key={level}>
+                    <span className={`sev-dot sev-${level}`} />
+                    <b>{n.toLocaleString(language)}</b> {t[level]}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            // Nothing found: the same form as the tiles beside it.
+            <div className="report-tile wide is-clean">
+              <ShieldCheck size={18} aria-hidden="true" />
+              <b>{(0).toLocaleString(language)}</b>
+              <span className="tile-label">{r.noSignsAnyLevel}</span>
+            </div>
+          )}
           <div className="report-tile">
             <ListChecks size={18} aria-hidden="true" />
             <b>
