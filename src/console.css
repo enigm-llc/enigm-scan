@@ -6816,3 +6816,36 @@ body:has(.promo-backdrop) {
     padding-bottom: 52px;
   }
 }
+
+/* The report's honeycomb: each lit cell in its severity's colour, as in the
+   summary bar, and their glows blending where they meet. The phone's screen
+   is always dark, so the bright shades are used in both themes. */
+.phone-hex-lit {
+  --lit: #fb4747;
+}
+.phone-hex-lit.sev-high {
+  --lit: #ff7633;
+}
+.phone-hex-lit.sev-medium {
+  --lit: #ffc23d;
+}
+.phone-hex-lit.sev-low {
+  --lit: #f0dc5a;
+}
+.phone-hex-lit.sev-informational {
+  --lit: #a0a0a0;
+}
+.phone-hex .phone-hex-lit .glow {
+  fill: var(--lit);
+  opacity: 0.22;
+  mix-blend-mode: screen;
+}
+/* polygon.cell: above the faint outline every cell gets in light mode. */
+.phone-hex .phone-hex-lit polygon.cell {
+  fill: var(--lit);
+  fill-opacity: 0.24;
+  stroke: var(--lit);
+}
+.phone-hex .phone-hex-lit text.caption {
+  fill: rgba(255, 255, 255, 0.72);
+}

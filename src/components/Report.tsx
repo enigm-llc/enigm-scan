@@ -205,6 +205,7 @@ export function Report({
                   cells: detections.map((f, i) => ({
                     name: t[f.severity],
                     caption: `#${i + 1}`,
+                    severity: f.severity,
                   })),
                 }
               : enough

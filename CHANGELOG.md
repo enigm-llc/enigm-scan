@@ -14,9 +14,11 @@
   in the middle of the window.
 - The phone itself is centred in the window on every step; its cable and
   the network waves hang outside that measure.
-- The report's severity tile looks the same without findings: an empty
-  bar and every level at 0. The arrow to the details is a gentle double
+- The report's severity tile keeps its bar without findings, empty, with
+  "None detected" under it. The arrow to the details is a gentle double
   arrow under "See details".
+- On the drawn phone of a report with findings, each cell takes its
+  severity's colour and their glows blend together.
 - The progress card's Pause and Cancel are round icon buttons, and what the
   card says fits on one line in every language.
 - The closing invitation presents Enigm as protection for messages and

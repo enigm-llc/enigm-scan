@@ -69,7 +69,7 @@ export type PhoneScreen =
   | { kind: "confirmed"; title: string }
   | {
       kind: "findings";
-      cells: Array<{ name: string; caption: string }>;
+      cells: Array<{ name: string; caption: string; severity?: string }>;
       subtitle: string;
     };
 
@@ -171,7 +171,7 @@ function split(name: string): [string, string] {
 function Honeycomb({
   cells,
 }: {
-  cells?: Array<{ name: string; caption: string }>;
+  cells?: Array<{ name: string; caption: string; severity?: string }>;
 }) {
   const lit = (cells ?? []).slice(0, FINDING_SPOTS.length).map((cell, i) => ({
     ...cell,
@@ -182,10 +182,14 @@ function Honeycomb({
       {HEX_CELLS.map(([x, y]) => (
         <polygon key={`${x}-${y}`} points={hexPoints(x, y, HEX_R - 2)} />
       ))}
-      {lit.map(({ at: [x, y], name, caption }) => {
+      {lit.map(({ at: [x, y], name, caption, severity }) => {
         const [first, second] = split(name);
         return (
-          <g key={name + x} className="phone-hex-lit">
+          // Each cell in its severity's colour; the glows blend together.
+          <g
+            key={name + x}
+            className={`phone-hex-lit sev-${severity ?? "critical"}`}
+          >
             <circle cx={x} cy={y} r={HEX_R * 2.6} className="glow" />
             <polygon points={hexPoints(x, y, HEX_R - 2)} className="cell" />
             <text x={x} y={second ? y - 6 : y + 2}>
