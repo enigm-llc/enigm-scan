@@ -11,6 +11,8 @@ from Crypto.Util.Padding import pad
 
 PASSWORD = 'synthetic-only-pässword'
 PAYLOAD = b'Synthetic authorized artifact. No phone data.\n'
+# iOS names backup files by the SHA-1 of domain and path; not a security use.
+# nosemgrep: python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1
 FILE_ID = hashlib.sha1(b'HomeDomain-Library/synthetic.txt').hexdigest()
 
 

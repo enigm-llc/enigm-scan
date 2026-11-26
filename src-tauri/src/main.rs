@@ -437,6 +437,9 @@ fn scan_workspace_root() -> PathBuf {
             return disk;
         }
     }
+    // Only the base: each session creates its own randomly named folder in it,
+    // mode 0700 and locked while in use.
+    // nosemgrep: rust.lang.security.temp-dir.temp-dir
     std::env::temp_dir()
 }
 fn minimum(data: &std::path::Path) -> Result<u64, String> {
@@ -1210,6 +1213,8 @@ fn end_session(state: &Agent) {
 /// profiles. Folders a running copy of the app still holds are kept.
 fn remove_leftovers(keep: &Path) {
     use enigm_scan_runtime::session::remove_abandoned;
+    // Only folders with our prefixes whose lock is free are removed.
+    // nosemgrep: rust.lang.security.temp-dir.temp-dir
     let temp = std::env::temp_dir();
     let work = scan_workspace_root();
     let _ = remove_abandoned(&temp, "enigm-scan-browser-", Some(keep));
@@ -1338,9 +1343,13 @@ fn main() {
                 use std::os::unix::fs::PermissionsExt;
                 std::fs::set_permissions(&data, std::fs::Permissions::from_mode(0o700))?;
             }
+            // The argument is only compared with a fixed flag.
+            // nosemgrep: rust.lang.security.args.args
             let self_check = std::env::args().any(|arg| arg == "--portable-self-check");
             let Some(root) = engines_root(
                 app.path().resource_dir().ok(),
+                // Locates the bundled engines, which are verified by SHA-256 before use.
+                // nosemgrep: rust.lang.security.current-exe.current-exe
                 std::env::current_exe().ok(),
                 &app.package_info().name,
             ) else {

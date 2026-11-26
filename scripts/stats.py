@@ -31,6 +31,8 @@ DATASET = 'enigm_scan_stats'
 def query(token, sql):
     req = urllib.request.Request(URL, data=sql.encode(), method='POST',
                                  headers={'Authorization': 'Bearer ' + token})
+    # Fixed https endpoint of the Cloudflare analytics API.
+    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(req, timeout=60) as response:
         return json.load(response).get('data', [])
 

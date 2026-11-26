@@ -1,5 +1,5 @@
 // Offline, deterministic source normalization. No network calls or private evidence.
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import {
   createHash,
   generateKeyPairSync,
@@ -22,29 +22,37 @@ const days = Number(
 if (!Number.isSafeInteger(days) || days < 1 || days > 90)
   throw Error("--days must be an integer between 1 and 90");
 const keyPath = ".secrets/intelligence-signing.pem";
-if (!existsSync(keyPath)) {
+/** The file's contents, or null when it does not exist. Reading directly,
+ *  rather than checking first, leaves no gap for the file to change. */
+function readIfPresent(path, encoding) {
+  try {
+    return readFileSync(path, encoding);
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+let keyPem = readIfPresent(keyPath);
+if (keyPem === null) {
   if (!init)
     throw Error(
       "Signing key missing; initialize explicitly or provision an offline release key",
     );
   mkdirSync(".secrets", { recursive: true, mode: 0o700 });
   const { privateKey } = generateKeyPairSync("ed25519");
-  writeFileSync(keyPath, privateKey.export({ type: "pkcs8", format: "pem" }), {
-    mode: 0o600,
-    flag: "wx",
-  });
+  keyPem = privateKey.export({ type: "pkcs8", format: "pem" });
+  // "wx" refuses to replace a key created in the meantime.
+  writeFileSync(keyPath, keyPem, { mode: 0o600, flag: "wx" });
 }
-const key = createPrivateKey(readFileSync(keyPath));
+const key = createPrivateKey(keyPem);
 const publicDer = createPublicKey(key).export({ type: "spki", format: "der" });
 const publicRaw = publicDer.subarray(publicDer.length - 32);
 const pinnedKeyPath = "src-tauri/resources/intelligence/public-key.bin";
-if (existsSync(pinnedKeyPath) && !readFileSync(pinnedKeyPath).equals(publicRaw))
+const pinnedKey = readIfPresent(pinnedKeyPath);
+if (pinnedKey !== null && !pinnedKey.equals(publicRaw))
   throw Error("Signing key does not match the pinned trust root");
-if (
-  existsSync("intelligence/release.json") &&
-  version <=
-    JSON.parse(readFileSync("intelligence/release.json", "utf8")).version
-)
+const previousRelease = readIfPresent("intelligence/release.json", "utf8");
+if (previousRelease !== null && version <= JSON.parse(previousRelease).version)
   throw Error("Release version must increase");
 const now = Math.floor(Date.now() / 1000);
 const sources = JSON.parse(

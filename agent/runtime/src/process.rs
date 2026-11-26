@@ -208,14 +208,18 @@ fn run_inner(
         let parent_pid = std::process::id();
         let cpu_seconds = cpu_limit_seconds(timeout) as libc::rlim_t;
         let file_bytes = file_limit as libc::rlim_t;
-        // The closure uses only async-signal-safe syscalls before exec.
+        // SAFETY: between fork and exec the closure only makes async-signal-safe
+        // system calls (prctl, getppid, setrlimit) and allocates nothing.
+        // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
         unsafe {
             cmd.pre_exec(move || {
                 #[cfg(target_os = "linux")]
                 if libc::prctl(libc::PR_SET_PDEATHSIG, libc::SIGKILL) != 0
                     || libc::getppid() as u32 != parent_pid
                 {
-                    return Err(std::io::Error::other("parent monitor unavailable"));
+                    // The parent is gone or cannot be watched. No allocation
+                    // here: only a raw OS error is safe between fork and exec.
+                    return Err(std::io::Error::from_raw_os_error(libc::ESRCH));
                 }
                 let cpu = libc::rlimit {
                     rlim_cur: cpu_seconds,
@@ -270,6 +274,8 @@ fn run_inner(
                 "engine_timeout"
             });
             #[cfg(unix)]
+            // SAFETY: kill takes plain integers; the group is the one created for this child.
+            // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
             unsafe {
                 libc::kill(-(child.id() as i32), libc::SIGKILL);
             }
@@ -290,6 +296,8 @@ fn run_inner(
     };
     // Kill descendants retaining inherited pipes after the parent exits.
     #[cfg(unix)]
+    // SAFETY: kill takes plain integers; the group is the one created for this child.
+    // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
     unsafe {
         libc::kill(-(child.id() as i32), libc::SIGKILL);
     }

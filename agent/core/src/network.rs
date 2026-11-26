@@ -96,7 +96,7 @@ fn analyze(
                     unsupported += 1;
                     continue;
                 }
-                let eth = u16be(&packet[12..]).unwrap();
+                let eth = u16be(&packet[12..]).ok_or("pcap_truncated")?;
                 if ![0x800, 0x86dd].contains(&eth) {
                     unsupported += 1;
                     continue;

@@ -11,6 +11,8 @@ url = 'https://www.python.org/ftp/python/3.14.9/python-3.14.9-macos11.pkg'
 sha256 = '08e312f20844b524c2f8c5e5b2e7f49608c22e8c7cb194f5834d385c94383462'
 with tempfile.TemporaryDirectory(prefix='enigm-python-') as folder:
     package = pathlib.Path(folder) / 'python.pkg'
+    # Fixed https URL; the installer is checked against a pinned SHA-256 below.
+    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(url, timeout=90) as response, package.open('wb') as output:
         while chunk := response.read(1024 * 1024): output.write(chunk)
     with package.open('rb') as source:
@@ -36,6 +38,8 @@ openssl_sha = '603f5602e2eef00d77fbd429d34dcd5822bb301757a1bc9cdb24c670f1eb859a'
 openssl_prefix = pathlib.Path('.local-tools/macos-openssl').resolve()
 with tempfile.TemporaryDirectory(prefix='enigm-openssl-') as folder:
     archive = pathlib.Path(folder) / 'openssl.tar.gz'
+    # Fixed https URL; the source is checked against a pinned SHA-256 below.
+    # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
     with urllib.request.urlopen(openssl_url, timeout=90) as response, archive.open('wb') as output:
         while chunk := response.read(1024 * 1024): output.write(chunk)
     with archive.open('rb') as source:

@@ -183,3 +183,10 @@ v2_78 = [
     "ffi/v2_78",
     "gobject_ffi/v2_78",
 ]
+
+# Upstream style lints that newer compilers report in the published 0.18.5
+# source. Cargo silences them for registry crates; this path copy does the
+# same so they do not hide warnings in our own code.
+[lints.rust]
+mismatched_lifetime_syntaxes = "allow"
+unused_parens = "allow"

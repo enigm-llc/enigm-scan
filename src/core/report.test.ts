@@ -43,7 +43,7 @@ describe("untrusted report boundary", () => {
     ).toThrow());
   it("rejects unexpected properties including prototype keys", () =>
     expect(() =>
-      parseReport(JSON.stringify(fixture()).replace("{", '{"__proto__":{},')),
+      parseReport('{"__proto__":{},' + JSON.stringify(fixture()).slice(1)),
     ).toThrow());
   it("rejects negative, fractional and unsafe counts", () => {
     for (const n of [-1, 0.5, Number.MAX_SAFE_INTEGER + 1])

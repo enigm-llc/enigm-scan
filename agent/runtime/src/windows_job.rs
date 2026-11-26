@@ -11,6 +11,9 @@ use windows_sys::Win32::{
 pub struct Job(HANDLE);
 impl Job {
     pub fn attach(child: &mut Child) -> Result<Self, String> {
+        // SAFETY: every handle is checked before use and owned by the returned Job,
+        // which closes it exactly once.
+        // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
         unsafe {
             let handle = CreateJobObjectW(std::ptr::null(), std::ptr::null());
             if handle.is_null() {
@@ -39,6 +42,8 @@ impl Job {
 }
 impl Drop for Job {
     fn drop(&mut self) {
+        // SAFETY: the handle was created by attach and is closed only here.
+        // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
         unsafe {
             CloseHandle(self.0);
         }

@@ -37,6 +37,9 @@ pub fn start_in(temp: &Path) -> std::io::Result<Session> {
     Ok(Session { dir, _lock: lock })
 }
 pub fn start() -> std::io::Result<Session> {
+    // Only the base: each session creates its own randomly named folder in it,
+    // mode 0700 and locked while in use.
+    // nosemgrep: rust.lang.security.temp-dir.temp-dir
     start_in(&std::env::temp_dir())
 }
 /// Hold an exclusive lock inside a temporary folder for as long as the
@@ -96,6 +99,8 @@ pub fn remove_abandoned(root: &Path, prefix: &str, keep: Option<&Path>) -> Vec<P
     removed
 }
 pub fn remove_orphans(keep: &Path) -> Vec<PathBuf> {
+    // Only folders with our prefix whose lock is free are removed.
+    // nosemgrep: rust.lang.security.temp-dir.temp-dir
     remove_orphans_in(&std::env::temp_dir(), keep)
 }
 #[cfg(test)]

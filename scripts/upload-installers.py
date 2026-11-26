@@ -42,10 +42,14 @@ def main():
         # REST single PUT preserves the reviewed single-part ETag.
         with path.open('rb') as body:
             req = urllib.request.Request(BASE + item['key'], data=body, headers=headers, method='PUT')
+            # Fixed https endpoint of the Cloudflare R2 API.
+            # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
             with urllib.request.urlopen(req, timeout=180) as response:
                 if response.status != 200:
                     raise SystemExit('Upload failed: ' + item['filename'])
         req = urllib.request.Request(BASE + item['key'], headers={'Authorization': 'Bearer ' + token})
+        # Fixed https endpoint of the Cloudflare R2 API.
+        # nosemgrep: python.lang.security.audit.dynamic-urllib-use-detected.dynamic-urllib-use-detected
         with urllib.request.urlopen(req, timeout=180) as response:
             digest = hashlib.sha256()
             size = 0

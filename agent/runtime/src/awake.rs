@@ -35,6 +35,8 @@ impl KeepAwake {
             use windows_sys::Win32::System::Power::{
                 SetThreadExecutionState, ES_CONTINUOUS, ES_SYSTEM_REQUIRED,
             };
+            // SAFETY: SetThreadExecutionState takes only flags and touches no memory we own.
+            // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
             let previous = unsafe { SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED) };
             Self {
                 active: previous != 0,
@@ -127,6 +129,8 @@ impl Drop for KeepAwake {
         #[cfg(windows)]
         if self.active {
             use windows_sys::Win32::System::Power::{SetThreadExecutionState, ES_CONTINUOUS};
+            // SAFETY: restores the default execution state; takes only flags.
+            // nosemgrep: rust.lang.security.unsafe-usage.unsafe-usage
             unsafe {
                 SetThreadExecutionState(ES_CONTINUOUS);
             }

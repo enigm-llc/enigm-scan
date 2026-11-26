@@ -70,7 +70,7 @@ impl Session {
                 return Err("adb_server_failed".into());
             }
             if TcpStream::connect_timeout(
-                &format!("127.0.0.1:{port}").parse().unwrap(),
+                &std::net::SocketAddr::from(([127, 0, 0, 1], port)),
                 Duration::from_millis(100),
             )
             .is_ok()
