@@ -17,4 +17,9 @@ export function desktopOs(agent = navigator.userAgent): DesktopOs {
 export function markNativeShell(root = document.documentElement): void {
   root.dataset.shell = "app";
   root.dataset.os = desktopOs();
+  // The app follows the system's appearance; apply it before the first paint
+  // so a dark window never starts light.
+  root.dataset.theme = matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
 }

@@ -57,6 +57,13 @@ fn own_page(url: &tauri::Url) -> bool {
     }
     own
 }
+/// Windows start hidden and appear once their page has loaded, so the
+/// webview's blank white canvas never shows before the app's own colours.
+fn show_when_loaded(window: tauri::WebviewWindow, payload: tauri::webview::PageLoadPayload<'_>) {
+    if payload.event() == tauri::webview::PageLoadEvent::Finished {
+        let _ = window.show();
+    }
+}
 /// The About window, opened from the macOS app menu, laid out like the
 /// system's own: the app icon, name, version, release date and copyright. It
 /// runs no native commands.
@@ -77,12 +84,22 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
     let builder =
         tauri::WebviewWindowBuilder::new(app, "about", tauri::WebviewUrl::App(page.into()))
             .title(menu::about_title(&language))
-            .inner_size(340.0, 290.0)
+            // macOS adds the transparent title bar (28 px) to the content.
+            .inner_size(
+                350.0,
+                if cfg!(target_os = "macos") {
+                    318.0
+                } else {
+                    290.0
+                },
+            )
             .resizable(false)
             .maximizable(false)
             .minimizable(false)
             .center()
+            .visible(false)
             .incognito(true)
+            .on_page_load(show_when_loaded)
             .on_navigation(own_page)
             .on_new_window(|url, _| {
                 if let Some(link) = external_link(url.as_str()) {
@@ -90,6 +107,13 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
                 }
                 tauri::webview::NewWindowResponse::Deny
             });
+    // macOS: the content runs under a transparent title bar, as in the
+    // system's own apps, instead of a separate bar of a slightly different
+    // grey.
+    #[cfg(target_os = "macos")]
+    let builder = builder
+        .title_bar_style(tauri::TitleBarStyle::Overlay)
+        .hidden_title(true);
     builder.build()?;
     Ok(())
 }
@@ -1314,34 +1338,44 @@ fn main() {
                 catalog: Arc::new(catalog),
                 data,
             });
-            tauri::WebviewWindowBuilder::from_config(app.handle(), &app.config().app.windows[0])?
-                .data_directory(browser_data)
-                .incognito(true)
-                // The window only ever shows the app. A link that would leave
-                // it opens in the system browser instead (https only).
-                .on_navigation(own_page)
-                .on_new_window(|url, _| {
-                    if let Some(link) = external_link(url.as_str()) {
-                        let _ = open_in_browser(&link);
-                    }
-                    tauri::webview::NewWindowResponse::Deny
-                })
-                .build()?;
+            let main = tauri::WebviewWindowBuilder::from_config(
+                app.handle(),
+                &app.config().app.windows[0],
+            )?
+            .data_directory(browser_data)
+            .visible(false)
+            .on_page_load(show_when_loaded)
+            .incognito(true)
+            // The window only ever shows the app. A link that would leave
+            // it opens in the system browser instead (https only).
+            .on_navigation(own_page)
+            .on_new_window(|url, _| {
+                if let Some(link) = external_link(url.as_str()) {
+                    let _ = open_in_browser(&link);
+                }
+                tauri::webview::NewWindowResponse::Deny
+            });
+            // macOS: content under a transparent title bar (see open_about).
+            #[cfg(target_os = "macos")]
+            let main = main
+                .title_bar_style(tauri::TitleBarStyle::Overlay)
+                .hidden_title(true);
+            let window = main.build()?;
+            // If the page never reports that it loaded, show the window anyway.
+            std::thread::spawn(move || {
+                std::thread::sleep(std::time::Duration::from_secs(4));
+                let _ = window.show();
+            });
             Ok(())
         })
         .on_menu_event(|app, event| {
             if event.id() == menu::ABOUT {
                 let _ = open_about(app);
             }
-            let page = if event.id() == menu::HELP {
-                Some(menu::HELP_URL)
-            } else if event.id() == menu::DOCS {
-                Some(menu::DOCS_URL)
-            } else {
-                None
-            };
-            if let Some(link) = page.and_then(external_link) {
-                let _ = open_in_browser(&link);
+            if event.id() == menu::DOCS {
+                if let Some(link) = external_link(menu::DOCS_URL) {
+                    let _ = open_in_browser(&link);
+                }
             }
         })
         .on_window_event(|window, event| {

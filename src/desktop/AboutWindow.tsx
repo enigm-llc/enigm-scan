@@ -38,6 +38,7 @@ export default function AboutWindow() {
   }, [language]);
   return (
     <main className="about-window">
+      <div className="app-drag" data-tauri-drag-region aria-hidden="true" />
       <img
         className="about-icon"
         src="/brand/enigm-scan-app-icon.png"

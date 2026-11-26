@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { native, type AgentStatus } from "../core/agent";
 import type { ScanReport } from "../core/report";
 import { forgetScanChoices } from "../core/scan-choices";
 import { useAppearance } from "../shared/appearance";
 import { agentDictionaries } from "../shared/i18n/agent";
+import { flowCopy } from "../shared/i18n/flow";
 import { useI18N } from "../shared/i18n/i18n";
 import { Report } from "../components/Report";
 import { Scanner } from "../components/Scanner";
@@ -56,6 +58,14 @@ export default function DesktopApp() {
   const [started, setStarted] = useState<boolean | null>(null);
   const reportRef = useRef(report);
   reportRef.current = report;
+  // The report continues below the window: a cue until the person scrolls.
+  const [atTop, setAtTop] = useState(true);
+  useEffect(() => {
+    const scrolled = () => setAtTop(window.scrollY < 24);
+    scrolled();
+    window.addEventListener("scroll", scrolled, { passive: true });
+    return () => window.removeEventListener("scroll", scrolled);
+  }, [report]);
   useEffect(() => {
     document.documentElement.lang = language;
     document.title = "Enigm Scan";
@@ -148,6 +158,9 @@ export default function DesktopApp() {
   }
   return (
     <div className="app-window">
+      {/* macOS: the title bar is transparent over the app; this strip is
+          where the window is dragged from. */}
+      <div className="app-drag" data-tauri-drag-region aria-hidden="true" />
       {/* Closing: the session is gone, only the invitation remains. */}
       {!closing && started === false && (
         <main className="scan-main is-welcome">
@@ -179,9 +192,28 @@ export default function DesktopApp() {
                 setReport(value);
                 window.scrollTo(0, 0);
               }}
+              onCancelled={() => {
+                forgetScanChoices();
+                setRound((value) => value + 1);
+                window.scrollTo(0, 0);
+              }}
             />
           )}
         </main>
+      )}
+      {report && !closing && atTop && (
+        <button
+          className="scroll-cue"
+          aria-label={flowCopy[language].scrollMore}
+          onClick={() =>
+            window.scrollBy({
+              top: window.innerHeight * 0.8,
+              behavior: "smooth",
+            })
+          }
+        >
+          <ChevronDown size={20} strokeWidth={2.2} aria-hidden="true" />
+        </button>
       )}
       {closing && <ClosePromo language={language} />}
     </div>

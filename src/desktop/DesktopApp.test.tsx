@@ -73,7 +73,9 @@ function nativeApp(
     if (command === "finish_scan") {
       if (state.failFinish) throw Error("state_unavailable");
       state.report = null;
+      state.phase = "";
     }
+    if (command === "cancel_scan") state.phase = "cancelled";
     return null;
   });
   const called = (command: string) =>
@@ -249,4 +251,32 @@ it("behaves like an app: links leave the window, no page menu, no reload", async
   document.dispatchEvent(reload);
   expect(reload.defaultPrevented).toBe(true);
   link.remove();
+});
+
+it("shows that the report continues below until the person scrolls", async () => {
+  nativeApp();
+  render(<DesktopApp />);
+  await screen.findByRole("button", { name: "Download PDF" });
+  expect(screen.getByRole("button", { name: f.scrollMore })).toBeTruthy();
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 200 });
+  act(() => {
+    window.dispatchEvent(new Event("scroll"));
+  });
+  expect(screen.queryByRole("button", { name: f.scrollMore })).toBeNull();
+  Object.defineProperty(window, "scrollY", { configurable: true, value: 0 });
+});
+
+it("cancelling clears the session and starts again from the first step", async () => {
+  const app = nativeApp({ report: null, phase: "acquiring" });
+  render(<DesktopApp />);
+  fireEvent.click(await screen.findByRole("button", { name: "Cancel" }));
+  expect(
+    await screen.findByRole("button", { name: "Find my phone" }),
+  ).toBeTruthy();
+  expect(app.called("finish_scan")).toBe(true);
+  // A fresh first step: no notice and the permission asked again.
+  expect(screen.queryByText(/cancelled/i)).toBeNull();
+  expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(
+    false,
+  );
 });

@@ -1,6 +1,6 @@
 {
   "identifier": "main",
-  "description": "Local preview window with no privileged commands",
-  "windows": ["main"],
-  "permissions": []
+  "description": "The app's windows: no privileged commands beyond dragging a window by its title area",
+  "windows": ["main", "about"],
+  "permissions": ["core:window:allow-start-dragging"]
 }

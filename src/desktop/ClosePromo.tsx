@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
 import { native } from "../core/agent";
-import { BrandSymbol } from "../components/Brand";
 import { flowCopy } from "../shared/i18n/flow";
 import { productCopy } from "../shared/i18n/product";
 import type { Language } from "../shared/i18n/i18n";
@@ -39,10 +38,15 @@ export function ClosePromo({ language }: { language: Language }) {
         <button className="promo-close" aria-label={f.closeNow} onClick={quit}>
           <X size={18} strokeWidth={2.2} aria-hidden="true" />
         </button>
-        <div className="promo-head">
-          <BrandSymbol />
-          <span>Enigm</span>
-        </div>
+        {/* The panel is always dark: the white Enigm logo, as published. */}
+        <img
+          className="promo-logo"
+          src="/brand/enigm-logo-white.svg"
+          alt="Enigm"
+          width={1195}
+          height={356.5}
+          draggable={false}
+        />
         <h2 id="promo-title">{c.offerTitle}</h2>
         <p>{c.offerBody}</p>
         <button className="promo-primary" onClick={tryEnigm}>

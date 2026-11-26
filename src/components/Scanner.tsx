@@ -27,10 +27,14 @@ export function Scanner({
   language,
   t,
   onReport,
+  onCancelled,
 }: {
   language: Language;
   t: Copy;
   onReport: (report: ScanReport) => void;
+  /** The scan was cancelled and its session cleared: start again from the
+   *  first step. */
+  onCancelled?: () => void;
 }) {
   const a = agentDictionaries[language],
     c = productCopy[language],
@@ -94,6 +98,8 @@ export function Scanner({
     lock = useRef(false),
     callback = useRef(onReport);
   callback.current = onReport;
+  const cancelledCallback = useRef(onCancelled);
+  cancelledCallback.current = onCancelled;
   const [rulesOnline, setRulesOnline] = useState<boolean | null>(null);
   // What the app can do comes first, so the search is ready at once; the
   // signed rules are refreshed afterwards and the figures follow.
@@ -168,7 +174,17 @@ export function Scanner({
           callback.current(report);
           return;
         }
-        if (["failed", "cancelled"].includes(next.phase)) {
+        if (next.phase === "cancelled") {
+          // Nothing of the cancelled scan stays: clear the session (the
+          // copy and the phone link are already gone) and start over.
+          running.current = false;
+          await clearSession();
+          if (!active) return;
+          setBusy(false);
+          cancelledCallback.current?.();
+          return;
+        }
+        if (next.phase === "failed") {
           running.current = false;
           setBusy(false);
           if (next.error === "backup_password_required") {
@@ -194,6 +210,18 @@ export function Scanner({
       clearTimeout(timer);
     };
   }, [busy]);
+  /** Forget the native session; it refuses while the scan is still winding
+   *  down, so try again for a few seconds. */
+  async function clearSession() {
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      try {
+        await native("finish_scan");
+        return;
+      } catch {
+        await new Promise((done) => setTimeout(done, 150));
+      }
+    }
+  }
   async function choose() {
     setDiscoveryError(null);
     if (lock.current) return;
@@ -519,9 +547,6 @@ export function Scanner({
             </details>
           )}
         </>
-      )}
-      {status.phase === "cancelled" && (
-        <Notice tone="info">{a.cancelled}</Notice>
       )}
     </>
   );
