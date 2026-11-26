@@ -27,7 +27,7 @@ export const siteCopy: Record<Language, SiteCopy> = {
     download: "Descargar Enigm Scan",
     runHelp:
       "Enigm Scan es una app pequeña, sin instalación, que analiza tu móvil desde tu ordenador. Ábrela y te guía paso a paso. Tus datos nunca salen de tu ordenador.",
-    downloadTitle: "Descarga Enigm Scan",
+    downloadTitle: "Primero, la app",
     connect: "Conectar",
     failed:
       "No encontramos Enigm Scan en tu ordenador. Ábrelo y vuelve a intentarlo.",
@@ -51,7 +51,7 @@ export const siteCopy: Record<Language, SiteCopy> = {
     download: "Download Enigm Scan",
     runHelp:
       "Enigm Scan is a small app, with nothing to install, that checks your phone from your computer. Open it and it guides you step by step. Your data never leaves your computer.",
-    downloadTitle: "Download Enigm Scan",
+    downloadTitle: "First, the app",
     connect: "Connect",
     failed: "We can’t find Enigm Scan on your computer. Open it and try again.",
     open: "Open Scan",
@@ -74,7 +74,7 @@ export const siteCopy: Record<Language, SiteCopy> = {
     download: "Télécharger Enigm Scan",
     runHelp:
       "Enigm Scan est une petite application, sans installation, qui analyse votre téléphone depuis votre ordinateur. Ouvrez-la, elle vous guide pas à pas. Vos données ne quittent jamais votre ordinateur.",
-    downloadTitle: "Téléchargez Enigm Scan",
+    downloadTitle: "D’abord, l’app",
     connect: "Connecter",
     failed:
       "Enigm Scan est introuvable sur votre ordinateur. Ouvrez-le et réessayez.",
@@ -98,7 +98,7 @@ export const siteCopy: Record<Language, SiteCopy> = {
     download: "Enigm Scan herunterladen",
     runHelp:
       "Enigm Scan ist eine kleine App ohne Installation, die Ihr Smartphone von Ihrem Computer aus prüft. Öffnen Sie sie, und sie führt Sie Schritt für Schritt. Ihre Daten verlassen Ihren Computer nie.",
-    downloadTitle: "Enigm Scan herunterladen",
+    downloadTitle: "Zuerst die App",
     connect: "Verbinden",
     failed:
       "Enigm Scan wurde auf Ihrem Computer nicht gefunden. Öffnen Sie es und versuchen Sie es erneut.",
@@ -121,7 +121,7 @@ export const siteCopy: Record<Language, SiteCopy> = {
     download: "Scarica Enigm Scan",
     runHelp:
       "Enigm Scan è una piccola app, senza installazione, che analizza il telefono dal tuo computer. Aprila e ti guida passo dopo passo. I tuoi dati non lasciano mai il tuo computer.",
-    downloadTitle: "Scarica Enigm Scan",
+    downloadTitle: "Prima, l’app",
     connect: "Collega",
     failed: "Non troviamo Enigm Scan sul tuo computer. Aprilo e riprova.",
     open: "Apri Scan",
@@ -143,7 +143,7 @@ export const siteCopy: Record<Language, SiteCopy> = {
     download: "Descarregar o Enigm Scan",
     runHelp:
       "O Enigm Scan é uma pequena app, sem instalação, que analisa o seu telemóvel a partir do computador. Abra-a e ela guia-o passo a passo. Os seus dados nunca saem do seu computador.",
-    downloadTitle: "Descarregue o Enigm Scan",
+    downloadTitle: "Primeiro, a app",
     connect: "Ligar",
     failed:
       "Não encontramos o Enigm Scan no seu computador. Abra-o e tente novamente.",
