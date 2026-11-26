@@ -1,5 +1,5 @@
 import { ArrowDown, ArrowRight, FileArchive } from "lucide-react";
-import { BrandSymbol, ComputerIcon, DeviceIcon } from "./Brand";
+import { ComputerIcon, DeviceIcon } from "./Brand";
 
 export type LaptopScreen = "download" | "downloaded";
 
@@ -71,13 +71,21 @@ export function LaptopStage({
                   <ArrowRight size={18} strokeWidth={2} />
                 </span>
                 <span className="laptop-app opening">
-                  <BrandSymbol />
+                  <img
+                    src="/brand/enigm-scan-app-icon.png"
+                    alt=""
+                    draggable={false}
+                  />
                 </span>
               </div>
             ) : (
               <div className="laptop-get">
                 <span className="laptop-app">
-                  <BrandSymbol />
+                  <img
+                    src="/brand/enigm-scan-app-icon.png"
+                    alt=""
+                    draggable={false}
+                  />
                 </span>
                 <b>Enigm Scan</b>
                 <span className="laptop-arrow">
