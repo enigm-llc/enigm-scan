@@ -1155,10 +1155,9 @@ async fn save_export(
     if bytes.len() > 8 * 1024 * 1024 {
         return Err("export_too_large".into());
     }
-    match format.as_str() {
-        "pdf" if bytes.starts_with(b"%PDF-") => {}
-        "json" if serde_json::from_slice::<Report>(&bytes).is_ok() => {}
-        _ => return Err("export_invalid".into()),
+    // The report is saved as a PDF only.
+    if format != "pdf" || !bytes.starts_with(b"%PDF-") {
+        return Err("export_invalid".into());
     }
     let picked = pick_path(
         &window,
@@ -1625,13 +1624,11 @@ mod tests {
         for odd in [
             "../../etc/passwd",
             "enigm-scan-report-2026.pdf",
-            "enigm-scan-report-202611252154.json",
             "enigm-scan-report-20261125215a.pdf",
             "other.pdf",
         ] {
             assert_eq!(export_name(Some(odd), "pdf"), "enigm-scan-report.pdf");
         }
-        assert_eq!(export_name(None, "json"), "enigm-scan-report.json");
     }
     #[test]
     fn only_plain_https_links_leave_the_app() {

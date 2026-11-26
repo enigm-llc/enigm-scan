@@ -74,28 +74,6 @@ export function parseReport(input: string): ScanReport {
     throw Error("Report exceeds limit");
   return reportSchema.parse(JSON.parse(input));
 }
-export async function downloadReport(report: ScanReport) {
-  if ("__TAURI_INTERNALS__" in window) {
-    await native("save_export", {
-      format: "json",
-      name: reportFileName(report, "json"),
-      bytes: Array.from(
-        new TextEncoder().encode(JSON.stringify(report, null, 2)),
-      ),
-    });
-    return;
-  }
-  const blob = new Blob([JSON.stringify(report, null, 2)], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = reportFileName(report, "json");
-  link.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
 /**
  * Download name with the scan's local date and time written together
  * (enigm-scan-report-202611252154.pdf), so each report keeps its own file
@@ -103,7 +81,7 @@ export async function downloadReport(report: ScanReport) {
  */
 export function reportFileName(
   report: Pick<ScanReport, "finishedAt" | "startedAt">,
-  extension: "pdf" | "json",
+  extension: "pdf",
 ) {
   const parsed = new Date(report.finishedAt || report.startedAt);
   const when = Number.isNaN(parsed.getTime()) ? new Date() : parsed;

@@ -26,7 +26,6 @@ const en = {
   consent: "I own this device or have the explicit consent of its data owner.",
   close: "Close",
   results: "Your report",
-  imported: "Imported report · authenticity not verified",
   checks: "Checks completed",
   allChecks: "All checks",
   artifacts: "Files checked",
@@ -35,10 +34,7 @@ const en = {
   findings: "Signs",
   pdf: "Download PDF",
   pdfCharacters:
-    "Characters unavailable in the PDF font or invisible controls are shown as [U+XXXX]. JSON preserves the original text.",
-  json: "Download JSON",
-  invalid:
-    "This file is not a valid Enigm Scan report, exceeds a limit, or contains inconsistent totals.",
+    "Characters unavailable in the PDF font or invisible controls are shown as [U+XXXX].",
   exportError: "The report could not be exported. Try again.",
   completed: "Completed",
   skipped: "Skipped",
@@ -84,7 +80,6 @@ const es: Copy = {
     "Soy propietario del dispositivo o tengo el consentimiento explícito de su propietario.",
   close: "Cerrar",
   results: "Tu informe",
-  imported: "Informe importado · autenticidad no verificada",
   checks: "Comprobaciones completadas",
   allChecks: "Todas las comprobaciones",
   artifacts: "Archivos revisados",
@@ -93,10 +88,7 @@ const es: Copy = {
   findings: "Indicios",
   pdf: "Descargar PDF",
   pdfCharacters:
-    "Los caracteres no disponibles en la fuente del PDF o los controles invisibles se muestran como [U+XXXX]. El JSON conserva el texto original.",
-  json: "Descargar JSON",
-  invalid:
-    "El archivo no es un informe válido de Enigm Scan, supera un límite o contiene totales incoherentes.",
+    "Los caracteres no disponibles en la fuente del PDF o los controles invisibles se muestran como [U+XXXX].",
   exportError: "No se ha podido exportar el informe. Vuelve a intentarlo.",
   completed: "Completada",
   skipped: "Omitida",
@@ -141,7 +133,6 @@ const fr: Copy = {
     "Je possède cet appareil ou j’ai le consentement explicite de son propriétaire.",
   close: "Fermer",
   results: "Votre rapport",
-  imported: "Rapport importé · authenticité non vérifiée",
   checks: "Vérifications terminées",
   allChecks: "Toutes les vérifications",
   artifacts: "Fichiers vérifiés",
@@ -150,10 +141,7 @@ const fr: Copy = {
   findings: "Indices",
   pdf: "Télécharger le PDF",
   pdfCharacters:
-    "Les caractères absents de la police PDF ou les contrôles invisibles apparaissent sous la forme [U+XXXX]. Le JSON conserve le texte original.",
-  json: "Télécharger le JSON",
-  invalid:
-    "Ce fichier n’est pas un rapport Enigm Scan valide, dépasse une limite ou contient des totaux incohérents.",
+    "Les caractères absents de la police PDF ou les contrôles invisibles apparaissent sous la forme [U+XXXX].",
   exportError: "Impossible d’exporter le rapport. Réessayez.",
   completed: "Terminée",
   skipped: "Ignorée",
@@ -198,7 +186,6 @@ const de: Copy = {
     "Ich besitze dieses Gerät oder habe die ausdrückliche Zustimmung des Eigentümers.",
   close: "Schließen",
   results: "Ihr Bericht",
-  imported: "Importierter Bericht · Echtheit nicht verifiziert",
   checks: "Abgeschlossene Kontrollen",
   allChecks: "Alle Prüfungen",
   artifacts: "Geprüfte Dateien",
@@ -207,10 +194,7 @@ const de: Copy = {
   findings: "Hinweise",
   pdf: "PDF herunterladen",
   pdfCharacters:
-    "In der PDF-Schrift fehlende Zeichen und unsichtbare Steuerzeichen werden als [U+XXXX] angezeigt. JSON bewahrt den Originaltext.",
-  json: "JSON herunterladen",
-  invalid:
-    "Die Datei ist kein gültiger Enigm-Scan-Bericht, überschreitet ein Limit oder enthält widersprüchliche Summen.",
+    "In der PDF-Schrift fehlende Zeichen und unsichtbare Steuerzeichen werden als [U+XXXX] angezeigt.",
   exportError: "Der Bericht konnte nicht exportiert werden. Erneut versuchen.",
   completed: "Abgeschlossen",
   skipped: "Übersprungen",
@@ -255,7 +239,6 @@ const it: Copy = {
     "Possiedo il dispositivo o ho il consenso esplicito del proprietario.",
   close: "Chiudi",
   results: "Il tuo rapporto",
-  imported: "Rapporto importato · autenticità non verificata",
   checks: "Controlli completati",
   allChecks: "Tutti i controlli",
   artifacts: "File controllati",
@@ -264,10 +247,7 @@ const it: Copy = {
   findings: "Indizi",
   pdf: "Scarica PDF",
   pdfCharacters:
-    "I caratteri non disponibili nel font PDF o i controlli invisibili sono indicati come [U+XXXX]. Il JSON conserva il testo originale.",
-  json: "Scarica JSON",
-  invalid:
-    "Il file non è un rapporto Enigm Scan valido, supera un limite o contiene totali incoerenti.",
+    "I caratteri non disponibili nel font PDF o i controlli invisibili sono indicati come [U+XXXX].",
   exportError: "Impossibile esportare il rapporto. Riprova.",
   completed: "Completato",
   skipped: "Saltato",
@@ -312,7 +292,6 @@ const pt: Copy = {
     "Sou proprietário do dispositivo ou tenho o consentimento explícito do proprietário.",
   close: "Fechar",
   results: "O seu relatório",
-  imported: "Relatório importado · autenticidade não verificada",
   checks: "Verificações concluídas",
   allChecks: "Todas as verificações",
   artifacts: "Ficheiros verificados",
@@ -321,10 +300,7 @@ const pt: Copy = {
   findings: "Indícios",
   pdf: "Descarregar PDF",
   pdfCharacters:
-    "Os caracteres indisponíveis na fonte PDF ou os controlos invisíveis são apresentados como [U+XXXX]. O JSON preserva o texto original.",
-  json: "Descarregar JSON",
-  invalid:
-    "O ficheiro não é um relatório Enigm Scan válido, excede um limite ou contém totais incoerentes.",
+    "Os caracteres indisponíveis na fonte PDF ou os controlos invisíveis são apresentados como [U+XXXX].",
   exportError: "Não foi possível exportar o relatório. Tente novamente.",
   completed: "Concluída",
   skipped: "Ignorada",

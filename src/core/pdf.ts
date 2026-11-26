@@ -89,7 +89,7 @@ function span(from: string, to: string, language: string) {
 export async function buildPdf(
   report: ScanReport,
   t: Copy,
-  originLabel = t.imported,
+  originLabel = "",
   language: Language = "en",
 ) {
   const { jsPDF } = await loadJsPdf();
@@ -210,7 +210,7 @@ export async function buildPdf(
   pdf.rect(M, y - 20, 4, 26, "F");
   text(verdict, M + 14, y, 24, INK, { bold: true });
   y += 22;
-  paragraph(originLabel, 9.5, TONE);
+  if (originLabel) paragraph(originLabel, 9.5, TONE);
   if (total) paragraph(t.warning, 9.5, TONE);
   y += 10;
 
@@ -271,28 +271,6 @@ export async function buildPdf(
     INK,
   );
   y += 12;
-
-  // What to do, in order, from what was found. Absent when nothing was.
-  const steps = actionsFor(report.findings);
-  if (steps.length) {
-    heading(actionsTitle[language] ?? actionsTitle.en);
-    paragraph(actionsLead[language] ?? actionsLead.en, 10, TONE);
-    y += 6;
-    steps.forEach((step, i) => {
-      const rows = lines(
-        actionCopy[step][language] ?? actionCopy[step].en,
-        10,
-        CW - 30,
-      );
-      ensure(rows.length * 14.5 + 8);
-      fill(SOFT);
-      pdf.circle(M + 9, y - 3.5, 9, "F");
-      text(String(i + 1), M + 9, y, 9, INK, { bold: true, align: "center" });
-      rows.forEach((row, n) => text(row, M + 30, y + n * 14.5, 10, INK));
-      y += rows.length * 14.5 + 10;
-    });
-    y += 6;
-  }
 
   // Charts: signs by severity, and checks by status.
   const half = (CW - 24) / 2;
@@ -478,6 +456,31 @@ export async function buildPdf(
   }
   y += 8;
   paragraph(r.generatedNote, 9, TONE);
+
+  // What to do, in order, from what was found: last, before the back page,
+  // so the report ends on it. Absent when nothing was found.
+  const steps = actionsFor(report.findings);
+  if (steps.length) {
+    const blocks = steps.map((step) =>
+      lines(actionCopy[step][language] ?? actionCopy[step].en, 10, CW - 30),
+    );
+    // The steps are read together: the section starts on a new page rather
+    // than split across two.
+    const height =
+      21 + blocks.reduce((sum, rows) => sum + rows.length * 14.5 + 10, 0);
+    heading(actionsTitle[language] ?? actionsTitle.en, height);
+    paragraph(actionsLead[language] ?? actionsLead.en, 10, TONE);
+    y += 6;
+    blocks.forEach((rows, i) => {
+      ensure(rows.length * 14.5 + 8);
+      fill(SOFT);
+      pdf.circle(M + 9, y - 3.5, 9, "F");
+      text(String(i + 1), M + 9, y, 9, INK, { bold: true, align: "center" });
+      rows.forEach((row, n) => text(row, M + 30, y + n * 14.5, 10, INK));
+      y += rows.length * 14.5 + 10;
+    });
+    y += 6;
+  }
 
   // ---- Back page: Enigm and its products, always on a sheet of its own ----
   newPage();

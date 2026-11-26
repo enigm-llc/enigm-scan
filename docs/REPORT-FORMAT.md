@@ -1,6 +1,6 @@
 # Local report contract v1
 
-Canonical runtime schema: `src/core/report.ts`. Unknown fields/versions are rejected. Limits: 5 MiB encoded file; 300 checks; 500 findings; 2,000 characters per narrative field. Counts are nonnegative safe integers. A valid imported file is **not authenticated**.
+Canonical runtime schema: `src/core/report.ts`, which checks every report the app's analysis returns before showing it. Unknown fields/versions are rejected. Limits: 5 MiB; 300 checks; 500 findings; 2,000 characters per narrative field. Counts are nonnegative safe integers.
 
 Fields: `schemaVersion: 1`, ISO `startedAt` and `finishedAt`, `device: ios | android`, integer `artifactsAnalyzed` and `networkConnections`, arrays `checks`, `findings`, `limitations`, `engines`, string `ruleBundleVersion`, `cleanup: not_started | partial | completed`.
 
@@ -12,4 +12,4 @@ Detections and review points are told apart by `rule`. Detections: a signed indi
 
 Engine entries: `name`, `version`. IDs are unique per array; timestamps ordered. Nonzero counts/findings require at least one completed check. This is structural validation, not proof of truthful provenance.
 
-Synthetic fixtures live only in tests. Finish removes the active report from React state but cannot guarantee erasure of process memory or downloaded files. JSON preserves accepted fields. PDF is a human-readable rendering, not a signed evidence container. Its built-in fonts target the six Western European UI languages; arbitrary evidence scripts may not render faithfully, so retain JSON for exact Unicode evidence.
+Synthetic fixtures live only in tests. Finish removes the active report from React state but cannot guarantee erasure of process memory or saved files. The report is saved as a PDF: a human-readable rendering, not a signed evidence container. Its built-in fonts target the six Western European UI languages; characters they cannot show are written as [U+XXXX], never dropped.

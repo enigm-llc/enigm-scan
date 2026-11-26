@@ -118,9 +118,6 @@ it("names each downloaded report with its local date and time together", () => {
   expect(reportFileName(report, "pdf")).toBe(
     "enigm-scan-report-202611252154.pdf",
   );
-  expect(reportFileName(report, "json")).toBe(
-    "enigm-scan-report-202611252154.json",
-  );
   // Another scan the next morning gets another name.
   expect(
     reportFileName({ ...report, finishedAt: "2026-11-26T09:05:00" }, "pdf"),

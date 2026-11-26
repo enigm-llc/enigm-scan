@@ -2,8 +2,8 @@ import type { Language } from "./i18n";
 import { EXTRA_DETAILS, EXTRA_TEXTS, translateFragments } from "./native-extra";
 
 /**
- * The app writes checks, recommendations and limitations in English so
- * the JSON report stays stable across versions. These helpers show them in
+ * The analysis writes checks, recommendations and limitations in English, so
+ * the report it returns stays the same across versions. These helpers show them in
  * the reader's language; numbers are carried over from the original text and
  * anything unrecognised is shown as written.
  */
