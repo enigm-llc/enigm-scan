@@ -6334,3 +6334,43 @@ body:has(.promo-backdrop) {
 .app-window .result-summary.verdict h2 {
   letter-spacing: -0.015em !important;
 }
+
+/* ---------- Website: dark mode in Command's greys ----------
+   Page #050505, section bands one step up (#0b0b0b), and cards, icons and
+   the closing panel raised above them (#171717) with a 12% white outline:
+   surfaces get lighter as they come forward, never darker than their band.
+   The desktop app has its own palette (data-shell="app"). */
+:root[data-theme="dark"]:not([data-shell="app"]) {
+  --bg: #050505;
+  --band: #0b0b0b;
+  --band-line: rgba(255, 255, 255, 0.12);
+  --hair: rgba(255, 255, 255, 0.12);
+  --raised: #171717;
+  --tone: #b0b0b0;
+}
+:root[data-theme="dark"]:not([data-shell="app"])
+  :is(.how-band.alt, .how-rest)
+  :is(.how-tiles li, .compat-phones, .compat-computer) {
+  background: #171717;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+:root[data-theme="dark"]:not([data-shell="app"]) .flow-icon {
+  background: #171717;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+:root[data-theme="dark"]:not([data-shell="app"]) .how-final {
+  --bg: #171717;
+  --raised: #1f1f1f;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+/* The drawn laptop's screen is a grey desktop, so the app's dark icon stands
+   out on it in both themes. */
+.laptop-screen {
+  background: linear-gradient(170deg, #4a4a4a 0%, #2c2c2c 55%, #1f1f1f 100%);
+}
+.laptop-app {
+  box-shadow:
+    0 14px 28px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
