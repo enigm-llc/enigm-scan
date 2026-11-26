@@ -11,11 +11,14 @@ import { initialLanguage } from "./shared/i18n/i18n";
 // the document language, and index.html cannot know the visitor's choice.
 document.documentElement.lang = initialLanguage();
 installTouchFeedback();
-// The website and the desktop app share this entry but not their code: each
-// loads only its own screens.
-const Root = isDesktop()
-  ? lazy(() => import("./desktop/DesktopApp"))
-  : lazy(() => import("./App"));
+// The website, the desktop app and its About window share this entry but not
+// their code: each loads only its own screens.
+const about = new URLSearchParams(window.location.search).has("about");
+const Root = about
+  ? lazy(() => import("./desktop/AboutWindow"))
+  : isDesktop()
+    ? lazy(() => import("./desktop/DesktopApp"))
+    : lazy(() => import("./App"));
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Suspense fallback={null}>

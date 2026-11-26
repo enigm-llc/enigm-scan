@@ -3,9 +3,11 @@
 //! Windows and Linux draw a menu bar inside the window, so the app sets none
 //! there: the window holds only the app.
 #![cfg_attr(not(target_os = "macos"), allow(dead_code))]
-use tauri::menu::{AboutMetadata, Menu, MenuItem, PredefinedMenuItem, Submenu};
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem, Submenu};
 use tauri::{AppHandle, Wry};
 
+/// The menu item that opens the app's About window.
+pub const ABOUT: &str = "about";
 /// The menu item that opens the "How it works" page in the browser.
 pub const HELP: &str = "help";
 pub const HELP_URL: &str = "https://scan.enigm.io/how-it-works";
@@ -149,22 +151,16 @@ fn labels(language: &str) -> Labels {
     }
 }
 
+/// "About Enigm Scan" in the given language, also the About window's title.
+pub fn about_title(language: &str) -> &'static str {
+    labels(language).about
+}
+
 pub fn build(app: &AppHandle, language: &str) -> tauri::Result<Menu<Wry>> {
     let l = labels(language);
-    let about = PredefinedMenuItem::about(
-        app,
-        Some(l.about),
-        Some(AboutMetadata {
-            name: Some("Enigm Scan".into()),
-            version: Some(app.package_info().version.to_string()),
-            copyright: Some("© 2026 Enigm".into()),
-            license: Some("PolyForm Noncommercial 1.0.0".into()),
-            website: Some("https://scan.enigm.io".into()),
-            website_label: Some("scan.enigm.io".into()),
-            icon: app.default_window_icon().cloned(),
-            ..Default::default()
-        }),
-    )?;
+    // The system About panel shows only a small icon and one line; the app
+    // opens its own window instead (see `open_about` in main.rs).
+    let about = MenuItem::with_id(app, ABOUT, l.about, true, None::<&str>)?;
     let how = MenuItem::with_id(app, HELP, l.how, true, None::<&str>)?;
     let separator = || PredefinedMenuItem::separator(app);
     let cut = PredefinedMenuItem::cut(app, Some(l.cut))?;

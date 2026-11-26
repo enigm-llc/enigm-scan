@@ -18,6 +18,10 @@ export type FlowCopy = {
   /** Shown under the deep check once chosen: press the buttons before starting. */
   optionDeepSteps: string;
   recommended: string;
+  aboutVersion: string;
+  aboutBody: string;
+  aboutWebsite: string;
+  aboutSource: string;
   /** Short lines for the progress card: what is being done right now. */
   cardCopying: string;
   cardSkipping: string;
@@ -115,6 +119,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionDeepHelp:
       "Revisa el registro de apagado del iPhone. Añade unos 10 minutos.",
     recommended: "Recomendado",
+    aboutVersion: "Versión {v}",
+    aboutBody:
+      "Busca spyware conocido en tu iPhone o Android, en tu propio ordenador.",
+    aboutWebsite: "Web",
+    aboutSource: "Código fuente",
     optionDeepSteps:
       "Después de «Confiar» te pediremos pulsar a la vez tres botones del iPhone. La copia empieza cuando el iPhone lo confirme.",
     cardCopying: "Copiando archivos",
@@ -220,6 +229,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionDeep: "Deep check",
     optionDeepHelp: "Reviews the iPhone’s shutdown log. Adds about 10 minutes.",
     recommended: "Recommended",
+    aboutVersion: "Version {v}",
+    aboutBody:
+      "Checks your iPhone or Android for known spyware, on your own computer.",
+    aboutWebsite: "Website",
+    aboutSource: "Source code",
     optionDeepSteps:
       "After “Trust”, we’ll ask you to press three iPhone buttons at the same time. The copy starts once the iPhone confirms it.",
     cardCopying: "Copying files",
@@ -326,6 +340,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionDeepHelp:
       "Examine le journal d’arrêt de l’iPhone. Comptez environ 10 minutes de plus.",
     recommended: "Recommandé",
+    aboutVersion: "Version {v}",
+    aboutBody:
+      "Recherche les logiciels espions connus sur votre iPhone ou Android, sur votre propre ordinateur.",
+    aboutWebsite: "Site web",
+    aboutSource: "Code source",
     optionDeepSteps:
       "Après « Faire confiance », nous vous demanderons d’appuyer en même temps sur trois boutons de l’iPhone. La copie commence dès que l’iPhone le confirme.",
     cardCopying: "Copie des fichiers",
@@ -437,6 +456,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionDeepHelp:
       "Prüft das Ausschaltprotokoll des iPhones. Dauert etwa 10 Minuten länger.",
     recommended: "Empfohlen",
+    aboutVersion: "Version {v}",
+    aboutBody:
+      "Prüft Ihr iPhone oder Android-Gerät auf bekannte Spyware, auf Ihrem eigenen Computer.",
+    aboutWebsite: "Website",
+    aboutSource: "Quellcode",
     optionDeepSteps:
       "Nach „Vertrauen“ bitten wir Sie, gleichzeitig drei Tasten am iPhone zu drücken. Die Kopie beginnt, sobald das iPhone es bestätigt.",
     cardCopying: "Dateien werden kopiert",
@@ -551,6 +575,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionDeepHelp:
       "Controlla il registro di spegnimento dell’iPhone. Aggiunge circa 10 minuti.",
     recommended: "Consigliato",
+    aboutVersion: "Versione {v}",
+    aboutBody: "Cerca spyware noti sul tuo iPhone o Android, sul tuo computer.",
+    aboutWebsite: "Sito web",
+    aboutSource: "Codice sorgente",
     optionDeepSteps:
       "Dopo «Autorizza» ti chiederemo di premere insieme tre tasti dell’iPhone. La copia inizia quando l’iPhone lo conferma.",
     cardCopying: "Copia dei file",
@@ -660,6 +688,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     optionDeepHelp:
       "Revê o registo de encerramento do iPhone. Acrescenta cerca de 10 minutos.",
     recommended: "Recomendado",
+    aboutVersion: "Versão {v}",
+    aboutBody:
+      "Procura spyware conhecido no seu iPhone ou Android, no seu próprio computador.",
+    aboutWebsite: "Site",
+    aboutSource: "Código-fonte",
     optionDeepSteps:
       "Depois de «Confiar», vamos pedir-lhe que prima ao mesmo tempo três botões do iPhone. A cópia começa quando o iPhone o confirmar.",
     cardCopying: "A copiar ficheiros",

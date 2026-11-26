@@ -42,6 +42,57 @@ fn ask_to_close(app: &tauri::AppHandle) {
         let _ = window.eval("window.__enigmCloseRequested?.()");
     }
 }
+/// The interface language, for windows the app opens itself.
+static LANGUAGE: Mutex<String> = Mutex::new(String::new());
+/// Whether a page may load inside an app window: only the app's own pages.
+/// Any other https link opens in the system browser instead.
+fn own_page(url: &tauri::Url) -> bool {
+    let own = url.scheme() == "tauri"
+        || url.host_str() == Some("tauri.localhost")
+        || (cfg!(debug_assertions) && url.host_str() == Some("127.0.0.1"));
+    if !own {
+        if let Some(link) = external_link(url.as_str()) {
+            let _ = open_in_browser(&link);
+        }
+    }
+    own
+}
+/// The About window, opened from the macOS app menu: the app icon, version,
+/// what the app does, its links and licence. It runs no native commands;
+/// its links open in the browser through `own_page`.
+fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
+    if let Some(window) = app.get_webview_window("about") {
+        window.show()?;
+        return window.set_focus();
+    }
+    let language = LANGUAGE
+        .lock()
+        .map(|language| language.clone())
+        .unwrap_or_default();
+    let page = format!("index.html?about&version={}", app.package_info().version);
+    let builder =
+        tauri::WebviewWindowBuilder::new(app, "about", tauri::WebviewUrl::App(page.into()))
+            .title(menu::about_title(&language))
+            .inner_size(360.0, 440.0)
+            .resizable(false)
+            .maximizable(false)
+            .minimizable(false)
+            .center()
+            .incognito(true)
+            .on_navigation(own_page)
+            .on_new_window(|url, _| {
+                if let Some(link) = external_link(url.as_str()) {
+                    let _ = open_in_browser(&link);
+                }
+                tauri::webview::NewWindowResponse::Deny
+            });
+    #[cfg(target_os = "macos")]
+    let builder = builder
+        .title_bar_style(tauri::TitleBarStyle::Overlay)
+        .hidden_title(true);
+    builder.build()?;
+    Ok(())
+}
 const BUILTIN_BUNDLE: &[u8] = include_bytes!("../resources/intelligence/bundle-v2.json");
 const PUBLIC_KEY: &[u8; 32] = include_bytes!("../resources/intelligence/public-key.bin");
 const MIN_RULE_VERSION: u64 = 2026112301;
@@ -1066,6 +1117,9 @@ fn set_menu_language(window: WebviewWindow, language: String) -> Result<(), Stri
     if !["en", "es", "fr", "de", "it", "pt"].contains(&language.as_str()) {
         return Err("language_unsupported".into());
     }
+    if let Ok(mut current) = LANGUAGE.lock() {
+        current.clone_from(&language);
+    }
     #[cfg(target_os = "macos")]
     {
         let app = window.app_handle();
@@ -1265,17 +1319,7 @@ fn main() {
                 .incognito(true)
                 // The window only ever shows the app. A link that would leave
                 // it opens in the system browser instead (https only).
-                .on_navigation(|url| {
-                    let own = url.scheme() == "tauri"
-                        || url.host_str() == Some("tauri.localhost")
-                        || (cfg!(debug_assertions) && url.host_str() == Some("127.0.0.1"));
-                    if !own {
-                        if let Some(link) = external_link(url.as_str()) {
-                            let _ = open_in_browser(&link);
-                        }
-                    }
-                    own
-                })
+                .on_navigation(own_page)
                 .on_new_window(|url, _| {
                     if let Some(link) = external_link(url.as_str()) {
                         let _ = open_in_browser(&link);
@@ -1285,7 +1329,10 @@ fn main() {
                 .build()?;
             Ok(())
         })
-        .on_menu_event(|_, event| {
+        .on_menu_event(|app, event| {
+            if event.id() == menu::ABOUT {
+                let _ = open_about(app);
+            }
             if event.id() == menu::HELP {
                 if let Some(link) = external_link(menu::HELP_URL) {
                     let _ = open_in_browser(&link);
@@ -1293,6 +1340,11 @@ fn main() {
             }
         })
         .on_window_event(|window, event| {
+            // Only the main window ends the session; the About window just
+            // closes.
+            if window.label() != "main" {
+                return;
+            }
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 // The window deletes the session and shows the Enigm
                 // invitation first; then closing ends the session and quits
