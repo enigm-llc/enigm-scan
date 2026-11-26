@@ -42,8 +42,10 @@ prove that a phone is not being spied on, and the report says so.
   camera in the background, read over USB without root.
 - **iPhone traces.** Crash reports and, if you choose the deep check, the
   shutdown log of a sysdiagnose, where some spyware leaves processes behind.
-- **Optional network check.** On iPhone the app can watch the phone's own
-  traffic for two minutes; on Android it reads the open connections.
+- **Optional network check.** On iPhone the app watches the phone's own
+  traffic while it copies, and reads the servers it contacts, even over
+  encrypted connections; on Android it reads the open connections and which
+  apps send data in the background.
 
 The forensic part of the iPhone and Android analysis runs on
 [MVT](https://github.com/mvt-project/mvt), the Mobile Verification Toolkit
