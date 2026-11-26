@@ -6670,39 +6670,14 @@ body:has(.promo-backdrop) {
   }
 }
 
-/* What to press on the phone, marked in the system's green: "Trust" on an
-   iPhone, "Allow" for USB debugging on Android. The phone's screen is
-   always dark, so the green is the same in both themes. */
+/* What to press on the phone: "Trust" on an iPhone gets the same lighter
+   shading that pulses on the guide before the search; "Allow" on Android
+   keeps its white pill and pulse (see .phone-dialog). */
 .phone-stage.attention .phone-sheet div .yes {
-  color: #34c759;
-  background: rgba(52, 199, 89, 0.08);
-  animation: phone-mark 1.8s ease-in-out infinite;
+  animation: phone-focus 2.4s ease-in-out infinite;
 }
-@keyframes phone-mark {
-  50% {
-    background: rgba(52, 199, 89, 0.24);
-  }
-}
-.phone-stage.attention .phone-dialog div .yes {
-  background: #34c759;
-  color: #04140a;
-  box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4);
-  animation: phone-mark-pill 1.8s ease-in-out infinite;
-}
-@keyframes phone-mark-pill {
-  50% {
-    box-shadow: 0 0 0 0.45em rgba(52, 199, 89, 0.25);
-  }
-}
-.motion-paused.phone-stage .phone-sheet div .yes,
-.motion-paused.phone-stage .phone-dialog div .yes {
+.motion-paused.phone-stage .phone-sheet div .yes {
   animation-play-state: paused;
-}
-@media (prefers-reduced-motion: reduce) {
-  .phone-stage.attention .phone-sheet div .yes,
-  .phone-stage.attention .phone-dialog div .yes {
-    animation: none;
-  }
 }
 
 /* In the app the badge's text is centred on its capitals too, so it lines
