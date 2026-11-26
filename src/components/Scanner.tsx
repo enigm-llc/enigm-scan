@@ -13,7 +13,6 @@ import { agentDictionaries } from "../shared/i18n/agent";
 import { productCopy } from "../shared/i18n/product";
 import type { Language, Copy } from "../shared/i18n/i18n";
 import { DeviceIcon } from "./Brand";
-import { toast } from "../desktop/toast";
 import { PhoneStage, type PhoneScreen } from "./PhoneStage";
 import { Notice } from "./Notice";
 import { flowCopy } from "../shared/i18n/flow";
@@ -62,20 +61,23 @@ export function Scanner({
   };
   const [consent, setConsent] = useState(false),
     [evidence, setEvidence] = useState("");
-  // iPhone deep check prepared on the ready step: Trust and the three
-  // buttons happen there, and Start waits for the phone's confirmation.
+  // iPhone paired while searching: "Trust" happens there, as Android asks to
+  // allow USB debugging, and the copy then waits for Start on the ready step
+  // (and for the deep check's confirmation, when it is chosen there).
   const [prep, setPrep] = useState<AgentStatus | null>(null);
-  const preparing = useRef(false);
+  const preparing = useRef<string | null>(null);
   const [devices, setDevices] = useState<Device[]>([]),
     [selected, setSelected] = useState<Device | null>(null);
-  const deepChosen =
-    method === "usb" &&
-    selected?.platform === "ios" &&
-    !!caps?.iosUsb &&
-    deepConsent;
+  const iphoneUsb =
+    method === "usb" && selected?.platform === "ios" && !!caps?.iosUsb;
+  const trusted = ["trusted", "deep_wait", "deep_ready"].includes(
+    prep?.phase ?? "",
+  );
+  const deepChosen = iphoneUsb && deepConsent;
   const prepConfirmed =
-    prep?.phase === "deep_ready" ||
-    (prep?.phase === "deep_wait" && !!prep.acquisition?.sysdiagnose);
+    deepChosen &&
+    (prep?.phase === "deep_ready" ||
+      (prep?.phase === "deep_wait" && !!prep.acquisition?.sysdiagnose));
   const [finding, setFinding] = useState(false),
     [searched, setSearched] = useState(false),
     [error, setError] = useState(false);
@@ -223,21 +225,31 @@ export function Scanner({
       clearTimeout(timer);
     };
   }, [busy]);
-  // Choosing the deep check on an iPhone prepares it right away: the phone
-  // asks for Trust, then the owner presses the three buttons.
-  const deepPrepare = deepChosen && consent && !busy && !!selected;
+  // An iPhone found while searching is paired at once: it asks for "Trust"
+  // and its passcode on that step. Not after a failure until the person
+  // tries again, nor for an encrypted backup (its password is given at Start).
+  const prepWanted =
+    iphoneUsb && consent && !busy && !encrypted && status.phase !== "failed"
+      ? (selected?.id ?? null)
+      : null;
   useEffect(() => {
-    if (!deepPrepare || preparing.current || !selected) return;
-    preparing.current = true;
+    if (preparing.current) {
+      // Another phone chosen, or the consent withdrawn: let this one go; the
+      // poll below clears its session.
+      if (prepWanted !== preparing.current)
+        void native("cancel_scan").catch(() => {});
+      return;
+    }
+    if (!prepWanted) return;
+    preparing.current = prepWanted;
     void native("start_scan", {
       request: {
         device: "ios",
         consent,
         phoneIp: null,
         pcapConsent: false,
-        usbId: selected.id,
+        usbId: prepWanted,
         backupPassword: null,
-        deepCheck: true,
         hold: true,
       },
     })
@@ -251,15 +263,16 @@ export function Scanner({
         });
       })
       .catch(() => {
-        preparing.current = false;
-        toast.error(f.deepFailed);
-        setDeepConsent(false);
+        preparing.current = null;
+        setSelected(null);
+        setError(true);
       });
-  }, [deepPrepare]);
-  // Unchosen while prepared: stop it; the poll below clears the session.
+  }, [prepWanted, prep === null]);
+  // The deep check is chosen on the ready step, once the phone trusts us.
   useEffect(() => {
-    if (!deepConsent && prep) void native("cancel_scan").catch(() => {});
-  }, [deepConsent]);
+    if (!prep || !trusted) return;
+    void native("prepare_deep_check", { enabled: deepConsent }).catch(() => {});
+  }, [deepConsent, trusted]);
   const prepActive = prep !== null && !busy;
   useEffect(() => {
     if (!prepActive) return;
@@ -275,11 +288,13 @@ export function Scanner({
           running.current = false;
           await clearSession();
           if (!active) return;
-          preparing.current = false;
+          preparing.current = null;
           setPrep(null);
           if (next.phase === "failed") {
-            toast.error(failureMessage(next.error));
-            setDeepConsent(false);
+            // Back to the search, with what went wrong and what to check.
+            if (next.error === "deep_check_failed") setDeepConsent(false);
+            setSelected(null);
+            setStatus(next);
           }
           return;
         }
@@ -295,15 +310,15 @@ export function Scanner({
       clearTimeout(timer);
     };
   }, [prepActive]);
-  /** The deep check is confirmed: copy now, observing the network if
-   *  chosen on this screen. */
+  /** Start the copy of the paired iPhone, observing its network if chosen
+   *  on this screen. */
   async function begin() {
     if (lock.current || !prep) return;
     lock.current = true;
     setStarting(true);
     try {
       await native("begin_copy", { captureNetwork: networkConsent });
-      preparing.current = false;
+      preparing.current = null;
       setStatus(prep);
       setPrep(null);
       setBusy(true);
@@ -352,6 +367,7 @@ export function Scanner({
     setSelected(null);
     setError(false);
     setDiscoveryError(null);
+    setStatus({ phase: "ready", artifacts: 0, error: null, report: null });
     try {
       const list = await native<Device[]>("list_devices", {
         device: platform,
@@ -483,7 +499,12 @@ export function Scanner({
       `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
     );
   };
-  const ready = method === "files" ? !!evidence : !!selected;
+  // An iPhone is ready once it trusts this computer.
+  const ready =
+    method === "files"
+      ? !!evidence
+      : !!selected && (!iphoneUsb || encrypted || trusted);
+  const pairing = !!prepWanted && !trusted;
   // Searched, and nothing is plugged in: say so in the heading, calmly.
   const missing =
     method === "usb" && searched && !finding && devices.length === 0;
@@ -514,7 +535,7 @@ export function Scanner({
             status.error === "device_passcode_timeout" ||
             status.error === "device_cancelled"
           ? checkList([f.chkApprove, f.chkRetry])
-          : checkList([f.chkCable, f.chkUnlock, f.chkApprove, f.chkApp]);
+          : checkList([f.chkCable, f.chkUnlock, f.chkApprove, f.chkRetry]);
   const problem: PhoneScreen | null = !failed
     ? null
     : discoveryError
@@ -580,8 +601,10 @@ export function Scanner({
     ready &&
     (!encrypted || !!password) &&
     !starting &&
-    // With the deep check chosen, only once the phone has confirmed it.
-    (!deepChosen || prep?.phase === "deep_ready");
+    // A paired iPhone; with the deep check chosen, once the phone confirms it.
+    (!iphoneUsb ||
+      encrypted ||
+      (trusted && (!deepConsent || prep?.phase === "deep_ready")));
   const consentControl = (
     <label className="consent compact-consent">
       <input
@@ -642,7 +665,17 @@ export function Scanner({
               <button
                 className="quiet-action retry-scan"
                 disabled={starting || !consent}
-                onClick={() => void run()}
+                onClick={() =>
+                  iphoneUsb && !encrypted
+                    ? // Paired again, then the ready step.
+                      setStatus({
+                        phase: "ready",
+                        artifacts: 0,
+                        error: null,
+                        report: null,
+                      })
+                    : void run()
+                }
               >
                 {f.tryAgain}
               </button>
@@ -734,7 +767,10 @@ export function Scanner({
                         title:
                           shown.name ||
                           (platform === "ios" ? "iPhone" : "Android"),
-                        detail: shown.authorized ? f.viaUsb : f.bannerUnlock,
+                        detail:
+                          shown.authorized || trusted
+                            ? f.viaUsb
+                            : f.bannerUnlock,
                         items: [
                           { value: shown.id.slice(0, 18), label: f.deviceId },
                         ],
@@ -744,11 +780,14 @@ export function Scanner({
                 checks={failed || missing || unusable ? checks : undefined}
                 attention={
                   prep?.phase === "awaiting_trust" ||
-                  (!!shown && !shown.authorized && !!shown.needsTrust)
+                  (!!shown &&
+                    !shown.authorized &&
+                    !!shown.needsTrust &&
+                    !trusted)
                 }
                 press={
                   // The three buttons light up while the phone waits for them.
-                  prep?.phase === "deep_wait" && !prepConfirmed
+                  deepChosen && prep?.phase === "deep_wait" && !prepConfirmed
                 }
                 screen={
                   problem
@@ -762,7 +801,7 @@ export function Scanner({
                         }
                       : prepConfirmed
                         ? { kind: "confirmed", title: f.deepConfirmedTitle }
-                        : prep?.phase === "deep_wait"
+                        : deepChosen && prep?.phase === "deep_wait"
                           ? { kind: "lock", subtitle: f.deepWaitTitle }
                           : shown
                             ? {
@@ -771,10 +810,8 @@ export function Scanner({
                                 name:
                                   shown.name ||
                                   (platform === "ios" ? "iPhone" : "Android"),
-                                status: selected
-                                  ? f.bannerReady
-                                  : f.bannerUnlock,
-                                ready: !!selected,
+                                status: ready ? f.bannerReady : f.bannerUnlock,
+                                ready,
                               }
                             : {
                                 kind: "guide",
@@ -860,6 +897,13 @@ export function Scanner({
                       </button>
                     ))}
                   </div>
+                )}
+                {pairing && (
+                  <p role="status" className="flow-note">
+                    {prep?.phase === "awaiting_trust"
+                      ? f.deepTrustHint
+                      : f.pairingHint}
+                  </p>
                 )}
                 {androidWait && !androidWait.timedOut ? (
                   <p role="status" className="flow-note">
@@ -957,7 +1001,7 @@ export function Scanner({
                   )}
                 </>
               )}
-            {method === "usb" && selected && options.length > 0 && (
+            {method === "usb" && ready && options.length > 0 && (
               <div
                 className="scan-options"
                 role="group"
@@ -988,13 +1032,11 @@ export function Scanner({
                           role="status"
                         >
                           <span>
-                            {prep?.phase === "awaiting_trust"
-                              ? f.deepTrustHint
-                              : prepConfirmed
-                                ? f.deepReadyHint
-                                : prep?.phase === "deep_wait"
-                                  ? f.deepWaitHint
-                                  : f.optionDeepSteps}
+                            {prepConfirmed
+                              ? f.deepReadyHint
+                              : prep?.phase === "deep_wait"
+                                ? f.deepWaitHint
+                                : f.optionDeepSteps}
                           </span>
                         </span>
                       )}
@@ -1010,7 +1052,7 @@ export function Scanner({
                 <button
                   className="primary"
                   disabled={!canStart}
-                  onClick={() => void (deepChosen && prep ? begin() : run())}
+                  onClick={() => void (iphoneUsb && prep ? begin() : run())}
                 >
                   {starting && (
                     <LoaderCircle
@@ -1027,11 +1069,12 @@ export function Scanner({
                   disabled={
                     !consent ||
                     finding ||
+                    pairing ||
                     (!!caps && !caps.androidUsb && !caps.iosUsb)
                   }
                   onClick={() => void find()}
                 >
-                  {finding && (
+                  {(finding || pairing) && (
                     <LoaderCircle
                       size={18}
                       className="busy-icon"

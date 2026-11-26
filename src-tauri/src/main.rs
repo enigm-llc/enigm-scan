@@ -605,8 +605,8 @@ struct ScanRequest {
     /// iPhone: hold the copy until the owner starts the deep check.
     #[serde(default)]
     deep_check: bool,
-    /// iPhone deep check prepared in advance: after Trust and its
-    /// confirmation, wait for `begin_copy` before copying.
+    /// iPhone paired while searching: after Trust, wait for `begin_copy`
+    /// (and, if chosen meanwhile, the deep check) before copying.
     #[serde(default)]
     hold: bool,
 }
@@ -704,7 +704,7 @@ fn start_scan(
     let cancel = state.cancel.clone();
     let skip_deep = state.skip_deep.clone();
     let deep_check = request.deep_check && request.device == "ios";
-    let held = deep_check && request.hold;
+    let held = request.hold && request.device == "ios" && request.usb_id.is_some();
     let start = state.start.clone();
     let catalog = state.catalog.clone();
     std::thread::spawn(move || {
@@ -751,7 +751,7 @@ fn start_scan(
             } else {
                 evidence.ok_or("evidence_required")?
             };
-            // Prepared in advance, network observation was chosen at Start.
+            // Paired while searching, network observation was chosen at Start.
             let capture_network = if held {
                 start.load(Ordering::SeqCst) == acquire::START_COPY_WITH_NETWORK
             } else {
@@ -1032,8 +1032,8 @@ fn cancel_scan(window: WebviewWindow, state: State<'_, Agent>) -> Result<(), Str
         .take();
     Ok(())
 }
-/// Start the copy of an iPhone whose deep check was prepared in advance and
-/// confirmed, with or without observing its network.
+/// Start the copy of an iPhone paired while searching, with or without
+/// observing its network.
 #[tauri::command]
 fn begin_copy(
     window: WebviewWindow,
@@ -1052,6 +1052,28 @@ fn begin_copy(
         },
         Ordering::SeqCst,
     );
+    Ok(())
+}
+/// The owner ticks or unticks the deep check on the ready step, before Start.
+#[tauri::command]
+fn prepare_deep_check(
+    window: WebviewWindow,
+    state: State<'_, Agent>,
+    enabled: bool,
+) -> Result<(), String> {
+    local(&window)?;
+    if !state.running.load(Ordering::SeqCst) {
+        return Err("scan_not_running".into());
+    }
+    let (from, to) = if enabled {
+        (acquire::START_HOLD, acquire::START_DEEP)
+    } else {
+        (acquire::START_DEEP, acquire::START_HOLD)
+    };
+    // Once Start was pressed the choice is final.
+    let _ = state
+        .start
+        .compare_exchange(from, to, Ordering::SeqCst, Ordering::SeqCst);
     Ok(())
 }
 /// The owner continues the iPhone copy without the deep check.
@@ -1454,6 +1476,7 @@ fn main() {
             scan_status,
             cancel_scan,
             skip_deep_check,
+            prepare_deep_check,
             begin_copy,
             finish_scan,
             save_export,

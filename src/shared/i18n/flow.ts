@@ -25,6 +25,8 @@ export type FlowCopy = {
   pdfSaved: string;
   deepReadyHint: string;
   deepTrustHint: string;
+  /** While the app connects to an iPhone it found, before "Trust". */
+  pairingHint: string;
   deepFailed: string;
   /** Short lines for the progress card: what is being done right now. */
   cardCopying: string;
@@ -85,7 +87,6 @@ export type FlowCopy = {
   chkAwake: string;
   chkApprove: string;
   chkRetry: string;
-  chkApp: string;
   /** Android's Developer options screen, as the phone shows it. */
   devTitle: string;
   devMain: string;
@@ -130,10 +131,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     pdfSaved: "Informe guardado",
     deepReadyHint: "Activado. Ya puedes empezar el análisis.",
     deepTrustHint: "Pulsa «Confiar» en el iPhone y escribe tu código.",
+    pairingHint: "Conectando con el iPhone…",
     deepFailed:
       "No se pudo activar el análisis profundo. Vuelve a marcarlo para intentarlo de nuevo.",
     optionDeepSteps:
-      "Después de «Confiar» te pediremos pulsar a la vez tres botones del iPhone. La copia empieza cuando el iPhone lo confirme.",
+      "Te pediremos pulsar a la vez tres botones del iPhone. Podrás empezar cuando el iPhone lo confirme.",
     cardCopying: "Copiando archivos",
     cardSkipping: "Saltando fotos y vídeos",
     cardWaiting: "Esperando más datos del móvil",
@@ -165,9 +167,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     connectHelp:
       "Conéctalo al ordenador con un cable USB de datos y deja la pantalla desbloqueada. Si puedes, usa el cable original: algunos cables solo cargan.",
     readyIos:
-      "Al empezar, tu iPhone te pedirá «Confiar» y tu código. Después, déjalo conectado hasta el final.",
+      "Tu iPhone ya confía en este ordenador. Al empezar te pedirá el código; después, déjalo conectado hasta el final.",
     readyAndroid:
-      "Al empezar, tu móvil te pedirá permitir la depuración USB. Después, déjalo conectado hasta el final.",
+      "La depuración USB ya está permitida. Deja el móvil conectado hasta el final.",
     readyTitle: "Todo listo",
     trustAndroid: "Permite la depuración USB",
     trustAndroidNow:
@@ -208,7 +210,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkAwake: "La pantalla encendida hasta que empiece la copia",
     chkApprove: "«Confiar» en iPhone o la depuración USB en Android, aceptados",
     chkRetry: "Si lo rechazaste, desconecta y vuelve a conectar el cable",
-    chkApp: "Enigm Scan abierto en tu ordenador",
     viaUsb: "Conectado por USB",
     deviceId: "Identificador",
     factPercent: "copiado",
@@ -244,10 +245,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     pdfSaved: "Report saved",
     deepReadyHint: "Turned on. You can start the scan.",
     deepTrustHint: "Tap “Trust” on the iPhone and enter your passcode.",
+    pairingHint: "Connecting to the iPhone…",
     deepFailed:
       "The deep check could not be turned on. Tick it again to try once more.",
     optionDeepSteps:
-      "After “Trust”, we’ll ask you to press three iPhone buttons at the same time. The copy starts once the iPhone confirms it.",
+      "We’ll ask you to press three iPhone buttons at the same time. You can start once the iPhone confirms it.",
     cardCopying: "Copying files",
     cardSkipping: "Skipping photos and videos",
     cardWaiting: "Waiting for more data from the phone",
@@ -279,9 +281,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     connectHelp:
       "Plug it into the computer with a USB data cable and keep the screen unlocked. Use the original cable if you can: some cables only charge.",
     readyIos:
-      "When you start, your iPhone will ask you to “Trust” and for its passcode. Then leave it connected until the end.",
+      "Your iPhone already trusts this computer. When you start, it will ask for its passcode; then leave it connected until the end.",
     readyAndroid:
-      "When you start, your phone will ask you to allow USB debugging. Then leave it connected until the end.",
+      "USB debugging is already allowed. Leave the phone connected until the end.",
     readyTitle: "All set",
     trustAndroid: "Allow USB debugging",
     trustAndroidNow:
@@ -322,7 +324,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkAwake: "The screen on until the copy starts",
     chkApprove: "“Trust” on iPhone or USB debugging on Android, accepted",
     chkRetry: "If you declined, unplug and plug the cable back in",
-    chkApp: "Enigm Scan open on your computer",
     viaUsb: "Connected over USB",
     deviceId: "Identifier",
     factPercent: "copied",
@@ -359,10 +360,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     pdfSaved: "Rapport enregistré",
     deepReadyHint: "Activée. Vous pouvez lancer l’analyse.",
     deepTrustHint: "Touchez « Se fier » sur l’iPhone et saisissez votre code.",
+    pairingHint: "Connexion à l’iPhone…",
     deepFailed:
       "L’analyse approfondie n’a pas pu être activée. Cochez-la de nouveau pour réessayer.",
     optionDeepSteps:
-      "Après « Faire confiance », nous vous demanderons d’appuyer en même temps sur trois boutons de l’iPhone. La copie commence dès que l’iPhone le confirme.",
+      "Nous vous demanderons d’appuyer en même temps sur trois boutons de l’iPhone. Vous pourrez commencer dès que l’iPhone le confirme.",
     cardCopying: "Copie des fichiers",
     cardSkipping: "Photos et vidéos ignorées",
     cardWaiting: "En attente de données du téléphone",
@@ -394,9 +396,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     connectHelp:
       "Branchez-le à l’ordinateur avec un câble USB de données et gardez l’écran déverrouillé. Utilisez si possible le câble d’origine : certains câbles ne font que charger.",
     readyIos:
-      "Au démarrage, votre iPhone vous demandera « Se fier » et votre code. Ensuite, laissez-le branché jusqu’à la fin.",
+      "Votre iPhone fait déjà confiance à cet ordinateur. Au démarrage, il vous demandera votre code ; ensuite, laissez-le branché jusqu’à la fin.",
     readyAndroid:
-      "Au démarrage, votre téléphone vous demandera d’autoriser le débogage USB. Ensuite, laissez-le branché jusqu’à la fin.",
+      "Le débogage USB est déjà autorisé. Laissez le téléphone branché jusqu’à la fin.",
     readyTitle: "Tout est prêt",
     trustAndroid: "Autorisez le débogage USB",
     trustAndroidNow:
@@ -442,7 +444,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkApprove:
       "« Se fier » sur iPhone ou le débogage USB sur Android, acceptés",
     chkRetry: "Si vous avez refusé, débranchez puis rebranchez le câble",
-    chkApp: "Enigm Scan ouvert sur votre ordinateur",
     viaUsb: "Connecté en USB",
     deviceId: "Identifiant",
     factPercent: "copié",
@@ -480,10 +481,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     deepReadyHint: "Aktiviert. Sie können die Analyse starten.",
     deepTrustHint:
       "Tippen Sie auf dem iPhone auf „Vertrauen“ und geben Sie Ihren Code ein.",
+    pairingHint: "Verbindung zum iPhone wird hergestellt …",
     deepFailed:
       "Die Tiefenprüfung konnte nicht aktiviert werden. Wählen Sie sie erneut, um es noch einmal zu versuchen.",
     optionDeepSteps:
-      "Nach „Vertrauen“ bitten wir Sie, gleichzeitig drei Tasten am iPhone zu drücken. Die Kopie beginnt, sobald das iPhone es bestätigt.",
+      "Wir bitten Sie, gleichzeitig drei Tasten am iPhone zu drücken. Sie können starten, sobald das iPhone es bestätigt.",
     cardCopying: "Dateien werden kopiert",
     cardSkipping: "Fotos und Videos werden übersprungen",
     cardWaiting: "Warten auf weitere Daten vom Telefon",
@@ -516,9 +518,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     connectHelp:
       "Schließen Sie es mit einem USB-Datenkabel an den Computer an und lassen Sie den Bildschirm entsperrt. Verwenden Sie nach Möglichkeit das Originalkabel: Manche Kabel laden nur.",
     readyIos:
-      "Beim Start fragt Ihr iPhone nach „Vertrauen“ und Ihrem Code. Lassen Sie es danach bis zum Ende angeschlossen.",
+      "Ihr iPhone vertraut diesem Computer bereits. Beim Start fragt es nach Ihrem Code; lassen Sie es danach bis zum Ende angeschlossen.",
     readyAndroid:
-      "Beim Start fragt Ihr Smartphone, ob USB-Debugging erlaubt werden soll. Lassen Sie es danach bis zum Ende angeschlossen.",
+      "USB-Debugging ist bereits erlaubt. Lassen Sie das Smartphone bis zum Ende angeschlossen.",
     readyTitle: "Alles bereit",
     trustAndroid: "Erlauben Sie USB-Debugging",
     trustAndroidNow:
@@ -566,7 +568,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkApprove:
       "„Vertrauen“ auf dem iPhone oder USB-Debugging auf Android bestätigt",
     chkRetry: "Falls abgelehnt: Kabel trennen und wieder anschließen",
-    chkApp: "Enigm Scan auf Ihrem Computer geöffnet",
     viaUsb: "Per USB verbunden",
     deviceId: "Kennung",
     factPercent: "kopiert",
@@ -603,10 +604,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     pdfSaved: "Rapporto salvato",
     deepReadyHint: "Attivata. Puoi avviare l’analisi.",
     deepTrustHint: "Tocca «Autorizza» sull’iPhone e inserisci il codice.",
+    pairingHint: "Connessione all’iPhone…",
     deepFailed:
       "Non è stato possibile attivare l’analisi approfondita. Selezionala di nuovo per riprovare.",
     optionDeepSteps:
-      "Dopo «Autorizza» ti chiederemo di premere insieme tre tasti dell’iPhone. La copia inizia quando l’iPhone lo conferma.",
+      "Ti chiederemo di premere insieme tre tasti dell’iPhone. Potrai iniziare quando l’iPhone lo conferma.",
     cardCopying: "Copia dei file",
     cardSkipping: "Foto e video saltati",
     cardWaiting: "In attesa di altri dati dal telefono",
@@ -638,9 +640,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     connectHelp:
       "Collegalo al computer con un cavo USB dati e lascia lo schermo sbloccato. Se puoi, usa il cavo originale: alcuni cavi servono solo a caricare.",
     readyIos:
-      "All’avvio, l’iPhone ti chiederà «Autorizza» e il codice. Poi lascialo collegato fino alla fine.",
+      "L’iPhone ha già autorizzato questo computer. All’avvio ti chiederà il codice; poi lascialo collegato fino alla fine.",
     readyAndroid:
-      "All’avvio, il telefono ti chiederà di consentire il debug USB. Poi lascialo collegato fino alla fine.",
+      "Il debug USB è già consentito. Lascia il telefono collegato fino alla fine.",
     readyTitle: "Tutto pronto",
     trustAndroid: "Consenti il debug USB",
     trustAndroidNow:
@@ -684,7 +686,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkAwake: "Lo schermo acceso finché non inizia la copia",
     chkApprove: "«Autorizza» su iPhone o il debug USB su Android, accettati",
     chkRetry: "Se hai rifiutato, scollega e ricollega il cavo",
-    chkApp: "Enigm Scan aperto sul computer",
     viaUsb: "Collegato via USB",
     deviceId: "Identificativo",
     factPercent: "copiato",
@@ -721,10 +722,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     pdfSaved: "Relatório guardado",
     deepReadyHint: "Ativada. Já pode iniciar a análise.",
     deepTrustHint: "Toque em «Confiar» no iPhone e introduza o código.",
+    pairingHint: "A ligar ao iPhone…",
     deepFailed:
       "Não foi possível ativar a análise profunda. Marque-a de novo para tentar outra vez.",
     optionDeepSteps:
-      "Depois de «Confiar», vamos pedir-lhe que prima ao mesmo tempo três botões do iPhone. A cópia começa quando o iPhone o confirmar.",
+      "Vamos pedir-lhe que prima ao mesmo tempo três botões do iPhone. Pode começar quando o iPhone o confirmar.",
     cardCopying: "A copiar ficheiros",
     cardSkipping: "A ignorar fotos e vídeos",
     cardWaiting: "À espera de mais dados do telemóvel",
@@ -757,9 +759,9 @@ export const flowCopy: Record<Language, FlowCopy> = {
     connectHelp:
       "Ligue-o ao computador com um cabo USB de dados e mantenha o ecrã desbloqueado. Se puder, use o cabo original: alguns cabos só carregam.",
     readyIos:
-      "Ao começar, o iPhone pede-lhe «Confiar» e o código. Depois, deixe-o ligado até ao fim.",
+      "O iPhone já confia neste computador. Ao começar, pede-lhe o código; depois, deixe-o ligado até ao fim.",
     readyAndroid:
-      "Ao começar, o telemóvel pede-lhe para permitir a depuração USB. Depois, deixe-o ligado até ao fim.",
+      "A depuração USB já está permitida. Deixe o telemóvel ligado até ao fim.",
     readyTitle: "Tudo pronto",
     trustAndroid: "Permita a depuração USB",
     trustAndroidNow:
@@ -800,7 +802,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkAwake: "O ecrã ligado até a cópia começar",
     chkApprove: "«Confiar» no iPhone ou a depuração USB no Android, aceites",
     chkRetry: "Se recusou, desligue e volte a ligar o cabo",
-    chkApp: "O Enigm Scan aberto no computador",
     viaUsb: "Ligado por USB",
     deviceId: "Identificador",
     factPercent: "copiado",

@@ -242,19 +242,55 @@ class DiagnosticsTests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(await asyncio.wait_for(waiting, 1))
         adapter.SESSION["sysdiagnose"] = None
 
-    async def test_a_confirmed_deep_check_holds_the_copy_until_start(self):
-        adapter.SESSION.update(sysdiagnose="generating", phase="deep_wait", capturing=False, percent=None,
+    async def test_a_paired_phone_waits_for_start(self):
+        """Paired while searching, the copy waits for Start; the network
+        observation is chosen on the ready step."""
+        adapter.SESSION.update(sysdiagnose=None, phase="acquiring", capturing=False, percent=None,
                                kept=0, discarded=0, receivedBytes=0, storedBytes=0)
         for choice, network in (("network", True), ("no-network", False)):
             with tempfile.TemporaryDirectory() as work, patch.object(adapter, "START_POLL_SECONDS", 0.01):
-                waiting = asyncio.create_task(adapter.wait_for_start(Path(work)))
+                waiting = asyncio.create_task(adapter.wait_for_start(object(), Path(work)))
                 await asyncio.sleep(0.05)
                 status = json.loads((Path(work) / "acquisition-status.json").read_text())
-                self.assertEqual(status["phase"], "deep_ready")
+                self.assertEqual(status["phase"], "trusted")
                 self.assertFalse(waiting.done())
                 (Path(work) / adapter.START_COPY).write_text(choice)
                 self.assertEqual(await asyncio.wait_for(waiting, 1), network)
+
+    async def test_a_deep_check_chosen_on_the_ready_step_holds_start_until_confirmed(self):
+        manager = FakeCrashReports({})
+        adapter.SESSION.update(sysdiagnose=None, phase="acquiring", capturing=False, percent=None,
+                               kept=0, discarded=0, receivedBytes=0, storedBytes=0)
+        with tempfile.TemporaryDirectory() as work, patch.object(adapter, "diagnostics_api", return_value=manager), \
+                patch.object(adapter, "START_POLL_SECONDS", 0.01), patch.object(adapter, "DEEP_POLL_SECONDS", 0.01), \
+                patch.object(adapter, "DEEP_CONFIRM_SECONDS", 0):
+            work = Path(work)
+            read = lambda: json.loads((work / "acquisition-status.json").read_text())["phase"]
+            waiting = asyncio.create_task(adapter.wait_for_start(object(), work))
+            (work / adapter.START_COPY).write_text("deep")
+            await asyncio.sleep(0.1)
+            self.assertEqual(read(), "deep_wait")
+            manager.afc.files["DiagnosticLogs/sysdiagnose/IN_PROGRESS_sysdiagnose_now.tar.gz"] = (b"", 2)
+            await asyncio.sleep(0.1)
+            self.assertEqual(read(), "deep_ready")
+            self.assertFalse(waiting.done())  # confirmed, still waiting for Start
+            (work / adapter.START_COPY).write_text("no-network")
+            self.assertFalse(await asyncio.wait_for(waiting, 1))
         adapter.SESSION["sysdiagnose"] = None
+
+    async def test_start_without_the_deep_check_ends_its_wait(self):
+        manager = FakeCrashReports({})
+        adapter.SESSION.update(sysdiagnose=None, phase="acquiring", capturing=False, percent=None,
+                               kept=0, discarded=0, receivedBytes=0, storedBytes=0)
+        with tempfile.TemporaryDirectory() as work, patch.object(adapter, "diagnostics_api", return_value=manager), \
+                patch.object(adapter, "START_POLL_SECONDS", 0.01), patch.object(adapter, "DEEP_POLL_SECONDS", 0.01):
+            work = Path(work)
+            waiting = asyncio.create_task(adapter.wait_for_start(object(), work))
+            (work / adapter.START_COPY).write_text("deep")
+            await asyncio.sleep(0.1)
+            # The owner unticks it and presses Start before pressing the buttons.
+            (work / adapter.START_COPY).write_text("network")
+            self.assertTrue(await asyncio.wait_for(waiting, 1))
 
     async def test_a_hanging_service_is_bounded(self):
         manager = FakeCrashReports({"a.ips": (b"{}", 1)})

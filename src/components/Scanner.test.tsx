@@ -113,56 +113,39 @@ it("offers the same connections option on Android, on by default, and honours it
     }),
   );
 });
-it("offers the iPhone deep check as an option, off by default", async () => {
-  const original = vi.mocked(native).getMockImplementation()!;
-  vi.mocked(native).mockImplementation(async (...args) => {
-    if (args[0] === "capabilities") return { ...caps, iosUsb: true };
-    if (args[0] === "list_devices")
-      return [{ id: "iphone-fixture", platform: "ios", authorized: true }];
-    return original(...args);
-  });
-  mount();
-  fireEvent.click(screen.getByRole("checkbox", { name: a.consent }));
-  const detect = screen.getByRole("button", { name: "Find my phone" });
-  await waitFor(() =>
-    expect((detect as HTMLButtonElement).disabled).toBe(false),
-  );
-  fireEvent.click(detect);
-  await screen.findByRole("button", { name: "Start scan" });
-  const deep = screen.getByRole("checkbox", {
-    name: new RegExp("^" + flowCopy.en.optionDeep),
-  }) as HTMLInputElement;
-  const network = screen.getByRole("checkbox", {
-    name: /^Also check its connections/,
-  }) as HTMLInputElement;
-  expect(deep.checked).toBe(false);
-  expect(network.checked).toBe(false);
-  expect(screen.getByText(flowCopy.en.optionNetworkIos)).toBeTruthy();
-});
-/** An iPhone whose adapter moves through the phases the test sets. */
-function preparedIphone(script: {
-  onStart?: () => void;
-  onCancel?: () => void;
-}) {
+/** An iPhone whose adapter moves through the phases the test sets. It is
+ *  paired as soon as it is found, already trusted when `trusted` is set. */
+function iphoneSession(options: { trusted?: boolean; device?: object } = {}) {
   const state = {
     phase: "ready",
     error: null as string | null,
+    diagnostic: undefined as string | undefined,
     sysdiagnose: "",
+    starts: 0,
+    // What the copy ends with once Start is pressed.
+    afterStart: { phase: "acquiring", error: null as string | null },
   };
-  const original = vi.mocked(native).getMockImplementation()!;
   vi.mocked(native).mockImplementation(async (...args) => {
     const [command] = args;
     if (command === "capabilities") return { ...caps, iosUsb: true };
     if (command === "list_devices")
-      return [{ id: "iphone-fixture", platform: "ios", authorized: true }];
+      return [
+        {
+          id: "iphone-fixture",
+          platform: "ios",
+          authorized: !!options.trusted,
+          needsTrust: !options.trusted,
+          ...options.device,
+        },
+      ];
     if (command === "start_scan") {
-      state.phase = "awaiting_trust";
-      script.onStart?.();
+      state.starts += 1;
+      state.error = null;
+      state.phase = options.trusted ? "trusted" : "awaiting_trust";
       return null;
     }
     if (command === "cancel_scan") {
       state.phase = "cancelled";
-      script.onCancel?.();
       return null;
     }
     if (command === "finish_scan") {
@@ -170,7 +153,8 @@ function preparedIphone(script: {
       return null;
     }
     if (command === "begin_copy") {
-      state.phase = "acquiring";
+      state.phase = state.afterStart.phase;
+      state.error = state.afterStart.error;
       return null;
     }
     if (command === "scan_status")
@@ -179,6 +163,7 @@ function preparedIphone(script: {
         artifacts: 0,
         report: null,
         error: state.error,
+        diagnostic: state.diagnostic,
         acquisition: state.sysdiagnose
           ? {
               phase: state.phase,
@@ -190,11 +175,11 @@ function preparedIphone(script: {
             }
           : undefined,
       };
-    return original(...args);
+    return null;
   });
   return state;
 }
-async function readyIphone() {
+async function search() {
   mount();
   fireEvent.click(screen.getByRole("checkbox", { name: a.consent }));
   const detect = screen.getByRole("button", { name: "Find my phone" });
@@ -202,26 +187,71 @@ async function readyIphone() {
     expect((detect as HTMLButtonElement).disabled).toBe(false),
   );
   fireEvent.click(detect);
+}
+async function readyIphone() {
+  await search();
   const start = (await screen.findByRole("button", {
     name: "Start scan",
   })) as HTMLButtonElement;
   const deep = screen.getByRole("checkbox", {
     name: new RegExp("^" + flowCopy.en.optionDeep),
   }) as HTMLInputElement;
-  return { start, deep };
+  const network = screen.getByRole("checkbox", {
+    name: /^Also check its connections/,
+  }) as HTMLInputElement;
+  return { start, deep, network };
 }
-it("prepares a chosen deep check on the ready step and starts only once the phone confirms it", async () => {
-  const state = preparedIphone({});
-  const { start, deep } = await readyIphone();
-  // Without the deep check, Start is available at once.
-  expect(start.disabled).toBe(false);
-  fireEvent.click(deep);
+it("offers the iPhone deep check as an option, off by default", async () => {
+  iphoneSession({ trusted: true });
+  const { start, deep, network } = await readyIphone();
+  expect(deep.checked).toBe(false);
+  expect(network.checked).toBe(false);
+  expect(screen.getByText(flowCopy.en.optionNetworkIos)).toBeTruthy();
+  await waitFor(() => expect(start.disabled).toBe(false));
+});
+it("asks the iPhone for Trust while searching, as Android asks for USB debugging", async () => {
+  const state = iphoneSession();
+  await search();
   await waitFor(() =>
     expect(native).toHaveBeenCalledWith("start_scan", {
-      request: expect.objectContaining({ deepCheck: true, hold: true }),
+      request: expect.objectContaining({
+        device: "ios",
+        usbId: "iphone-fixture",
+        hold: true,
+      }),
     }),
   );
+  // Still the search step: the phone asks for Trust there.
   await screen.findByText(flowCopy.en.deepTrustHint);
+  expect(screen.queryByRole("button", { name: "Start scan" })).toBeNull();
+  expect(
+    (screen.getByRole("button", { name: "Find my phone" }) as HTMLButtonElement)
+      .disabled,
+  ).toBe(true);
+  state.phase = "trusted";
+  const start = (await screen.findByRole("button", {
+    name: "Start scan",
+  })) as HTMLButtonElement;
+  expect(screen.getByText(flowCopy.en.readyIos)).toBeTruthy();
+  await waitFor(() => expect(start.disabled).toBe(false));
+  fireEvent.click(start);
+  await waitFor(() =>
+    expect(native).toHaveBeenCalledWith("begin_copy", {
+      captureNetwork: false,
+    }),
+  );
+  expect(state.starts).toBe(1);
+});
+it("prepares a chosen deep check on the ready step and starts only once the phone confirms it", async () => {
+  const state = iphoneSession({ trusted: true });
+  const { start, deep, network } = await readyIphone();
+  await waitFor(() => expect(start.disabled).toBe(false));
+  fireEvent.click(deep);
+  await waitFor(() =>
+    expect(native).toHaveBeenCalledWith("prepare_deep_check", {
+      enabled: true,
+    }),
+  );
   expect(start.disabled).toBe(true);
   state.phase = "deep_wait";
   await screen.findByText(flowCopy.en.deepWaitHint);
@@ -230,36 +260,42 @@ it("prepares a chosen deep check on the ready step and starts only once the phon
   state.sysdiagnose = "generating";
   await screen.findByText(flowCopy.en.deepReadyHint);
   await waitFor(() => expect(start.disabled).toBe(false));
+  fireEvent.click(network);
   fireEvent.click(start);
   await waitFor(() =>
     expect(native).toHaveBeenCalledWith("begin_copy", {
-      captureNetwork: false,
+      captureNetwork: true,
     }),
   );
 });
-it("unchoosing a prepared deep check cancels it and keeps the ready step", async () => {
-  preparedIphone({});
+it("unticking the deep check before Start keeps the phone paired", async () => {
+  const state = iphoneSession({ trusted: true });
   const { start, deep } = await readyIphone();
   fireEvent.click(deep);
-  await screen.findByText(flowCopy.en.deepTrustHint);
+  state.phase = "deep_wait";
+  await screen.findByText(flowCopy.en.deepWaitHint);
   fireEvent.click(deep);
-  await waitFor(() => expect(native).toHaveBeenCalledWith("cancel_scan"));
-  await waitFor(() => expect(native).toHaveBeenCalledWith("finish_scan"));
-  expect(deep.checked).toBe(false);
+  await waitFor(() =>
+    expect(native).toHaveBeenCalledWith("prepare_deep_check", {
+      enabled: false,
+    }),
+  );
   await waitFor(() => expect(start.disabled).toBe(false));
-  expect(screen.queryByRole("button", { name: "Find my phone" })).toBeNull();
+  expect(native).not.toHaveBeenCalledWith("cancel_scan");
+  expect(state.starts).toBe(1);
 });
-it("a refused Trust while preparing says so and unchooses the deep check", async () => {
-  const state = preparedIphone({});
-  const { deep } = await readyIphone();
-  fireEvent.click(deep);
+it("a refused Trust goes back to the search and says to plug the cable in again", async () => {
+  const state = iphoneSession();
+  await search();
   await screen.findByText(flowCopy.en.deepTrustHint);
   state.phase = "failed";
   state.error = "device_trust_denied";
   expect((await screen.findByRole("alert")).textContent).toBe(
     a.deviceTrustDenied,
   );
-  await waitFor(() => expect(deep.checked).toBe(false));
+  await waitFor(() => expect(native).toHaveBeenCalledWith("finish_scan"));
+  expect(screen.getByText(flowCopy.en.chkRetry)).toBeTruthy();
+  expect(screen.getByRole("button", { name: "Find my phone" })).toBeTruthy();
 });
 it("never selects an unauthorized device or enables unavailable transports", async () => {
   const original = vi.mocked(native).getMockImplementation()!;
@@ -344,65 +380,39 @@ it("blocks a double start while native authorization is pending", async () => {
   ).toHaveLength(1);
 });
 
-it("keeps iPhone trust pending and requires explicit network opt-in", async () => {
-  const original = vi.mocked(native).getMockImplementation()!;
-  vi.mocked(native).mockImplementation(async (...args) => {
-    if (args[0] === "capabilities") return { ...caps, iosUsb: true };
-    if (args[0] === "list_devices")
-      return [
-        {
-          id: "iphone-fixture",
-          name: "iPhone test",
-          platform: "ios",
-          authorized: false,
-          needsTrust: true,
-        },
-      ];
-    if (args[0] === "scan_status")
-      return {
-        phase: "failed",
-        artifacts: 0,
-        report: null,
-        error: "backup_password_required",
-      };
-    return original(...args);
-  });
-  mount();
-  fireEvent.click(screen.getByRole("checkbox", { name: a.consent }));
-  const detect = screen.getByRole("button", {
-    name: "Find my phone",
-  }) as HTMLButtonElement;
-  await waitFor(() => expect(detect.disabled).toBe(false));
-  fireEvent.click(detect);
-  const scan = await screen.findByRole("button", { name: "Start scan" });
-  const network = screen.getByRole("checkbox", {
-    name: /^Also check its connections/,
-  }) as HTMLInputElement;
+it("requires explicit network opt-in and asks for an encrypted backup's password", async () => {
+  const state = iphoneSession({ trusted: true });
+  state.afterStart = { phase: "failed", error: "backup_password_required" };
+  const { start, network } = await readyIphone();
   expect(network.checked).toBe(false);
   fireEvent.click(network);
-  fireEvent.click(scan);
+  await waitFor(() => expect(start.disabled).toBe(false));
+  fireEvent.click(start);
+  await waitFor(() =>
+    expect(native).toHaveBeenCalledWith("begin_copy", {
+      captureNetwork: true,
+    }),
+  );
+  const password = await screen.findByLabelText(a.backupPassword, {
+    exact: false,
+  });
+  const again = screen.getByRole("button", {
+    name: "Start scan",
+  }) as HTMLButtonElement;
+  expect(again.disabled).toBe(true);
+  fireEvent.change(password, { target: { value: "synthetic-password" } });
+  expect(again.disabled).toBe(false);
+  fireEvent.click(again);
   await waitFor(() =>
     expect(native).toHaveBeenCalledWith("start_scan", {
       request: expect.objectContaining({
         device: "ios",
         usbId: "iphone-fixture",
         pcapConsent: true,
-        backupPassword: null,
+        backupPassword: "synthetic-password",
       }),
     }),
   );
-  const password = await screen.findByLabelText(a.backupPassword, {
-    exact: false,
-  });
-  expect(
-    (screen.getByRole("button", { name: "Start scan" }) as HTMLButtonElement)
-      .disabled,
-  ).toBe(true);
-  fireEvent.change(password, { target: { value: "synthetic-password" } });
-  expect(
-    (screen.getByRole("button", { name: "Start scan" }) as HTMLButtonElement)
-      .disabled,
-  ).toBe(false);
 });
 
 it("offers iPhone-only discovery after automatic discovery fails, preserving consent", async () => {
@@ -469,38 +479,17 @@ it("prepares the user for iPhone prompts and explains each phone-side failure", 
     ["device_cancelled", a.deviceCancelled],
   ]) {
     clearToasts();
-    let started = false;
-    let starts = 0;
-    vi.mocked(native).mockImplementation(async (command) => {
-      if (command === "capabilities") return { ...caps, iosUsb: true };
-      if (command === "list_devices")
-        return [{ id: "iphone-fixture", platform: "ios", authorized: true }];
-      if (command === "start_scan") {
-        started = true;
-        starts += 1;
-        return null;
-      }
-      if (command === "scan_status")
-        return started
-          ? { phase: "failed", artifacts: 0, report: null, error }
-          : { phase: "ready", artifacts: 0, report: null, error: null };
-      return null;
-    });
-    mount();
-    fireEvent.click(screen.getByRole("checkbox", { name: a.consent }));
-    const detect = screen.getByRole("button", {
-      name: "Find my phone",
-    }) as HTMLButtonElement;
-    await waitFor(() => expect(detect.disabled).toBe(false));
-    fireEvent.click(detect);
-    const scan = await screen.findByRole("button", { name: "Start scan" });
-    // The ready screen itself prepares the person for Trust and the passcode.
+    const state = iphoneSession({ trusted: true });
+    state.afterStart = { phase: "failed", error };
+    const { start } = await readyIphone();
+    // The ready screen prepares the person for the passcode.
     expect(screen.getByText(flowCopy.en.readyIos)).toBeTruthy();
-    fireEvent.click(scan);
+    await waitFor(() => expect(start.disabled).toBe(false));
+    fireEvent.click(start);
     expect((await screen.findByRole("alert")).textContent).toBe(message);
-    // The phone stays chosen: "Try again" restarts the scan directly.
+    // The phone stays chosen: "Try again" pairs it again at once.
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    await waitFor(() => expect(starts).toBe(2));
+    await waitFor(() => expect(state.starts).toBe(2));
     cleanup();
   }
 });
@@ -512,35 +501,12 @@ it("shows an allowlisted diagnostic code when an iPhone copy fails unexpectedly"
     ],
     ["/Users/someone/secret backup", "acquisition_failed"],
   ]) {
-    let started = false;
-    vi.mocked(native).mockImplementation(async (command) => {
-      if (command === "capabilities") return { ...caps, iosUsb: true };
-      if (command === "list_devices")
-        return [{ id: "iphone-fixture", platform: "ios", authorized: true }];
-      if (command === "start_scan") {
-        started = true;
-        return null;
-      }
-      if (command === "scan_status")
-        return started
-          ? {
-              phase: "failed",
-              artifacts: 0,
-              report: null,
-              error: "acquisition_failed",
-              diagnostic,
-            }
-          : { phase: "ready", artifacts: 0, report: null, error: null };
-      return null;
-    });
-    mount();
-    fireEvent.click(screen.getByRole("checkbox", { name: a.consent }));
-    const detect = screen.getByRole("button", {
-      name: "Find my phone",
-    }) as HTMLButtonElement;
-    await waitFor(() => expect(detect.disabled).toBe(false));
-    fireEvent.click(detect);
-    fireEvent.click(await screen.findByRole("button", { name: "Start scan" }));
+    const state = iphoneSession({ trusted: true });
+    state.afterStart = { phase: "failed", error: "acquisition_failed" };
+    state.diagnostic = diagnostic;
+    const { start } = await readyIphone();
+    await waitFor(() => expect(start.disabled).toBe(false));
+    fireEvent.click(start);
     expect((await screen.findByRole("alert")).textContent).toBe(a.failCopy);
     await waitFor(() =>
       expect(document.querySelector(".diagnostic-code code")?.textContent).toBe(
@@ -552,30 +518,9 @@ it("shows an allowlisted diagnostic code when an iPhone copy fails unexpectedly"
   }
 });
 it("keeps the ready step to the options: no USB speed note, no second consent", async () => {
-  for (const [usbSpeed, warned] of [
-    [480_000_000, true],
-    [5_000_000_000, false],
-    [undefined, false],
-  ] as const) {
-    vi.mocked(native).mockImplementation(async (command) => {
-      if (command === "capabilities") return { ...caps, iosUsb: true };
-      if (command === "list_devices")
-        return [
-          { id: "iphone-fixture", platform: "ios", authorized: true, usbSpeed },
-        ];
-      if (command === "scan_status")
-        return { phase: "ready", artifacts: 0, report: null, error: null };
-      return null;
-    });
-    mount();
-    fireEvent.click(screen.getByRole("checkbox", { name: a.consent }));
-    const detect = screen.getByRole("button", {
-      name: "Find my phone",
-    }) as HTMLButtonElement;
-    await waitFor(() => expect(detect.disabled).toBe(false));
-    fireEvent.click(detect);
-    await screen.findByRole("button", { name: "Start scan" });
-    void warned;
+  for (const usbSpeed of [480_000_000, 5_000_000_000, undefined]) {
+    iphoneSession({ trusted: true, device: { usbSpeed } });
+    await readyIphone();
     expect(screen.queryByText(a.usbSlow)).toBeNull();
     // Consent was given before the search; it is not asked again here.
     expect(screen.queryByRole("checkbox", { name: a.consent })).toBeNull();

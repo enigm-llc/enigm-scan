@@ -18,7 +18,8 @@ import { Welcome } from "./Welcome";
 const RUNNING = [
   "awaiting_trust",
   "deep_wait",
-  // A deep check prepared on the ready step, waiting for Start.
+  // An iPhone paired while searching, waiting for Start on the ready step.
+  "trusted",
   "deep_ready",
   "awaiting_passcode",
   "passcode_retry",

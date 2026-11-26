@@ -155,19 +155,30 @@ pub struct Options<'a> {
     pub deep_check: bool,
     /// Set when the owner continues without the deep check.
     pub skip_deep_check: Option<&'a AtomicBool>,
-    /// iPhone, deep check prepared in advance: hold after its confirmation
-    /// until Start. `START_HOLD` until then, then `START_COPY` or
-    /// `START_COPY_WITH_NETWORK`.
+    /// iPhone paired while searching: after Trust, hold the copy until
+    /// Start. `START_HOLD`, or `START_DEEP` while the owner prepares the deep
+    /// check, then `START_COPY` or `START_COPY_WITH_NETWORK`.
     pub start: Option<&'a AtomicU8>,
 }
 pub const START_HOLD: u8 = 0;
 pub const START_COPY: u8 = 1;
 pub const START_COPY_WITH_NETWORK: u8 = 2;
+pub const START_DEEP: u8 = 3;
+/// What the adapter reads for each `start` value (`start_choice` in
+/// scripts/engines/ios_entry.py).
+fn start_word(choice: u8) -> &'static [u8] {
+    match choice {
+        START_COPY => b"no-network",
+        START_COPY_WITH_NETWORK => b"network",
+        START_DEEP => b"deep",
+        _ => b"hold",
+    }
+}
 /// Written in the workspace for the iPhone adapter: continue without the
 /// deep check (`DEEP_SKIP` in scripts/engines/ios_entry.py).
 const DEEP_SKIP: &str = "skip-deep-check";
-/// Written in the workspace when the owner presses Start after preparing the
-/// deep check (`START_COPY` in scripts/engines/ios_entry.py).
+/// Written in the workspace with the owner's latest choice for a held copy
+/// (`START_COPY` in scripts/engines/ios_entry.py).
 const START_FILE: &str = "start-copy";
 // The device, its workspace and the session's controls; grouping them
 // would only move the same list into a struct used once.
@@ -223,8 +234,8 @@ pub fn acquire(
                 } else {
                     "no-network".into()
                 },
-                if options.deep_check && options.start.is_some() {
-                    "deep-hold".into()
+                if options.start.is_some() {
+                    "hold".into()
                 } else if options.deep_check {
                     "deep".into()
                 } else {
@@ -258,6 +269,8 @@ pub fn acquire(
             Duration::from_secs(1800),
         )?
     } else {
+        // The choice last handed to the adapter; it starts at "hold".
+        let written = AtomicU8::new(u8::MAX);
         process::run_monitored(
             &program,
             &args,
@@ -277,17 +290,16 @@ pub fn acquire(
                 }
                 if let Some(start) = options.start {
                     let choice = start.load(std::sync::atomic::Ordering::SeqCst);
-                    if choice != START_HOLD && !work.join(START_FILE).exists() {
-                        let network: &[u8] = if choice == START_COPY_WITH_NETWORK {
-                            b"network"
-                        } else {
-                            b"no-network"
-                        };
-                        // Written whole, then renamed, so the adapter never
-                        // reads a half-written choice.
+                    if choice != written.load(std::sync::atomic::Ordering::SeqCst) {
+                        // Written whole, then renamed over the previous one,
+                        // so the adapter never reads a half-written choice.
+                        // A failed rename (the file briefly open on Windows)
+                        // is tried again on the next tick.
                         let partial = work.join("start-copy.partial");
-                        if std::fs::write(&partial, network).is_ok() {
-                            let _ = std::fs::rename(&partial, work.join(START_FILE));
+                        if std::fs::write(&partial, start_word(choice)).is_ok()
+                            && std::fs::rename(&partial, work.join(START_FILE)).is_ok()
+                        {
+                            written.store(choice, std::sync::atomic::Ordering::SeqCst);
                         }
                     }
                 }
@@ -652,7 +664,9 @@ fn acquisition_progress(work: &Path) -> Option<Progress> {
         "passcode_retry",
         // After Trust, waiting for the owner to start the deep check.
         "deep_wait",
-        // Prepared in advance: confirmed, waiting for Start.
+        // Paired while searching, waiting for Start on the ready step.
+        "trusted",
+        // The deep check, prepared on the ready step, is confirmed.
         "deep_ready",
     ]
     .contains(&phase)
@@ -679,6 +693,14 @@ fn acquisition_progress(work: &Path) -> Option<Progress> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn each_start_choice_has_the_word_the_ios_adapter_reads() {
+        assert_eq!(start_word(START_HOLD), b"hold");
+        assert_eq!(start_word(START_DEEP), b"deep");
+        assert_eq!(start_word(START_COPY), b"no-network");
+        assert_eq!(start_word(START_COPY_WITH_NETWORK), b"network");
+        assert_eq!(start_word(u8::MAX), b"hold");
+    }
     #[test]
     fn progress_reports_only_known_sysdiagnose_states() {
         let work = tempfile::tempdir().unwrap();
@@ -731,6 +753,14 @@ mod tests {
         let deep = acquisition_progress(work.path()).unwrap();
         assert_eq!(deep.phase, "deep_wait");
         assert_eq!(deep.sysdiagnose.as_deref(), Some("generating"));
+        // Paired while searching, waiting for Start.
+        std::fs::write(&path, r#"{"phase":"trusted"}"#).unwrap();
+        assert_eq!(
+            acquisition_progress(work.path())
+                .map(|p| p.phase)
+                .as_deref(),
+            Some("trusted")
+        );
         // Prepared in advance and confirmed, waiting for Start.
         std::fs::write(
             &path,

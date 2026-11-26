@@ -489,15 +489,16 @@ DEEP_SKIP = "skip-deep-check"
 # deep check in advance: "network" or "no-network".
 START_COPY = "start-copy"
 START_POLL_SECONDS = 0.5
+COPY_CHOICES = ("network", "no-network")
 
 
-async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
+async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS, until=None):
     """With the deep check chosen, hold the copy until the phone is preparing
     a sysdiagnose (the owner pressed the three buttons): it is started after
     Trust and before the passcode prompt, which the side button would close.
     Ends when the phone confirms it, when the owner continues without it, or
-    after `limit` (None: no limit, while the owner prepares it in advance);
-    it never fails the scan."""
+    after `limit` (None: no limit, while the owner prepares it in advance),
+    or once `until()` is true; it never fails the scan."""
     phase(work, "deep_wait")
     loop = asyncio.get_running_loop()
     deadline = None if limit is None else loop.time() + limit
@@ -509,7 +510,8 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
             baseline = set(await manager.afc.listdir(SYSDIAGNOSE_DIR))
         except Exception:
             baseline = set()  # the folder appears with the first sysdiagnose
-        while (deadline is None or loop.time() < deadline) and not (work / DEEP_SKIP).exists():
+        while ((deadline is None or loop.time() < deadline) and not (work / DEEP_SKIP).exists()
+               and not (until is not None and until())):
             try:
                 names = set(await manager.afc.listdir(SYSDIAGNOSE_DIR))
             except Exception:
@@ -535,15 +537,35 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
                 pass
 
 
-async def wait_for_start(work):
-    """Prepared in advance, the deep check is confirmed: hold until the owner
-    presses Start. Returns whether to observe the phone's network, chosen on
-    the same screen."""
-    phase(work, "deep_ready")
-    start = work / START_COPY
-    while not start.exists():
+def start_choice(work):
+    """What the app last asked of a held session: "hold", "deep", or to copy
+    ("network" or "no-network"). The app replaces the file whole."""
+    try:
+        return (work / START_COPY).read_text(encoding="ascii", errors="ignore").strip()
+    except OSError:
+        return "hold"
+
+
+async def wait_for_start(client, work):
+    """Paired, hold the copy until the owner presses Start on the ready step.
+    Meanwhile the owner can choose the deep check: the phone is then asked
+    for it, with no time limit, and Start waits for its confirmation.
+    Returns whether to observe the phone's network, chosen on that screen."""
+    def chosen():
+        return start_choice(work) in COPY_CHOICES
+    phase(work, "trusted")
+    while not chosen():
+        if start_choice(work) == "deep":
+            if not await wait_for_deep_check(client, work, limit=None, until=chosen):
+                if not chosen():
+                    raise ValueError("deep_check_failed")
+                break
+            phase(work, "deep_ready")
+            while not chosen():
+                await asyncio.sleep(START_POLL_SECONDS)
+            break
         await asyncio.sleep(START_POLL_SECONDS)
-    return start.read_text(encoding="ascii", errors="ignore").strip() == "network"
+    return start_choice(work) == "network"
 
 
 async def collect_diagnostics(client, work, wait_seconds=SYSDIAGNOSE_WAIT_SECONDS):
@@ -731,12 +753,10 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False, ho
                 raise ValueError(classify(error) or "device_not_trusted") from error
             if not await client.validate_pairing():
                 raise ValueError("device_not_trusted")
-        if deep and hold:
-            # Prepared in advance: Start stays disabled until the phone has
-            # confirmed it, so wait as long as the owner needs.
-            if not await wait_for_deep_check(client, work, limit=None):
-                raise ValueError("deep_check_failed")
-            capture = await wait_for_start(work)
+        if hold:
+            # Paired while searching: the copy waits for Start, and the deep
+            # check, if chosen, is prepared on the same screen.
+            capture = await wait_for_start(client, work)
         elif deep:
             await wait_for_deep_check(client, work)
         output = work / "ios-backup"
@@ -854,10 +874,10 @@ async def main(args):
             raise RuntimeError("ios_discovery_timeout") from error
     elif (len(args) in (4, 5) and args[0] == "backup" and args[2] in {"encrypted", "plain"}
           and args[3] in {"network", "no-network"}
-          and (len(args) == 4 or args[4] in {"deep", "deep-hold", "no-deep"})):
+          and (len(args) == 4 or args[4] in {"deep", "hold", "no-deep"})):
         preload("backup")
-        deep = len(args) == 5 and args[4] in {"deep", "deep-hold"}
-        hold = len(args) == 5 and args[4] == "deep-hold"
+        deep = len(args) == 5 and args[4] == "deep"
+        hold = len(args) == 5 and args[4] == "hold"
         await asyncio.wait_for(unless_parent_exits(
             acquire(args[1], work, args[2] == "encrypted", args[3] == "network", deep, hold), work),
             4 * 60 * 60 - 30)

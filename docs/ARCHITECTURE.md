@@ -49,19 +49,22 @@ memory. The PDF is rendered locally with jsPDF.
    a separate option the person ticks.
 2. **Discovery.** iPhones are listed through the iOS adapter (Apple's USB
    service), Android phones through a private adb server started for the
-   session, on its own port, with network discovery turned off.
+   session, on its own port, with network discovery turned off. Each phone
+   is approved on this step: Android asks to allow USB debugging, and an
+   iPhone found is paired at once, so it asks for "Trust" and its passcode
+   here. The paired session then waits for Start on the ready step.
 3. **Copy.** An iPhone is backed up over USB into a private temporary folder.
    Photos and videos from the personal library are skipped as they arrive; the
    rest of the backup, including its manifest, is kept. "Trust" creates a
-   pairing that stays in memory and is revoked at the end. An Android phone
+   pairing that stays in memory and is revoked at the end, or when the
+   person leaves the step without starting. An Android phone
    produces a bug report, and the app reads its installed apps, granted
    permissions and special access with read-only `adb shell` commands.
-4. **Deep check (iPhone, optional).** Ticking it on the ready step prepares
-   it there: the phone asks for "Trust", then the owner starts a sysdiagnose
-   with the phone's buttons. "Start scan" stays disabled until the phone
-   confirms it, and the copy begins only when it is pressed. Without the deep
-   check, the scan starts at once. The shutdown log and the crash reports are
-   read after the copy.
+4. **Deep check (iPhone, optional).** Ticking it on the ready step asks the
+   owner to start a sysdiagnose with the phone's buttons. "Start scan" stays
+   disabled until the phone confirms it; unticking it enables Start again.
+   Without the deep check, the scan starts at once. The shutdown log and the
+   crash reports are read after the copy.
 5. **Analysis.** MVT runs offline over the copy, and Enigm's own analysis in
    `agent/core` matches indicators, looks for spyware behaviour on Android,
    suspicious process locations on iPhone and look-alike links in messages

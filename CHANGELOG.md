@@ -2,11 +2,14 @@
 
 ## Unreleased
 
-- iPhone deep check, prepared on the ready step: ticking it asks the phone
-  for "Trust" right there and shows the three buttons to press. "Start scan"
-  waits until the phone confirms the sysdiagnose; without the deep check it
-  starts at once. If the phone refuses, a message says so and the box is
-  unticked.
+- iPhone "Trust" moves to the search step, as Android's USB debugging: the
+  iPhone found asks for it, with its passcode, before "All set", which only
+  appears once the phone trusts the computer.
+- iPhone deep check, prepared on the ready step: ticking it shows the three
+  buttons to press, and "Start scan" waits until the phone confirms the
+  sysdiagnose. Without the deep check it starts at once.
+- If the phone refused "Trust", the checks beside it say to unplug the
+  cable and plug it back in, instead of "Enigm Scan open on your computer".
 - Messages appear at the top of the window and leave on their own: red for
   errors, green for success, neutral otherwise.
 - Cancelling a scan resets the app and deletes everything it had copied,
