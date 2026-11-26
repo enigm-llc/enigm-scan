@@ -3405,16 +3405,6 @@ summary {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.phone-banner.ready small::before {
-  content: "";
-  display: inline-block;
-  width: 0.5em;
-  height: 0.5em;
-  margin-right: 0.4em;
-  border-radius: 50%;
-  background: var(--good, #6bd898);
-  vertical-align: 0.08em;
-}
 /* System prompts dim the home screen. */
 .phone-scrim {
   position: absolute;
@@ -5875,6 +5865,7 @@ body:has(.promo-backdrop) {
     opacity 160ms ease;
 }
 .welcome-start:hover {
+  background: var(--dot);
   opacity: 0.88;
 }
 .welcome-start:active {

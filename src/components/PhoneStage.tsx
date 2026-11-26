@@ -388,7 +388,7 @@ export function PhoneStage({
         <>
           {home}
           {/* Text only: the device's icon is already beside the phone. */}
-          <div className={`phone-banner ${screen.ready ? "ready" : ""}`}>
+          <div className="phone-banner">
             <span>
               <b>{screen.name}</b>
               <small>{screen.detail ?? screen.status}</small>

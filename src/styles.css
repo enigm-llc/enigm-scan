@@ -76,13 +76,15 @@ button,
 }
 /* Hover only where there is a pointer that hovers; on touch it would stick. */
 @media (hover: hover) and (pointer: fine) {
-  button:hover,
+  /* :where keeps this rule as weak as before, so buttons with their own
+     colours keep them on hover; disabled buttons do not react. */
+  button:where(:not(:disabled)):hover,
   .button:hover {
     background: var(--soft);
     border-color: var(--muted);
   }
 }
-button:active,
+button:where(:not(:disabled)):active,
 .button:active {
   background: var(--soft);
 }
@@ -99,7 +101,7 @@ button:disabled {
   color: var(--inverse);
   border-color: var(--action);
 }
-.primary:hover {
+.primary:not(:disabled):hover {
   background: var(--action);
   border-color: var(--action);
   opacity: 0.86;
