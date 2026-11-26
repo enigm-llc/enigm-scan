@@ -132,11 +132,18 @@ it("offers the next phone next to the PDF in every language, and no promotion", 
 });
 
 it("lights at most the three most severe signs on the drawn phone", () => {
+  const categories = [
+    "known_domain_indicator",
+    "known_appid_indicator",
+    "known_ip_indicator",
+    "known_sha256_indicator",
+    "known_appid_indicator",
+  ];
   const signs = (["low", "critical", "medium", "high", "high"] as const).map(
     (severity, i) => ({
       ...finding(
         `mvt.9a1b2c3d-0000-4000-a000-00000000000${i}`,
-        "known",
+        categories[i],
         `evidence ${i}`,
       ),
       severity,
@@ -145,7 +152,8 @@ it("lights at most the three most severe signs on the drawn phone", () => {
   const { container } = render(
     <Report report={report(signs)} t={dictionaries.en} language="en" />,
   );
-  // Critical #2, then the two high ones, #4 and #5; medium and low left out.
+  // The critical one, then the two high ones; medium and low left out. Each
+  // says in a word what it is about.
   const cells = [...container.querySelectorAll(".phone-hex-lit")];
   expect(cells.map((cell) => cell.getAttribute("class"))).toEqual([
     "phone-hex-lit sev-critical",
@@ -154,5 +162,5 @@ it("lights at most the three most severe signs on the drawn phone", () => {
   ]);
   expect(
     cells.map((cell) => cell.querySelector("text.caption")?.textContent),
-  ).toEqual(["#2", "#4", "#5"]);
+  ).toEqual(["App", "File", "App"]);
 });

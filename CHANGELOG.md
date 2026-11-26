@@ -19,7 +19,8 @@
   arrow under "See details".
 - On the drawn phone of a report with findings, each cell takes its
   severity's colour and their glows blend together. It lights at most three,
-  the most severe, from top to bottom, each with its number in the list.
+  the most severe, from top to bottom, each saying in a word what it is
+  about (App, File, Domain…).
 - The progress card's Pause and Cancel are round icon buttons, and what the
   card says fits on one line in every language.
 - The closing invitation presents Enigm as protection for messages and

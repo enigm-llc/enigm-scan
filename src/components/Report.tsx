@@ -16,7 +16,7 @@ import type { Copy, Language } from "../shared/i18n/i18n";
 import { productCopy } from "../shared/i18n/product";
 import { reportCopy } from "../shared/i18n/report";
 import { PhoneStage } from "./PhoneStage";
-import { findingLabel } from "../shared/i18n/findings";
+import { findingKind, findingLabel } from "../shared/i18n/findings";
 import { splitFindings } from "../core/findings";
 import { evidenceText, nativeText } from "../shared/i18n/native";
 import { DeviceIcon } from "./Brand";
@@ -202,7 +202,7 @@ export function Report({
                   kind: "findings",
                   subtitle: c.review,
                   // At most three cells, the most severe signs, so the
-                  // screen never fills up; each keeps its number in the list.
+                  // screen never fills up.
                   cells: detections
                     .map((f, i) => ({ f, i }))
                     .sort(
@@ -213,7 +213,8 @@ export function Report({
                     .slice(0, 3)
                     .map(({ f, i }) => ({
                       name: t[f.severity],
-                      caption: `#${i + 1}`,
+                      // What it is about, in a word; its number otherwise.
+                      caption: findingKind(f.category, language) || `#${i + 1}`,
                       severity: f.severity,
                     })),
                 }

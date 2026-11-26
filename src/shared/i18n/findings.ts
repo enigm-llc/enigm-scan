@@ -187,3 +187,111 @@ export function findingLabel(category: string, language: Language) {
   }
   return category;
 }
+
+/** What a sign is about, in one word, for small spaces such as the cells of
+ *  the drawn phone. */
+const kinds = {
+  app: { es: "App", en: "App", fr: "Appli", de: "App", it: "App", pt: "App" },
+  file: {
+    es: "Archivo",
+    en: "File",
+    fr: "Fichier",
+    de: "Datei",
+    it: "File",
+    pt: "Ficheiro",
+  },
+  domain: {
+    es: "Dominio",
+    en: "Domain",
+    fr: "Domaine",
+    de: "Domain",
+    it: "Dominio",
+    pt: "Domínio",
+  },
+  ip: { es: "IP", en: "IP", fr: "IP", de: "IP", it: "IP", pt: "IP" },
+  process: {
+    es: "Proceso",
+    en: "Process",
+    fr: "Processus",
+    de: "Prozess",
+    it: "Processo",
+    pt: "Processo",
+  },
+  account: {
+    es: "Cuenta",
+    en: "Account",
+    fr: "Compte",
+    de: "Konto",
+    it: "Account",
+    pt: "Conta",
+  },
+  profile: {
+    es: "Perfil",
+    en: "Profile",
+    fr: "Profil",
+    de: "Profil",
+    it: "Profilo",
+    pt: "Perfil",
+  },
+  link: {
+    es: "Enlace",
+    en: "Link",
+    fr: "Lien",
+    de: "Link",
+    it: "Link",
+    pt: "Ligação",
+  },
+  network: {
+    es: "Red",
+    en: "Network",
+    fr: "Réseau",
+    de: "Netzwerk",
+    it: "Rete",
+    pt: "Rede",
+  },
+  system: {
+    es: "Sistema",
+    en: "System",
+    fr: "Système",
+    de: "System",
+    it: "Sistema",
+    pt: "Sistema",
+  },
+  messages: {
+    es: "Mensajes",
+    en: "Messages",
+    fr: "Messages",
+    de: "Nachrichten",
+    it: "Messaggi",
+    pt: "Mensagens",
+  },
+} satisfies Record<string, Record<Language, string>>;
+const kindOf: Record<string, keyof typeof kinds> = {
+  known_domain_indicator: "domain",
+  known_ip_indicator: "ip",
+  known_sha256_indicator: "file",
+  known_processname_indicator: "process",
+  known_email_indicator: "account",
+  known_filename_indicator: "file",
+  known_filepath_indicator: "file",
+  known_appid_indicator: "app",
+  known_configurationprofileid_indicator: "profile",
+  android_sideloaded_apps: "app",
+  android_traffic_redirect: "network",
+  known_monitoring_app: "app",
+  android_spyware_behavior: "app",
+  android_surveillance_capabilities: "app",
+  android_system_integrity: "system",
+  suspicious_link: "link",
+  ios_configuration_profile: "profile",
+  ios_unusual_process: "process",
+  ios_unrecognised_process: "process",
+  ios_message_parser_crashes: "messages",
+  android_private_dns: "network",
+};
+/** One word for what a sign concerns (App, File, Domain…), or nothing for a
+ *  category without one. */
+export function findingKind(category: string, language: Language) {
+  const kind = kindOf[category];
+  return kind ? kinds[kind][language] : "";
+}
