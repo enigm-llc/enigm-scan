@@ -12,6 +12,7 @@
   around it.
 - The closing invitation's title is "Protect your conversations" and its
   button "Meet Enigm".
+- Messages at the top use one colour for their words, icon and border.
 - The line under "Find my phone" while it searches is gone; the spinning
   button says it.
 

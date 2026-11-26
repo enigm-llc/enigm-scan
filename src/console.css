@@ -6600,37 +6600,35 @@ body:has(.promo-backdrop) {
   cursor: default;
   animation: toast-in 240ms var(--ease) both;
 }
+/* The icon always in the message's own colour. */
 .toast svg {
   flex: none;
-  color: var(--tone);
+  color: currentColor;
 }
 :root[data-theme="dark"] .toast {
   --toast-border: #3f3f3f;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
 }
+/* Errors: one red for the words, the icon and the border, a little
+   brighter in dark mode so it reads as well. */
 .toast.is-error {
-  border-color: #d63232;
+  --toast-red: #d63232;
+  border-color: var(--toast-red);
   background:
     linear-gradient(rgba(214, 50, 50, 0.08), rgba(214, 50, 50, 0.08)),
     var(--raised);
-  color: #d63232;
+  color: var(--toast-red);
 }
 :root[data-theme="dark"] .toast.is-error {
+  --toast-red: #ec5a5a;
   background:
-    linear-gradient(rgba(214, 50, 50, 0.125), rgba(214, 50, 50, 0.125)),
+    linear-gradient(rgba(236, 90, 90, 0.12), rgba(236, 90, 90, 0.12)),
     var(--raised);
-  color: #ec6b6b;
-}
-.toast.is-error svg {
-  color: #d63232;
 }
 .toast.is-success {
   border-color: var(--good);
   background:
     linear-gradient(var(--success-soft), var(--success-soft)), var(--raised);
-  color: var(--good);
-}
-.toast.is-success svg {
   color: var(--good);
 }
 .app-window .toast:hover {
