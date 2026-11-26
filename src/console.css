@@ -6586,3 +6586,9 @@ body:has(.promo-backdrop) {
     animation: none;
   }
 }
+
+/* The deep check, prepared on the ready step, is confirmed. */
+.app-window .scan-main .console-copy .scan-option-steps.is-ready {
+  color: var(--good);
+  font-weight: 500;
+}

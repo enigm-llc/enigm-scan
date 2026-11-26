@@ -23,6 +23,9 @@ export type FlowCopy = {
   aboutReleased: string;
   scrollMore: string;
   pdfSaved: string;
+  deepReadyHint: string;
+  deepTrustHint: string;
+  deepFailed: string;
   /** Short lines for the progress card: what is being done right now. */
   cardCopying: string;
   cardSkipping: string;
@@ -125,6 +128,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutReleased: "Publicada el {d}",
     scrollMore: "Ver más",
     pdfSaved: "Informe guardado",
+    deepReadyHint: "Activado. Ya puedes empezar el análisis.",
+    deepTrustHint: "Pulsa «Confiar» en el iPhone y escribe tu código.",
+    deepFailed:
+      "No se pudo activar el análisis profundo. Vuelve a marcarlo para intentarlo de nuevo.",
     optionDeepSteps:
       "Después de «Confiar» te pediremos pulsar a la vez tres botones del iPhone. La copia empieza cuando el iPhone lo confirme.",
     cardCopying: "Copiando archivos",
@@ -235,6 +242,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutReleased: "Released {d}",
     scrollMore: "See more",
     pdfSaved: "Report saved",
+    deepReadyHint: "Turned on. You can start the scan.",
+    deepTrustHint: "Tap “Trust” on the iPhone and enter your passcode.",
+    deepFailed:
+      "The deep check could not be turned on. Tick it again to try once more.",
     optionDeepSteps:
       "After “Trust”, we’ll ask you to press three iPhone buttons at the same time. The copy starts once the iPhone confirms it.",
     cardCopying: "Copying files",
@@ -346,6 +357,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutReleased: "Publiée le {d}",
     scrollMore: "Voir plus",
     pdfSaved: "Rapport enregistré",
+    deepReadyHint: "Activée. Vous pouvez lancer l’analyse.",
+    deepTrustHint: "Touchez « Se fier » sur l’iPhone et saisissez votre code.",
+    deepFailed:
+      "L’analyse approfondie n’a pas pu être activée. Cochez-la de nouveau pour réessayer.",
     optionDeepSteps:
       "Après « Faire confiance », nous vous demanderons d’appuyer en même temps sur trois boutons de l’iPhone. La copie commence dès que l’iPhone le confirme.",
     cardCopying: "Copie des fichiers",
@@ -462,6 +477,11 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutReleased: "Veröffentlicht am {d}",
     scrollMore: "Mehr anzeigen",
     pdfSaved: "Bericht gespeichert",
+    deepReadyHint: "Aktiviert. Sie können die Analyse starten.",
+    deepTrustHint:
+      "Tippen Sie auf dem iPhone auf „Vertrauen“ und geben Sie Ihren Code ein.",
+    deepFailed:
+      "Die Tiefenprüfung konnte nicht aktiviert werden. Wählen Sie sie erneut, um es noch einmal zu versuchen.",
     optionDeepSteps:
       "Nach „Vertrauen“ bitten wir Sie, gleichzeitig drei Tasten am iPhone zu drücken. Die Kopie beginnt, sobald das iPhone es bestätigt.",
     cardCopying: "Dateien werden kopiert",
@@ -581,6 +601,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutReleased: "Pubblicata il {d}",
     scrollMore: "Mostra di più",
     pdfSaved: "Rapporto salvato",
+    deepReadyHint: "Attivata. Puoi avviare l’analisi.",
+    deepTrustHint: "Tocca «Autorizza» sull’iPhone e inserisci il codice.",
+    deepFailed:
+      "Non è stato possibile attivare l’analisi approfondita. Selezionala di nuovo per riprovare.",
     optionDeepSteps:
       "Dopo «Autorizza» ti chiederemo di premere insieme tre tasti dell’iPhone. La copia inizia quando l’iPhone lo conferma.",
     cardCopying: "Copia dei file",
@@ -695,6 +719,10 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutReleased: "Publicada a {d}",
     scrollMore: "Ver mais",
     pdfSaved: "Relatório guardado",
+    deepReadyHint: "Ativada. Já pode iniciar a análise.",
+    deepTrustHint: "Toque em «Confiar» no iPhone e introduza o código.",
+    deepFailed:
+      "Não foi possível ativar a análise profunda. Marque-a de novo para tentar outra vez.",
     optionDeepSteps:
       "Depois de «Confiar», vamos pedir-lhe que prima ao mesmo tempo três botões do iPhone. A cópia começa quando o iPhone o confirmar.",
     cardCopying: "A copiar ficheiros",

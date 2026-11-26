@@ -485,6 +485,10 @@ DEEP_POLL_SECONDS = 2
 DEEP_CONFIRM_SECONDS = 3
 # Written by the runtime when the owner continues without the deep check.
 DEEP_SKIP = "skip-deep-check"
+# Written by the runtime when the owner presses Start after preparing the
+# deep check in advance: "network" or "no-network".
+START_COPY = "start-copy"
+START_POLL_SECONDS = 0.5
 
 
 async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
@@ -492,10 +496,11 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
     a sysdiagnose (the owner pressed the three buttons): it is started after
     Trust and before the passcode prompt, which the side button would close.
     Ends when the phone confirms it, when the owner continues without it, or
-    after `limit`; it never fails the scan."""
+    after `limit` (None: no limit, while the owner prepares it in advance);
+    it never fails the scan."""
     phase(work, "deep_wait")
     loop = asyncio.get_running_loop()
-    deadline = loop.time() + limit
+    deadline = None if limit is None else loop.time() + limit
     manager = None
     try:
         manager = diagnostics_api()(client)
@@ -504,7 +509,7 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
             baseline = set(await manager.afc.listdir(SYSDIAGNOSE_DIR))
         except Exception:
             baseline = set()  # the folder appears with the first sysdiagnose
-        while loop.time() < deadline and not (work / DEEP_SKIP).exists():
+        while (deadline is None or loop.time() < deadline) and not (work / DEEP_SKIP).exists():
             try:
                 names = set(await manager.afc.listdir(SYSDIAGNOSE_DIR))
             except Exception:
@@ -528,6 +533,17 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS):
                 await asyncio.wait_for(manager.aclose(), 5)
             except Exception:
                 pass
+
+
+async def wait_for_start(work):
+    """Prepared in advance, the deep check is confirmed: hold until the owner
+    presses Start. Returns whether to observe the phone's network, chosen on
+    the same screen."""
+    phase(work, "deep_ready")
+    start = work / START_COPY
+    while not start.exists():
+        await asyncio.sleep(START_POLL_SECONDS)
+    return start.read_text(encoding="ascii", errors="ignore").strip() == "network"
 
 
 async def collect_diagnostics(client, work, wait_seconds=SYSDIAGNOSE_WAIT_SECONDS):
@@ -690,7 +706,7 @@ async def copy_once(client, backup_api, work, output, password_supplied, capture
     return excluded
 
 
-async def acquire(serial, work, password_supplied, capture=False, deep=False):
+async def acquire(serial, work, password_supplied, capture=False, deep=False, hold=False):
     if not valid_id(serial):
         raise ValueError("invalid_device")
     _, connect, backup_api = api()
@@ -715,7 +731,13 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False):
                 raise ValueError(classify(error) or "device_not_trusted") from error
             if not await client.validate_pairing():
                 raise ValueError("device_not_trusted")
-        if deep:
+        if deep and hold:
+            # Prepared in advance: Start stays disabled until the phone has
+            # confirmed it, so wait as long as the owner needs.
+            if not await wait_for_deep_check(client, work, limit=None):
+                raise ValueError("deep_check_failed")
+            capture = await wait_for_start(work)
+        elif deep:
             await wait_for_deep_check(client, work)
         output = work / "ios-backup"
         excluded = 0
@@ -831,11 +853,14 @@ async def main(args):
         except TimeoutError as error:
             raise RuntimeError("ios_discovery_timeout") from error
     elif (len(args) in (4, 5) and args[0] == "backup" and args[2] in {"encrypted", "plain"}
-          and args[3] in {"network", "no-network"} and (len(args) == 4 or args[4] in {"deep", "no-deep"})):
+          and args[3] in {"network", "no-network"}
+          and (len(args) == 4 or args[4] in {"deep", "deep-hold", "no-deep"})):
         preload("backup")
-        deep = len(args) == 5 and args[4] == "deep"
+        deep = len(args) == 5 and args[4] in {"deep", "deep-hold"}
+        hold = len(args) == 5 and args[4] == "deep-hold"
         await asyncio.wait_for(unless_parent_exits(
-            acquire(args[1], work, args[2] == "encrypted", args[3] == "network", deep), work), 4 * 60 * 60 - 30)
+            acquire(args[1], work, args[2] == "encrypted", args[3] == "network", deep, hold), work),
+            4 * 60 * 60 - 30)
     else:
         raise ValueError("invalid_operation")
 
@@ -843,10 +868,10 @@ async def main(args):
 KNOWN_FAILURES = {"backup_password_required", "insufficient_disk_space", "device_not_authorized", "invalid_operation",
                   "ios_transport_unavailable", "ios_discovery_timeout", "device_locked", "device_disconnected",
                   "device_not_trusted", "device_cancelled", "device_trust_denied", "device_passcode_timeout", "acquisition_incomplete", "invalid_device",
-                  "parent_exited"}
+                  "parent_exited", "deep_check_failed"}
 EXIT_CODES = {"backup_password_required": 78, "insufficient_disk_space": 79, "ios_discovery_timeout": 80, "device_locked": 81,
               "device_disconnected": 82, "device_not_trusted": 83, "device_cancelled": 84,
-              "device_trust_denied": 85, "device_passcode_timeout": 86}
+              "device_trust_denied": 85, "device_passcode_timeout": 86, "deep_check_failed": 87}
 
 
 def failure_diagnostic(error):

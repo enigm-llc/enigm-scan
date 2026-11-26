@@ -56,9 +56,12 @@ memory. The PDF is rendered locally with jsPDF.
    pairing that stays in memory and is revoked at the end. An Android phone
    produces a bug report, and the app reads its installed apps, granted
    permissions and special access with read-only `adb shell` commands.
-4. **Deep check (iPhone, optional).** After "Trust", the copy waits until the
-   owner starts a sysdiagnose with the phone's buttons, or chooses to go on
-   without it. Its shutdown log and the crash reports are read after the copy.
+4. **Deep check (iPhone, optional).** Ticking it on the ready step prepares
+   it there: the phone asks for "Trust", then the owner starts a sysdiagnose
+   with the phone's buttons. "Start scan" stays disabled until the phone
+   confirms it, and the copy begins only when it is pressed. Without the deep
+   check, the scan starts at once. The shutdown log and the crash reports are
+   read after the copy.
 5. **Analysis.** MVT runs offline over the copy, and Enigm's own analysis in
    `agent/core` matches indicators, looks for spyware behaviour on Android,
    suspicious process locations on iPhone and look-alike links in messages

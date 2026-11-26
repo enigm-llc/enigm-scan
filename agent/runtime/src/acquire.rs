@@ -2,7 +2,7 @@ use crate::{adb, engines::Catalog, process};
 use serde::{Deserialize, Serialize};
 use std::{
     path::{Path, PathBuf},
-    sync::atomic::AtomicBool,
+    sync::atomic::{AtomicBool, AtomicU8},
     time::Duration,
 };
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -155,10 +155,20 @@ pub struct Options<'a> {
     pub deep_check: bool,
     /// Set when the owner continues without the deep check.
     pub skip_deep_check: Option<&'a AtomicBool>,
+    /// iPhone, deep check prepared in advance: hold after its confirmation
+    /// until Start. `START_HOLD` until then, then `START_COPY` or
+    /// `START_COPY_WITH_NETWORK`.
+    pub start: Option<&'a AtomicU8>,
 }
+pub const START_HOLD: u8 = 0;
+pub const START_COPY: u8 = 1;
+pub const START_COPY_WITH_NETWORK: u8 = 2;
 /// Written in the workspace for the iPhone adapter: continue without the
 /// deep check (`DEEP_SKIP` in scripts/engines/ios_entry.py).
 const DEEP_SKIP: &str = "skip-deep-check";
+/// Written in the workspace when the owner presses Start after preparing the
+/// deep check (`START_COPY` in scripts/engines/ios_entry.py).
+const START_FILE: &str = "start-copy";
 // The device, its workspace and the session's controls; grouping them
 // would only move the same list into a struct used once.
 #[allow(clippy::too_many_arguments)]
@@ -213,7 +223,9 @@ pub fn acquire(
                 } else {
                     "no-network".into()
                 },
-                if options.deep_check {
+                if options.deep_check && options.start.is_some() {
+                    "deep-hold".into()
+                } else if options.deep_check {
                     "deep".into()
                 } else {
                     "no-deep".into()
@@ -263,6 +275,22 @@ pub fn acquire(
                 {
                     let _ = std::fs::write(work.join(DEEP_SKIP), b"skip");
                 }
+                if let Some(start) = options.start {
+                    let choice = start.load(std::sync::atomic::Ordering::SeqCst);
+                    if choice != START_HOLD && !work.join(START_FILE).exists() {
+                        let network: &[u8] = if choice == START_COPY_WITH_NETWORK {
+                            b"network"
+                        } else {
+                            b"no-network"
+                        };
+                        // Written whole, then renamed, so the adapter never
+                        // reads a half-written choice.
+                        let partial = work.join("start-copy.partial");
+                        if std::fs::write(&partial, network).is_ok() {
+                            let _ = std::fs::rename(&partial, work.join(START_FILE));
+                        }
+                    }
+                }
             },
         )?
     };
@@ -283,6 +311,8 @@ pub fn acquire(
             // unanswered on every attempt (the adapter already retried).
             Some(85) => Some("device_trust_denied"),
             Some(86) => Some("device_passcode_timeout"),
+            // The phone could not be asked whether the deep check started.
+            Some(87) => Some("deep_check_failed"),
             _ => None,
         };
         if let Some(code) = code {
@@ -622,6 +652,8 @@ fn acquisition_progress(work: &Path) -> Option<Progress> {
         "passcode_retry",
         // After Trust, waiting for the owner to start the deep check.
         "deep_wait",
+        // Prepared in advance: confirmed, waiting for Start.
+        "deep_ready",
     ]
     .contains(&phase)
     {
@@ -699,6 +731,18 @@ mod tests {
         let deep = acquisition_progress(work.path()).unwrap();
         assert_eq!(deep.phase, "deep_wait");
         assert_eq!(deep.sysdiagnose.as_deref(), Some("generating"));
+        // Prepared in advance and confirmed, waiting for Start.
+        std::fs::write(
+            &path,
+            r#"{"phase":"deep_ready","sysdiagnose":"generating"}"#,
+        )
+        .unwrap();
+        assert_eq!(
+            acquisition_progress(work.path())
+                .map(|p| p.phase)
+                .as_deref(),
+            Some("deep_ready")
+        );
         for invalid in [r#"{"phase":"completed"}"#, r#"{"phase":"network""#] {
             std::fs::write(&path, invalid).unwrap();
             assert!(acquisition_progress(work.path()).is_none());

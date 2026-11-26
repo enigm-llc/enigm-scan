@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+- iPhone deep check, prepared on the ready step: ticking it asks the phone
+  for "Trust" right there and shows the three buttons to press. "Start scan"
+  waits until the phone confirms the sysdiagnose; without the deep check it
+  starts at once. If the phone refuses, a message says so and the box is
+  unticked.
+- Messages appear at the top of the window and leave on their own: red for
+  errors, green for success, neutral otherwise.
+- Cancelling a scan resets the app and deletes everything it had copied,
+  without a "Scan cancelled" notice.
+- On macOS the window's title bar blends into the app, and windows no longer
+  flash white while they open.
+- About shows the app's name in its colour; Help holds only Documentation.
+- The closing invitation shows the full Enigm logo and closes with its round
+  button or "Try Enigm".
+- A finished report hints that it continues below.
+
 ## 0.7.1 — 26 November 2026
 
 - Starting a scan no longer freezes the app on macOS. The second consent

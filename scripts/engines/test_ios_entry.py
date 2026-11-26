@@ -229,6 +229,33 @@ class DiagnosticsTests(unittest.IsolatedAsyncioTestCase):
             # Nobody presses the buttons: the copy goes on after the limit.
             self.assertFalse(await adapter.wait_for_deep_check(object(), Path(work), limit=0.05))
 
+    async def test_a_deep_check_prepared_in_advance_waits_without_a_limit(self):
+        manager = FakeCrashReports({})
+        adapter.SESSION.update(sysdiagnose=None, phase="acquiring", capturing=False, percent=None,
+                               kept=0, discarded=0, receivedBytes=0, storedBytes=0)
+        with tempfile.TemporaryDirectory() as work, patch.object(adapter, "diagnostics_api", return_value=manager), \
+                patch.object(adapter, "DEEP_POLL_SECONDS", 0.01), patch.object(adapter, "DEEP_CONFIRM_SECONDS", 0):
+            waiting = asyncio.create_task(adapter.wait_for_deep_check(object(), Path(work), limit=None))
+            await asyncio.sleep(0.1)
+            self.assertFalse(waiting.done())  # no deadline: the owner takes their time
+            manager.afc.files["DiagnosticLogs/sysdiagnose/IN_PROGRESS_sysdiagnose_now.tar.gz"] = (b"", 2)
+            self.assertTrue(await asyncio.wait_for(waiting, 1))
+        adapter.SESSION["sysdiagnose"] = None
+
+    async def test_a_confirmed_deep_check_holds_the_copy_until_start(self):
+        adapter.SESSION.update(sysdiagnose="generating", phase="deep_wait", capturing=False, percent=None,
+                               kept=0, discarded=0, receivedBytes=0, storedBytes=0)
+        for choice, network in (("network", True), ("no-network", False)):
+            with tempfile.TemporaryDirectory() as work, patch.object(adapter, "START_POLL_SECONDS", 0.01):
+                waiting = asyncio.create_task(adapter.wait_for_start(Path(work)))
+                await asyncio.sleep(0.05)
+                status = json.loads((Path(work) / "acquisition-status.json").read_text())
+                self.assertEqual(status["phase"], "deep_ready")
+                self.assertFalse(waiting.done())
+                (Path(work) / adapter.START_COPY).write_text(choice)
+                self.assertEqual(await asyncio.wait_for(waiting, 1), network)
+        adapter.SESSION["sysdiagnose"] = None
+
     async def test_a_hanging_service_is_bounded(self):
         manager = FakeCrashReports({"a.ips": (b"{}", 1)})
         async def hang(root, depth):

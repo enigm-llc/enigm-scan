@@ -10,7 +10,7 @@ use std::{
     io::Read,
     path::{Path, PathBuf},
     sync::{
-        atomic::{AtomicBool, Ordering},
+        atomic::{AtomicBool, AtomicU8, Ordering},
         Arc, Mutex,
     },
 };
@@ -148,6 +148,9 @@ struct Agent {
     cancel: Arc<AtomicBool>,
     /// The owner continues without the deep check (see `skip_deep_check`).
     skip_deep: Arc<AtomicBool>,
+    /// A deep check prepared in advance holds the copy until Start (see
+    /// `begin_copy`).
+    start: Arc<AtomicU8>,
     catalog: Arc<Catalog>,
     data: PathBuf,
 }
@@ -602,6 +605,10 @@ struct ScanRequest {
     /// iPhone: hold the copy until the owner starts the deep check.
     #[serde(default)]
     deep_check: bool,
+    /// iPhone deep check prepared in advance: after Trust and its
+    /// confirmation, wait for `begin_copy` before copying.
+    #[serde(default)]
+    hold: bool,
 }
 #[tauri::command]
 fn start_scan(
@@ -684,6 +691,7 @@ fn start_scan(
     }
     state.cancel.store(false, Ordering::SeqCst);
     state.skip_deep.store(false, Ordering::SeqCst);
+    state.start.store(acquire::START_HOLD, Ordering::SeqCst);
     *state.status.lock().map_err(|_| "state_unavailable")? = Status {
         phase: "acquiring".into(),
         ..Default::default()
@@ -696,6 +704,8 @@ fn start_scan(
     let cancel = state.cancel.clone();
     let skip_deep = state.skip_deep.clone();
     let deep_check = request.deep_check && request.device == "ios";
+    let held = deep_check && request.hold;
+    let start = state.start.clone();
     let catalog = state.catalog.clone();
     std::thread::spawn(move || {
         // Held for the whole scan on this thread; dropping it (success,
@@ -724,6 +734,7 @@ fn start_scan(
                         capture_network,
                         deep_check,
                         skip_deep_check: Some(&skip_deep),
+                        start: held.then_some(start.as_ref()),
                     },
                     &|progress| {
                         if let Ok(mut s) = status.lock() {
@@ -739,6 +750,12 @@ fn start_scan(
                 )?
             } else {
                 evidence.ok_or("evidence_required")?
+            };
+            // Prepared in advance, network observation was chosen at Start.
+            let capture_network = if held {
+                start.load(Ordering::SeqCst) == acquire::START_COPY_WITH_NETWORK
+            } else {
+                capture_network
             };
             let usb_cleanup = usb
                 .as_ref()
@@ -1013,6 +1030,28 @@ fn cancel_scan(window: WebviewWindow, state: State<'_, Agent>) -> Result<(), Str
         .map_err(|_| "state_unavailable")?
         .usb
         .take();
+    Ok(())
+}
+/// Start the copy of an iPhone whose deep check was prepared in advance and
+/// confirmed, with or without observing its network.
+#[tauri::command]
+fn begin_copy(
+    window: WebviewWindow,
+    state: State<'_, Agent>,
+    capture_network: bool,
+) -> Result<(), String> {
+    local(&window)?;
+    if !state.running.load(Ordering::SeqCst) {
+        return Err("scan_not_running".into());
+    }
+    state.start.store(
+        if capture_network {
+            acquire::START_COPY_WITH_NETWORK
+        } else {
+            acquire::START_COPY
+        },
+        Ordering::SeqCst,
+    );
     Ok(())
 }
 /// The owner continues the iPhone copy without the deep check.
@@ -1335,6 +1374,7 @@ fn main() {
                 running: Arc::new(AtomicBool::new(false)),
                 cancel: Arc::new(AtomicBool::new(false)),
                 skip_deep: Arc::new(AtomicBool::new(false)),
+                start: Arc::new(AtomicU8::new(acquire::START_HOLD)),
                 catalog: Arc::new(catalog),
                 data,
             });
@@ -1414,6 +1454,7 @@ fn main() {
             scan_status,
             cancel_scan,
             skip_deep_check,
+            begin_copy,
             finish_scan,
             save_export,
             remove_pcap
@@ -1563,6 +1604,7 @@ mod tests {
             running: Arc::new(AtomicBool::new(false)),
             cancel: Arc::new(AtomicBool::new(false)),
             skip_deep: Arc::new(AtomicBool::new(false)),
+            start: Arc::new(AtomicU8::new(acquire::START_HOLD)),
             catalog: Arc::new(catalog),
             data: temp.path().into(),
         };
