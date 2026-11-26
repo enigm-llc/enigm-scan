@@ -265,7 +265,7 @@ dependencies = [
 name = "enigm-scan-runtime"
 version = "0.7.0"
 dependencies = [
- "base64 0.22.1",
+ "base64 0.23.1",
  "enigm-scan-core",
  "fs2",
  "libc",
