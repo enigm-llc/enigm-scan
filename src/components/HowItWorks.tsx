@@ -29,18 +29,18 @@ import { dictionaries, type Language } from "../shared/i18n/i18n";
 
 /**
  * Spyware families with the most signed indicators in the bundled rule set
- * (counted from bundle-v2.json, version 2026112502). Update with the rules.
- * "Stalkerware" groups the 176 commercial monitoring apps tracked by Echap.
+ * (counted from bundle-v2.json, version 2026112601). Update with the rules.
+ * "Stalkerware" groups the 174 commercial monitoring apps tracked by Echap.
  */
 const FAMILIES: Array<[string, number]> = [
-  ["Stalkerware", 5595],
-  ["Pegasus", 1549],
+  ["Stalkerware", 5436],
+  ["Pegasus", 1566],
   ["Predator", 583],
+  ["Donot Team", 257],
   ["Coruna", 215],
-  ["KingsPawn", 167],
-  ["BTMOB", 158],
+  ["Wintego Helios", 174],
 ];
-const TOTAL = 11323;
+const TOTAL = 11669;
 const STEP_ICONS = [Download, Usb, FileCheck2];
 const CHECK_ICONS = [MessageSquare, Globe, Cpu, FileBadge, Network, FileClock];
 const PRIVACY_ICONS = [Laptop, UserX, ImageOff, Code];

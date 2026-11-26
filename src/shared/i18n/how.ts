@@ -30,7 +30,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Sabemos dónde buscarlo. Desde tu ordenador, sin que tus datos salgan de él.",
     familiesTitle: "Lo que buscamos",
     familiesSub:
-      "Indicadores de Amnistía Internacional, MVT, Echap y ESET, verificados y firmados por Enigm, y detección propia de Enigm.",
+      "Indicadores de Amnistía Internacional, MVT, Echap, ESET y Emerging Threats, verificados y firmados por Enigm, y detección propia de Enigm.",
     indicatorsWord: "indicadores",
     privacyCards: [
       ["En tu ordenador", "La copia y el análisis ocurren en él."],
@@ -63,7 +63,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Apps, procesos y los permisos que usan.",
       "Perfiles de configuración, certificados e integridad del sistema.",
       "Dominios y conexiones, también por DNS privado o proxy.",
-      "Registros del iPhone: fallos de apps y apagados.",
+      "Registros del iPhone: fallos de apps, apagados y procesos en marcha.",
     ],
     compatTitle: "Compatibilidad",
     compat: [
@@ -83,7 +83,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "We know where to look. From your computer, without your data ever leaving it.",
     familiesTitle: "What we look for",
     familiesSub:
-      "Indicators from Amnesty International, MVT, Echap and ESET, verified and signed by Enigm, plus Enigm’s own detection.",
+      "Indicators from Amnesty International, MVT, Echap, ESET and Emerging Threats, verified and signed by Enigm, plus Enigm’s own detection.",
     indicatorsWord: "indicators",
     privacyCards: [
       ["On your computer", "The copy and the analysis happen there."],
@@ -116,7 +116,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Apps, processes and the permissions they use.",
       "Configuration profiles, certificates and system integrity.",
       "Domains and connections, including private DNS or a proxy.",
-      "iPhone logs: app crashes and shutdowns.",
+      "iPhone logs: app crashes, shutdowns and running processes.",
     ],
     compatTitle: "Compatibility",
     compat: [
@@ -135,7 +135,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Nous savons où les chercher. Depuis votre ordinateur, sans que vos données le quittent.",
     familiesTitle: "Ce que nous cherchons",
     familiesSub:
-      "Indicateurs d’Amnesty International, MVT, Echap et ESET, vérifiés et signés par Enigm, et détection propre à Enigm.",
+      "Indicateurs d’Amnesty International, MVT, Echap, ESET et Emerging Threats, vérifiés et signés par Enigm, et détection propre à Enigm.",
     indicatorsWord: "indicateurs",
     privacyCards: [
       ["Sur votre ordinateur", "La copie et l’analyse s’y déroulent."],
@@ -168,7 +168,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Applications, processus et autorisations utilisées.",
       "Profils de configuration, certificats et intégrité du système.",
       "Domaines et connexions, y compris via DNS privé ou proxy.",
-      "Journaux de l’iPhone : plantages d’applications et arrêts.",
+      "Journaux de l’iPhone : plantages d’applications, arrêts et processus en cours.",
     ],
     compatTitle: "Compatibilité",
     compat: [
@@ -187,7 +187,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Wir wissen, wo wir suchen müssen. Von Ihrem Computer aus, ohne dass Ihre Daten ihn verlassen.",
     familiesTitle: "Wonach wir suchen",
     familiesSub:
-      "Indikatoren von Amnesty International, MVT, Echap und ESET, von Enigm geprüft und signiert, dazu Enigms eigene Erkennung.",
+      "Indikatoren von Amnesty International, MVT, Echap, ESET und Emerging Threats, von Enigm geprüft und signiert, dazu Enigms eigene Erkennung.",
     indicatorsWord: "Indikatoren",
     privacyCards: [
       ["Auf Ihrem Computer", "Kopie und Analyse finden dort statt."],
@@ -223,7 +223,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Apps, Prozessen und ihren Berechtigungen.",
       "Konfigurationsprofilen, Zertifikaten und Systemintegrität.",
       "Domains und Verbindungen, auch über privates DNS oder Proxy.",
-      "iPhone-Protokollen: App-Abstürze und Ausschaltvorgänge.",
+      "iPhone-Protokollen: App-Abstürze, Ausschaltvorgänge und laufende Prozesse.",
     ],
     compatTitle: "Kompatibilität",
     compat: [
@@ -242,7 +242,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Sappiamo dove cercarlo. Dal tuo computer, senza che i tuoi dati lo lascino.",
     familiesTitle: "Cosa cerchiamo",
     familiesSub:
-      "Indicatori di Amnesty International, MVT, Echap ed ESET, verificati e firmati da Enigm, più il rilevamento proprio di Enigm.",
+      "Indicatori di Amnesty International, MVT, Echap, ESET ed Emerging Threats, verificati e firmati da Enigm, più il rilevamento proprio di Enigm.",
     indicatorsWord: "indicatori",
     privacyCards: [
       ["Sul tuo computer", "Copia e analisi avvengono lì."],
@@ -275,7 +275,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "App, processi e i permessi che usano.",
       "Profili di configurazione, certificati e integrità del sistema.",
       "Domini e connessioni, anche tramite DNS privato o proxy.",
-      "Log dell’iPhone: arresti delle app e spegnimenti.",
+      "Log dell’iPhone: arresti delle app, spegnimenti e processi in esecuzione.",
     ],
     compatTitle: "Compatibilità",
     compat: [
@@ -294,7 +294,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Sabemos onde procurá-lo. A partir do seu computador, sem que os seus dados saiam dele.",
     familiesTitle: "O que procuramos",
     familiesSub:
-      "Indicadores da Amnistia Internacional, MVT, Echap e ESET, verificados e assinados pela Enigm, e deteção própria da Enigm.",
+      "Indicadores da Amnistia Internacional, MVT, Echap, ESET e Emerging Threats, verificados e assinados pela Enigm, e deteção própria da Enigm.",
     indicatorsWord: "indicadores",
     privacyCards: [
       ["No seu computador", "A cópia e a análise acontecem nele."],
@@ -327,7 +327,7 @@ export const howCopy: Record<Language, HowCopy> = {
       "Apps, processos e as permissões que usam.",
       "Perfis de configuração, certificados e integridade do sistema.",
       "Domínios e ligações, também por DNS privado ou proxy.",
-      "Registos do iPhone: falhas de apps e encerramentos.",
+      "Registos do iPhone: falhas de apps, encerramentos e processos em execução.",
     ],
     compatTitle: "Compatibilidade",
     compat: [

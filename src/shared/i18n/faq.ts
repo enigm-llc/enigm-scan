@@ -16,11 +16,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "¿Mis datos o los de mi móvil salen en algún momento de mi ordenador?",
-      "No. Todo ocurre en tu ordenador: la copia del móvil, el análisis y el informe. La copia es temporal y se borra al cerrar la app, y en iPhone ni siquiera copiamos tus fotos ni tus vídeos. Lo único que la app descarga de internet son las listas de indicadores de spyware, firmadas digitalmente para que nadie pueda alterarlas por el camino. Nunca enviamos a Enigm ni a nadie nada sobre ti, tu móvil o el resultado.",
+      "No. Todo ocurre en tu ordenador: la copia del móvil, el análisis y el informe. La copia es temporal y se borra al cerrar la app, y en iPhone ni siquiera copiamos tus fotos ni tus vídeos. La app solo consulta en internet dos cosas: las listas de indicadores de spyware, firmadas digitalmente para que nadie pueda alterarlas por el camino, y el número de la última versión publicada, para avisarte si hay una nueva. Nunca enviamos a Enigm ni a nadie nada sobre ti, tu móvil o el resultado.",
     ],
     [
       "¿Qué busca exactamente Enigm Scan dentro de mi móvil?",
-      "Busca rastros que dejan familias de spyware conocidas, como Pegasus, Predator o Candiru, y de las apps de stalkerware que se usan para espiar a una pareja o a un familiar: dominios a los que se conectan, procesos y archivos que instalan, perfiles y configuraciones que modifican. Son más de 11.000 indicadores documentados en investigaciones forenses públicas, y los comparamos con los mensajes, el historial de navegación, las apps, los procesos y la configuración de tu móvil. Para ello usamos MVT, el motor forense de código abierto que emplean investigadores de seguridad de todo el mundo. Además, en Android detecta apps que se comportan como spyware aunque todavía no estén documentadas, y en todos los móviles busca enlaces que imitan a servicios conocidos. Aun así, ningún análisis puede garantizar que encuentre un ataque completamente nuevo.",
+      "Busca rastros que dejan familias de spyware conocidas, como Pegasus, Predator o Candiru, y de las apps de stalkerware que se usan para espiar a una pareja o a un familiar: dominios a los que se conectan, procesos y archivos que instalan, perfiles y configuraciones que modifican. Son más de 11.000 indicadores documentados en investigaciones forenses públicas, y los comparamos con los mensajes, el historial de navegación, las apps, los procesos y la configuración de tu móvil. Para ello usamos MVT, el motor forense de código abierto que emplean investigadores de seguridad de todo el mundo. Además busca spyware aún sin documentar: en Android, apps que se ocultan y reúnen funciones de espionaje o que se instalaron desde un ordenador; en iPhone, programas que se ejecutan desde carpetas donde iOS nunca ejecuta código y señales de jailbreak; y en todos, enlaces que imitan a servicios conocidos y servidores gratuitos que el spyware usa para enviar lo que roba. También reconoce el aviso oficial de Apple cuando detecta un ataque dirigido contra tu iPhone. Aun así, ningún análisis puede garantizar que encuentre un ataque completamente nuevo.",
     ],
     [
       "¿Detecta las apps espía que alguien cercano puede haber instalado?",
@@ -36,7 +36,7 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "¿Qué es el análisis profundo del iPhone y es obligatorio?",
-      "Es una opción que puedes marcar antes de empezar. Justo después de «Confiar», te pedimos pulsar a la vez los tres botones que te marcamos y soltarlos al notar la vibración. El iPhone genera entonces un registro de diagnóstico y la copia empieza en cuanto lo confirma. De ese registro solo leemos los informes de fallos y el registro de apagado, donde spyware como Pegasus ha dejado huella, y el resto se borra. No mantengas los botones pulsados, porque llamarías a emergencias. Si no lo marcas, o pulsas «Seguir sin análisis profundo», el análisis sigue igual.",
+      "Es una opción que puedes marcar antes de empezar. Justo después de «Confiar», te pedimos pulsar a la vez los tres botones que te marcamos y soltarlos al notar la vibración. El iPhone genera entonces un registro de diagnóstico y la copia empieza en cuanto lo confirma. De ese registro solo leemos los informes de fallos, el registro de apagado y la lista de procesos en marcha, donde spyware como Pegasus ha dejado huella, y el resto se borra. No mantengas los botones pulsados, porque llamarías a emergencias. Si no lo marcas, o pulsas «Seguir sin análisis profundo», el análisis sigue igual.",
     ],
     [
       "¿Cómo activo la depuración USB en mi móvil Android?",
@@ -52,7 +52,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "¿Qué debo hacer si el análisis encuentra indicios de spyware?",
-      "Lo primero, mantener la calma: un indicio es una señal que merece revisión, no la confirmación de una infección. No borres nada, no actualices ni restaures el móvil, porque podrías destruir las pruebas que un experto necesita. Descarga el informe en PDF y guárdalo en un lugar seguro. Después, contacta con un especialista en seguridad digital; si eres periodista, activista o trabajas en la sociedad civil, la línea de ayuda gratuita de Access Now puede orientarte.",
+      "Lo primero, mantener la calma: un indicio es una señal que merece revisión, no la confirmación de una infección. No borres nada, no actualices ni restaures el móvil, porque podrías destruir las pruebas que un experto necesita. Descarga el informe en PDF y guárdalo en un lugar seguro: al final incluye los pasos a seguir según lo que se haya encontrado. Después, contacta con un especialista en seguridad digital; si eres periodista, activista o trabajas en la sociedad civil, la línea de ayuda gratuita de Access Now puede orientarte.",
+    ],
+    [
+      "¿Cómo se actualiza Enigm Scan?",
+      "Las listas de indicadores se actualizan solas: cada vez que abres la app descarga la última versión firmada y comprueba la firma antes de usarla. La app no se actualiza sola: cuando hay una versión nueva te lo dice al abrirla y te lleva a la página de descargas. Descarga la nueva y elimina la anterior; como no se instala, basta con borrar el archivo antiguo.",
     ],
     [
       "¿Puedo analizar el móvil de otra persona?",
@@ -85,11 +89,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Does my data, or my phone’s data, ever leave my computer?",
-      "No. Everything happens on your computer: the phone copy, the analysis and the report. The copy is temporary and deleted when you close the app, and on iPhone we don’t even copy your photos or videos. The only thing the app downloads from the internet is the spyware indicator lists, digitally signed so nobody can tamper with them on the way. We never send Enigm or anyone else anything about you, your phone or the result.",
+      "No. Everything happens on your computer: the phone copy, the analysis and the report. The copy is temporary and deleted when you close the app, and on iPhone we don’t even copy your photos or videos. The app only asks the internet for two things: the spyware indicator lists, digitally signed so nobody can tamper with them on the way, and the number of the latest published version, to tell you when there is a new one. We never send Enigm or anyone else anything about you, your phone or the result.",
     ],
     [
       "What exactly does Enigm Scan look for on my phone?",
-      "It looks for the traces left by known spyware families such as Pegasus, Predator or Candiru, and by the stalkerware apps used to spy on a partner or relative: domains they connect to, processes and files they install, profiles and settings they change. That’s more than 11,000 indicators documented in public forensic investigations, compared against your phone’s messages, browsing history, apps, processes and settings. We use MVT, the open-source forensic engine used by security researchers around the world. On Android it also detects apps that behave like spyware even before they are documented, and on every phone it looks for links that imitate well-known services. Even so, no scan can guarantee it will catch a brand-new attack.",
+      "It looks for the traces left by known spyware families such as Pegasus, Predator or Candiru, and by the stalkerware apps used to spy on a partner or relative: domains they connect to, processes and files they install, profiles and settings they change. That’s more than 11,000 indicators documented in public forensic investigations, compared against your phone’s messages, browsing history, apps, processes and settings. We use MVT, the open-source forensic engine used by security researchers around the world. It also looks for spyware nobody has documented yet: on Android, apps that hide and gather spying features or were installed from a computer; on iPhone, programs running from folders where iOS never runs code, and signs of a jailbreak; and on every phone, links that imitate well-known services and free servers spyware uses to send what it steals. It also recognises Apple’s official notice when it detects a targeted attack on your iPhone. Even so, no scan can guarantee it will catch a brand-new attack.",
     ],
     [
       "Does it detect spy apps that someone close to me may have installed?",
@@ -105,7 +109,7 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "What is the iPhone deep check and is it required?",
-      "It is an option you can tick before you start. Right after “Trust”, we ask you to press the three buttons we mark at the same time and release them when you feel the vibration. The iPhone then creates a diagnostic log, and the copy starts as soon as it confirms. From that log we only read the crash reports and the shutdown log, where spyware such as Pegasus has left traces, and the rest is deleted. Don’t hold the buttons, or you will call emergency services. If you leave it unticked, or choose “Continue without the deep check”, the scan carries on as usual.",
+      "It is an option you can tick before you start. Right after “Trust”, we ask you to press the three buttons we mark at the same time and release them when you feel the vibration. The iPhone then creates a diagnostic log, and the copy starts as soon as it confirms. From that log we only read the crash reports, the shutdown log and the list of running processes, where spyware such as Pegasus has left traces, and the rest is deleted. Don’t hold the buttons, or you will call emergency services. If you leave it unticked, or choose “Continue without the deep check”, the scan carries on as usual.",
     ],
     [
       "How do I turn on USB debugging on my Android phone?",
@@ -121,7 +125,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "What should I do if the scan finds signs of spyware?",
-      "First, stay calm: a sign is something worth reviewing, not proof of an infection. Don’t delete anything, and don’t update or reset the phone, as you could destroy the evidence an expert needs. Download the PDF report and keep it somewhere safe. Then contact a digital security specialist; if you’re a journalist, an activist or work in civil society, Access Now’s free Digital Security Helpline can guide you.",
+      "First, stay calm: a sign is something worth reviewing, not proof of an infection. Don’t delete anything, and don’t update or reset the phone, as you could destroy the evidence an expert needs. Download the PDF report and keep it somewhere safe: it ends with the steps to take for what was found. Then contact a digital security specialist; if you’re a journalist, an activist or work in civil society, Access Now’s free Digital Security Helpline can guide you.",
+    ],
+    [
+      "How does Enigm Scan stay up to date?",
+      "The indicator lists update themselves: every time you open the app it downloads the latest signed version and checks the signature before using it. The app does not update itself: when there is a new version it tells you on opening and takes you to the download page. Download the new one and delete the old one; as nothing is installed, deleting the old file is enough.",
     ],
     [
       "Can I scan someone else’s phone?",
@@ -154,11 +162,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Mes données, ou celles de mon téléphone, quittent-elles mon ordinateur ?",
-      "Non. Tout se passe sur votre ordinateur : la copie du téléphone, l’analyse et le rapport. La copie est temporaire et supprimée à la fermeture de l’app, et sur iPhone nous ne copions même pas vos photos ni vos vidéos. La seule chose que l’app télécharge sur internet, ce sont les listes d’indicateurs de logiciels espions, signées numériquement pour que personne ne puisse les modifier en chemin. Nous n’envoyons jamais rien à Enigm ni à personne sur vous, votre téléphone ou le résultat.",
+      "Non. Tout se passe sur votre ordinateur : la copie du téléphone, l’analyse et le rapport. La copie est temporaire et supprimée à la fermeture de l’app, et sur iPhone nous ne copions même pas vos photos ni vos vidéos. L’app ne demande que deux choses à internet : les listes d’indicateurs de logiciels espions, signées numériquement pour que personne ne puisse les modifier en chemin, et le numéro de la dernière version publiée, pour vous prévenir quand il y en a une nouvelle. Nous n’envoyons jamais rien à Enigm ni à personne sur vous, votre téléphone ou le résultat.",
     ],
     [
       "Que recherche exactement Enigm Scan dans mon téléphone ?",
-      "Les traces laissées par des familles de logiciels espions connues comme Pegasus, Predator ou Candiru, et par les applications de stalkerware utilisées pour espionner un conjoint ou un proche : domaines contactés, processus et fichiers installés, profils et réglages modifiés. Plus de 11 000 indicateurs documentés dans des enquêtes forensiques publiques, comparés aux messages, à l’historique de navigation, aux apps, aux processus et aux réglages de votre téléphone. Nous utilisons MVT, le moteur forensique open source employé par des chercheurs en sécurité du monde entier. Sur Android, il détecte aussi les applications qui se comportent comme des logiciels espions avant même qu’elles soient documentées, et sur tous les téléphones il repère les liens qui imitent des services connus. Aucune analyse ne peut toutefois garantir de trouver une attaque toute nouvelle.",
+      "Les traces laissées par des familles de logiciels espions connues comme Pegasus, Predator ou Candiru, et par les applications de stalkerware utilisées pour espionner un conjoint ou un proche : domaines contactés, processus et fichiers installés, profils et réglages modifiés. Plus de 11 000 indicateurs documentés dans des enquêtes forensiques publiques, comparés aux messages, à l’historique de navigation, aux apps, aux processus et aux réglages de votre téléphone. Nous utilisons MVT, le moteur forensique open source employé par des chercheurs en sécurité du monde entier. Il cherche aussi les logiciels espions encore non documentés : sur Android, les apps qui se cachent et cumulent des fonctions d’espionnage ou ont été installées depuis un ordinateur ; sur iPhone, les programmes lancés depuis des dossiers où iOS n’exécute jamais de code, et les signes de jailbreak ; et sur tous les téléphones, les liens qui imitent des services connus et les serveurs gratuits qu’utilisent les logiciels espions pour envoyer ce qu’ils volent. Il reconnaît aussi l’avis officiel d’Apple lorsqu’elle détecte une attaque ciblée contre votre iPhone. Aucune analyse ne peut toutefois garantir de trouver une attaque toute nouvelle.",
     ],
     [
       "Détecte-t-il les applications espionnes qu’un proche a pu installer ?",
@@ -174,7 +182,7 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Qu’est-ce que l’analyse approfondie de l’iPhone et est-elle obligatoire ?",
-      "C’est une option que vous pouvez cocher avant de commencer. Juste après « Se fier », nous vous demandons d’appuyer en même temps sur les trois boutons indiqués et de les relâcher à la vibration. L’iPhone crée alors un journal de diagnostic, et la copie commence dès qu’il le confirme. Nous n’en lisons que les rapports de plantage et le journal d’arrêt, où des logiciels espions comme Pegasus ont laissé des traces, et le reste est supprimé. Ne maintenez pas les boutons, sinon vous appelleriez les urgences. Si vous ne la cochez pas, ou choisissez « Continuer sans l’analyse approfondie », l’analyse continue normalement.",
+      "C’est une option que vous pouvez cocher avant de commencer. Juste après « Se fier », nous vous demandons d’appuyer en même temps sur les trois boutons indiqués et de les relâcher à la vibration. L’iPhone crée alors un journal de diagnostic, et la copie commence dès qu’il le confirme. Nous n’en lisons que les rapports de plantage, le journal d’arrêt et la liste des processus en cours, où des logiciels espions comme Pegasus ont laissé des traces, et le reste est supprimé. Ne maintenez pas les boutons, sinon vous appelleriez les urgences. Si vous ne la cochez pas, ou choisissez « Continuer sans l’analyse approfondie », l’analyse continue normalement.",
     ],
     [
       "Comment activer le débogage USB sur mon téléphone Android ?",
@@ -190,7 +198,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Que faire si l’analyse trouve des signes de logiciel espion ?",
-      "D’abord, restez calme : un signe mérite un examen, ce n’est pas la preuve d’une infection. Ne supprimez rien, ne mettez pas à jour et ne réinitialisez pas le téléphone, vous pourriez détruire les preuves dont un expert a besoin. Téléchargez le rapport PDF et conservez-le en lieu sûr. Contactez ensuite un spécialiste de la sécurité numérique ; si vous êtes journaliste, militant ou membre de la société civile, la ligne d’assistance gratuite d’Access Now peut vous orienter.",
+      "D’abord, restez calme : un signe mérite un examen, ce n’est pas la preuve d’une infection. Ne supprimez rien, ne mettez pas à jour et ne réinitialisez pas le téléphone, vous pourriez détruire les preuves dont un expert a besoin. Téléchargez le rapport PDF et conservez-le en lieu sûr : il se termine par les étapes à suivre selon ce qui a été trouvé. Contactez ensuite un spécialiste de la sécurité numérique ; si vous êtes journaliste, militant ou membre de la société civile, la ligne d’assistance gratuite d’Access Now peut vous orienter.",
+    ],
+    [
+      "Comment Enigm Scan reste-t-il à jour ?",
+      "Les listes d’indicateurs se mettent à jour toutes seules : à chaque ouverture, l’app télécharge la dernière version signée et vérifie la signature avant de l’utiliser. L’app ne se met pas à jour toute seule : quand une nouvelle version existe, elle vous le dit à l’ouverture et vous mène à la page de téléchargement. Téléchargez la nouvelle et supprimez l’ancienne ; comme rien n’est installé, il suffit d’effacer l’ancien fichier.",
     ],
     [
       "Puis-je analyser le téléphone de quelqu’un d’autre ?",
@@ -223,11 +235,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Verlassen meine Daten oder die meines Smartphones jemals meinen Computer?",
-      "Nein. Alles geschieht auf Ihrem Computer: die Kopie des Smartphones, die Analyse und der Bericht. Die Kopie ist vorübergehend und wird beim Schließen der App gelöscht, und beim iPhone kopieren wir nicht einmal Ihre Fotos oder Videos. Aus dem Internet lädt die App nur die Spyware-Indikatorlisten, digital signiert, damit sie unterwegs niemand verändern kann. Wir senden niemals etwas über Sie, Ihr Smartphone oder das Ergebnis an Enigm oder an Dritte.",
+      "Nein. Alles geschieht auf Ihrem Computer: die Kopie des Smartphones, die Analyse und der Bericht. Die Kopie ist vorübergehend und wird beim Schließen der App gelöscht, und beim iPhone kopieren wir nicht einmal Ihre Fotos oder Videos. Aus dem Internet holt die App nur zwei Dinge: die Spyware-Indikatorlisten, digital signiert, damit sie unterwegs niemand verändern kann, und die Nummer der neuesten veröffentlichten Version, um Sie auf eine neue hinzuweisen. Wir senden niemals etwas über Sie, Ihr Smartphone oder das Ergebnis an Enigm oder an Dritte.",
     ],
     [
       "Wonach sucht Enigm Scan genau auf meinem Smartphone?",
-      "Nach Spuren bekannter Spyware-Familien wie Pegasus, Predator oder Candiru sowie von Stalkerware-Apps, mit denen Partner oder Angehörige ausspioniert werden: kontaktierte Domains, installierte Prozesse und Dateien, veränderte Profile und Einstellungen. Das sind mehr als 11.000 Indikatoren aus öffentlichen forensischen Untersuchungen, abgeglichen mit Nachrichten, Browserverlauf, Apps, Prozessen und Einstellungen Ihres Smartphones. Dafür nutzen wir MVT, die Open-Source-Forensik-Engine, die Sicherheitsforscher weltweit einsetzen. Auf Android erkennt es außerdem Apps, die sich wie Spyware verhalten, auch bevor sie dokumentiert sind, und auf allen Geräten sucht es nach Links, die bekannte Dienste nachahmen. Dennoch kann keine Analyse garantieren, einen ganz neuen Angriff zu finden.",
+      "Nach Spuren bekannter Spyware-Familien wie Pegasus, Predator oder Candiru sowie von Stalkerware-Apps, mit denen Partner oder Angehörige ausspioniert werden: kontaktierte Domains, installierte Prozesse und Dateien, veränderte Profile und Einstellungen. Das sind mehr als 11.000 Indikatoren aus öffentlichen forensischen Untersuchungen, abgeglichen mit Nachrichten, Browserverlauf, Apps, Prozessen und Einstellungen Ihres Smartphones. Dafür nutzen wir MVT, die Open-Source-Forensik-Engine, die Sicherheitsforscher weltweit einsetzen. Außerdem sucht es nach noch nicht dokumentierter Spyware: auf Android nach Apps, die sich verstecken und Spionagefunktionen sammeln oder von einem Computer aus installiert wurden; auf dem iPhone nach Programmen, die aus Ordnern laufen, in denen iOS nie Code ausführt, und nach Anzeichen eines Jailbreaks; und auf allen Geräten nach Links, die bekannte Dienste nachahmen, und nach kostenlosen Servern, über die Spyware Gestohlenes versendet. Es erkennt auch Apples offiziellen Hinweis, wenn Apple einen gezielten Angriff auf Ihr iPhone feststellt. Dennoch kann keine Analyse garantieren, einen ganz neuen Angriff zu finden.",
     ],
     [
       "Erkennt es Spionage-Apps, die jemand aus meinem Umfeld installiert haben könnte?",
@@ -243,7 +255,7 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Was ist die Tiefenprüfung des iPhones und ist sie Pflicht?",
-      "Das ist eine Option, die Sie vor dem Start auswählen können. Direkt nach „Vertrauen“ bitten wir Sie, die drei markierten Tasten gleichzeitig zu drücken und bei der Vibration loszulassen. Das iPhone erstellt dann ein Diagnoseprotokoll, und die Kopie beginnt, sobald es das bestätigt. Daraus lesen wir nur die Absturzberichte und das Ausschaltprotokoll, in denen Spyware wie Pegasus Spuren hinterlassen hat; der Rest wird gelöscht. Halten Sie die Tasten nicht gedrückt, sonst rufen Sie den Notruf an. Wenn Sie sie nicht auswählen oder „Ohne Tiefenprüfung fortfahren“ wählen, läuft die Analyse normal weiter.",
+      "Das ist eine Option, die Sie vor dem Start auswählen können. Direkt nach „Vertrauen“ bitten wir Sie, die drei markierten Tasten gleichzeitig zu drücken und bei der Vibration loszulassen. Das iPhone erstellt dann ein Diagnoseprotokoll, und die Kopie beginnt, sobald es das bestätigt. Daraus lesen wir nur die Absturzberichte, das Ausschaltprotokoll und die Liste der laufenden Prozesse, in denen Spyware wie Pegasus Spuren hinterlassen hat; der Rest wird gelöscht. Halten Sie die Tasten nicht gedrückt, sonst rufen Sie den Notruf an. Wenn Sie sie nicht auswählen oder „Ohne Tiefenprüfung fortfahren“ wählen, läuft die Analyse normal weiter.",
     ],
     [
       "Wie aktiviere ich USB-Debugging auf meinem Android-Smartphone?",
@@ -259,7 +271,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Was soll ich tun, wenn die Analyse Hinweise auf Spyware findet?",
-      "Zuerst: Ruhe bewahren. Ein Hinweis ist ein Anlass zur Prüfung, kein Beweis für eine Infektion. Löschen Sie nichts, aktualisieren Sie das Smartphone nicht und setzen Sie es nicht zurück, sonst könnten Sie Beweise vernichten, die Fachleute brauchen. Laden Sie den PDF-Bericht herunter und bewahren Sie ihn sicher auf. Wenden Sie sich dann an Fachleute für digitale Sicherheit; wenn Sie journalistisch, aktivistisch oder in der Zivilgesellschaft tätig sind, hilft Ihnen die kostenlose Digital Security Helpline von Access Now weiter.",
+      "Zuerst: Ruhe bewahren. Ein Hinweis ist ein Anlass zur Prüfung, kein Beweis für eine Infektion. Löschen Sie nichts, aktualisieren Sie das Smartphone nicht und setzen Sie es nicht zurück, sonst könnten Sie Beweise vernichten, die Fachleute brauchen. Laden Sie den PDF-Bericht herunter und bewahren Sie ihn sicher auf: Er endet mit den Schritten, die zum Gefundenen passen. Wenden Sie sich dann an Fachleute für digitale Sicherheit; wenn Sie journalistisch, aktivistisch oder in der Zivilgesellschaft tätig sind, hilft Ihnen die kostenlose Digital Security Helpline von Access Now weiter.",
+    ],
+    [
+      "Wie bleibt Enigm Scan aktuell?",
+      "Die Indikatorlisten aktualisieren sich selbst: Bei jedem Start lädt die App die neueste signierte Version und prüft die Signatur, bevor sie sie verwendet. Die App selbst aktualisiert sich nicht: Gibt es eine neue Version, sagt sie es Ihnen beim Öffnen und führt Sie zur Download-Seite. Laden Sie die neue herunter und löschen Sie die alte; da nichts installiert wird, genügt es, die alte Datei zu löschen.",
     ],
     [
       "Darf ich das Smartphone einer anderen Person analysieren?",
@@ -292,11 +308,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "I miei dati, o quelli del telefono, escono mai dal computer?",
-      "No. Tutto avviene sul tuo computer: la copia del telefono, l’analisi e il rapporto. La copia è temporanea e viene cancellata quando chiudi l’app, e su iPhone non copiamo nemmeno foto e video. L’unica cosa che l’app scarica da internet sono le liste di indicatori di spyware, firmate digitalmente perché nessuno possa alterarle lungo il percorso. Non inviamo mai nulla su di te, sul telefono o sul risultato a Enigm o ad altri.",
+      "No. Tutto avviene sul tuo computer: la copia del telefono, l’analisi e il rapporto. La copia è temporanea e viene cancellata quando chiudi l’app, e su iPhone non copiamo nemmeno foto e video. L’app chiede a internet solo due cose: le liste di indicatori di spyware, firmate digitalmente perché nessuno possa alterarle lungo il percorso, e il numero dell’ultima versione pubblicata, per avvisarti quando ce n’è una nuova. Non inviamo mai nulla su di te, sul telefono o sul risultato a Enigm o ad altri.",
     ],
     [
       "Cosa cerca esattamente Enigm Scan nel mio telefono?",
-      "Cerca le tracce lasciate da famiglie di spyware note come Pegasus, Predator o Candiru, e dalle app di stalkerware usate per spiare un partner o un familiare: domini contattati, processi e file installati, profili e impostazioni modificati. Sono oltre 11.000 indicatori documentati in indagini forensi pubbliche, confrontati con messaggi, cronologia di navigazione, app, processi e impostazioni del telefono. Usiamo MVT, il motore forense open source utilizzato dai ricercatori di sicurezza di tutto il mondo. Su Android rileva anche le app che si comportano come spyware prima ancora che siano documentate, e su tutti i telefoni cerca i link che imitano servizi noti. Nessuna analisi, però, può garantire di trovare un attacco del tutto nuovo.",
+      "Cerca le tracce lasciate da famiglie di spyware note come Pegasus, Predator o Candiru, e dalle app di stalkerware usate per spiare un partner o un familiare: domini contattati, processi e file installati, profili e impostazioni modificati. Sono oltre 11.000 indicatori documentati in indagini forensi pubbliche, confrontati con messaggi, cronologia di navigazione, app, processi e impostazioni del telefono. Usiamo MVT, il motore forense open source utilizzato dai ricercatori di sicurezza di tutto il mondo. Cerca anche spyware non ancora documentato: su Android, app che si nascondono e riuniscono funzioni di spionaggio o che sono state installate da un computer; su iPhone, programmi eseguiti da cartelle in cui iOS non esegue mai codice e segni di jailbreak; e su tutti i telefoni, link che imitano servizi noti e server gratuiti che lo spyware usa per inviare ciò che ruba. Riconosce anche l’avviso ufficiale di Apple quando rileva un attacco mirato contro il tuo iPhone. Nessuna analisi, però, può garantire di trovare un attacco del tutto nuovo.",
     ],
     [
       "Rileva le app spia che una persona vicina potrebbe aver installato?",
@@ -312,7 +328,7 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Che cos’è l’analisi approfondita dell’iPhone ed è obbligatoria?",
-      "È un’opzione che puoi selezionare prima di iniziare. Subito dopo «Autorizza», ti chiediamo di premere insieme i tre tasti indicati e di rilasciarli alla vibrazione. L’iPhone crea allora un registro di diagnostica e la copia inizia appena lo conferma. Ne leggiamo solo i rapporti di arresto e il registro di spegnimento, dove spyware come Pegasus ha lasciato tracce, e il resto viene eliminato. Non tenere premuti i tasti, altrimenti chiameresti i soccorsi. Se non la selezioni, o scegli «Continua senza analisi approfondita», l’analisi prosegue normalmente.",
+      "È un’opzione che puoi selezionare prima di iniziare. Subito dopo «Autorizza», ti chiediamo di premere insieme i tre tasti indicati e di rilasciarli alla vibrazione. L’iPhone crea allora un registro di diagnostica e la copia inizia appena lo conferma. Ne leggiamo solo i rapporti di arresto, il registro di spegnimento e l’elenco dei processi in esecuzione, dove spyware come Pegasus ha lasciato tracce, e il resto viene eliminato. Non tenere premuti i tasti, altrimenti chiameresti i soccorsi. Se non la selezioni, o scegli «Continua senza analisi approfondita», l’analisi prosegue normalmente.",
     ],
     [
       "Come attivo il debug USB sul mio telefono Android?",
@@ -328,7 +344,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Cosa devo fare se l’analisi trova segni di spyware?",
-      "Prima di tutto, mantieni la calma: un segno va approfondito, non conferma un’infezione. Non cancellare nulla e non aggiornare né ripristinare il telefono, perché potresti distruggere le prove che servono a un esperto. Scarica il rapporto in PDF e conservalo in un posto sicuro. Poi contatta uno specialista di sicurezza digitale; se sei giornalista, attivista o lavori nella società civile, la linea di assistenza gratuita di Access Now può aiutarti.",
+      "Prima di tutto, mantieni la calma: un segno va approfondito, non conferma un’infezione. Non cancellare nulla e non aggiornare né ripristinare il telefono, perché potresti distruggere le prove che servono a un esperto. Scarica il rapporto in PDF e conservalo in un posto sicuro: alla fine indica i passi da seguire in base a quanto trovato. Poi contatta uno specialista di sicurezza digitale; se sei giornalista, attivista o lavori nella società civile, la linea di assistenza gratuita di Access Now può aiutarti.",
+    ],
+    [
+      "Come resta aggiornato Enigm Scan?",
+      "Le liste di indicatori si aggiornano da sole: ogni volta che apri l’app scarica l’ultima versione firmata e ne verifica la firma prima di usarla. L’app non si aggiorna da sola: quando c’è una nuova versione te lo dice all’apertura e ti porta alla pagina di download. Scarica la nuova ed elimina la vecchia; poiché non si installa nulla, basta cancellare il vecchio file.",
     ],
     [
       "Posso analizzare il telefono di un’altra persona?",
@@ -361,11 +381,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "Os meus dados, ou os do telemóvel, saem alguma vez do meu computador?",
-      "Não. Tudo acontece no seu computador: a cópia do telemóvel, a análise e o relatório. A cópia é temporária e é apagada quando fecha a app, e no iPhone nem sequer copiamos as suas fotos ou vídeos. A única coisa que a app descarrega da internet são as listas de indicadores de spyware, assinadas digitalmente para que ninguém as altere pelo caminho. Nunca enviamos à Enigm nem a ninguém nada sobre si, o seu telemóvel ou o resultado.",
+      "Não. Tudo acontece no seu computador: a cópia do telemóvel, a análise e o relatório. A cópia é temporária e é apagada quando fecha a app, e no iPhone nem sequer copiamos as suas fotos ou vídeos. A app só pede duas coisas à internet: as listas de indicadores de spyware, assinadas digitalmente para que ninguém as altere pelo caminho, e o número da última versão publicada, para o avisar quando houver uma nova. Nunca enviamos à Enigm nem a ninguém nada sobre si, o seu telemóvel ou o resultado.",
     ],
     [
       "O que procura exatamente o Enigm Scan no meu telemóvel?",
-      "Procura os vestígios deixados por famílias de spyware conhecidas, como Pegasus, Predator ou Candiru, e pelas apps de stalkerware usadas para espiar um parceiro ou familiar: domínios contactados, processos e ficheiros instalados, perfis e definições alterados. São mais de 11 000 indicadores documentados em investigações forenses públicas, comparados com as mensagens, o histórico de navegação, as apps, os processos e as definições do telemóvel. Usamos o MVT, o motor forense de código aberto utilizado por investigadores de segurança em todo o mundo. No Android também deteta apps que se comportam como spyware antes mesmo de estarem documentadas, e em todos os telemóveis procura ligações que imitam serviços conhecidos. Ainda assim, nenhuma análise pode garantir encontrar um ataque totalmente novo.",
+      "Procura os vestígios deixados por famílias de spyware conhecidas, como Pegasus, Predator ou Candiru, e pelas apps de stalkerware usadas para espiar um parceiro ou familiar: domínios contactados, processos e ficheiros instalados, perfis e definições alterados. São mais de 11 000 indicadores documentados em investigações forenses públicas, comparados com as mensagens, o histórico de navegação, as apps, os processos e as definições do telemóvel. Usamos o MVT, o motor forense de código aberto utilizado por investigadores de segurança em todo o mundo. Também procura spyware ainda não documentado: no Android, apps que se escondem e reúnem funções de espionagem ou que foram instaladas a partir de um computador; no iPhone, programas executados a partir de pastas onde o iOS nunca executa código e sinais de jailbreak; e em todos os telemóveis, ligações que imitam serviços conhecidos e servidores gratuitos que o spyware usa para enviar o que rouba. Reconhece ainda o aviso oficial da Apple quando deteta um ataque dirigido ao seu iPhone. Ainda assim, nenhuma análise pode garantir encontrar um ataque totalmente novo.",
     ],
     [
       "Deteta as apps espiãs que alguém próximo possa ter instalado?",
@@ -381,7 +401,7 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "O que é a análise profunda do iPhone e é obrigatória?",
-      "É uma opção que pode marcar antes de começar. Logo depois de «Confiar», pedimos-lhe que prima ao mesmo tempo os três botões que assinalamos e os solte ao sentir a vibração. O iPhone cria então um registo de diagnóstico e a cópia começa assim que o confirma. Dele só lemos os relatórios de falhas e o registo de encerramento, onde spyware como o Pegasus deixou rasto, e o resto é apagado. Não mantenha os botões premidos, ou ligará para a emergência. Se não a marcar, ou escolher «Continuar sem análise profunda», a análise continua normalmente.",
+      "É uma opção que pode marcar antes de começar. Logo depois de «Confiar», pedimos-lhe que prima ao mesmo tempo os três botões que assinalamos e os solte ao sentir a vibração. O iPhone cria então um registo de diagnóstico e a cópia começa assim que o confirma. Dele só lemos os relatórios de falhas, o registo de encerramento e a lista de processos em execução, onde spyware como o Pegasus deixou rasto, e o resto é apagado. Não mantenha os botões premidos, ou ligará para a emergência. Se não a marcar, ou escolher «Continuar sem análise profunda», a análise continua normalmente.",
     ],
     [
       "Como ativo a depuração USB no meu telemóvel Android?",
@@ -397,7 +417,11 @@ export const faq: Record<Language, FaqItem[]> = {
     ],
     [
       "O que devo fazer se a análise encontrar sinais de spyware?",
-      "Primeiro, mantenha a calma: um sinal merece ser analisado, não confirma uma infeção. Não apague nada nem atualize ou reponha o telemóvel, porque pode destruir as provas de que um especialista precisa. Descarregue o relatório em PDF e guarde-o num local seguro. Depois, contacte um especialista em segurança digital; se for jornalista, ativista ou trabalhar na sociedade civil, a linha de apoio gratuita da Access Now pode orientá-lo.",
+      "Primeiro, mantenha a calma: um sinal merece ser analisado, não confirma uma infeção. Não apague nada nem atualize ou reponha o telemóvel, porque pode destruir as provas de que um especialista precisa. Descarregue o relatório em PDF e guarde-o num local seguro: no fim indica os passos a seguir conforme o que foi encontrado. Depois, contacte um especialista em segurança digital; se for jornalista, ativista ou trabalhar na sociedade civil, a linha de apoio gratuita da Access Now pode orientá-lo.",
+    ],
+    [
+      "Como se mantém o Enigm Scan atualizado?",
+      "As listas de indicadores atualizam-se sozinhas: sempre que abre a app, ela descarrega a última versão assinada e verifica a assinatura antes de a usar. A app não se atualiza sozinha: quando há uma versão nova, avisa-o ao abrir e leva-o à página de transferências. Transfira a nova e elimine a antiga; como nada é instalado, basta apagar o ficheiro antigo.",
     ],
     [
       "Posso analisar o telemóvel de outra pessoa?",

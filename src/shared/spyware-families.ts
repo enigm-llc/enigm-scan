@@ -1,6 +1,6 @@
 /**
  * Spyware families with the most signed indicators in the bundled rule set
- * (bundle-v2.json, version 2026112301), shown in the landing honeycomb.
+ * (bundle-v2.json, version 2026112601), shown in the landing honeycomb.
  * Update together with the rules.
  */
 export const SPYWARE_FAMILIES = [
