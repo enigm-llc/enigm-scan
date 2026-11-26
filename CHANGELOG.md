@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.2 — 26 November 2026
 
 - iPhone "Trust" moves to the search step, as Android's USB debugging: the
   iPhone found asks for it, with its passcode, before "All set", which only
