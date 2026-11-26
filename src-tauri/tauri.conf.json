@@ -14,10 +14,10 @@
       {
         "label": "main",
         "title": "Enigm Scan",
-        "width": 1280,
-        "height": 820,
+        "width": 1120,
+        "height": 740,
         "minWidth": 1024,
-        "minHeight": 700,
+        "minHeight": 680,
         "create": false,
         "incognito": true,
         "center": true,

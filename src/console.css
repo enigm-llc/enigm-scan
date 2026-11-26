@@ -5763,6 +5763,9 @@ body:has(.promo-backdrop) {
 }
 .app-window .scan-main {
   flex: 1;
+  /* Full width up to its maximum: centred with auto margins alone, a flex
+     column would shrink it to its content and move the phone around. */
+  width: 100%;
   margin: 0 auto;
 }
 /* The phone confirms the deep check: one white flash, as the real one does
@@ -6090,7 +6093,7 @@ body:has(.promo-backdrop) {
   justify-content: center;
   gap: 12px;
   min-height: 100vh;
-  padding: 24px 28px 28px;
+  padding: 26px 28px;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   text-align: center;
@@ -6123,4 +6126,98 @@ body:has(.promo-backdrop) {
   font-weight: 500;
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Desktop app: type scale ----------
+   The website reads at page sizes; the app reads like a desktop window:
+   28px screen titles, 14px text, 12-13px secondary lines. */
+.app-window {
+  --app-title: 28px;
+  --app-verdict: 30px;
+  --app-section: 20px;
+  --app-text: 14px;
+  --app-small: 12.5px;
+}
+.app-window .scan-main .console-copy h1,
+.app-window .scan-main .console-copy .phase-copy {
+  font-size: var(--app-title);
+  line-height: 1.12;
+  letter-spacing: -0.025em !important;
+}
+.app-window .scan-main .console-copy .flow-intro.lede,
+.app-window .scan-main .console-copy .lede,
+.app-window .scan-progress .scan-activity,
+.app-window .scan-progress .scan-hint {
+  font-size: var(--app-text);
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+.app-window .process-steps li {
+  font-size: 13px;
+}
+.app-window .scan-main .console-copy .scan-option-text b,
+.app-window .scan-main .console-copy .flow-action > .compact-consent {
+  font-size: 13.5px;
+}
+.app-window .scan-main .console-copy .scan-option-text small,
+.app-window .scan-main .console-copy .scan-option-steps {
+  font-size: var(--app-small);
+}
+.app-window .scan-main .primary,
+.app-window .scan-main .button.primary,
+.app-window .report-actions button,
+.app-window .verdict-actions button {
+  min-height: 40px;
+  font-size: var(--app-text);
+}
+/* Facts beside the phone: device, identifier, copy figures. */
+.app-window .phone-facts b,
+.app-window .device-facts b {
+  font-size: 15px;
+}
+.app-window .phone-facts dd,
+.app-window .acquisition-stats dd {
+  font-size: 18px;
+}
+.app-window .phone-facts dd:first-of-type,
+.app-window .acquisition-stats div:first-child dd {
+  font-size: 22px;
+}
+.app-window .progress-card-line {
+  font-size: var(--app-text);
+}
+/* Report. */
+.app-window .result-summary.verdict h2 {
+  font-size: var(--app-verdict);
+  line-height: 1.1;
+}
+.app-window .result-summary.verdict h2 + p {
+  font-size: 15px;
+  line-height: 1.45;
+  letter-spacing: -0.01em;
+}
+.app-window .verdict-stats dd {
+  font-size: 22px;
+}
+.app-window .report-band h2,
+.app-window .report-findings h2 {
+  font-size: var(--app-section);
+}
+.app-window .report-tile > b {
+  font-size: 18px;
+}
+.app-window .finding-head h3 {
+  font-size: var(--app-text);
+}
+/* Welcome. */
+.app-window .welcome h1 {
+  font-size: 26px;
+}
+.app-window .welcome-body {
+  font-size: var(--app-text);
+}
+.app-window .welcome-start {
+  min-height: 40px;
+  min-width: 220px;
+  font-size: var(--app-text);
 }
