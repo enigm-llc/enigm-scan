@@ -89,8 +89,7 @@ const en = {
   devicePasscodeTimeout:
     "The iPhone closed the passcode request several times unanswered. Press “Try again” and enter the passcode when it appears.",
   androidAllow: "Accept “Allow USB debugging” on the phone.",
-  androidAllowTimeout:
-    "The phone did not allow USB debugging within 3 minutes. Unlock it and press “Try again”.",
+  androidAllowTimeout: "USB debugging was not allowed on the phone.",
   enginesMissing:
     "Some parts of Enigm Scan are missing on this computer; an antivirus may have removed them. Download Enigm Scan again from scan.enigm.io.",
   noEngines:
@@ -204,8 +203,7 @@ const es: AgentCopy = {
   devicePasscodeTimeout:
     "El iPhone cerró varias veces la petición del código sin respuesta. Pulsa «Reintentar» y escribe el código cuando aparezca.",
   androidAllow: "Acepta «Permitir depuración USB» en el teléfono.",
-  androidAllowTimeout:
-    "El teléfono no permitió la depuración USB en 3 minutos. Desbloquéalo y pulsa «Reintentar».",
+  androidAllowTimeout: "No se permitió la depuración USB en el móvil.",
   enginesMissing:
     "Faltan partes de Enigm Scan en este ordenador; puede que un antivirus las haya quitado. Descárgalo de nuevo desde scan.enigm.io.",
   noEngines:
@@ -319,8 +317,7 @@ const fr: AgentCopy = {
   devicePasscodeTimeout:
     "L’iPhone a fermé plusieurs fois la demande de code sans réponse. Appuyez sur « Réessayer » et saisissez le code quand il s’affiche.",
   androidAllow: "Acceptez « Autoriser le débogage USB » sur le téléphone.",
-  androidAllowTimeout:
-    "Le téléphone n’a pas autorisé le débogage USB en 3 minutes. Déverrouillez-le et appuyez sur « Réessayer ».",
+  androidAllowTimeout: "Le débogage USB n’a pas été autorisé sur le téléphone.",
   enginesMissing:
     "Des éléments d’Enigm Scan manquent sur cet ordinateur ; un antivirus les a peut-être supprimés. Téléchargez à nouveau Enigm Scan depuis scan.enigm.io.",
   noEngines:
@@ -434,8 +431,7 @@ const de: AgentCopy = {
   devicePasscodeTimeout:
     "Das iPhone hat die Code-Abfrage mehrmals unbeantwortet geschlossen. Tippen Sie auf „Erneut versuchen“ und geben Sie den Code ein, sobald er abgefragt wird.",
   androidAllow: "Bestätigen Sie „USB-Debugging zulassen“ auf dem Smartphone.",
-  androidAllowTimeout:
-    "Das Smartphone hat USB-Debugging nicht innerhalb von 3 Minuten zugelassen. Entsperren Sie es und tippen Sie auf „Erneut versuchen“.",
+  androidAllowTimeout: "USB-Debugging wurde auf dem Smartphone nicht erlaubt.",
   enginesMissing:
     "Auf diesem Computer fehlen Teile von Enigm Scan; möglicherweise hat ein Virenschutz sie entfernt. Laden Sie Enigm Scan erneut von scan.enigm.io herunter.",
   noEngines:
@@ -549,8 +545,7 @@ const it: AgentCopy = {
   devicePasscodeTimeout:
     "L’iPhone ha chiuso più volte la richiesta del codice senza risposta. Premi «Riprova» e inserisci il codice quando compare.",
   androidAllow: "Accetta «Consentire il debug USB» sul telefono.",
-  androidAllowTimeout:
-    "Il telefono non ha consentito il debug USB entro 3 minuti. Sbloccalo e premi «Riprova».",
+  androidAllowTimeout: "Il debug USB non è stato consentito sul telefono.",
   enginesMissing:
     "Mancano parti di Enigm Scan su questo computer; forse le ha rimosse un antivirus. Scarica di nuovo Enigm Scan da scan.enigm.io.",
   noEngines:
@@ -663,8 +658,7 @@ const pt: AgentCopy = {
   devicePasscodeTimeout:
     "O iPhone fechou várias vezes o pedido do código sem resposta. Prima «Tentar novamente» e introduza o código quando aparecer.",
   androidAllow: "Aceite «Permitir depuração USB» no telemóvel.",
-  androidAllowTimeout:
-    "O telemóvel não permitiu a depuração USB em 3 minutos. Desbloqueie-o e prima «Tentar novamente».",
+  androidAllowTimeout: "A depuração USB não foi permitida no telemóvel.",
   enginesMissing:
     "Faltam partes do Enigm Scan neste computador; talvez um antivírus as tenha removido. Descarregue de novo o Enigm Scan em scan.enigm.io.",
   noEngines:

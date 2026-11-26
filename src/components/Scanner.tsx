@@ -529,8 +529,13 @@ export function Scanner({
   // What the phone itself shows when something went wrong.
   // Quiet checks beside the phone, matched to what went wrong.
   const checkList = (items: string[]) => ({ title: f.checkTitle, items });
-  const checks =
-    status.error === "device_disconnected"
+  // Android cannot tell the computer that "Cancel" was pressed: the phone
+  // stays unauthorized, as if nobody answered. When the wait ends it is
+  // shown as the iPhone's refused "Trust": the same phone, checks and note.
+  const androidRefused = !!androidWait?.timedOut;
+  const checks = androidRefused
+    ? checkList([f.chkApprove, f.chkRetry])
+    : status.error === "device_disconnected"
       ? checkList([f.chkCable, f.chkPort, f.chkUnlock])
       : status.error === "device_locked"
         ? checkList([f.chkUnlock, f.chkAwake])
@@ -540,20 +545,22 @@ export function Scanner({
             status.error === "device_cancelled"
           ? checkList([f.chkApprove, f.chkRetry])
           : checkList([f.chkCable, f.chkUnlock, f.chkApprove, f.chkRetry]);
-  const problem: PhoneScreen | null = !failed
-    ? null
-    : discoveryError
-      ? trouble("error", f.problemError)
-      : status.error === "device_disconnected"
-        ? trouble("unplugged", f.problemUnplugged)
-        : status.error === "device_locked"
-          ? trouble("locked", f.problemLocked)
-          : status.error === "device_not_trusted" ||
-              status.error === "device_trust_denied" ||
-              status.error === "device_passcode_timeout" ||
-              status.error === "device_cancelled"
-            ? trouble("trust", f.problemTrust)
-            : trouble("error", f.problemError);
+  const problem: PhoneScreen | null = androidRefused
+    ? trouble("trust", f.problemTrust)
+    : !failed
+      ? null
+      : discoveryError
+        ? trouble("error", f.problemError)
+        : status.error === "device_disconnected"
+          ? trouble("unplugged", f.problemUnplugged)
+          : status.error === "device_locked"
+            ? trouble("locked", f.problemLocked)
+            : status.error === "device_not_trusted" ||
+                status.error === "device_trust_denied" ||
+                status.error === "device_passcode_timeout" ||
+                status.error === "device_cancelled"
+              ? trouble("trust", f.problemTrust)
+              : trouble("error", f.problemError);
   // Failures the person can act on get their own sentence.
   const failureMessage = (code?: string | null) =>
     code === "backup_password_required"
@@ -949,15 +956,8 @@ export function Scanner({
                     </span>
                   </p>
                 ) : androidWait?.timedOut ? (
-                  <Notice message={a.androidAllowTimeout}>
-                    <button
-                      className="quiet-action"
-                      disabled={finding}
-                      onClick={() => void find("android")}
-                    >
-                      {f.tryAgain}
-                    </button>
-                  </Notice>
+                  // "Find my phone" below asks again.
+                  <Notice message={a.androidAllowTimeout} />
                 ) : (
                   searched &&
                   devices.length > 0 &&

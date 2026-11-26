@@ -8,6 +8,9 @@
 - iPhone deep check, prepared on the ready step: ticking it shows the three
   buttons to press, and "Start scan" waits until the phone confirms the
   sysdiagnose. Without the deep check it starts at once.
+- When an Android phone does not allow USB debugging in time, the app shows
+  it as a refused "Trust" on iPhone: a short message, the phone without
+  authorization and what to check.
 - If the phone refused "Trust", the checks beside it say to unplug the
   cable and plug it back in, instead of "Enigm Scan open on your computer".
 - With "Also check its connections" ticked, on iPhone and Android, quiet

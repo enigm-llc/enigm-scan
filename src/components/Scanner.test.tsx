@@ -569,7 +569,7 @@ it("waits for “Allow USB debugging” by itself and selects the phone once all
   expect(searches).toBe(1);
   expect(refreshes).toBe(2);
 }, 15000);
-it("offers to try again when the phone is not allowed within three minutes", async () => {
+it("shows USB debugging not allowed within three minutes like a refused Trust", async () => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.mocked(native).mockImplementation(async (command) => {
     if (command === "capabilities") return caps;
@@ -588,7 +588,13 @@ it("offers to try again when the phone is not allowed within three minutes", asy
   fireEvent.click(detect);
   await screen.findByText(a.androidAllow, { exact: false });
   await vi.advanceTimersByTimeAsync(182_000);
-  expect(await screen.findByText(a.androidAllowTimeout)).toBeTruthy();
-  expect(screen.getByRole("button", { name: "Try again" })).toBeTruthy();
+  expect((await screen.findByRole("alert")).textContent).toBe(
+    a.androidAllowTimeout,
+  );
+  // The checks say what to do; "Find my phone" asks again.
+  expect(screen.getByText(flowCopy.en.chkRetry)).toBeTruthy();
+  expect(screen.getByText(flowCopy.en.problemTrust[0])).toBeTruthy();
+  expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
+  expect(screen.getByRole("button", { name: "Find my phone" })).toBeTruthy();
   vi.useRealTimers();
 });
