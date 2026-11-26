@@ -1,0 +1,36 @@
+name: GitGuardian
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: gitguardian
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+      GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+      GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+      GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+      - run: python -m pip install 'ggshield==1.52.2'
+      - name: Scan commits for secrets
+        run: |
+          test -n "$GITGUARDIAN_API_KEY" || { echo 'GitGuardian API key is not configured.' >&2; exit 1; }
+          ggshield secret scan ci --no-check-for-updates
