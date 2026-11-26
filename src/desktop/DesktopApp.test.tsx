@@ -215,8 +215,12 @@ it("quits with Ctrl+Q like the macOS menu", async () => {
   await screen.findByRole("button", { name: "Find my phone" });
   fireEvent.keyDown(document, { key: "q", ctrlKey: true });
   await screen.findByRole("dialog");
-  fireEvent.keyDown(document, { key: "Escape" });
-  await waitFor(() => expect(app.called("close_application")).toBe(true));
+  // The invitation starts listening for Escape in an effect, which React may
+  // run a moment after the dialog appears: press again until it answers.
+  await waitFor(() => {
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(app.called("close_application")).toBe(true);
+  });
 });
 
 it("behaves like an app: links leave the window, no page menu, no reload", async () => {
