@@ -9,8 +9,15 @@
 - A search that finds no phone also says so in a message at the top.
 - The text keeps its full width on every step; the phone sits further
   right instead.
-- The report's first screen fills the window, so the summary starts just
-  below it, where the arrow points.
+- The report's first screen fills the window on every system, so the
+  summary starts just below it, where the arrow points, and the result sits
+  in the middle of the window.
+- The phone itself is centred in the window on every step; its cable and
+  the network waves hang outside that measure.
+- The progress card's Pause and Cancel are round icon buttons, and what the
+  card says fits on one line in every language.
+- The closing invitation presents Enigm as protection for messages and
+  calls against spyware, and opens enigm.io.
 
 ## 0.7.2 — 26 November 2026
 

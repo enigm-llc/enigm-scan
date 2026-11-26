@@ -6734,12 +6734,18 @@ body:has(.promo-backdrop) {
 @media (min-width: 1024px) {
   .app-window .report .result-summary.verdict {
     /* As much room below as the page leaves above it, so the result sits
-       in the middle of the window. */
-    min-height: calc(calc(100 * var(--vh)) - 104px);
-    padding-bottom: 104px;
+       in the middle of the window. Above it: the page's top margin, plus
+       on macOS the 28 px strip under the transparent title bar (Windows
+       and Linux draw their title bar outside the page). */
+    --report-top: 76px;
+    min-height: calc(calc(100 * var(--vh)) - var(--report-top));
+    padding-bottom: var(--report-top);
   }
   .app-window .report .result-summary.verdict + .report-band {
     margin-top: 0;
+  }
+  :root[data-os="macos"] .app-window .report .result-summary.verdict {
+    --report-top: 104px;
   }
 }
 
@@ -6769,4 +6775,30 @@ body:has(.promo-backdrop) {
 :root:not([data-theme="dark"]) .welcome-icon.is-white,
 :root[data-theme="dark"] .welcome-icon.is-black {
   display: none;
+}
+
+/* The phone itself is what is centred against the words: its cable below,
+   like the waves above, hangs outside that measure. */
+@media (min-width: 1024px) {
+  .app-window .scan-main .desktop-flow > .phone-stage,
+  .app-window .scan-main .scan-progress > .phone-stage {
+    padding-bottom: 0;
+  }
+}
+@media (min-width: 1024px) {
+  /* The same room above and below each step, so the phone sits in the
+     middle of the window; on macOS the transparent title bar is part of
+     the window, so its 28 px strip is matched below. */
+  .app-window .scan-main .desktop-flow:not(.is-running),
+  .app-window .scan-main .desktop-flow.is-running > .scan-progress {
+    padding-block: 24px;
+  }
+  :root[data-os="macos"] .app-window .scan-main .desktop-flow:not(.is-running),
+  :root[data-os="macos"]
+    .app-window
+    .scan-main
+    .desktop-flow.is-running
+    > .scan-progress {
+    padding-bottom: 52px;
+  }
 }
