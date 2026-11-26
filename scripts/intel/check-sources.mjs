@@ -82,9 +82,13 @@ const index = (
   await head("mvt-project", "mvt-indicators", "indicators.yaml")
 ).toString("utf8");
 for (const entry of index.split(/\n\s*-\s*\n/)) {
-  const field = (name) =>
-    entry.match(new RegExp(`\\n\\s+${name}:\\s*(\\S+)`))?.[1];
-  const [owner, repo, path] = [field("owner"), field("repo"), field("path")];
+  const fields = Object.fromEntries(
+    [...entry.matchAll(/\n\s+(owner|repo|path):\s*(\S+)/g)].map((m) => [
+      m[1],
+      m[2],
+    ]),
+  );
+  const { owner, repo, path } = fields;
   if (owner && repo && path && !pinned.has(`${owner}/${repo}/${path}`))
     changes.push(
       `MVT index: new campaign ${entry.match(/name:\s*(.+)/)?.[1] ?? path} (${owner}/${repo} ${path})`,

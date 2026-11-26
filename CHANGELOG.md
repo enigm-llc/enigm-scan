@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.0 — 27 November 2026
 
 - When a newer version is published on the website, the app says so at
   start, in place of the welcome screen, with a button to its download page.

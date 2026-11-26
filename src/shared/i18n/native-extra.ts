@@ -18,6 +18,28 @@ const t = (
 /** Whole sentences: recommendations and limitations. Groups are kept as-is. */
 export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
+    /^The USB transport, rather than a manually entered IP, attributes this capture/,
+    t(
+      "La captura se atribuye al móvil elegido porque llega por su conexión USB, no por una IP escrita a mano.",
+      "The capture is attributed to the selected phone because it arrives over its USB connection, not from a typed IP address.",
+      "La capture est attribuée au téléphone choisi parce qu’elle arrive par sa connexion USB, et non par une adresse IP saisie à la main.",
+      "Die Aufzeichnung wird dem gewählten Telefon zugeordnet, weil sie über seine USB-Verbindung kommt, nicht über eine eingetippte IP-Adresse.",
+      "La cattura è attribuita al telefono scelto perché arriva dalla sua connessione USB, non da un indirizzo IP digitato a mano.",
+      "A captura é atribuída ao telemóvel escolhido porque chega pela sua ligação USB, não por um endereço IP escrito à mão.",
+    ),
+  ],
+  [
+    /^PCAP source and phone IP were explicitly confirmed by the operator/,
+    t(
+      "La persona confirmó el origen de la captura y la IP del móvil; ese origen no se puede comprobar por separado.",
+      "The person confirmed the capture's origin and the phone's IP address; that origin cannot be checked independently.",
+      "La personne a confirmé l’origine de la capture et l’adresse IP du téléphone ; cette origine ne peut pas être vérifiée séparément.",
+      "Die Person hat die Herkunft der Aufzeichnung und die IP-Adresse des Telefons bestätigt; diese Herkunft lässt sich nicht unabhängig prüfen.",
+      "La persona ha confermato l’origine della cattura e l’indirizzo IP del telefono; tale origine non può essere verificata in modo indipendente.",
+      "A pessoa confirmou a origem da captura e o endereço IP do telemóvel; essa origem não pode ser verificada de forma independente.",
+    ),
+  ],
+  [
     /^Published (\d+) years ago: the domain or address may belong to someone else today/,
     t(
       "Publicado hace {0} años: hoy el dominio o la dirección pueden ser de otra persona. Una coincidencia en mensajes o historial antiguos sí apunta a aquella época.",
