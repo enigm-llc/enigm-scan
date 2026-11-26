@@ -14,6 +14,8 @@ import { Scanner } from "./Scanner";
 import { dictionaries } from "../shared/i18n/i18n";
 import { agentDictionaries } from "../shared/i18n/agent";
 import { native } from "../core/agent";
+import { Toaster } from "../desktop/Toaster";
+import { clearToasts } from "../desktop/toast";
 vi.mock("../core/agent", () => ({ native: vi.fn(), isDesktop: () => false }));
 const a = agentDictionaries.en;
 const caps = {
@@ -37,10 +39,17 @@ beforeEach(() =>
 );
 afterEach(() => {
   cleanup();
+  clearToasts();
   vi.resetAllMocks();
 });
+// Messages appear at the top of the app window, as in the app itself.
 const mount = () =>
-  render(<Scanner language="en" t={dictionaries.en} onReport={vi.fn()} />);
+  render(
+    <>
+      <Toaster />
+      <Scanner language="en" t={dictionaries.en} onReport={vi.fn()} />
+    </>,
+  );
 it("requires consent for device discovery and selects the sole authorized device", async () => {
   mount();
   const detect = screen.getByRole("button", {
@@ -336,6 +345,7 @@ it("prepares the user for iPhone prompts and explains each phone-side failure", 
     ["device_passcode_timeout", a.devicePasscodeTimeout],
     ["device_cancelled", a.deviceCancelled],
   ]) {
+    clearToasts();
     let started = false;
     let starts = 0;
     vi.mocked(native).mockImplementation(async (command) => {
@@ -409,8 +419,10 @@ it("shows an allowlisted diagnostic code when an iPhone copy fails unexpectedly"
     fireEvent.click(detect);
     fireEvent.click(await screen.findByRole("button", { name: "Start scan" }));
     expect((await screen.findByRole("alert")).textContent).toBe(a.failCopy);
-    expect(document.querySelector(".diagnostic-code code")?.textContent).toBe(
-      shown,
+    await waitFor(() =>
+      expect(document.querySelector(".diagnostic-code code")?.textContent).toBe(
+        shown,
+      ),
     );
     expect(document.body.textContent).not.toContain("secret");
     cleanup();

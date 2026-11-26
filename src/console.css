@@ -6492,3 +6492,97 @@ body:has(.promo-backdrop) {
 .app-window .scan-main .console-copy .flow-action > .compact-consent input {
   margin: 0;
 }
+
+/* ---------- Desktop app: messages at the top, as in Enigm Command ----------
+   A rounded pill on the raised surface: red for errors, green for success,
+   neutral otherwise. They leave on their own, or when clicked. */
+.toaster {
+  position: fixed;
+  z-index: 70;
+  top: 14px;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100vw - 32px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+:root[data-shell="app"][data-os="macos"] .toaster {
+  top: 36px;
+}
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  max-width: 500px;
+  padding: 10px 16px;
+  border: 1px solid var(--toast-border, #d1d1d1);
+  border-radius: 999px;
+  background: var(--raised);
+  color: var(--dot);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.1);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.45;
+  text-align: left;
+  pointer-events: auto;
+  cursor: default;
+  animation: toast-in 240ms var(--ease) both;
+}
+.toast svg {
+  flex: none;
+  color: var(--tone);
+}
+:root[data-theme="dark"] .toast {
+  --toast-border: #3f3f3f;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+.toast.is-error {
+  border-color: #d63232;
+  background:
+    linear-gradient(rgba(214, 50, 50, 0.08), rgba(214, 50, 50, 0.08)),
+    var(--raised);
+  color: #d63232;
+}
+:root[data-theme="dark"] .toast.is-error {
+  background:
+    linear-gradient(rgba(214, 50, 50, 0.125), rgba(214, 50, 50, 0.125)),
+    var(--raised);
+  color: #ec6b6b;
+}
+.toast.is-error svg {
+  color: #d63232;
+}
+.toast.is-success {
+  border-color: var(--good);
+  background:
+    linear-gradient(var(--success-soft), var(--success-soft)), var(--raised);
+  color: var(--good);
+}
+.toast.is-success svg {
+  color: var(--good);
+}
+.app-window .toast:hover {
+  background-color: var(--raised);
+}
+.notice-actions {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  margin-top: 14px;
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

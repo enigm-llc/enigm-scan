@@ -467,9 +467,9 @@ export function Scanner({
   const alerts = !busy && (
     <>
       {discoveryError && error && !busy && (
-        <Notice>
-          <p>
-            {discoveryError === "consent_required"
+        <Notice
+          message={
+            discoveryError === "consent_required"
               ? detectionCopy.consent
               : discoveryError === "android_usb_permission"
                 ? detectionCopy.permission
@@ -480,8 +480,9 @@ export function Scanner({
                     ].includes(discoveryError) ||
                     discoveryError.startsWith("engine_")
                   ? failureText(discoveryError)
-                  : detectionCopy.failed}
-          </p>
+                  : detectionCopy.failed
+          }
+        >
           <div className="device-options">
             {(["ios", "android"] as const).map((platform) => (
               <button
@@ -502,28 +503,30 @@ export function Scanner({
       )}
       {((error && !busy && !discoveryError) || status.phase === "failed") && (
         <>
-          <Notice>
-            {status.error === "backup_password_required"
-              ? c.backupPasswordNeeded
-              : status.error === "insufficient_disk_space" ||
-                  status.error === "evidence_snapshot_limit"
-                ? c.diskSpaceNeeded
-                : status.error === "device_locked"
-                  ? a.deviceLocked
-                  : status.error === "device_disconnected"
-                    ? a.deviceDisconnected
-                    : status.error === "device_not_trusted"
-                      ? a.deviceNotTrusted
-                      : status.error === "device_trust_denied"
-                        ? a.deviceTrustDenied
-                        : status.error === "device_passcode_timeout"
-                          ? a.devicePasscodeTimeout
-                          : status.error === "device_cancelled"
-                            ? a.deviceCancelled
-                            : status.error?.startsWith("backup_")
-                              ? a.backupError
-                              : failureText(status.error)}
-          </Notice>
+          <Notice
+            message={
+              status.error === "backup_password_required"
+                ? c.backupPasswordNeeded
+                : status.error === "insufficient_disk_space" ||
+                    status.error === "evidence_snapshot_limit"
+                  ? c.diskSpaceNeeded
+                  : status.error === "device_locked"
+                    ? a.deviceLocked
+                    : status.error === "device_disconnected"
+                      ? a.deviceDisconnected
+                      : status.error === "device_not_trusted"
+                        ? a.deviceNotTrusted
+                        : status.error === "device_trust_denied"
+                          ? a.deviceTrustDenied
+                          : status.error === "device_passcode_timeout"
+                            ? a.devicePasscodeTimeout
+                            : status.error === "device_cancelled"
+                              ? a.deviceCancelled
+                              : status.error?.startsWith("backup_")
+                                ? a.backupError
+                                : failureText(status.error)
+            }
+          />
           {status.phase === "failed" &&
             RETRYABLE.includes(status.error ?? "") &&
             selected && (
@@ -738,8 +741,7 @@ export function Scanner({
                     </span>
                   </p>
                 ) : androidWait?.timedOut ? (
-                  <Notice>
-                    <p>{a.androidAllowTimeout}</p>
+                  <Notice message={a.androidAllowTimeout}>
                     <button
                       className="quiet-action"
                       disabled={finding}
@@ -903,7 +905,7 @@ export function Scanner({
               </p>
             )}
             {caps && method !== "files" && !caps.androidUsb && !caps.iosUsb && (
-              <Notice>{a.enginesMissing}</Notice>
+              <Notice message={a.enginesMissing} />
             )}
             {caps &&
               method === "files" &&
@@ -916,8 +918,7 @@ export function Scanner({
               </p>
             )}
             {capError && (
-              <Notice>
-                <p>{a.capError}</p>
+              <Notice message={a.capError}>
                 <button className="quiet-action" onClick={refresh}>
                   {c.retry}
                 </button>

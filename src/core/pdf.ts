@@ -606,13 +606,18 @@ export async function downloadPdf(
   t: Copy,
   originLabel?: string,
   language: Language = "en",
-) {
+): Promise<boolean> {
   const pdf = await buildPdf(report, t, originLabel, language);
   if ("__TAURI_INTERNALS__" in window) {
-    await native("save_export", {
-      format: "pdf",
-      name: reportFileName(report, "pdf"),
-      bytes: Array.from(new Uint8Array(pdf.output("arraybuffer"))),
-    });
-  } else pdf.save(reportFileName(report, "pdf"));
+    // False when the person closes the save dialog without saving.
+    return Boolean(
+      await native<boolean>("save_export", {
+        format: "pdf",
+        name: reportFileName(report, "pdf"),
+        bytes: Array.from(new Uint8Array(pdf.output("arraybuffer"))),
+      }),
+    );
+  }
+  pdf.save(reportFileName(report, "pdf"));
+  return true;
 }

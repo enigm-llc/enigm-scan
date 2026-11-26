@@ -9,6 +9,8 @@ import {
   Timer,
   RotateCcw,
 } from "lucide-react";
+import { toast } from "../desktop/toast";
+import { flowCopy } from "../shared/i18n/flow";
 import type { ScanReport } from "../core/report";
 import { loadPdf, preloadPdf } from "../core/pdf-loader";
 import type { Copy, Language } from "../shared/i18n/i18n";
@@ -90,7 +92,8 @@ export function Report({
     setExporting(true);
     try {
       const { downloadPdf } = await loadPdf();
-      await downloadPdf(report, t, originLabel, language);
+      if (await downloadPdf(report, t, originLabel, language))
+        toast.success(flowCopy[language].pdfSaved);
     } catch {
       setError(true);
     } finally {
@@ -267,7 +270,7 @@ export function Report({
               </button>
             )}
           </div>
-          {error && <Notice>{t.exportError}</Notice>}
+          {error && <Notice message={t.exportError} />}
         </div>
       </div>
 

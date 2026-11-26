@@ -10,6 +10,8 @@ import { useI18N } from "../shared/i18n/i18n";
 import { Report } from "../components/Report";
 import { Scanner } from "../components/Scanner";
 import { ClosePromo } from "./ClosePromo";
+import { Toaster } from "./Toaster";
+import { clearToasts } from "./toast";
 import { Welcome } from "./Welcome";
 
 /** Phases in which a scan is still working on the phone or its copy. */
@@ -96,6 +98,7 @@ export default function DesktopApp() {
         )
         .then(() => {
           forgetScanChoices();
+          clearToasts();
           setReport(null);
           setClosing(true);
         });
@@ -216,6 +219,7 @@ export default function DesktopApp() {
         </button>
       )}
       {closing && <ClosePromo language={language} />}
+      <Toaster />
     </div>
   );
 }

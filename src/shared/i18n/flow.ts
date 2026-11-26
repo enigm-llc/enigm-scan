@@ -22,6 +22,7 @@ export type FlowCopy = {
   aboutBody: string;
   aboutReleased: string;
   scrollMore: string;
+  pdfSaved: string;
   /** Short lines for the progress card: what is being done right now. */
   cardCopying: string;
   cardSkipping: string;
@@ -123,6 +124,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutBody: "Detección de spyware para iPhone y Android",
     aboutReleased: "Publicada el {d}",
     scrollMore: "Ver más",
+    pdfSaved: "Informe guardado",
     optionDeepSteps:
       "Después de «Confiar» te pediremos pulsar a la vez tres botones del iPhone. La copia empieza cuando el iPhone lo confirme.",
     cardCopying: "Copiando archivos",
@@ -232,6 +234,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutBody: "Spyware detection for iPhone and Android",
     aboutReleased: "Released {d}",
     scrollMore: "See more",
+    pdfSaved: "Report saved",
     optionDeepSteps:
       "After “Trust”, we’ll ask you to press three iPhone buttons at the same time. The copy starts once the iPhone confirms it.",
     cardCopying: "Copying files",
@@ -342,6 +345,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutBody: "Détection de logiciels espions pour iPhone et Android",
     aboutReleased: "Publiée le {d}",
     scrollMore: "Voir plus",
+    pdfSaved: "Rapport enregistré",
     optionDeepSteps:
       "Après « Faire confiance », nous vous demanderons d’appuyer en même temps sur trois boutons de l’iPhone. La copie commence dès que l’iPhone le confirme.",
     cardCopying: "Copie des fichiers",
@@ -457,6 +461,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutBody: "Spyware-Erkennung für iPhone und Android",
     aboutReleased: "Veröffentlicht am {d}",
     scrollMore: "Mehr anzeigen",
+    pdfSaved: "Bericht gespeichert",
     optionDeepSteps:
       "Nach „Vertrauen“ bitten wir Sie, gleichzeitig drei Tasten am iPhone zu drücken. Die Kopie beginnt, sobald das iPhone es bestätigt.",
     cardCopying: "Dateien werden kopiert",
@@ -575,6 +580,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutBody: "Rilevamento di spyware per iPhone e Android",
     aboutReleased: "Pubblicata il {d}",
     scrollMore: "Mostra di più",
+    pdfSaved: "Rapporto salvato",
     optionDeepSteps:
       "Dopo «Autorizza» ti chiederemo di premere insieme tre tasti dell’iPhone. La copia inizia quando l’iPhone lo conferma.",
     cardCopying: "Copia dei file",
@@ -688,6 +694,7 @@ export const flowCopy: Record<Language, FlowCopy> = {
     aboutBody: "Deteção de spyware para iPhone e Android",
     aboutReleased: "Publicada a {d}",
     scrollMore: "Ver mais",
+    pdfSaved: "Relatório guardado",
     optionDeepSteps:
       "Depois de «Confiar», vamos pedir-lhe que prima ao mesmo tempo três botões do iPhone. A cópia começa quando o iPhone o confirmar.",
     cardCopying: "A copiar ficheiros",
