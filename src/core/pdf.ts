@@ -1,3 +1,4 @@
+import { native } from "./agent";
 import { reportFileName, type ScanReport } from "./report";
 import type { Copy, Language } from "../shared/i18n/i18n";
 import { reportLogo, reportLogoLight } from "./report-brand";
@@ -608,7 +609,6 @@ export async function downloadPdf(
 ) {
   const pdf = await buildPdf(report, t, originLabel, language);
   if ("__TAURI_INTERNALS__" in window) {
-    const { native } = await import("./agent");
     await native("save_export", {
       format: "pdf",
       name: reportFileName(report, "pdf"),
