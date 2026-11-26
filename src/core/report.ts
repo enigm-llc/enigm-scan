@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { native } from "./agent";
 // The site forbids eval (CSP script-src 'self'): skip zod's eval probe and JIT.
 z.config({ jitless: true });
 export const MAX_REPORT_BYTES = 5 * 1024 * 1024;
@@ -75,7 +76,6 @@ export function parseReport(input: string): ScanReport {
 }
 export async function downloadReport(report: ScanReport) {
   if ("__TAURI_INTERNALS__" in window) {
-    const { native } = await import("./agent");
     await native("save_export", {
       format: "json",
       name: reportFileName(report, "json"),

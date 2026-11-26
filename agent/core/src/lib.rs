@@ -137,6 +137,16 @@ mod tests {
     }
 }
 
+/// Lower-case hexadecimal, as used for every digest in reports and manifests.
+pub fn hex(bytes: &[u8]) -> String {
+    use std::fmt::Write;
+    bytes
+        .iter()
+        .fold(String::with_capacity(bytes.len() * 2), |mut out, b| {
+            let _ = write!(out, "{b:02x}");
+            out
+        })
+}
 pub mod android;
 pub mod behavior;
 pub mod extractions;

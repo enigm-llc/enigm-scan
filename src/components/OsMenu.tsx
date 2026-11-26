@@ -6,7 +6,11 @@ export type OsFile = { filename: string; platform: string; arch: string };
 
 export const osLabel = (f: OsFile) =>
   `${f.platform} · ${
-    f.platform === "macOS" ? (f.arch === "arm64" ? "Apple Silicon" : "Intel") : f.arch
+    f.platform === "macOS"
+      ? f.arch === "arm64"
+        ? "Apple Silicon"
+        : "Intel"
+      : f.arch
   }`;
 
 /**

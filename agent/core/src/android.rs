@@ -296,7 +296,7 @@ fn heuristic(
 ) -> Finding {
     let digest = Sha256::digest(format!("{category}\0{evidence}").as_bytes());
     Finding {
-        id: format!("android.{:x}", digest)[..40].into(),
+        id: format!("android.{}", crate::hex(&digest))[..40].into(),
         category: category.into(),
         source: "https://github.com/enigm-llc/enigm-scan".into(),
         evidence: bounded(evidence, 1800),
