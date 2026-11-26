@@ -3,7 +3,6 @@ import {
   ChevronDown,
   Download,
   LoaderCircle,
-  ShieldCheck,
   FileSearch,
   ListChecks,
   Timer,
@@ -300,10 +299,20 @@ export function Report({
                 </ul>
               </>
             ) : (
-              <p className="tile-clean">
-                <ShieldCheck size={18} aria-hidden="true" />
-                {r.noFindingsLead}
-              </p>
+              // The same bar and legend as with findings: empty, all at 0.
+              <>
+                <div className="severity-bar is-empty" aria-hidden="true">
+                  <i />
+                </div>
+                <ul className="severity-legend">
+                  {SEVERITIES.map((level) => (
+                    <li key={level}>
+                      <span className={`sev-dot sev-${level}`} />
+                      <b>{(0).toLocaleString(language)}</b> {t[level]}
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
           </div>
           <div className="report-tile">

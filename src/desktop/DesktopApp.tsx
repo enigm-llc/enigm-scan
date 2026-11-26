@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronsDown } from "lucide-react";
 import { native, type AgentStatus } from "../core/agent";
 import type { ScanReport } from "../core/report";
 import { forgetScanChoices } from "../core/scan-choices";
@@ -213,7 +213,6 @@ export default function DesktopApp() {
       {report && !closing && atTop && (
         <button
           className="scroll-cue"
-          aria-label={flowCopy[language].scrollMore}
           onClick={() =>
             window.scrollBy({
               top: window.innerHeight * 0.8,
@@ -221,7 +220,8 @@ export default function DesktopApp() {
             })
           }
         >
-          <ChevronDown size={20} strokeWidth={2.2} aria-hidden="true" />
+          <span>{flowCopy[language].scrollMore}</span>
+          <ChevronsDown size={20} strokeWidth={2} aria-hidden="true" />
         </button>
       )}
       {closing && <ClosePromo language={language} />}
