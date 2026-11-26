@@ -62,6 +62,13 @@ impl<'a> Matches<'a> {
         } else {
             format!("Published indicator: {}. Historical infrastructure may have changed ownership. A match alone does not prove infection.", rule.published)
         }];
+        let confidence = rule.confidence(self.rules.issued_at());
+        if confidence == "low" && matches!(rule.kind, Kind::Domain | Kind::Ip) {
+            if let Some(published) = rule.published_at() {
+                let years = (self.rules.issued_at() - published).max(0) / (365 * 86400);
+                limitations.push(format!("Published {years} years ago: the domain or address may belong to someone else today. A match in old messages or history still points to that time."));
+            }
+        }
         let mut evidence = match parent {
             Some(parent) => {
                 limitations.push(format!("Matched as a subdomain of the published domain {parent}, which its registrant controls."));
@@ -83,7 +90,7 @@ impl<'a> Matches<'a> {
             source: rule.source.clone(),
             evidence: bounded(&evidence, 1800),
             severity: severity.into(),
-            confidence: "medium".into(),
+            confidence: confidence.into(),
             timestamp,
             rule: rule.id.clone(),
             rule_version: self.rules.version().to_string(),

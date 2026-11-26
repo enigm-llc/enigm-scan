@@ -18,3 +18,12 @@ jobs:
       - run: node scripts/check-intelligence-expiry.mjs --days=14 --file=src-tauri/resources/intelligence/bundle-v2.json
       - run: node scripts/check-intelligence-expiry.mjs --days=14 --url=https://scan.enigm.io/downloads/intelligence.json
       - run: node scripts/check-intelligence-expiry.mjs --days=14 --url=https://scan.enigm.io/downloads/intelligence-v2.json
+      # Mondays, or when run by hand: what changed upstream in the sources,
+      # to review before the next signed release. It changes nothing.
+      - name: Sources to review
+        env:
+          EVENT: ${{ github.event_name }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          [ "$(date -u +%u)" = 1 ] || [ "$EVENT" = workflow_dispatch ] || exit 0
+          node scripts/intel/check-sources.mjs

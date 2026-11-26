@@ -18,6 +18,17 @@ const t = (
 /** Whole sentences: recommendations and limitations. Groups are kept as-is. */
 export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
+    /^Published (\d+) years ago: the domain or address may belong to someone else today/,
+    t(
+      "Publicado hace {0} años: hoy el dominio o la dirección pueden ser de otra persona. Una coincidencia en mensajes o historial antiguos sí apunta a aquella época.",
+      "Published {0} years ago: the domain or address may belong to someone else today. A match in old messages or history still points to that time.",
+      "Publié il y a {0} ans : le domaine ou l’adresse peut appartenir à quelqu’un d’autre aujourd’hui. Une correspondance dans d’anciens messages ou historiques renvoie toutefois à cette époque.",
+      "Vor {0} Jahren veröffentlicht: Die Domain oder Adresse kann heute jemand anderem gehören. Ein Treffer in alten Nachrichten oder im Verlauf verweist dennoch auf jene Zeit.",
+      "Pubblicato {0} anni fa: oggi il dominio o l’indirizzo potrebbero appartenere a qualcun altro. Una corrispondenza in vecchi messaggi o cronologie rimanda comunque a quel periodo.",
+      "Publicado há {0} anos: hoje o domínio ou o endereço podem pertencer a outra pessoa. Uma correspondência em mensagens ou histórico antigos continua a apontar para essa época.",
+    ),
+  ],
+  [
     /^Apple sends this notification when it detects an attack by mercenary spyware/,
     t(
       "Apple envía este aviso cuando detecta un ataque con spyware mercenario contra el móvil. Apple no explica cómo lo detectó ni si el ataque tuvo éxito.",

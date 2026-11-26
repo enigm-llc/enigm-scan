@@ -47,6 +47,18 @@
   signed release.
 - Apple's own notice of a mercenary spyware attack, received in Messages, is
   a critical detection instead of a point to review.
+- Each indicator match has its own confidence: exact traces (file hashes,
+  signing certificates, app and profile identifiers) are high; domains and
+  above all IP addresses lose confidence with age, and an old one says it may
+  belong to someone else today.
+- Indicators on the most visited domains are reviewed by hand before each
+  release: an analytics service used by thousands of apps and the shared
+  servers of a software maker no longer count as stalkerware, and FindMyKids,
+  sold in the app stores, is a monitoring app to review.
+- The app trusts a list of signing keys, so the key that signs the
+  indicators can move to an isolated computer or a hardware module without
+  leaving anyone without updates, and a release can be signed away from the
+  computer that prepares it.
 - The PDF report says what to do now, in order, based on what was found:
   keeping the phone for an expert, safety first with stalkerware, Lockdown
   Mode, removing unknown profiles. It is left out when nothing was found.

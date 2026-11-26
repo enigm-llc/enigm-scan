@@ -1,4 +1,16 @@
 // Offline, deterministic source normalization. No network calls or private evidence.
+//
+// Three ways to make a release:
+//   node scripts/build-intelligence.mjs --version=N --popular=top-1m.csv
+//     compiles and signs here with the key in .secrets/;
+//   node scripts/build-intelligence.mjs --prepare --version=N --popular=top-1m.csv
+//     compiles and writes the unsigned payloads to .release/, for a signer
+//     that keeps the key elsewhere (an HSM or an isolated computer);
+//   node scripts/build-intelligence.mjs --assemble
+//     checks the signatures written next to those payloads against the keys
+//     the app trusts and writes the release.
+// --popular is the Tranco list of the most visited domains: any indicator on
+// one of the top 10,000 needs a decision in intelligence/reviewed-popular.json.
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import {
   createHash,
@@ -6,22 +18,24 @@ import {
   createPrivateKey,
   createPublicKey,
   sign,
+  verify,
 } from "node:crypto";
 import { BlockList, isIP } from "node:net";
 const args = process.argv.slice(2);
-const init = args.includes("--init-key");
-const version = Number(
-  args.find((a) => a.startsWith("--version="))?.split("=")[1],
-);
-if (!Number.isSafeInteger(version) || version < 1)
-  throw Error("Provide --version=<monotonic integer>");
-// Validity window. The native verifier rejects bundles valid for more than 90 days.
-const days = Number(
-  args.find((a) => a.startsWith("--days="))?.split("=")[1] ?? 30,
-);
-if (!Number.isSafeInteger(days) || days < 1 || days > 90)
-  throw Error("--days must be an integer between 1 and 90");
-const keyPath = ".secrets/intelligence-signing.pem";
+const option = (name) =>
+  args
+    .find((a) => a.startsWith(`--${name}=`))
+    ?.split("=")
+    .slice(1)
+    .join("=");
+const mode = args.includes("--prepare")
+  ? "prepare"
+  : args.includes("--assemble")
+    ? "assemble"
+    : "sign";
+const STAGING = ".release";
+const TRUSTED = "src-tauri/resources/intelligence/trusted-keys.bin";
+const CURRENT = "src-tauri/resources/intelligence/public-key.bin";
 /** The file's contents, or null when it does not exist. Reading directly,
  *  rather than checking first, leaves no gap for the file to change. */
 function readIfPresent(path, encoding) {
@@ -32,28 +46,44 @@ function readIfPresent(path, encoding) {
     throw error;
   }
 }
-let keyPem = readIfPresent(keyPath);
-if (keyPem === null) {
-  if (!init)
-    throw Error(
-      "Signing key missing; initialize explicitly or provision an offline release key",
-    );
-  mkdirSync(".secrets", { recursive: true, mode: 0o700 });
-  const { privateKey } = generateKeyPairSync("ed25519");
-  keyPem = privateKey.export({ type: "pkcs8", format: "pem" });
-  // "wx" refuses to replace a key created in the meantime.
-  writeFileSync(keyPath, keyPem, { mode: 0o600, flag: "wx" });
+/** The public keys the app accepts, 32 bytes each. A new key is added here,
+ *  and shipped in an app release, before releases are signed with it. */
+function trustedKeys() {
+  const bytes = readIfPresent(TRUSTED) ?? readIfPresent(CURRENT);
+  if (bytes === null) return [];
+  if (!bytes.length || bytes.length % 32) throw Error("Invalid trusted keys");
+  return Array.from({ length: bytes.length / 32 }, (_, i) =>
+    bytes.subarray(i * 32, i * 32 + 32),
+  );
 }
-const key = createPrivateKey(keyPem);
-const publicDer = createPublicKey(key).export({ type: "spki", format: "der" });
-const publicRaw = publicDer.subarray(publicDer.length - 32);
-const pinnedKeyPath = "src-tauri/resources/intelligence/public-key.bin";
-const pinnedKey = readIfPresent(pinnedKeyPath);
-if (pinnedKey !== null && !pinnedKey.equals(publicRaw))
-  throw Error("Signing key does not match the pinned trust root");
+const spki = (raw) =>
+  createPublicKey({
+    key: Buffer.concat([Buffer.from("302a300506032b6570032100", "hex"), raw]),
+    format: "der",
+    type: "spki",
+  });
 const previousRelease = readIfPresent("intelligence/release.json", "utf8");
-if (previousRelease !== null && version <= JSON.parse(previousRelease).version)
-  throw Error("Release version must increase");
+const previousVersion =
+  previousRelease === null ? 0 : JSON.parse(previousRelease).version;
+
+if (mode === "assemble") {
+  assemble();
+  process.exit(0);
+}
+
+const version = Number(option("version"));
+if (!Number.isSafeInteger(version) || version < 1)
+  throw Error("Provide --version=<monotonic integer>");
+if (version <= previousVersion) throw Error("Release version must increase");
+// Validity window. The native verifier rejects bundles valid for more than 90 days.
+const days = Number(option("days") ?? 30);
+if (!Number.isSafeInteger(days) || days < 1 || days > 90)
+  throw Error("--days must be an integer between 1 and 90");
+const popularPath = option("popular");
+if (!popularPath)
+  throw Error(
+    "Provide --popular=<Tranco top-1m.csv> (https://tranco-list.eu/top-1m.csv.zip) to check indicators against the most visited domains",
+  );
 const now = Math.floor(Date.now() / 1000);
 const sources = JSON.parse(
   readFileSync("intelligence/sources/manifest.json", "utf8"),
@@ -234,23 +264,83 @@ for (const source of sources) {
     });
   }
 }
+// Popular domains: a decision for each, or no release.
+const reviewed = JSON.parse(
+  readFileSync("intelligence/reviewed-popular.json", "utf8"),
+);
+const platforms = new Set([...reviewed.platforms, ...shared.domains]);
+// Second-level registries where each name below is its own site.
+const SECOND_LEVEL =
+  /^(?:(?:co|com|net|org|gov|ac|edu|gob|or|ne|go)\.[a-z]{2}|(?:gr|cn|uk|us|eu|br|sa|za|de|ru|jpn|kr|hu|no|se|uy|ar|qc)\.com)$/;
+const registrable = (host) => {
+  const labels = host.split(".");
+  const keep =
+    labels.length >= 3 && SECOND_LEVEL.test(labels.slice(-2).join(".")) ? 3 : 2;
+  return labels.slice(-keep).join(".");
+};
+const top = new Map();
+for (const line of readFileSync(popularPath, "utf8").split("\n")) {
+  const [rank, domain] = line.trim().split(",");
+  if (Number(rank) > 10000) break;
+  if (domain) top.set(domain.toLowerCase(), Number(rank));
+}
+if (top.size < 9000) throw Error("The popular domains list looks incomplete");
+const unreviewed = new Set();
+const popular = { kept: 0, monitoring: 0, dropped: [] };
+const screened = rules.filter((rule) => {
+  if (rule.kind !== "domain") return true;
+  const site = registrable(rule.value);
+  if (platforms.has(site) || !(top.has(rule.value) || top.has(site)))
+    return true;
+  const decision = reviewed.decisions[site];
+  if (!decision) {
+    unreviewed.add(site);
+    return true;
+  }
+  if (decision.action === "drop" || decision.except?.includes(rule.value)) {
+    popular.dropped.push(rule.value);
+    return false;
+  }
+  if (decision.action === "monitoring") {
+    popular.monitoring++;
+    rule.id = rule.id.replace(/^[a-z]+\./, "watchware.");
+    rule.published = rule.published.replace(
+      /( \((?:stalkerware|watchware)\))?$/,
+      " (watchware)",
+    );
+  } else popular.kept++;
+  return true;
+});
+if (unreviewed.size)
+  throw Error(
+    `Popular domains need a decision in intelligence/reviewed-popular.json: ${[...unreviewed].sort().join(", ")}`,
+  );
+popular.dropped = [...new Set(popular.dropped)].sort();
+
 // One rule per value: the same domain or hash published by several sources
 // would otherwise appear as several findings. Sources are listed with the
 // primary research first, so the rule kept names the original publication.
+// When sources disagree, a monitoring app (watchware) wins over stalkerware:
+// the less alarming reading of the same value.
 const byValue = new Map();
-for (const rule of rules) {
+for (const rule of screened) {
   const key = `${rule.kind}\0${rule.value}`;
-  if (!byValue.has(key)) byValue.set(key, rule);
+  const kept = byValue.get(key);
+  if (
+    !kept ||
+    (rule.id.startsWith("watchware.") && !kept.id.startsWith("watchware."))
+  )
+    byValue.set(key, rule);
 }
-const duplicates = rules.length - byValue.size;
+const duplicates = screened.length - byValue.size;
 const unique = [
   ...new Map([...byValue.values()].map((r) => [r.id, r])).values(),
 ].sort((a, b) => a.id.localeCompare(b.id, "en"));
 if (!unique.length) throw Error("No supported indicators");
 // Schema 1 (domain/ip/sha256) stays at the original endpoint for released
 // apps; schema 2 adds the forensic types MVT matches natively.
-function seal(schemaVersion, selected) {
-  const payload = Buffer.from(
+const payloadFor = (schemaVersion, selected) =>
+  Buffer.from(
     JSON.stringify({
       schemaVersion,
       version,
@@ -259,63 +349,152 @@ function seal(schemaVersion, selected) {
       rules: selected,
     }),
   );
-  return {
-    payload,
-    envelope: {
-      payload: payload.toString("base64"),
-      signature: sign(null, payload, key).toString("base64"),
-    },
-  };
-}
-const legacy = seal(
-  1,
-  unique.filter((r) => LEGACY.has(r.kind)),
-);
-const full = seal(2, unique);
-mkdirSync("src-tauri/resources/intelligence", { recursive: true });
-writeFileSync(
-  "src-tauri/resources/intelligence/bundle.json",
-  JSON.stringify(legacy.envelope) + "\n",
-);
-writeFileSync(
-  "src-tauri/resources/intelligence/bundle-v2.json",
-  JSON.stringify(full.envelope) + "\n",
-);
-writeFileSync("src-tauri/resources/intelligence/public-key.bin", publicRaw);
+const payloads = {
+  v1: payloadFor(
+    1,
+    unique.filter((r) => LEGACY.has(r.kind)),
+  ),
+  v2: payloadFor(2, unique),
+};
 const byKind = Object.fromEntries(
   [...new Set(unique.map((r) => r.kind))]
     .sort()
     .map((k) => [k, unique.filter((r) => r.kind === k).length]),
 );
-writeFileSync(
-  "intelligence/release.json",
-  JSON.stringify(
-    {
-      version,
-      rules: unique.length,
-      rulesByKind: byKind,
-      legacyRules: unique.filter((r) => LEGACY.has(r.kind)).length,
-      omittedUnsupportedPatterns: omitted,
-      omittedSharedInfrastructure: omittedShared,
-      duplicatesMerged: duplicates,
-      issuedAt: now,
-      expiresAt: expiry,
-      publicKeySha256: createHash("sha256").update(publicRaw).digest("hex"),
-      payloadSha256: createHash("sha256").update(legacy.payload).digest("hex"),
-      payloadV2Sha256: createHash("sha256").update(full.payload).digest("hex"),
-      sources: sources.map((s) => ({ url: s.url, sha256: s.sha256 })),
-    },
-    null,
-    2,
-  ) + "\n",
-);
-console.log(
-  JSON.stringify({
-    version,
-    rules: unique.length,
-    rulesByKind: byKind,
-    omittedUnsupportedPatterns: omitted,
-    omittedSharedInfrastructure: omittedShared,
-    duplicatesMerged: duplicates,
-  }),
-);
+const summary = {
+  version,
+  rules: unique.length,
+  rulesByKind: byKind,
+  legacyRules: unique.filter((r) => LEGACY.has(r.kind)).length,
+  omittedUnsupportedPatterns: omitted,
+  omittedSharedInfrastructure: omittedShared,
+  popularDomains: popular,
+  duplicatesMerged: duplicates,
+  issuedAt: now,
+  expiresAt: expiry,
+  sources: sources.map((s) => ({ url: s.url, sha256: s.sha256 })),
+};
+
+if (mode === "prepare") {
+  mkdirSync(STAGING, { recursive: true, mode: 0o700 });
+  writeFileSync(`${STAGING}/payload-v1.json`, payloads.v1);
+  writeFileSync(`${STAGING}/payload-v2.json`, payloads.v2);
+  writeFileSync(
+    `${STAGING}/summary.json`,
+    JSON.stringify(summary, null, 2) + "\n",
+  );
+  const hash = (b) => createHash("sha256").update(b).digest("hex");
+  console.log(
+    [
+      `Unsigned release ${version} in ${STAGING}/ (${unique.length} indicators).`,
+      `payload-v1.json  sha256 ${hash(payloads.v1)}`,
+      `payload-v2.json  sha256 ${hash(payloads.v2)}`,
+      "Sign each payload with the release key (Ed25519, raw 64-byte signature) as",
+      "payload-v1.sig and payload-v2.sig next to it, for example on the signing computer:",
+      "  openssl pkeyutl -sign -inkey key.pem -rawin -in payload-v2.json -out payload-v2.sig",
+      "then run: node scripts/build-intelligence.mjs --assemble",
+    ].join("\n"),
+  );
+} else {
+  const keyPath = ".secrets/intelligence-signing.pem";
+  let keyPem = readIfPresent(keyPath);
+  if (keyPem === null) {
+    if (!args.includes("--init-key"))
+      throw Error(
+        "Signing key missing; initialize explicitly or provision an offline release key",
+      );
+    mkdirSync(".secrets", { recursive: true, mode: 0o700 });
+    keyPem = generateKeyPairSync("ed25519").privateKey.export({
+      type: "pkcs8",
+      format: "pem",
+    });
+    // "wx" refuses to replace a key created in the meantime.
+    writeFileSync(keyPath, keyPem, { mode: 0o600, flag: "wx" });
+  }
+  const key = createPrivateKey(keyPem);
+  write(summary, payloads, {
+    v1: sign(null, payloads.v1, key),
+    v2: sign(null, payloads.v2, key),
+  });
+}
+
+/** Checks both signatures against a key the app trusts, then writes the
+ *  bundles, the key that signed them and release.json. */
+function write(summary, payloads, signatures) {
+  const trusted = trustedKeys();
+  const signer = (trusted.length ? trusted : [null]).find((raw) => {
+    if (raw === null) return false;
+    const key = spki(raw);
+    return (
+      verify(null, payloads.v1, key, signatures.v1) &&
+      verify(null, payloads.v2, key, signatures.v2)
+    );
+  });
+  mkdirSync("src-tauri/resources/intelligence", { recursive: true });
+  let current = signer;
+  if (!current && !trusted.length && mode === "sign") {
+    // First release of a new installation: its key becomes the trusted one.
+    const der = createPublicKey(
+      createPrivateKey(readFileSync(".secrets/intelligence-signing.pem")),
+    ).export({ type: "spki", format: "der" });
+    current = der.subarray(der.length - 32);
+    writeFileSync(TRUSTED, current);
+  }
+  if (!current)
+    throw Error("The signatures do not match any key the app trusts");
+  for (const [name, schema] of [
+    ["bundle.json", "v1"],
+    ["bundle-v2.json", "v2"],
+  ])
+    writeFileSync(
+      `src-tauri/resources/intelligence/${name}`,
+      JSON.stringify({
+        payload: payloads[schema].toString("base64"),
+        signature: signatures[schema].toString("base64"),
+      }) + "\n",
+    );
+  writeFileSync(CURRENT, current);
+  const hash = (b) => createHash("sha256").update(b).digest("hex");
+  writeFileSync(
+    "intelligence/release.json",
+    JSON.stringify(
+      {
+        ...summary,
+        publicKeySha256: hash(current),
+        payloadSha256: hash(payloads.v1),
+        payloadV2Sha256: hash(payloads.v2),
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+  console.log(
+    JSON.stringify({
+      version: summary.version,
+      rules: summary.rules,
+      rulesByKind: summary.rulesByKind,
+      popularDomains: summary.popularDomains,
+      duplicatesMerged: summary.duplicatesMerged,
+    }),
+  );
+}
+
+/** Writes a release prepared with --prepare and signed elsewhere. */
+function assemble() {
+  const read = (name) => readFileSync(`${STAGING}/${name}`);
+  const summary = JSON.parse(read("summary.json"));
+  if (summary.version <= previousVersion)
+    throw Error("Release version must increase");
+  const payloads = { v1: read("payload-v1.json"), v2: read("payload-v2.json") };
+  for (const [schema, bytes] of Object.entries(payloads)) {
+    const payload = JSON.parse(bytes);
+    if (payload.version !== summary.version)
+      throw Error(`payload-${schema}.json is not release ${summary.version}`);
+    if (payload.expiresAt <= Math.floor(Date.now() / 1000))
+      throw Error("The prepared release has expired: prepare it again");
+  }
+  write(summary, payloads, {
+    v1: read("payload-v1.sig"),
+    v2: read("payload-v2.sig"),
+  });
+}

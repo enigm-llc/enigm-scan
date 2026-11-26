@@ -81,6 +81,46 @@ impl Rule {
     pub fn watchware(&self) -> bool {
         self.id.starts_with("watchware.")
     }
+    /// The publication date the compiler records first (`2026-10-20, ...`),
+    /// as a Unix time at midnight UTC.
+    pub fn published_at(&self) -> Option<i64> {
+        let date = self.published.get(..10)?;
+        let mut parts = date.split('-').map(str::parse::<u16>);
+        let (Some(Ok(year)), Some(Ok(month)), Some(Ok(day))) =
+            (parts.next(), parts.next(), parts.next())
+        else {
+            return None;
+        };
+        let month = time::Month::try_from(u8::try_from(month).ok()?).ok()?;
+        time::Date::from_calendar_date(year.into(), month, u8::try_from(day).ok()?)
+            .ok()
+            .map(|d| d.midnight().assume_utc().unix_timestamp())
+    }
+    /// How much a match says, from the kind of evidence and its age. Exact
+    /// artefacts (file hashes, signing certificates, app and profile
+    /// identifiers, file paths) do not change hands. Domains and above all IP
+    /// addresses do: an old one may belong to someone else today.
+    pub fn confidence(&self, at: i64) -> &'static str {
+        const YEAR: i64 = 365 * 86400;
+        let age = self.published_at().map(|p| (at - p).max(0) / YEAR);
+        match self.kind {
+            Kind::Sha256
+            | Kind::AppCertSha256
+            | Kind::AppId
+            | Kind::ConfigurationProfileId
+            | Kind::FilePath => "high",
+            Kind::ProcessName | Kind::FileName | Kind::Email => "medium",
+            Kind::Domain => match age {
+                Some(0..=2) => "high",
+                Some(3..=5) | None => "medium",
+                Some(_) => "low",
+            },
+            Kind::Ip => match age {
+                Some(0..=1) => "medium",
+                _ => "low",
+            },
+        }
+    }
     /// Threat family recorded by the compiler after the publication date
     /// (`2026-10-20, mSpy (stalkerware)`), when the source names one.
     pub fn family(&self) -> Option<&str> {
@@ -111,11 +151,13 @@ pub struct VerifiedRules {
     index: HashMap<(Kind, String), Vec<usize>>,
 }
 impl VerifiedRules {
-    /// Only this constructor can create a trusted ruleset. Caller owns a pinned public key
-    /// and durable monotonic version floor. No key from the envelope is accepted.
+    /// Only this constructor can create a trusted ruleset. Caller owns the pinned
+    /// public keys (one or more 32-byte Ed25519 keys, concatenated, so a new
+    /// signing key can ship in the app before releases use it) and a durable
+    /// monotonic version floor. No key from the envelope is accepted.
     pub fn verify(
         bytes: &[u8],
-        key: &[u8; 32],
+        keys: &[u8],
         now: i64,
         minimum_version: u64,
     ) -> Result<Self, String> {
@@ -130,10 +172,19 @@ impl VerifiedRules {
         let signature = STANDARD
             .decode(envelope.signature)
             .map_err(|_| "invalid_rules_signature")?;
-        let key = VerifyingKey::from_bytes(key).map_err(|_| "invalid_trust_key")?;
+        let (keys, rest) = keys.as_chunks::<32>();
+        if keys.is_empty() || !rest.is_empty() || keys.len() > 8 {
+            return Err("invalid_trust_key".into());
+        }
         let signature = Signature::from_slice(&signature).map_err(|_| "invalid_rules_signature")?;
-        key.verify_strict(&payload, &signature)
-            .map_err(|_| "untrusted_rules")?;
+        let mut trusted = false;
+        for key in keys {
+            let key = VerifyingKey::from_bytes(key).map_err(|_| "invalid_trust_key")?;
+            trusted |= key.verify_strict(&payload, &signature).is_ok();
+        }
+        if !trusted {
+            return Err("untrusted_rules".into());
+        }
         let bundle: Bundle =
             serde_json::from_slice(&payload).map_err(|_| "invalid_rules_schema")?;
         if !(1..=2).contains(&bundle.schema_version)
@@ -192,6 +243,11 @@ impl VerifiedRules {
     }
     pub fn version(&self) -> u64 {
         self.bundle.version
+    }
+    /// When the release was signed: the "now" indicator ages are measured
+    /// against, the same for every scan made with it.
+    pub fn issued_at(&self) -> i64 {
+        self.bundle.issued_at
     }
     pub fn len(&self) -> usize {
         self.bundle.rules.len()
@@ -336,7 +392,7 @@ pub(crate) mod tests {
     #[test]
     fn bundled_intelligence_verifies_at_release_time() {
         let bytes = include_bytes!("../../../src-tauri/resources/intelligence/bundle.json");
-        let key = include_bytes!("../../../src-tauri/resources/intelligence/public-key.bin");
+        let key = include_bytes!("../../../src-tauri/resources/intelligence/trusted-keys.bin");
         let release: serde_json::Value =
             serde_json::from_slice(include_bytes!("../../../intelligence/release.json")).unwrap();
         let rules = VerifiedRules::verify(
@@ -367,10 +423,58 @@ pub(crate) mod tests {
         assert!(VerifiedRules::verify(&bytes, &key, 1100, 1).is_err());
         assert!(VerifiedRules::verify(&bytes, &key, 900, 1).is_err());
         assert!(VerifiedRules::verify(&bytes, &[8; 32], 1000, 1).is_err());
+        // During a key change the app trusts the current and the next key.
+        let next = SigningKey::from_bytes(&[9; 32]).verifying_key().to_bytes();
+        let both = [next, key].concat();
+        assert!(VerifiedRules::verify(&bytes, &next, 1000, 1).is_err());
+        assert!(VerifiedRules::verify(&bytes, &both, 1000, 1).is_ok());
+        assert!(VerifiedRules::verify(&bytes, &both[..40], 1000, 1).is_err());
+        assert!(VerifiedRules::verify(&bytes, &[], 1000, 1).is_err());
         let mut altered: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
         altered["payload"] = serde_json::json!(STANDARD.encode(b"tampered"));
         assert!(
             VerifiedRules::verify(&serde_json::to_vec(&altered).unwrap(), &key, 1000, 1).is_err()
+        );
+    }
+    #[test]
+    fn confidence_follows_the_kind_of_evidence_and_its_age() {
+        let rule = |kind, published: &str| Rule {
+            id: "t.x".into(),
+            kind,
+            value: "x".into(),
+            source: "https://example.invalid".into(),
+            published: published.into(),
+        };
+        // 26 November 2026.
+        let at = 1_795_651_200;
+        assert_eq!(
+            rule(Kind::Sha256, "2016-08-24, Pegasus").confidence(at),
+            "high"
+        );
+        assert_eq!(
+            rule(Kind::Domain, "2025-01-10, Predator").confidence(at),
+            "high"
+        );
+        assert_eq!(
+            rule(Kind::Domain, "2021-07-18, Pegasus").confidence(at),
+            "medium"
+        );
+        assert_eq!(
+            rule(Kind::Domain, "2016-08-24, Pegasus").confidence(at),
+            "low"
+        );
+        assert_eq!(
+            rule(Kind::Domain, "date unavailable").confidence(at),
+            "medium"
+        );
+        assert_eq!(
+            rule(Kind::Ip, "2026-03-03, Coruna").confidence(at),
+            "medium"
+        );
+        assert_eq!(rule(Kind::Ip, "2021-07-18, Pegasus").confidence(at), "low");
+        assert_eq!(
+            rule(Kind::Domain, "2016-08-24, Pegasus").published_at(),
+            Some(1_471_996_800)
         );
     }
     #[test]

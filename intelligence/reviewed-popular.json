@@ -1,0 +1,55 @@
+{
+  "comment": "Indicators that fall on one of the 10,000 most visited domains (Tranco list) are reviewed by hand before a release: a spyware domain is almost never that popular, so a match usually means a shared service or a mainstream app. The compiler refuses to sign while a popular indicator has no decision here. 'keep' signs it as published, 'monitoring' signs it as a monitoring app people often install knowingly (a point to review, never a detection), 'drop' leaves it out; 'except' lists hosts of a kept domain that are dropped.",
+  "platforms": [
+    "aliyuncs.com",
+    "atlassian.net",
+    "azure.com",
+    "beget.tech",
+    "cloudfunctions.net",
+    "digitaloceanspaces.com",
+    "firebasedatabase.app",
+    "googleusercontent.com",
+    "livekit.cloud",
+    "myqcloud.com",
+    "page.link",
+    "typeform.com",
+    "wasabisys.com",
+    "windows.net",
+    "zendesk.com"
+  ],
+  "decisions": {
+    "life360.com": {
+      "action": "keep",
+      "reason": "Life360's own servers, published as a monitoring app (watchware): already a point to review."
+    },
+    "tile-api.com": {
+      "action": "keep",
+      "reason": "Life360 development hosts, published as a monitoring app (watchware)."
+    },
+    "qustodio.com": {
+      "action": "keep",
+      "reason": "Qustodio's own site, published as a monitoring app (watchware)."
+    },
+    "mobile-tracker-free.com": {
+      "action": "keep",
+      "reason": "The stalkerware vendor's own site and servers; popular because it is sold widely."
+    },
+    "findmykids.org": {
+      "action": "monitoring",
+      "reason": "A parental-control app sold in the app stores; the source lists it both as stalkerware and as a monitoring app."
+    },
+    "umeng.com": {
+      "action": "drop",
+      "reason": "An analytics SDK used by thousands of ordinary apps, not Cocospy's own server."
+    },
+    "wondershare.com": {
+      "action": "keep",
+      "except": ["accounts.wondershare.com", "sparrow.wondershare.com"],
+      "reason": "FamiSafe's own hosts are kept; the account and analytics hosts serve every Wondershare product."
+    },
+    "wondershare.cc": {
+      "action": "drop",
+      "reason": "Wondershare's shared app backend, used by all its products."
+    }
+  }
+}

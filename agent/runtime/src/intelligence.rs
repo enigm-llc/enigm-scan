@@ -48,13 +48,13 @@ pub fn download() -> Result<Vec<u8>, String> {
 /// A malformed update cannot replace the last valid local bundle.
 pub fn select<'a>(
     candidates: impl IntoIterator<Item = &'a [u8]>,
-    key: &[u8; 32],
+    keys: &[u8],
     now: i64,
     floor: u64,
 ) -> Result<Vec<u8>, String> {
     let mut best: Option<(u64, &[u8])> = None;
     for bytes in candidates {
-        if let Ok(rules) = VerifiedRules::verify(bytes, key, now, floor) {
+        if let Ok(rules) = VerifiedRules::verify(bytes, keys, now, floor) {
             if best
                 .as_ref()
                 .is_none_or(|(version, _)| rules.version() > *version)
@@ -72,8 +72,8 @@ pub fn cached(data: &Path) -> Option<Vec<u8>> {
 }
 
 /// Atomic replacement: partial downloads and crashes never truncate the cache.
-pub fn save(data: &Path, bytes: &[u8], key: &[u8; 32], now: i64, floor: u64) -> Result<(), String> {
-    VerifiedRules::verify(bytes, key, now, floor)?;
+pub fn save(data: &Path, bytes: &[u8], keys: &[u8], now: i64, floor: u64) -> Result<(), String> {
+    VerifiedRules::verify(bytes, keys, now, floor)?;
     let mut file = tempfile::NamedTempFile::new_in(data).map_err(|_| "rules_cache_failed")?;
     file.write_all(bytes).map_err(|_| "rules_cache_failed")?;
     file.as_file()

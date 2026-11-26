@@ -31,3 +31,4 @@ src-tauri/resources/engines/adb-provenance.json
 src-tauri/resources/engines/ios-usb
 src-tauri/resources/engines/ios-usb.exe
 src-tauri/gen/
+/.release/

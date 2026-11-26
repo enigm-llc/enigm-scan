@@ -147,7 +147,9 @@ fn open_about(app: &tauri::AppHandle) -> tauri::Result<()> {
     Ok(())
 }
 const BUILTIN_BUNDLE: &[u8] = include_bytes!("../resources/intelligence/bundle-v2.json");
-const PUBLIC_KEY: &[u8; 32] = include_bytes!("../resources/intelligence/public-key.bin");
+/// Every key a signed indicator release may use, 32 bytes each: the current one
+/// and, during a key change, the next.
+const TRUSTED_KEYS: &[u8] = include_bytes!("../resources/intelligence/trusted-keys.bin");
 const MIN_RULE_VERSION: u64 = 2026112301;
 const ENGINE_MANIFEST: &[u8] = include_bytes!("../resources/engines/manifest.json");
 #[derive(Clone, Serialize, Default)]
@@ -393,9 +395,9 @@ async fn update_intelligence(
     if let Ok(ref bytes) = downloaded {
         candidates.push(bytes);
     }
-    let bytes = intelligence::select(candidates, PUBLIC_KEY, now, floor)?;
+    let bytes = intelligence::select(candidates, TRUSTED_KEYS, now, floor)?;
     let fresh = downloaded.as_ref().is_ok_and(|remote| remote == &bytes);
-    intelligence::save(&state.data, &bytes, PUBLIC_KEY, now, floor)?;
+    intelligence::save(&state.data, &bytes, TRUSTED_KEYS, now, floor)?;
     selection.rules = Some(bytes);
     Ok(fresh)
 }
@@ -413,7 +415,7 @@ fn current_rules(data: &std::path::Path, selected: Option<&[u8]>) -> Result<Vec<
     }
     intelligence::select(
         candidates,
-        PUBLIC_KEY,
+        TRUSTED_KEYS,
         time::OffsetDateTime::now_utc().unix_timestamp(),
         minimum(data)?,
     )
@@ -465,7 +467,7 @@ fn capabilities(window: WebviewWindow, state: State<'_, Agent>) -> Result<Capabi
     let bytes = current_rules(&state.data, selection.rules.as_deref())?;
     let rules = VerifiedRules::verify(
         &bytes,
-        PUBLIC_KEY,
+        TRUSTED_KEYS,
         time::OffsetDateTime::now_utc().unix_timestamp(),
         minimum(&state.data)?,
     )?;
@@ -695,7 +697,7 @@ fn start_scan(
     let rules_bytes = current_rules(&state.data, selection.rules.as_deref())?;
     let rules = VerifiedRules::verify(
         &rules_bytes,
-        PUBLIC_KEY,
+        TRUSTED_KEYS,
         time::OffsetDateTime::now_utc().unix_timestamp(),
         minimum(&state.data)?,
     )?;

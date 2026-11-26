@@ -5,6 +5,9 @@
 //   curl -fsSLO https://rules.emergingthreats.net/open/suricata-7.0/LICENSE
 //   node scripts/intel/emerging-threats.mjs --source=<folder with both files>
 //
+// With --check it writes nothing and lists the spyware domains a newer
+// download would add or remove (scripts/intel/check-sources.mjs uses it).
+//
 // ET's mobile ruleset also covers banking trojans, adware and SMS fraud; only
 // the spyware families listed below are kept. A rule counts when it matches a
 // whole domain (a DNS question, a TLS server name or an HTTP host anchored at
@@ -121,7 +124,8 @@ if (
   throw Error(`Provide --source=<folder with ${RULES} and LICENSE>`);
 const bytes = readFileSync(`${source}/${RULES}`);
 const sha256 = createHash("sha256").update(bytes).digest("hex");
-if (sha256 !== EXPECTED)
+const check = process.argv.includes("--check");
+if (!check && sha256 !== EXPECTED)
   throw Error(
     `Expected ruleset ${EXPECTED}, found ${sha256}: review the new rules first`,
   );
@@ -210,6 +214,20 @@ for (const line of bytes.toString("utf8").split("\n")) {
   byFamily.set(name, entry);
 }
 
+if (check) {
+  const current = new Set(
+    JSON.parse(readFileSync(OUTPUT, "utf8"))
+      .objects.filter((o) => o.type === "indicator")
+      .map((o) => o.pattern.match(/'([^']+)'/)[1]),
+  );
+  const next = new Set(
+    [...byFamily.values()].flatMap((family) => [...family.values.keys()]),
+  );
+  const added = [...next].filter((d) => !current.has(d)).sort();
+  const removed = [...current].filter((d) => !next.has(d)).sort();
+  console.log(JSON.stringify({ sha256, added, removed }));
+  process.exit(0);
+}
 const objects = [];
 for (const family of [...byFamily.values()].sort((a, b) =>
   a.name.localeCompare(b.name, "en"),

@@ -291,3 +291,12 @@ it("translates Enigm's own DNS and VPN notes", () => {
     "Aviso de Apple de un ataque dirigido recibido el 2026-11-20 10:00:00",
   );
 });
+
+it("explains the age of an old indicator in every language", () => {
+  const text =
+    "Published 10 years ago: the domain or address may belong to someone else today. A match in old messages or history still points to that time.";
+  for (const language of ["es", "fr", "de", "it", "pt"] as const) {
+    expect(nativeText(text, language)).not.toBe(text);
+    expect(nativeText(text, language)).toContain("10");
+  }
+});
