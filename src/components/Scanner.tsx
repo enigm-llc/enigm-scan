@@ -459,7 +459,8 @@ export function Scanner({
         return;
       }
       try {
-        const list = await native<Device[]>("refresh_devices");
+        // A missing answer is read as no phone, never as a crash.
+        const list = (await native<Device[]>("refresh_devices")) ?? [];
         if (!active) return;
         setDevices((previous) => [
           ...previous.filter((d) => d.platform !== "android"),
@@ -505,6 +506,9 @@ export function Scanner({
       ? !!evidence
       : !!selected && (!iphoneUsb || encrypted || trusted);
   const pairing = !!prepWanted && !trusted;
+  // Android asks to allow USB debugging on this step, as an iPhone asks for
+  // "Trust": the drawn phone shows the same prompt.
+  const androidAsking = !!androidWait && !androidWait.timedOut;
   // Searched, and nothing is plugged in: say so in the heading, calmly.
   const missing =
     method === "usb" && searched && !finding && devices.length === 0;
@@ -777,9 +781,16 @@ export function Scanner({
                       }
                     : undefined
                 }
-                checks={failed || missing || unusable ? checks : undefined}
+                checks={
+                  // Not while an Android phone is still asking to allow USB
+                  // debugging: it shows that prompt instead.
+                  failed || missing || (unusable && !androidAsking)
+                    ? checks
+                    : undefined
+                }
                 attention={
                   prep?.phase === "awaiting_trust" ||
+                  androidAsking ||
                   (!!shown &&
                     !shown.authorized &&
                     !!shown.needsTrust &&
@@ -801,47 +812,58 @@ export function Scanner({
                 screen={
                   problem
                     ? problem
-                    : prep?.phase === "awaiting_trust"
+                    : androidAsking
                       ? {
-                          kind: "trust",
-                          title: a.phoneTrustTitle,
-                          no: a.phoneTrustNo,
-                          yes: a.phoneTrustYes,
+                          kind: "usb-debug",
+                          title: f.usbDebugTitle,
+                          body: f.usbDebugBody,
+                          always: f.usbDebugAlways,
+                          cancel: f.usbDebugCancel,
+                          allow: f.usbDebugAllow,
                         }
-                      : prepConfirmed
-                        ? { kind: "confirmed", title: f.deepConfirmedTitle }
-                        : deepChosen && prep?.phase === "deep_wait"
-                          ? { kind: "lock", subtitle: f.deepWaitTitle }
-                          : shown
-                            ? {
-                                kind: "device",
-                                platform,
-                                name:
-                                  shown.name ||
-                                  (platform === "ios" ? "iPhone" : "Android"),
-                                status: ready ? f.bannerReady : f.bannerUnlock,
-                                ready,
-                              }
-                            : {
-                                kind: "guide",
-                                trust: {
-                                  title: a.phoneTrustTitle,
-                                  body: f.trustBody,
-                                  no: a.phoneTrustNo,
-                                  yes: a.phoneTrustYes,
-                                },
-                                dev: {
-                                  title: f.devTitle,
-                                  main: f.devMain,
-                                  section: f.devSection,
-                                  usb: f.devUsb,
-                                  hint: f.devUsbHint,
-                                },
-                                aside: {
-                                  ios: f.asideIos,
-                                  android: f.asideAndroid,
-                                },
-                              }
+                      : prep?.phase === "awaiting_trust"
+                        ? {
+                            kind: "trust",
+                            title: a.phoneTrustTitle,
+                            no: a.phoneTrustNo,
+                            yes: a.phoneTrustYes,
+                          }
+                        : prepConfirmed
+                          ? { kind: "confirmed", title: f.deepConfirmedTitle }
+                          : deepChosen && prep?.phase === "deep_wait"
+                            ? { kind: "lock", subtitle: f.deepWaitTitle }
+                            : shown
+                              ? {
+                                  kind: "device",
+                                  platform,
+                                  name:
+                                    shown.name ||
+                                    (platform === "ios" ? "iPhone" : "Android"),
+                                  status: ready
+                                    ? f.bannerReady
+                                    : f.bannerUnlock,
+                                  ready,
+                                }
+                              : {
+                                  kind: "guide",
+                                  trust: {
+                                    title: a.phoneTrustTitle,
+                                    body: f.trustBody,
+                                    no: a.phoneTrustNo,
+                                    yes: a.phoneTrustYes,
+                                  },
+                                  dev: {
+                                    title: f.devTitle,
+                                    main: f.devMain,
+                                    section: f.devSection,
+                                    usb: f.devUsb,
+                                    hint: f.devUsbHint,
+                                  },
+                                  aside: {
+                                    ios: f.asideIos,
+                                    android: f.asideAndroid,
+                                  },
+                                }
                 }
               />
             );

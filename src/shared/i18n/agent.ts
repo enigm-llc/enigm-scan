@@ -38,7 +38,7 @@ const en = {
   deviceDisconnected:
     "The iPhone was disconnected. Check the cable and start again.",
   deviceNotTrusted:
-    "The iPhone did not answer “Trust This Computer?” within 3 minutes. Unlock it and press “Try again”.",
+    "The iPhone did not answer “Trust This Computer?” within 3 minutes. Unlock it and press “Find my phone”.",
   deviceCancelled:
     "The copy was cancelled on the iPhone. Press “Try again” whenever you like.",
   elapsed: "Elapsed {t}",
@@ -87,7 +87,7 @@ const en = {
     "The iPhone closed the passcode request unanswered, so the copy starts again. Unlock it and enter the passcode when asked.",
   waitLeft: "Waiting time left: {t}",
   deviceTrustDenied:
-    "“Don’t Trust” was pressed on the iPhone. Press “Try again” and choose “Trust” when it asks.",
+    "“Don’t Trust” was pressed on the iPhone. Unplug the cable, plug it back in and press “Find my phone”.",
   devicePasscodeTimeout:
     "The iPhone closed the passcode request several times unanswered. Press “Try again” and enter the passcode when it appears.",
   androidAllow: "Accept “Allow USB debugging” on the phone.",
@@ -154,7 +154,7 @@ const es: AgentCopy = {
   deviceDisconnected:
     "El iPhone se ha desconectado. Revisa el cable y vuelve a empezar.",
   deviceNotTrusted:
-    "El iPhone no respondió a «¿Confiar en este ordenador?» en 3 minutos. Desbloquéalo y pulsa «Reintentar».",
+    "El iPhone no respondió a «¿Confiar en este ordenador?» en 3 minutos. Desbloquéalo y pulsa «Buscar mi móvil».",
   deviceCancelled:
     "La copia se canceló desde el iPhone. Pulsa «Reintentar» cuando quieras.",
   elapsed: "Llevamos {t}",
@@ -203,7 +203,7 @@ const es: AgentCopy = {
     "El iPhone cerró la petición del código sin respuesta, así que la copia vuelve a empezar. Desbloquéalo y escribe el código cuando te lo pida.",
   waitLeft: "Tiempo de espera restante: {t}",
   deviceTrustDenied:
-    "Se pulsó «No confiar» en el iPhone. Pulsa «Reintentar» y elige «Confiar» cuando lo pida.",
+    "Se pulsó «No confiar» en el iPhone. Desconecta el cable, vuelve a conectarlo y pulsa «Buscar mi móvil».",
   devicePasscodeTimeout:
     "El iPhone cerró varias veces la petición del código sin respuesta. Pulsa «Reintentar» y escribe el código cuando aparezca.",
   androidAllow: "Acepta «Permitir depuración USB» en el teléfono.",
@@ -270,7 +270,7 @@ const fr: AgentCopy = {
   deviceDisconnected:
     "L’iPhone a été déconnecté. Vérifiez le câble et recommencez.",
   deviceNotTrusted:
-    "L’iPhone n’a pas répondu à « Se fier à cet ordinateur ? » en 3 minutes. Déverrouillez-le et appuyez sur « Réessayer ».",
+    "L’iPhone n’a pas répondu à « Se fier à cet ordinateur ? » en 3 minutes. Déverrouillez-le et appuyez sur « Rechercher mon téléphone ».",
   deviceCancelled:
     "La copie a été annulée sur l’iPhone. Appuyez sur « Réessayer » quand vous voulez.",
   elapsed: "Écoulé : {t}",
@@ -319,7 +319,7 @@ const fr: AgentCopy = {
     "L’iPhone a fermé la demande de code sans réponse : la copie recommence. Déverrouillez-le et saisissez le code quand il le demande.",
   waitLeft: "Temps d’attente restant : {t}",
   deviceTrustDenied:
-    "« Ne pas se fier » a été choisi sur l’iPhone. Appuyez sur « Réessayer » et choisissez « Se fier » quand il le demande.",
+    "« Ne pas se fier » a été choisi sur l’iPhone. Débranchez le câble, rebranchez-le et appuyez sur « Rechercher mon téléphone ».",
   devicePasscodeTimeout:
     "L’iPhone a fermé plusieurs fois la demande de code sans réponse. Appuyez sur « Réessayer » et saisissez le code quand il s’affiche.",
   androidAllow: "Acceptez « Autoriser le débogage USB » sur le téléphone.",
@@ -385,7 +385,7 @@ const de: AgentCopy = {
   deviceDisconnected:
     "Das iPhone wurde getrennt. Prüfen Sie das Kabel und starten Sie neu.",
   deviceNotTrusted:
-    "Das iPhone hat „Diesem Computer vertrauen?“ nicht innerhalb von 3 Minuten beantwortet. Entsperren Sie es und tippen Sie auf „Erneut versuchen“.",
+    "Das iPhone hat „Diesem Computer vertrauen?“ nicht innerhalb von 3 Minuten beantwortet. Entsperren Sie es und tippen Sie auf „Mein Handy suchen“.",
   deviceCancelled:
     "Die Kopie wurde auf dem iPhone abgebrochen. Tippen Sie auf „Erneut versuchen“, wann Sie möchten.",
   elapsed: "Bisher {t}",
@@ -435,7 +435,7 @@ const de: AgentCopy = {
     "Das iPhone hat die Code-Abfrage unbeantwortet geschlossen, daher beginnt die Kopie neu. Entsperren Sie es und geben Sie den Code ein, wenn es danach fragt.",
   waitLeft: "Verbleibende Wartezeit: {t}",
   deviceTrustDenied:
-    "Auf dem iPhone wurde „Nicht vertrauen“ gewählt. Tippen Sie auf „Erneut versuchen“ und wählen Sie „Vertrauen“, wenn es fragt.",
+    "Auf dem iPhone wurde „Nicht vertrauen“ gewählt. Ziehen Sie das Kabel ab, stecken Sie es wieder ein und tippen Sie auf „Mein Handy suchen“.",
   devicePasscodeTimeout:
     "Das iPhone hat die Code-Abfrage mehrmals unbeantwortet geschlossen. Tippen Sie auf „Erneut versuchen“ und geben Sie den Code ein, sobald er abgefragt wird.",
   androidAllow: "Bestätigen Sie „USB-Debugging zulassen“ auf dem Smartphone.",
@@ -502,7 +502,7 @@ const it: AgentCopy = {
   deviceDisconnected:
     "L’iPhone si è scollegato. Controlla il cavo e ricomincia.",
   deviceNotTrusted:
-    "L’iPhone non ha risposto a «Autorizzare questo computer?» entro 3 minuti. Sbloccalo e premi «Riprova».",
+    "L’iPhone non ha risposto a «Autorizzare questo computer?» entro 3 minuti. Sbloccalo e premi «Cerca il mio telefono».",
   deviceCancelled:
     "La copia è stata annullata sull’iPhone. Premi «Riprova» quando vuoi.",
   elapsed: "Trascorso: {t}",
@@ -551,7 +551,7 @@ const it: AgentCopy = {
     "L’iPhone ha chiuso la richiesta del codice senza risposta, quindi la copia ricomincia. Sbloccalo e inserisci il codice quando lo chiede.",
   waitLeft: "Tempo di attesa rimanente: {t}",
   deviceTrustDenied:
-    "Sull’iPhone è stato scelto «Non autorizzare». Premi «Riprova» e scegli «Autorizza» quando lo chiede.",
+    "Sull’iPhone è stato scelto «Non autorizzare». Scollega il cavo, ricollegalo e premi «Cerca il mio telefono».",
   devicePasscodeTimeout:
     "L’iPhone ha chiuso più volte la richiesta del codice senza risposta. Premi «Riprova» e inserisci il codice quando compare.",
   androidAllow: "Accetta «Consentire il debug USB» sul telefono.",
@@ -617,7 +617,7 @@ const pt: AgentCopy = {
     "Serve para autorizar a cópia. Continuamos assim que o introduzires.",
   deviceDisconnected: "O iPhone desligou-se. Verifique o cabo e recomece.",
   deviceNotTrusted:
-    "O iPhone não respondeu a «Confiar neste computador?» em 3 minutos. Desbloqueie-o e prima «Tentar novamente».",
+    "O iPhone não respondeu a «Confiar neste computador?» em 3 minutos. Desbloqueie-o e prima «Procurar o meu telemóvel».",
   deviceCancelled:
     "A cópia foi cancelada no iPhone. Prima «Tentar novamente» quando quiser.",
   elapsed: "Decorrido: {t}",
@@ -666,7 +666,7 @@ const pt: AgentCopy = {
     "O iPhone fechou o pedido do código sem resposta, por isso a cópia recomeça. Desbloqueie-o e introduza o código quando o pedir.",
   waitLeft: "Tempo de espera restante: {t}",
   deviceTrustDenied:
-    "Foi escolhido «Não confiar» no iPhone. Prima «Tentar novamente» e escolha «Confiar» quando o pedir.",
+    "Foi escolhido «Não confiar» no iPhone. Desligue o cabo, volte a ligá-lo e prima «Procurar o meu telemóvel».",
   devicePasscodeTimeout:
     "O iPhone fechou várias vezes o pedido do código sem resposta. Prima «Tentar novamente» e introduza o código quando aparecer.",
   androidAllow: "Aceite «Permitir depuração USB» no telemóvel.",
