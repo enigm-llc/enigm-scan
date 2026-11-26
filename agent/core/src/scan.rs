@@ -55,7 +55,7 @@ impl<'a> Matches<'a> {
             return;
         }
         let digest = Sha256::digest(key.as_bytes());
-        let id = format!("ioc.{:x}", digest);
+        let id = format!("ioc.{}", crate::hex(&digest));
         let monitoring = rule.watchware();
         let mut limitations = vec![if monitoring {
             format!("Published indicator: {}. Monitoring apps (watchware) such as parental-control or location-sharing apps are often installed knowingly; they are also used to follow people without their consent.", rule.published)
@@ -197,7 +197,7 @@ fn examine(
     };
     Some(FileResult {
         artifact: bounded(&relative.to_string_lossy(), 500),
-        hash: format!("{:x}", hash.finalize()),
+        hash: crate::hex(&hash.finalize()),
         bytes: file_bytes,
         hits,
     })
