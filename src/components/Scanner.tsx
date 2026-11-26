@@ -874,7 +874,7 @@ export function Scanner({
           })()}
           <div className="console-copy">
             <ol className="process-steps" aria-label={a.progress}>
-              {[a.stepConnect, a.stepCopy, a.stepAnalyze, a.stepReport].map(
+              {[a.stepConnect, a.stepExtract, a.stepAnalyze, a.stepReport].map(
                 (name, position) => (
                   <li
                     key={name}

@@ -6454,7 +6454,7 @@ body:has(.promo-backdrop) {
 @media (min-width: 1024px) {
   .app-window .scan-main .desktop-flow:not(.is-running),
   .app-window .scan-main .desktop-flow.is-running > .scan-progress {
-    column-gap: clamp(88px, calc(10 * var(--vw)), 140px);
+    column-gap: clamp(112px, calc(13 * var(--vw)), 184px);
   }
 }
 

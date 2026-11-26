@@ -13,6 +13,8 @@
 - With "Also check its connections" ticked, on iPhone and Android, quiet
   green waves leave the top of the drawn phone; they stay while the
   connections are observed during the copy.
+- The app calls the copy step "Extract", and leaves more room between the
+  text and the phone.
 - Messages appear at the top of the window and leave on their own: red for
   errors, green for success, neutral otherwise.
 - Cancelling a scan resets the app and deletes everything it had copied,

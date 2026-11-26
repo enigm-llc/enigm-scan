@@ -323,7 +323,7 @@ it("groups network observation under the copy step and names it as the phase", (
     />,
   );
   expect(document.querySelector('[aria-current="step"]')?.textContent).toBe(
-    a.stepCopy,
+    a.stepExtract,
   );
   expect(screen.getByRole("status").textContent).toBe(a.capturing);
 });

@@ -278,7 +278,7 @@ export function ScanProgress({
       a.stepConnect,
       ["awaiting_trust", "deep_wait", "awaiting_passcode", "passcode_retry"],
     ],
-    ["copy", a.stepCopy, ["capturing", "acquiring", "decrypting"]],
+    ["copy", a.stepExtract, ["capturing", "acquiring", "decrypting"]],
     ["analyze", a.stepAnalyze, ["analyzing", "forensics", "network"]],
     ["report", a.stepReport, ["finalizing"]],
   ] as const;
