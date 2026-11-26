@@ -401,6 +401,7 @@ export function ScanProgress({
         paused={paused}
         attention={PROMPT_PHASES.includes(status.phase)}
         press={deepWait && !deepConfirmed}
+        network={!!sample?.capturing}
         platform={ios ? "ios" : "android"}
         screen={
           status.phase === "awaiting_trust"

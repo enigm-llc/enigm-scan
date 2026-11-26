@@ -243,6 +243,7 @@ export function PhoneStage({
   checks,
   facts,
   press = false,
+  network = false,
 }: {
   language: Language;
   screen: PhoneScreen;
@@ -261,6 +262,9 @@ export function PhoneStage({
    * to start a sysdiagnose on an iPhone.
    */
   press?: boolean;
+  /** The phone's connections are observed (or chosen to be): quiet waves
+   *  leave the top of the phone. */
+  network?: boolean;
   /** What to check, shown quietly beside the phone when something failed. */
   checks?: { title: string; items: string[] };
   /** Live facts beside the phone: the identified device, progress, rules. */
@@ -648,6 +652,13 @@ export function PhoneStage({
             </div>
           </div>
         </div>
+        {network && (
+          <span className="phone-waves" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+        )}
         {wire !== "none" && (
           <span className={`phone-cable ${wire}`} aria-hidden="true">
             <i className="plug" />

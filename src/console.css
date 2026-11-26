@@ -6592,3 +6592,63 @@ body:has(.promo-backdrop) {
   color: var(--good);
   font-weight: 500;
 }
+
+/* The phone's connections are observed: three quiet green arcs leave its
+   top edge in turn, like a signal going out. */
+.phone-waves {
+  position: absolute;
+  left: 50%;
+  /* Centred on the phone's top edge, so each arc grows out of it. */
+  top: calc(var(--ph) * -0.17);
+  width: calc(var(--ph) * 0.34);
+  height: calc(var(--ph) * 0.34);
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: fade-in 480ms ease both;
+}
+.phone-waves i {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid transparent;
+  border-top-color: var(--good);
+  border-radius: 50%;
+  opacity: 0;
+  animation: phone-wave 2.7s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+.phone-waves i:nth-child(2) {
+  animation-delay: 0.9s;
+}
+.phone-waves i:nth-child(3) {
+  animation-delay: 1.8s;
+}
+@keyframes phone-wave {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  25% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+.motion-paused .phone-waves i {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-waves i {
+    animation: none;
+    opacity: 0.45;
+  }
+  .phone-waves i:nth-child(1) {
+    transform: scale(0.45);
+  }
+  .phone-waves i:nth-child(2) {
+    transform: scale(0.7);
+  }
+  .phone-waves i:nth-child(3) {
+    transform: scale(0.95);
+  }
+}

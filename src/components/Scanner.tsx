@@ -785,6 +785,15 @@ export function Scanner({
                     !!shown.needsTrust &&
                     !trusted)
                 }
+                network={
+                  // Its connections will be observed: on either phone.
+                  ready &&
+                  !problem &&
+                  method === "usb" &&
+                  (selected?.platform === "ios"
+                    ? networkConsent
+                    : !!caps?.androidUsb && androidConnections)
+                }
                 press={
                   // The three buttons light up while the phone waits for them.
                   deepChosen && prep?.phase === "deep_wait" && !prepConfirmed

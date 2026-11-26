@@ -10,6 +10,9 @@
   sysdiagnose. Without the deep check it starts at once.
 - If the phone refused "Trust", the checks beside it say to unplug the
   cable and plug it back in, instead of "Enigm Scan open on your computer".
+- With "Also check its connections" ticked, on iPhone and Android, quiet
+  green waves leave the top of the drawn phone; they stay while the
+  connections are observed during the copy.
 - Messages appear at the top of the window and leave on their own: red for
   errors, green for success, neutral otherwise.
 - Cancelling a scan resets the app and deletes everything it had copied,
