@@ -684,17 +684,21 @@ export function Scanner({
                 {f.tryAgain}
               </button>
             )}
-          {status.phase === "failed" && diagnosticCode(status.error) && (
-            <details className="diagnostic-code">
-              <summary>{detectionCopy.code}</summary>
-              <code>
-                {[status.error, status.diagnostic]
-                  .map(diagnosticCode)
-                  .filter(Boolean)
-                  .join(" · ")}
-              </code>
-            </details>
-          )}
+          {status.phase === "failed" &&
+            // Not for what the person fixes on the phone: the checks beside
+            // it already say what to do.
+            !RETRYABLE.includes(status.error ?? "") &&
+            diagnosticCode(status.error) && (
+              <details className="diagnostic-code">
+                <summary>{detectionCopy.code}</summary>
+                <code>
+                  {[status.error, status.diagnostic]
+                    .map(diagnosticCode)
+                    .filter(Boolean)
+                    .join(" · ")}
+                </code>
+              </details>
+            )}
         </>
       )}
     </>
@@ -929,15 +933,16 @@ export function Scanner({
                     ))}
                   </div>
                 )}
+                {/* The drawn phone marks the button to press; said aloud only. */}
                 {pairing && (
-                  <p role="status" className="flow-note">
+                  <p role="status" className="visually-hidden">
                     {prep?.phase === "awaiting_trust"
                       ? f.deepTrustHint
                       : f.pairingHint}
                   </p>
                 )}
                 {androidWait && !androidWait.timedOut ? (
-                  <p role="status" className="flow-note">
+                  <p role="status" className="visually-hidden">
                     {a.androidAllow}{" "}
                     <span className="wait-left">
                       {waitLeft(androidWait.start, ANDROID_WAIT)}
@@ -1048,7 +1053,9 @@ export function Scanner({
                     />
                     <span className="scan-option-text">
                       <b>
-                        {option.title}
+                        <span className="scan-option-title">
+                          {option.title}
+                        </span>
                         <span className="scan-option-badge">
                           {f.recommended}
                         </span>

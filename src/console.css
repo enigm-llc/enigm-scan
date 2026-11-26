@@ -6492,6 +6492,16 @@ body:has(.promo-backdrop) {
 .app-window .scan-main .console-copy .flow-action > .compact-consent input {
   margin: 0;
 }
+/* Each box is centred on the capital letters of its label, whatever the
+   system's typeface: the label's text is trimmed to its cap height and
+   baseline, so centring the box on it centres it on the letters. Centred
+   on the whole line, the box sat low, as the line also holds room for
+   accents and descenders. Where trimming is not supported, the line's
+   centre is used, as before. */
+.app-window .scan-main .console-copy .flow-action > .compact-consent > span,
+.app-window .scan-main .console-copy .scan-option-title {
+  text-box: trim-both cap alphabetic;
+}
 
 /* ---------- Desktop app: messages at the top, as in Enigm Command ----------
    A rounded pill on the raised surface: red for errors, green for success,
@@ -6651,4 +6661,48 @@ body:has(.promo-backdrop) {
   .phone-waves i:nth-child(3) {
     transform: scale(0.95);
   }
+}
+
+/* What to press on the phone, marked in the system's green: "Trust" on an
+   iPhone, "Allow" for USB debugging on Android. The phone's screen is
+   always dark, so the green is the same in both themes. */
+.phone-stage.attention .phone-sheet div .yes {
+  color: #34c759;
+  background: rgba(52, 199, 89, 0.08);
+  animation: phone-mark 1.8s ease-in-out infinite;
+}
+@keyframes phone-mark {
+  50% {
+    background: rgba(52, 199, 89, 0.24);
+  }
+}
+.phone-stage.attention .phone-dialog div .yes {
+  background: #34c759;
+  color: #04140a;
+  box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4);
+  animation: phone-mark-pill 1.8s ease-in-out infinite;
+}
+@keyframes phone-mark-pill {
+  50% {
+    box-shadow: 0 0 0 0.45em rgba(52, 199, 89, 0.25);
+  }
+}
+.motion-paused.phone-stage .phone-sheet div .yes,
+.motion-paused.phone-stage .phone-dialog div .yes {
+  animation-play-state: paused;
+}
+@media (prefers-reduced-motion: reduce) {
+  .phone-stage.attention .phone-sheet div .yes,
+  .phone-stage.attention .phone-dialog div .yes {
+    animation: none;
+  }
+}
+
+/* In the app the badge's text is centred on its capitals too, so it lines
+   up with the option's title beside it. */
+.app-window .scan-option-badge {
+  display: block;
+  height: auto;
+  padding: calc((20px - 1cap) / 2) 8px;
+  text-box: trim-both cap alphabetic;
 }
