@@ -3462,6 +3462,8 @@ summary {
 }
 .phone-dialog div {
   display: flex;
+  /* "Cancel" and the "Allow" pill share one centre line. */
+  align-items: center;
   justify-content: flex-end;
   gap: 1.6em;
   margin-top: 0.6em;
