@@ -30,11 +30,9 @@ const option = (name) =>
     ?.split("=")
     .slice(1)
     .join("=");
-const mode = args.includes("--prepare")
-  ? "prepare"
-  : args.includes("--assemble")
-    ? "assemble"
-    : "sign";
+let mode = "sign";
+if (args.includes("--prepare")) mode = "prepare";
+else if (args.includes("--assemble")) mode = "assemble";
 const STAGING = ".release";
 const TRUSTED = "src-tauri/resources/intelligence/trusted-keys.bin";
 const CURRENT = "src-tauri/resources/intelligence/public-key.bin";

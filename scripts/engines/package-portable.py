@@ -20,6 +20,7 @@ VERSION = json.loads((ROOT / 'src-tauri/tauri.conf.json').read_text())['version'
 SYSTEM = platform.system()
 
 README_NAME = 'README.txt'
+VERBOSE = '--verbose=2'
 README = '''ENIGM SCAN
 Find out whether someone is spying on your phone.
 https://scan.enigm.io
@@ -168,7 +169,7 @@ elif SYSTEM == 'Darwin':
             notarize(bundle, staging)
         else:
             subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', bundle], check=True)
-        subprocess.run(['codesign', '--verify', '--strict', '--verbose=2', bundle], check=True)
+        subprocess.run(['codesign', '--verify', '--strict', VERBOSE, bundle], check=True)
         pathlib.Path(staging, README_NAME).write_text(README, encoding='utf-8')
         target = OUT / f'enigm-scan-{VERSION}-macos-{platform.machine()}.dmg'
         # The image holds only the app and its README, never the work folders.
@@ -180,7 +181,7 @@ elif SYSTEM == 'Darwin':
         if IDENTITY:
             subprocess.run(['codesign', '--force', '--sign', IDENTITY, '--timestamp', str(target)], check=True)
             notarize(str(target), staging)
-            subprocess.run(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', '--verbose=2', str(target)], check=True)
+            subprocess.run(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', VERBOSE, str(target)], check=True)
         # macOS /var is a symlink to /private/var. Tauri deliberately rejects
         # executable paths containing symlinks; launch from the physical path.
         mount = pathlib.Path(staging).resolve() / 'mounted'
@@ -190,7 +191,7 @@ elif SYSTEM == 'Darwin':
             if (mount / 'Applications').exists():
                 raise SystemExit('Portable DMG must not contain an installation shortcut')
             if IDENTITY:
-                subprocess.run(['spctl', '--assess', '--type', 'execute', '--verbose=2', str(mount / 'Enigm Scan.app')], check=True)
+                subprocess.run(['spctl', '--assess', '--type', 'execute', VERBOSE, str(mount / 'Enigm Scan.app')], check=True)
             subprocess.run([str(mount / 'Enigm Scan.app/Contents/MacOS/enigm-scan'), '--portable-self-check'], check=True, timeout=90)
         finally:
             # The just-exited self-check can keep the volume briefly busy, and a

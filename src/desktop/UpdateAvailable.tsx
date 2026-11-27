@@ -13,10 +13,10 @@ export const DOWNLOAD_PAGE = "https://scan.enigm.io/download";
 export function UpdateAvailable({
   language,
   version,
-}: {
+}: Readonly<{
   language: Language;
   version: string;
-}) {
+}>) {
   const f = flowCopy[language];
   return (
     <section className="welcome" aria-labelledby="update-title">

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { native } from "./agent";
 // The site forbids eval (CSP script-src 'self'): skip zod's eval probe and JIT.
 z.config({ jitless: true });
 export const MAX_REPORT_BYTES = 5 * 1024 * 1024;

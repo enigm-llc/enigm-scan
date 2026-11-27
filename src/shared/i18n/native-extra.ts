@@ -1250,7 +1250,7 @@ export const PATTERNS: Array<[RegExp, T]> = [
     ),
   ],
   [
-    /(\S+) is used as a subdomain of (\S+), which (\S+) does not own/,
+    /(\S+) is used as a subdomain of (\S+), which (\S+) does not own/, // NOSONAR: short text written by the app
     t(
       "$1 se usa como subdominio de $2, que no pertenece a $3",
       "$1 is used as a subdomain of $2, which $3 does not own",
@@ -1261,7 +1261,7 @@ export const PATTERNS: Array<[RegExp, T]> = [
     ),
   ],
   [
-    /(\S+) combines the name (\S+) with other words but is not owned by \2/,
+    /(\S+) combines the name (\S+) with other words but is not owned by \2/, // NOSONAR: short text written by the app
     t(
       "$1 combina el nombre $2 con otras palabras, pero no pertenece a $2",
       "$1 combines the name $2 with other words but is not owned by $2",
@@ -1272,7 +1272,7 @@ export const PATTERNS: Array<[RegExp, T]> = [
     ),
   ],
   [
-    /(\S+) uses the name (\S+) on a domain \2 does not own/,
+    /(\S+) uses the name (\S+) on a domain \2 does not own/, // NOSONAR: short text written by the app
     t(
       "$1 usa el nombre $2 en un dominio que no pertenece a $2",
       "$1 uses the name $2 on a domain $2 does not own",
@@ -1283,7 +1283,7 @@ export const PATTERNS: Array<[RegExp, T]> = [
     ),
   ],
   [
-    /(\S+) spells (\S+) with look-alike characters/,
+    /(\S+) spells (\S+) with look-alike characters/, // NOSONAR: short text written by the app
     t(
       "$1 escribe $2 con caracteres parecidos",
       "$1 spells $2 with look-alike characters",
@@ -1294,7 +1294,7 @@ export const PATTERNS: Array<[RegExp, T]> = [
     ),
   ],
   [
-    /(\S+) is one letter away from (\S+)/,
+    /(\S+) is one letter away from (\S+)/, // NOSONAR: short text written by the app
     t(
       "$1 se diferencia de $2 en una sola letra",
       "$1 is one letter away from $2",

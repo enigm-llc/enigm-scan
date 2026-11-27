@@ -182,7 +182,7 @@ for (const line of bytes.toString("utf8").split("\n")) {
   );
   const value = m?.[2].toLowerCase().replace(/^\./, "");
   const options = m?.[0] ?? "";
-  const size = m && new RegExp(`\\bbsize:\\s*${m[2].length}\\s*;`);
+  const size = m && new RegExp(String.raw`\bbsize:\s*${m[2].length}\s*;`);
   const whole =
     m &&
     (/\bendswith;/.test(options) ||
@@ -237,7 +237,8 @@ for (const family of [...byFamily.values()].sort((a, b) =>
   a.name.localeCompare(b.name, "en"),
 )) {
   const created = `${family.first}T00:00:00.000Z`;
-  const malwareId = `malware--${uuid(`et-open:${family.name}`)}`;
+  const familyKey = `et-open:${family.name}`;
+  const malwareId = `malware--${uuid(familyKey)}`;
   objects.push({
     type: "malware",
     spec_version: "2.1",
@@ -253,42 +254,46 @@ for (const family of [...byFamily.values()].sort((a, b) =>
     a.localeCompare(b, "en"),
   )) {
     const at = `${date}T00:00:00.000Z`;
-    const id = `indicator--${uuid(`et-open:${value}`)}`;
-    objects.push({
-      type: "indicator",
-      spec_version: "2.1",
-      id,
-      created: at,
-      modified: at,
-      valid_from: at,
-      indicator_types: ["malicious-activity"],
-      pattern_type: "stix",
-      pattern: `[domain-name:value = '${value}']`,
-      name: `${family.name} domain (ET sid ${sid})`,
-      external_references: [
-        {
-          source_name: "Emerging Threats Open",
-          url: URL,
-          external_id: String(sid),
-        },
-      ],
-    });
-    objects.push({
-      type: "relationship",
-      spec_version: "2.1",
-      id: `relationship--${uuid(`${id}:${malwareId}`)}`,
-      created: at,
-      modified: at,
-      relationship_type: "indicates",
-      source_ref: id,
-      target_ref: malwareId,
-    });
+    const indicatorKey = `et-open:${value}`;
+    const id = `indicator--${uuid(indicatorKey)}`;
+    const relationKey = `${id}:${malwareId}`;
+    objects.push(
+      {
+        type: "indicator",
+        spec_version: "2.1",
+        id,
+        created: at,
+        modified: at,
+        valid_from: at,
+        indicator_types: ["malicious-activity"],
+        pattern_type: "stix",
+        pattern: `[domain-name:value = '${value}']`,
+        name: `${family.name} domain (ET sid ${sid})`,
+        external_references: [
+          {
+            source_name: "Emerging Threats Open",
+            url: URL,
+            external_id: String(sid),
+          },
+        ],
+      },
+      {
+        type: "relationship",
+        spec_version: "2.1",
+        id: `relationship--${uuid(relationKey)}`,
+        created: at,
+        modified: at,
+        relationship_type: "indicates",
+        source_ref: id,
+        target_ref: malwareId,
+      },
+    );
   }
 }
 writeFileSync(
   OUTPUT,
   JSON.stringify(
-    { type: "bundle", id: `bundle--${uuid(`et-open:${sha256}`)}`, objects },
+    { type: "bundle", id: `bundle--${uuid("et-open:" + sha256)}`, objects },
     null,
     1,
   ) + "\n",

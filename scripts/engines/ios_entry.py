@@ -846,8 +846,9 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False, ho
                            local_hostname=str(uuid.uuid4()), pairing_records_cache_folder=work / "pairing",
                            label="Enigm Scan")
     temporary_pair = not client.paired
-    async def memory_only():  # NOSONAR: replaces an async method
-        return None
+    async def memory_only():
+        """Replaces the async method that would store the pairing on disk."""
+        await asyncio.sleep(0)
     SESSION.update(work=work, cancelled_on_device=False, phase="acquiring", percent=None,
                    kept=0, discarded=0, receivedBytes=0, storedBytes=0, sysdiagnose=None)
     try:
