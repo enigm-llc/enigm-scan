@@ -114,12 +114,11 @@ itself.
 ## Release packages
 
 The packages are built by the **Build desktop app** workflow, started by
-hand. Before the app is compiled, a release build signs the engines (Developer
-ID on macOS, Artifact Signing on Windows) and records their new hashes, so the
-catalog compiled into the app describes the signed files. The Mac app and its
-disk image are then signed, notarized by Apple and checked with Gatekeeper;
-the Windows executable is signed and every signature is checked. The keys
-stay in protected GitHub environments and with Apple and Microsoft; see
+hand. On macOS, before the app is compiled, a release build signs the engines
+with the Developer ID certificate and records their new hashes, so the
+catalog compiled into the app describes the signed files. The app and its
+disk image are then signed, notarized by Apple and checked with Gatekeeper.
+The certificate stays in a protected GitHub environment; see
 [RELEASE.md](RELEASE.md).
 
 ## Network check

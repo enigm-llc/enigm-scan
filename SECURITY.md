@@ -35,7 +35,7 @@ reported to those projects.
 
 The app sends no phone data anywhere, keeps no reports after a session and
 never reports what it does or finds; the only figures kept are the anonymous
-counts of downloads described in [STATISTICS.md](docs/STATISTICS.md). It only touches a phone after the owner consents, and its
+counts described in [STATISTICS.md](docs/STATISTICS.md). It only touches a phone after the owner consents, and its
 interface cannot run arbitrary commands or open arbitrary files. A change that
 weakens any of these properties is treated as a security defect, even if all
 tests pass.

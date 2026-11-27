@@ -8,7 +8,18 @@
     "directory": "./dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": ["/downloads/*"],
+    // The pages, so visits can be counted; the files they load are served
+    // directly. See docs/STATISTICS.md.
+    "run_worker_first": [
+      "/downloads/*",
+      "/",
+      "/how-it-works",
+      "/how-it-works/",
+      "/como-funciona",
+      "/como-funciona/",
+      "/download",
+      "/download/",
+    ],
   },
   "r2_buckets": [
     { "binding": "RELEASES", "bucket_name": "enigm-scan-releases" },

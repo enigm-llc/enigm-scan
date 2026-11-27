@@ -70,7 +70,7 @@ the app never reports what it does or finds. When it starts it makes two request
 it downloads the latest signed indicator bundle, and it reads which version of
 the app is published, to point you to the download page when there is a newer
 one (it never updates itself). The download server keeps anonymous counts of
-downloads and bundle requests, with no IP address or identifier;
+downloads, app starts and website visits, with no IP address or identifier;
 [docs/STATISTICS.md](docs/STATISTICS.md) explains exactly what is counted.
 
 The app is portable: it installs no service, driver or startup entry, and it

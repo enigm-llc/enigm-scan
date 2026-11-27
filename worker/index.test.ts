@@ -178,6 +178,63 @@ describe("anonymous statistics", () => {
     await worker.fetch(new Request(url, { method: "HEAD" }), e);
     expect(e.STATS.writeDataPoint).toHaveBeenCalledTimes(1);
   });
+  it("counts app starts and version checks by version and system only", async () => {
+    const e = env();
+    const app = { "User-Agent": "EnigmScan/1.0.0 (macos; aarch64)" };
+    await worker.fetch(
+      new Request("https://scan.enigm.io/downloads/intelligence-v2.json", {
+        headers: { ...app, "CF-Connecting-IP": "203.0.113.7" },
+      }),
+      e,
+    );
+    await worker.fetch(
+      new Request("https://scan.enigm.io/downloads/manifest.json", {
+        headers: app,
+      }),
+      e,
+    );
+    const points = e.STATS.writeDataPoint.mock.calls.map((c) => c[0].blobs);
+    expect(points[0].slice(0, 4)).toEqual([
+      "rules",
+      "v2",
+      "1.0.0",
+      "macos-aarch64",
+    ]);
+    expect(points[1].slice(0, 3)).toEqual([
+      "version_check",
+      "1.0.0",
+      "macos-aarch64",
+    ]);
+    expect(JSON.stringify(points)).not.toContain("203.0.113.7");
+    // Anything that is not the app's exact form is not recorded as given.
+    await worker.fetch(
+      new Request("https://scan.enigm.io/downloads/intelligence-v2.json", {
+        headers: { "User-Agent": "EnigmScan/1.0.0 (macos; aarch64) extra" },
+      }),
+      e,
+    );
+    expect(e.STATS.writeDataPoint.mock.calls[2][0].blobs[2]).toBe("unknown");
+    // The website reading the manifest is not a version check.
+    await worker.fetch(
+      new Request("https://scan.enigm.io/downloads/manifest.json"),
+      e,
+    );
+    expect(e.STATS.writeDataPoint).toHaveBeenCalledTimes(3);
+  });
+  it("counts a visit per page opened, never its files or crawlers", async () => {
+    const e = env();
+    const open = (path: string, headers: Record<string, string>) =>
+      worker.fetch(new Request("https://scan.enigm.io" + path, { headers }), e);
+    const page = { "Sec-Fetch-Dest": "document", "User-Agent": "Mozilla/5.0" };
+    await open("/download/", page);
+    await open("/como-funciona", page);
+    await open("/assets/index.js", { ...page, "Sec-Fetch-Dest": "script" });
+    await open("/", { ...page, "User-Agent": "Googlebot/2.1" });
+    await open("/", { "User-Agent": "Mozilla/5.0" });
+    const points = e.STATS.writeDataPoint.mock.calls.map((c) => c[0].blobs);
+    expect(points.map((b) => b[1])).toEqual(["download", "how"]);
+    expect(e.ASSETS.fetch).toHaveBeenCalledTimes(5);
+  });
   it("keeps serving downloads when statistics are unavailable", async () => {
     const e = {
       ...env(),

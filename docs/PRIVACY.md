@@ -59,19 +59,21 @@ Two requests at start, both to scan.enigm.io:
   shows. When it is newer, the app offers its download page; it never
   downloads or installs anything itself. This request is not counted.
 
-Neither contains phone data, an identifier or a report.
+Neither contains phone data, an identifier or a report. Both name the app's
+version and the kind of system, for example `EnigmScan/1.0.0 (macos; aarch64)`,
+the same text for every copy of a release.
 
 Links you open from the app (help pages, the sources of a finding) open in
 your browser, as normal web visits.
 
 The app has no analytics, crash reporting or usage tracking: it never reports
-what it does or finds. The anonymous count of indicator downloads, with the
-country Cloudflare infers for the request, is the only figure kept, and it is
-kept by the server, not sent by the app.
+what it does or finds. The only figures kept are the anonymous counts of the
+download server (downloads, app starts, version checks and website visits,
+with the country Cloudflare infers), described in
+[STATISTICS.md](STATISTICS.md).
 
 ## The website
 
 scan.enigm.io stores only your language and appearance choice in the browser.
-It counts complete downloads anonymously, as described in
-[STATISTICS.md](STATISTICS.md), and never receives anything from the app or
-from a phone.
+It counts complete downloads and page visits anonymously, as described in
+[STATISTICS.md](STATISTICS.md), and never receives anything from a phone.

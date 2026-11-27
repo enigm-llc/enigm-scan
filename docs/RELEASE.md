@@ -74,40 +74,6 @@ temporary keychain that is deleted when the job ends.
 If the certificate is ever exposed, revoke it in the Apple Developer account
 and replace the secrets.
 
-## Signing the Windows package
-
-The Windows app and its engines are signed with Microsoft's Artifact Signing
-(formerly Trusted Signing): the key stays in Microsoft's HSM and the
-workflow signs in with OpenID Connect, so GitHub stores no password or key.
-Turn on **Sign the Windows package** when starting the workflow.
-
-The job signs every `.exe`, `.dll` and `.pyd` of the engines, records their
-new hashes in the engine catalog (`scripts/engines/refresh_catalog.py`),
-builds the app, signs it and checks every signature before packaging.
-
-### Setting up Azure (once)
-
-1. In the Azure portal, create an **Artifact Signing account** and complete
-   the identity validation of the company. Then create a **Public Trust**
-   certificate profile.
-2. Create an app registration (Microsoft Entra ID) for the workflow and give
-   it the **Artifact Signing Certificate Profile Signer** role on the
-   account. Add a federated credential for GitHub Actions with the entity
-   type **Environment**, organization `enigm-llc`, repository `enigm-scan` and
-   environment `release-windows`: Azure then accepts only runs of that
-   environment.
-3. In the repository settings, create the environment `release-windows`
-   with the same reviewers and branch rules as `release-macos`, and add:
-
-   | Kind | Name | Value |
-   | --- | --- | --- |
-   | Secret | `AZURE_CLIENT_ID` | The app registration's client ID |
-   | Secret | `AZURE_TENANT_ID` | The directory (tenant) ID |
-   | Secret | `AZURE_SUBSCRIPTION_ID` | The subscription of the signing account |
-   | Variable | `ARTIFACT_SIGNING_ENDPOINT` | The account's endpoint, for example `https://eus.codesigning.azure.net/` |
-   | Variable | `ARTIFACT_SIGNING_ACCOUNT` | The signing account name |
-   | Variable | `ARTIFACT_SIGNING_PROFILE` | The certificate profile name |
-
 ## Publishing
 
 Packages live in a private Cloudflare R2 bucket; the download server only

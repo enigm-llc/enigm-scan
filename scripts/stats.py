@@ -53,6 +53,10 @@ def main():
         'downloads by day': f"SELECT toStartOfDay(timestamp) AS day, {total} AS downloads FROM {DATASET} WHERE blob1 = 'download' AND {since} GROUP BY day ORDER BY day",
         'downloads by country': f"SELECT blob5 AS country, {total} AS downloads FROM {DATASET} WHERE blob1 = 'download' AND {since} GROUP BY country ORDER BY downloads DESC LIMIT 25",
         'app starts by day (rule refreshes)': f"SELECT toStartOfDay(timestamp) AS day, {total} AS starts FROM {DATASET} WHERE blob1 = 'rules' AND {since} GROUP BY day ORDER BY day",
+        'app starts by version and system': f"SELECT blob3 AS version, blob4 AS system, {total} AS starts FROM {DATASET} WHERE blob1 = 'rules' AND {since} GROUP BY version, system ORDER BY starts DESC",
+        'version checks by version': f"SELECT blob2 AS version, {total} AS checks FROM {DATASET} WHERE blob1 = 'version_check' AND {since} GROUP BY version ORDER BY checks DESC",
+        'website visits by page': f"SELECT blob2 AS page, {total} AS visits FROM {DATASET} WHERE blob1 = 'visit' AND {since} GROUP BY page ORDER BY visits DESC",
+        'website visits by country': f"SELECT blob5 AS country, {total} AS visits FROM {DATASET} WHERE blob1 = 'visit' AND {since} GROUP BY country ORDER BY visits DESC LIMIT 25",
     }
     if out:
         out.mkdir(parents=True, exist_ok=True)

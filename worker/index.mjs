@@ -29,12 +29,50 @@ function count(env, request, event, a = "", b = "", c = "") {
   }
 }
 
+/**
+ * The app names itself in its two requests at start as
+ * "EnigmScan/<version> (<system>; <architecture>)". Only those exact,
+ * known values are counted; anything else is "unknown".
+ */
+function appOf(request) {
+  const match =
+    /^EnigmScan\/(\d{1,3}\.\d{1,3}\.\d{1,3}) \((macos|windows|linux); (x86_64|aarch64)\)$/.exec(
+      request.headers.get("User-Agent") ?? "",
+    );
+  return match
+    ? { version: match[1], system: `${match[2]}-${match[3]}` }
+    : { version: "unknown", system: "unknown" };
+}
+
+// Website pages counted as visits: one per page a browser opens, never the
+// files it loads with it. Crawlers announce themselves and are left out.
+const PAGES = {
+  "/": "home",
+  "/how-it-works": "how",
+  "/como-funciona": "how",
+  "/download": "download",
+};
+const CRAWLER = /bot|crawl|spider|slurp|preview|monitor|curl|wget|python/i;
+function countVisit(env, request, path) {
+  const page = PAGES[path.length > 1 ? path.replace(/\/$/, "") : path];
+  if (
+    page &&
+    request.method === "GET" &&
+    request.headers.get("Sec-Fetch-Dest") === "document" &&
+    !CRAWLER.test(request.headers.get("User-Agent") ?? "")
+  )
+    count(env, request, "visit", page);
+}
+
 // A fixed, reviewed manifest is the entire public surface of the private bucket.
 // No uploads, listing, evidence storage or arbitrary object paths are exposed.
 export default {
   async fetch(request, env) {
     const path = new URL(request.url).pathname;
-    if (!path.startsWith("/downloads/")) return env.ASSETS.fetch(request);
+    if (!path.startsWith("/downloads/")) {
+      countVisit(env, request, path);
+      return env.ASSETS.fetch(request);
+    }
     if (!["GET", "HEAD"].includes(request.method)) {
       return new Response(null, {
         status: 405,
@@ -49,13 +87,17 @@ export default {
       const bundle =
         path === "/downloads/intelligence.json" ? intelligence : intelligenceV2;
       // Each rule refresh is one app start: active use, not people.
-      if (request.method === "GET")
+      if (request.method === "GET") {
+        const app = appOf(request);
         count(
           env,
           request,
           "rules",
           path === "/downloads/intelligence.json" ? "v1" : "v2",
+          app.version,
+          app.system,
         );
+      }
       return new Response(
         request.method === "HEAD" ? null : JSON.stringify(bundle),
         {
@@ -64,6 +106,11 @@ export default {
       );
     }
     if (path === "/downloads/manifest.json") {
+      // The app reads this at start to offer a newer version; the website
+      // reads it too, and only the app's requests are counted.
+      const app = appOf(request);
+      if (request.method === "GET" && app.version !== "unknown")
+        count(env, request, "version_check", app.version, app.system);
       return new Response(
         request.method === "HEAD"
           ? null

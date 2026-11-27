@@ -25,6 +25,7 @@ pub fn bounded_read(reader: impl Read) -> Result<Vec<u8>, String> {
 pub fn download() -> Result<Vec<u8>, String> {
     let client = reqwest::blocking::Client::builder()
         .https_only(true)
+        .user_agent(crate::user_agent())
         .redirect(reqwest::redirect::Policy::none())
         .connect_timeout(Duration::from_secs(5))
         .timeout(Duration::from_secs(15))

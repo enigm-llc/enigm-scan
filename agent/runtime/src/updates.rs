@@ -1,7 +1,8 @@
 //! Whether a newer version of the app is published. The app never updates
 //! itself: a newer version is offered on the website, where the person
 //! downloads it. Only the public download manifest is read, the same one the
-//! website shows; nothing about the person or the computer is sent.
+//! website shows; the request names the app's version and kind of system
+//! (`crate::user_agent`) and nothing about the person or the computer.
 use serde::Deserialize;
 use std::{io::Read, time::Duration};
 
@@ -34,6 +35,7 @@ pub fn newer(manifest: &[u8], current: &str) -> Option<String> {
 pub fn check(current: &str) -> Option<String> {
     let client = reqwest::blocking::Client::builder()
         .https_only(true)
+        .user_agent(crate::user_agent())
         .redirect(reqwest::redirect::Policy::none())
         .connect_timeout(Duration::from_secs(5))
         .timeout(Duration::from_secs(8))
