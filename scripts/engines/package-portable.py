@@ -94,6 +94,45 @@ Documentation  https://docs.enigm.io
 Source code    https://github.com/enigm-llc/enigm-scan
 '''
 
+# Release builds on macOS: the Developer ID identity, in a keychain on the
+# search list, and the App Store Connect key used to notarize.
+IDENTITY = os.environ.get('ENIGM_MACOS_IDENTITY', '') if SYSTEM == 'Darwin' else ''
+
+
+def sign_release(bundle):
+    if not IDENTITY.startswith('Developer ID Application: '):
+        raise SystemExit('ENIGM_MACOS_IDENTITY must be a Developer ID Application identity')
+    subprocess.run(['codesign', '--force', '--sign', IDENTITY, '--options', 'runtime', '--timestamp', bundle], check=True)
+
+
+def notarize(path, staging):
+    """Submit to Apple's notary service, wait for the verdict and attach the
+    ticket, so Gatekeeper accepts the file also without a network check."""
+    key = os.environ.get('APPLE_API_KEY_PATH', '')
+    key_id = os.environ.get('APPLE_API_KEY_ID', '')
+    issuer = os.environ.get('APPLE_API_ISSUER_ID', '')
+    if not (key and pathlib.Path(key).is_file() and key_id and issuer):
+        raise SystemExit('Notarizing needs APPLE_API_KEY_PATH, APPLE_API_KEY_ID and APPLE_API_ISSUER_ID')
+    upload = path
+    if path.endswith('.app'):
+        # The service takes an app as a ZIP; ditto keeps its links and modes.
+        upload = str(pathlib.Path(staging, 'notarize.zip'))
+        subprocess.run(['ditto', '-c', '-k', '--keepParent', path, upload], check=True)
+    result = subprocess.run(['xcrun', 'notarytool', 'submit', upload, '--key', key, '--key-id', key_id,
+                             '--issuer', issuer, '--wait', '--timeout', '30m', '--output-format', 'json'],
+                            capture_output=True, text=True, timeout=2400)
+    verdict = json.loads(result.stdout or '{}')
+    if result.returncode != 0 or verdict.get('status') != 'Accepted':
+        submission = verdict.get('id')
+        if submission:
+            subprocess.run(['xcrun', 'notarytool', 'log', submission, '--key', key, '--key-id', key_id, '--issuer', issuer])
+        raise SystemExit(f"Notarization failed: {verdict.get('status', result.stderr.strip())}")
+    if upload != path:
+        pathlib.Path(upload).unlink()
+    subprocess.run(['xcrun', 'stapler', 'staple', path], check=True)
+    subprocess.run(['xcrun', 'stapler', 'validate', path], check=True)
+
+
 if SYSTEM == 'Windows':
     with tempfile.TemporaryDirectory(prefix='enigm-portable-') as staging:
         app = pathlib.Path(staging) / 'Enigm Scan'
@@ -118,15 +157,30 @@ elif SYSTEM == 'Darwin':
         subprocess.run(['ditto', str(RELEASE / 'bundle/macos/Enigm Scan.app'), staging + '/Enigm Scan.app'], check=True)
         # The bundle needs a complete signature: only the main executable
         # carried the linker's ad-hoc signature, and a downloaded bundle
-        # without a sealed signature is reported as damaged. Seal the bundle
-        # ad hoc. The engines keep their own signatures and bytes, which
-        # the embedded engine catalog verifies; they are sealed as resources.
+        # without a sealed signature is reported as damaged. Release builds
+        # sign it with the Developer ID certificate and notarize it; other
+        # builds seal it ad hoc. The engines keep their own signatures and
+        # bytes (sign-macos-engines.py), which the embedded engine catalog
+        # verifies; they are sealed as resources.
         bundle = staging + '/Enigm Scan.app'
-        subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', bundle], check=True)
+        if IDENTITY:
+            sign_release(bundle)
+            notarize(bundle, staging)
+        else:
+            subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', bundle], check=True)
         subprocess.run(['codesign', '--verify', '--strict', '--verbose=2', bundle], check=True)
         pathlib.Path(staging, README_NAME).write_text(README, encoding='utf-8')
         target = OUT / f'enigm-scan-{VERSION}-macos-{platform.machine()}.dmg'
-        subprocess.run(['hdiutil', 'create', '-volname', 'Enigm Scan', '-srcfolder', staging, '-format', 'UDZO', '-ov', str(target)], check=True)
+        # The image holds only the app and its README, never the work folders.
+        image = pathlib.Path(staging, 'image')
+        image.mkdir()
+        shutil.move(bundle, image / 'Enigm Scan.app')
+        shutil.move(str(pathlib.Path(staging, README_NAME)), image / README_NAME)
+        subprocess.run(['hdiutil', 'create', '-volname', 'Enigm Scan', '-srcfolder', str(image), '-format', 'UDZO', '-ov', str(target)], check=True)
+        if IDENTITY:
+            subprocess.run(['codesign', '--force', '--sign', IDENTITY, '--timestamp', str(target)], check=True)
+            notarize(str(target), staging)
+            subprocess.run(['spctl', '--assess', '--type', 'open', '--context', 'context:primary-signature', '--verbose=2', str(target)], check=True)
         # macOS /var is a symlink to /private/var. Tauri deliberately rejects
         # executable paths containing symlinks; launch from the physical path.
         mount = pathlib.Path(staging).resolve() / 'mounted'
@@ -135,6 +189,8 @@ elif SYSTEM == 'Darwin':
         try:
             if (mount / 'Applications').exists():
                 raise SystemExit('Portable DMG must not contain an installation shortcut')
+            if IDENTITY:
+                subprocess.run(['spctl', '--assess', '--type', 'execute', '--verbose=2', str(mount / 'Enigm Scan.app')], check=True)
             subprocess.run([str(mount / 'Enigm Scan.app/Contents/MacOS/enigm-scan'), '--portable-self-check'], check=True, timeout=90)
         finally:
             # The just-exited self-check can keep the volume briefly busy, and a

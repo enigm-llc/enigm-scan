@@ -2,6 +2,11 @@ name: Build desktop app
 # Four platform builds, started by hand when a release is prepared.
 on:
   workflow_dispatch:
+    inputs:
+      sign_macos:
+        description: Sign and notarize the Mac packages (needs the release-macos environment)
+        type: boolean
+        default: true
 permissions:
   contents: read
 concurrency:
@@ -23,10 +28,16 @@ jobs:
           - os: macos-15-intel
             bundles: app
     runs-on: ${{ matrix.os }}
+    # The Mac jobs of a release use the protected environment that holds the
+    # Developer ID certificate and the notary key; it waits for approval.
+    environment: ${{ inputs.sign_macos && startsWith(matrix.os, 'macos') && 'release-macos' || '' }}
     env:
       MACOSX_DEPLOYMENT_TARGET: "13.0"
+      ENIGM_MACOS_IDENTITY: "${{ inputs.sign_macos && startsWith(matrix.os, 'macos') && 'Developer ID Application: Enigm, LLC (CRRU2PL879)' || '' }}"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
@@ -85,6 +96,33 @@ jobs:
         run: python scripts/engines/build-adb.py
       - name: Package offline engine with licenses and inventory
         run: python scripts/engines/build-mvt.py
+      # A temporary keychain that exists only for this job. The certificate
+      # file is deleted once imported; the keychain is deleted at the end.
+      - name: Prepare the Developer ID certificate and notary key
+        if: env.ENIGM_MACOS_IDENTITY != ''
+        env:
+          CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE_P12 }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          NOTARY_KEY: ${{ secrets.APPLE_API_KEY_P8 }}
+        run: |
+          set -euo pipefail
+          umask 077
+          keychain="$RUNNER_TEMP/release.keychain-db"
+          keychain_password=$(openssl rand -hex 24)
+          printf '%s' "$CERTIFICATE" | base64 --decode > "$RUNNER_TEMP/developer-id.p12"
+          printf '%s\n' "$NOTARY_KEY" > "$RUNNER_TEMP/notary-key.p8"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 7200 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$RUNNER_TEMP/developer-id.p12" -k "$keychain" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          rm -f "$RUNNER_TEMP/developer-id.p12"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$keychain_password" "$keychain" > /dev/null
+          security list-keychains -d user -s "$keychain" login.keychain-db
+          security find-identity -v -p codesigning "$keychain" | grep -F "$ENIGM_MACOS_IDENTITY"
+          echo "APPLE_API_KEY_PATH=$RUNNER_TEMP/notary-key.p8" >> "$GITHUB_ENV"
+      - name: Sign the engines
+        if: env.ENIGM_MACOS_IDENTITY != ''
+        run: python scripts/engines/sign-macos-engines.py
       - run: npm test
       - run: cargo test --manifest-path agent/core/Cargo.toml --locked
       - run: cargo test --manifest-path agent/runtime/Cargo.toml --locked
@@ -106,6 +144,9 @@ jobs:
         if: runner.os == 'macOS'
         run: python scripts/engines/check-macos.py
       - name: Package portable application
+        env:
+          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
+          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
         run: python scripts/engines/package-portable.py
       - name: Verify optimized Linux variant iterator regression
         if: runner.os == 'Linux'
@@ -118,3 +159,8 @@ jobs:
             src-tauri/target/release/portable/*
           if-no-files-found: error
           retention-days: 14
+      - name: Remove the signing keychain and notary key
+        if: always() && env.ENIGM_MACOS_IDENTITY != ''
+        run: |
+          security delete-keychain "$RUNNER_TEMP/release.keychain-db" || true
+          rm -f "$RUNNER_TEMP/notary-key.p8" "$RUNNER_TEMP/developer-id.p12"
