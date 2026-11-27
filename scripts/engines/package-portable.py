@@ -19,6 +19,7 @@ for previous in OUT.glob('enigm-scan-*'):
 VERSION = json.loads((ROOT / 'src-tauri/tauri.conf.json').read_text())['version']
 SYSTEM = platform.system()
 
+README_NAME = 'README.txt'
 README = '''ENIGM SCAN
 Find out whether someone is spying on your phone.
 https://scan.enigm.io
@@ -101,7 +102,7 @@ if SYSTEM == 'Windows':
         shutil.copytree(ROOT / 'src-tauri/resources', app / 'resources')
         for dll in RELEASE.glob('*.dll'):
             shutil.copy2(dll, app / dll.name)
-        (app / 'README.txt').write_text(README, encoding='utf-8')
+        (app / README_NAME).write_text(README, encoding='utf-8')
         target = OUT / f'enigm-scan-{VERSION}-windows-x64.zip'
         with zipfile.ZipFile(target, 'w', zipfile.ZIP_DEFLATED) as archive:
             for path in sorted(app.rglob('*')):
@@ -123,7 +124,7 @@ elif SYSTEM == 'Darwin':
         bundle = staging + '/Enigm Scan.app'
         subprocess.run(['codesign', '--force', '--sign', '-', '--timestamp=none', bundle], check=True)
         subprocess.run(['codesign', '--verify', '--strict', '--verbose=2', bundle], check=True)
-        pathlib.Path(staging, 'README.txt').write_text(README, encoding='utf-8')
+        pathlib.Path(staging, README_NAME).write_text(README, encoding='utf-8')
         target = OUT / f'enigm-scan-{VERSION}-macos-{platform.machine()}.dmg'
         subprocess.run(['hdiutil', 'create', '-volname', 'Enigm Scan', '-srcfolder', staging, '-format', 'UDZO', '-ov', str(target)], check=True)
         # macOS /var is a symlink to /private/var. Tauri deliberately rejects
@@ -171,7 +172,7 @@ else:
         subprocess.run([str(plugins[0]), '--appdir', str(appdir)], env=settings, check=True, timeout=180)
     subprocess.run(['xvfb-run', '-a', str(target), '--appimage-extract-and-run', '--portable-self-check'], check=True, timeout=120)
 
-(OUT / 'README.txt').write_text(README, encoding='utf-8')
+(OUT / README_NAME).write_text(README, encoding='utf-8')
 with target.open('rb') as file:
     digest = hashlib.file_digest(file, 'sha256').hexdigest()
 (OUT / (target.name + '.sha256')).write_text(digest + '  ' + target.name + '\n')

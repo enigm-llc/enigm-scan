@@ -501,7 +501,7 @@ fn assess_host_in(host: &str, context: Context) -> Option<Assessment> {
                 .any(|c| !c.is_ascii() && c.is_alphabetic());
             if latin
                 && other
-                && skeleton.chars().filter(|c| c.is_ascii_alphabetic()).count()
+                && skeleton.chars().filter(char::is_ascii_alphabetic).count()
                     == unicode_label.chars().filter(|c| c.is_alphabetic()).count()
             {
                 return result(format!("internationalised domain {unicode} mixes Latin letters with look-alike letters from another alphabet"), "medium");

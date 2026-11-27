@@ -232,7 +232,7 @@ async def listing(work):
     for device in attached[:32]:
         if device.connection_type != "USB" or not valid_id(device.serial):
             continue
-        item = dict(id=device.serial, platform="ios", authorized=False, needsTrust=True, name="iPhone")
+        item = {"id": device.serial, "platform": "ios", "authorized": False, "needsTrust": True, "name": "iPhone"}
         if device.serial in USB_SPEEDS:
             item["usbSpeed"] = USB_SPEEDS[device.serial]
         checks.append(bounded(device, item))
@@ -315,7 +315,6 @@ async def capture_network(client, work, ready=None, copied=None):
     observed = 0.0
     restarts = 0
     began = False
-    cancelled = False
     reason = "not_started"
 
     def finished():
@@ -340,9 +339,19 @@ async def capture_network(client, work, ready=None, copied=None):
             packets += 1
         return "stream_ended"
 
-    with target.open("xb") as output:
-        output.write(struct.pack("<IHHIIII", 0xa1b2c3d4, 2, 4, 0, 0, 65535, 101))
-        try:
+    def record(why):
+        complete = observed >= NETWORK_SECONDS and why in ("duration_reached", "size_limit")
+        result = {"status": "completed" if complete else "partial", "reason": why,
+                  "durationSeconds": observed, "minimumSeconds": NETWORK_SECONDS,
+                  "packets": packets, "restarts": restarts}
+        (work / "network-status.json").write_text(json.dumps(result))
+        SESSION["capturing"] = False
+        publish(work)
+        return result
+
+    try:
+        with target.open("xb") as output:
+            output.write(struct.pack("<IHHIIII", 0xa1b2c3d4, 2, 4, 0, 0, 65535, 101))
             while True:
                 stop = False
                 session = None
@@ -371,10 +380,6 @@ async def capture_network(client, work, ready=None, copied=None):
                             if not task.done():
                                 task.cancel()
                             await asyncio.gather(task, return_exceptions=True)
-                except asyncio.CancelledError:
-                    cancelled = True
-                    reason = "interrupted"
-                    raise
                 except Exception:
                     reason = "interrupted" if began else "not_started"
                 finally:
@@ -389,19 +394,10 @@ async def capture_network(client, work, ready=None, copied=None):
                 SESSION["capturing"] = False
                 publish(work)
                 await asyncio.sleep(CAPTURE_RESTART_PAUSE)
-        except asyncio.CancelledError:
-            cancelled = True
-            reason = "interrupted"
-    complete = observed >= NETWORK_SECONDS and reason in ("duration_reached", "size_limit")
-    result = {"status": "completed" if complete else "partial", "reason": reason,
-              "durationSeconds": observed, "minimumSeconds": NETWORK_SECONDS,
-              "packets": packets, "restarts": restarts}
-    (work / "network-status.json").write_text(json.dumps(result))
-    SESSION["capturing"] = False
-    publish(work)
-    if cancelled:
-        raise asyncio.CancelledError
-    return result
+    except asyncio.CancelledError:
+        record("interrupted")
+        raise
+    return record(reason)
 
 
 def device_locked(error):
@@ -508,6 +504,11 @@ def extract_shutdown_log(archive, destination, processes=None):
     return found
 
 
+def is_sysdiagnose(name):
+    """A finished sysdiagnose archive in the phone's folder."""
+    return name.startswith("sysdiagnose_") and name.endswith(".tar.gz")
+
+
 async def newest_sysdiagnose(afc, deadline):
     """The newest finished sysdiagnose archive, waiting for one the owner is
     generating (an `IN_PROGRESS_` entry) until `deadline`."""
@@ -525,7 +526,7 @@ async def newest_sysdiagnose(afc, deadline):
             publish(SESSION["work"])
         finished = []
         for name in names:
-            if name.startswith("sysdiagnose_") and name.endswith(".tar.gz") and safe_relative(name) is not None:
+            if is_sysdiagnose(name) and safe_relative(name) is not None:
                 info = await afc.stat(f"{SYSDIAGNOSE_DIR}/{name}")
                 finished.append((info["st_mtime"], name, info["st_size"]))
         if not generating or loop.time() >= deadline:
@@ -557,7 +558,7 @@ async def watch_sysdiagnose(afc):
             new = set(await afc.listdir(SYSDIAGNOSE_DIR)) - baseline
         except Exception:
             continue
-        if any(name.startswith("sysdiagnose_") and name.endswith(".tar.gz") for name in new):
+        if any(is_sysdiagnose(name) for name in new):
             SESSION["sysdiagnose"] = "ready"
             return
         if any(name.startswith("IN_PROGRESS_") for name in new):
@@ -612,7 +613,8 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS, until=None)
             baseline = set(await manager.afc.listdir(SYSDIAGNOSE_DIR))
         except Exception:
             baseline = set()  # the folder appears with the first sysdiagnose
-        while ((deadline is None or loop.time() < deadline) and not (work / DEEP_SKIP).exists()
+        # The phone's folder and the app's choice file have no event to wait on.
+        while ((deadline is None or loop.time() < deadline) and not (work / DEEP_SKIP).exists()  # NOSONAR
                and not (until is not None and until())):
             try:
                 names = set(await manager.afc.listdir(SYSDIAGNOSE_DIR))
@@ -621,7 +623,7 @@ async def wait_for_deep_check(client, work, limit=DEEP_WAIT_SECONDS, until=None)
             # One being prepared counts even if it was started before Start.
             if any(name.startswith("IN_PROGRESS_") for name in names):
                 SESSION["sysdiagnose"] = "generating"
-            elif any(name.startswith("sysdiagnose_") and name.endswith(".tar.gz") for name in names - baseline):
+            elif any(is_sysdiagnose(name) for name in names - baseline):
                 SESSION["sysdiagnose"] = "ready"
             if SESSION.get("sysdiagnose"):
                 publish(work)
@@ -844,7 +846,7 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False, ho
                            local_hostname=str(uuid.uuid4()), pairing_records_cache_folder=work / "pairing",
                            label="Enigm Scan")
     temporary_pair = not client.paired
-    async def memory_only():
+    async def memory_only():  # NOSONAR: replaces an async method
         return None
     SESSION.update(work=work, cancelled_on_device=False, phase="acquiring", percent=None,
                    kept=0, discarded=0, receivedBytes=0, storedBytes=0, sysdiagnose=None)
@@ -1011,7 +1013,7 @@ def failure_diagnostic(error):
     while current is not None and len(names) < 4 and id(current) not in seen:
         seen.add(id(current))
         name = type(current).__name__
-        names.append(name if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,47}", name) else "Exception")
+        names.append(name if re.fullmatch(r"[A-Za-z_]\w{0,47}", name, re.ASCII) else "Exception")
         current = current.__cause__ or (None if current.__suppress_context__ else current.__context__)
     return "exc:" + ">".join(names)
 

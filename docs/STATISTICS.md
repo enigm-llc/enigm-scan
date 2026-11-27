@@ -22,8 +22,8 @@ If the dataset is unavailable, downloads continue unaffected.
 Create a temporary Cloudflare API token with **Account Analytics: Read** only, save it to a private file, and run:
 
 ```sh
-python3 scripts/stats.py /path/to/token-file 30            # last 30 days
-python3 scripts/stats.py /path/to/token-file 90 --csv out/  # also write CSV files
+python3 scripts/stats.py 30 < /path/to/token-file        # last 30 days
+python3 scripts/stats.py 90 --csv < /path/to/token-file  # also write ./stats-csv/
 ```
 
 The report shows downloads by system, by day and by country, and rule refreshes by day. Analytics Engine keeps data for three months; export CSV snapshots regularly to keep a longer history. Never store the token in the repository.

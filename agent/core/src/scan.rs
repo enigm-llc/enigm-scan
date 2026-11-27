@@ -267,7 +267,7 @@ pub fn scan_directory(
         }
     }
     let workers = std::thread::available_parallelism()
-        .map(|n| n.get())
+        .map(std::num::NonZeroUsize::get)
         .unwrap_or(2)
         .clamp(1, 8);
     let next = std::sync::atomic::AtomicUsize::new(0);

@@ -22,12 +22,12 @@ export function OsMenu({
   value,
   label,
   onChange,
-}: {
+}: Readonly<{
   files: OsFile[];
   value: string;
   label: string;
   onChange: (filename: string) => void;
-}) {
+}>) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -50,7 +50,7 @@ export function OsMenu({
     return () => document.removeEventListener("pointerdown", outside);
   }, [open]);
   return (
-    <div
+    <div // NOSONAR: arrow keys for the native buttons inside
       className="os-menu appearance-control"
       ref={root}
       onKeyDown={(e) => {

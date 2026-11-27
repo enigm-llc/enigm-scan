@@ -43,7 +43,7 @@ async function get(url) {
   if (url.startsWith("https://api.github.com/") && process.env.GITHUB_TOKEN)
     headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
   const response = await fetch(url, { headers, redirect: "follow" });
-  if (!response.ok) throw Error(`${url}: HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`${url}: HTTP ${response.status}`);
   return Buffer.from(await response.arrayBuffer());
 }
 const head = (owner, repo, path) =>

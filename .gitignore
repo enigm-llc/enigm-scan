@@ -32,3 +32,4 @@ src-tauri/resources/engines/ios-usb
 src-tauri/resources/engines/ios-usb.exe
 src-tauri/gen/
 /.release/
+stats-csv/

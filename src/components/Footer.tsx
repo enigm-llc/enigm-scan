@@ -9,13 +9,13 @@ export function Footer({
   setLanguage,
   appearance,
   setAppearance,
-}: {
+}: Readonly<{
   t: Copy;
   language: Language;
   setLanguage: (l: Language) => void;
   appearance: Appearance;
   setAppearance: (a: Appearance) => void;
-}) {
+}>) {
   const copy = footerCopy[language],
     c = siteCopy[language];
   return (

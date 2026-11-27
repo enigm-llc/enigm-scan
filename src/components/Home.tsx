@@ -26,7 +26,7 @@ export function Home({
   onHow,
   started = false,
   onStart,
-}: {
+}: Readonly<{
   t: Copy;
   language: Language;
   mobile: boolean;
@@ -35,7 +35,7 @@ export function Home({
   /** The download step is shown (it has its own URL). */
   started?: boolean;
   onStart?: () => void;
-}) {
+}>) {
   const c = siteCopy[language],
     p = productCopy[language],
     f = flowCopy[language],
@@ -212,34 +212,30 @@ export function Home({
               </span>
             </div>
           ) : (
-            <>
-              <div className="download-focus">
-                <OsMenu
-                  files={files}
-                  value={choice}
-                  label={p.computer}
-                  onChange={setChoice}
-                />
-                {selected ? (
-                  <a
-                    className="button primary"
-                    href={
-                      "https://scan.enigm.io/downloads/" + selected.filename
-                    }
-                    download
-                    onClick={() => setDownloaded(true)}
-                  >
-                    <Download size={18} aria-hidden="true" />
-                    {c.download}
-                  </a>
-                ) : (
-                  <button className="primary" disabled>
-                    <Download size={17} />
-                    {c.download}
-                  </button>
-                )}
-              </div>
-            </>
+            <div className="download-focus">
+              <OsMenu
+                files={files}
+                value={choice}
+                label={p.computer}
+                onChange={setChoice}
+              />
+              {selected ? (
+                <a
+                  className="button primary"
+                  href={"https://scan.enigm.io/downloads/" + selected.filename}
+                  download
+                  onClick={() => setDownloaded(true)}
+                >
+                  <Download size={18} aria-hidden="true" />
+                  {c.download}
+                </a>
+              ) : (
+                <button className="primary" disabled>
+                  <Download size={17} />
+                  {c.download}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

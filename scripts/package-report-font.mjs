@@ -9,7 +9,7 @@ if (
   createHash("sha256").update(data).digest("hex") !==
   "9f300202f482ad59f8b13bc3131a295744d14fd530fa3765a0a11ec87264d203"
 )
-  throw Error("Unexpected font bytes");
+  throw new Error("Unexpected font bytes");
 const base64 = data.toString("base64"),
   pdf = new jsPDF();
 pdf.addFileToVFS("Roboto.ttf", base64);
@@ -22,7 +22,7 @@ const points = Object.keys(pdf.getFont().metadata.cmap.unicode.codeMap)
 const ranges = [];
 for (const n of points) {
   const last = ranges.at(-1);
-  if (last && last[1] === n - 1) last[1] = n;
+  if (last?.[1] === n - 1) last[1] = n;
   else ranges.push([n, n]);
 }
 fs.writeFileSync(

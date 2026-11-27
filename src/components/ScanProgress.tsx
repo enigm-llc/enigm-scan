@@ -20,10 +20,9 @@ import {
   type AgentStatus,
 } from "../core/agent";
 import { PhoneStage } from "./PhoneStage";
-import type { Language } from "../shared/i18n/i18n";
 import { Cascade } from "./Cascade";
 import type { AgentCopy } from "../shared/i18n/agent";
-import type { Copy } from "../shared/i18n/i18n";
+import type { Copy, Language } from "../shared/i18n/i18n";
 import { flowCopy } from "../shared/i18n/flow";
 
 // Real order: Trust (pairing) → passcode → copy, with the network observed in
@@ -54,12 +53,12 @@ const CARD_SECONDS = 5;
 const TRUST_SECONDS = 180;
 /** How long the adapter waits for the deep check (DEEP_WAIT_SECONDS). */
 const DEEP_WAIT_SECONDS = 300;
-const PROMPT_PHASES = [
+const PROMPT_PHASES = new Set([
   "awaiting_trust",
   "deep_wait",
   "awaiting_passcode",
   "passcode_retry",
-];
+]);
 
 function useClock() {
   const [now, setNow] = useState(() => Date.now());
@@ -112,7 +111,7 @@ export function ScanProgress({
   rules,
   onCancel,
   cancelLabel,
-}: {
+}: Readonly<{
   status: AgentStatus;
   a: AgentCopy;
   t: Copy;
@@ -128,7 +127,7 @@ export function ScanProgress({
   rules?: number;
   onCancel: () => void;
   cancelLabel?: string;
-}) {
+}>) {
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
@@ -165,7 +164,6 @@ export function ScanProgress({
   }
   // Network observation alongside the copy: measured locally from when the
   // adapter first reported it, bounded by its fixed window.
-  const parallel = sample?.capturing !== undefined;
   const captureStart = useRef<number | null>(null);
   if (sample?.capturing && captureStart.current === null)
     captureStart.current = Date.now();
@@ -365,7 +363,7 @@ export function ScanProgress({
     "{t}",
     duration((now - started.current) / 1000, a, language),
   );
-  const workLines = PROMPT_PHASES.includes(status.phase)
+  const workLines = PROMPT_PHASES.has(status.phase)
     ? []
     : facts
         .filter((fact) => fact.label !== f.factElapsed)
@@ -402,7 +400,7 @@ export function ScanProgress({
       <PhoneStage
         language={language as Language}
         paused={paused}
-        attention={PROMPT_PHASES.includes(status.phase)}
+        attention={PROMPT_PHASES.has(status.phase)}
         press={deepWait && !deepConfirmed}
         // The waves while the network is checked: the iPhone's traffic
         // window, or the copy of an Android phone whose connections are read.
@@ -442,9 +440,7 @@ export function ScanProgress({
                     }
                   : { kind: "analyze", subtitle: a.localProcessing }
         }
-        facts={
-          PROMPT_PHASES.includes(status.phase) ? undefined : { items: facts }
-        }
+        facts={PROMPT_PHASES.has(status.phase) ? undefined : { items: facts }}
       />
       <div className="console-copy">
         <div className="progress-topline">
@@ -477,7 +473,10 @@ export function ScanProgress({
         </ol>
         <div className="scan-stage">
           <div className="scan-caption">
-            <div role="status" aria-live="polite">
+            <div
+              role="status"
+              aria-live="polite" /* NOSONAR: holds a heading */
+            >
               <h3 className="phase-copy">
                 <Cascade text={label} />
               </h3>
@@ -497,7 +496,10 @@ export function ScanProgress({
               </>
             ) : deepWait ? (
               deepConfirmed ? (
-                <p className="scan-hint deep-confirmed" role="status">
+                <p
+                  className="scan-hint deep-confirmed"
+                  role="status" /* NOSONAR: styled paragraph */
+                >
                   {f.deepConfirmedHint}
                 </p>
               ) : (

@@ -7,10 +7,10 @@ import React, { useRef, type ReactNode } from "react";
 export function Disclosure({
   summary,
   children,
-}: {
+}: Readonly<{
   summary: ReactNode;
   children: ReactNode;
-}) {
+}>) {
   const details = useRef<HTMLDetailsElement>(null);
   const body = useRef<HTMLDivElement>(null);
   const running = useRef<Animation | null>(null);

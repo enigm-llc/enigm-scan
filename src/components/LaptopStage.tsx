@@ -11,10 +11,10 @@ export type LaptopScreen = "download" | "downloaded";
 export function LaptopStage({
   screen,
   platform,
-}: {
+}: Readonly<{
   screen: LaptopScreen;
   platform?: string;
-}) {
+}>) {
   const os =
     platform === "Windows" ? "windows" : platform === "Linux" ? "linux" : "mac";
   return (

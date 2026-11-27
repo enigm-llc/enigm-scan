@@ -46,7 +46,10 @@ const CHECK_ICONS = [MessageSquare, Globe, Cpu, FileBadge, Network, FileClock];
 const PRIVACY_ICONS = [Laptop, UserX, ImageOff, Code];
 
 /** Counts up to a real number once it scrolls into view. */
-function Counter({ to, language }: { to: number; language: Language }) {
+function Counter({
+  to,
+  language,
+}: Readonly<{ to: number; language: Language }>) {
   const ref = useRef<HTMLSpanElement>(null);
   const [value, setValue] = useState(0);
   useEffect(() => {
@@ -91,11 +94,11 @@ export function HowItWorks({
   language,
   mobile = false,
   onClose,
-}: {
+}: Readonly<{
   language: Language;
   mobile?: boolean;
   onClose: () => void;
-}) {
+}>) {
   const h = howCopy[language];
   const c = siteCopy[language];
   const p = productCopy[language];

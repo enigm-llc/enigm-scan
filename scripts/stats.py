@@ -1,6 +1,8 @@
 """Anonymous usage counts from the download Worker. Read-only.
 
-Usage: python3 scripts/stats.py TOKEN_FILE [DAYS] [--csv DIRECTORY]
+Usage: python3 scripts/stats.py [DAYS] [--csv] < TOKEN_FILE
+The token is read from standard input; --csv also writes the tables to
+./stats-csv/.
 The token needs only "Account Analytics: Read". See docs/STATISTICS.md.
 """
 import csv
@@ -39,11 +41,11 @@ def query(token, sql):
 
 def main():
     args = sys.argv[1:]
-    if not args:
+    token = sys.stdin.readline().strip()
+    if not token:
         raise SystemExit(__doc__)
-    token = pathlib.Path(args[0]).read_text().strip()
-    days = int(args[1]) if len(args) > 1 and args[1].isdigit() else 30
-    out = pathlib.Path(args[args.index('--csv') + 1]) if '--csv' in args else None
+    days = next((int(a) for a in args if a.isdigit()), 30)
+    out = pathlib.Path.cwd() / 'stats-csv' if '--csv' in args else None
     since = f"timestamp > NOW() - INTERVAL '{days}' DAY"
     total = 'SUM(_sample_interval * double1)'
     reports = {

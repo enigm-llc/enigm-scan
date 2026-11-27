@@ -1,6 +1,7 @@
 """Occasional release upload. Credentials stay local; never needed in GitHub.
 
-Usage: python scripts/upload-installers.py ARTIFACT_DIRECTORY TOKEN_FILE
+Usage: python scripts/upload-installers.py ARTIFACT_DIRECTORY < TOKEN_FILE
+The token is read from standard input, so it never appears in the command.
 Uploads only files matching the reviewed manifest, then verifies remote SHA-256.
 Publish the matching manifest/site only after this command succeeds.
 """
@@ -26,8 +27,14 @@ def cloudflare_account():
 BASE = f'https://api.cloudflare.com/client/v4/accounts/{cloudflare_account()}/r2/buckets/enigm-scan-releases/objects/'
 
 def main():
-    source = pathlib.Path(sys.argv[1])
-    token = pathlib.Path(sys.argv[2]).read_text().strip()
+    if len(sys.argv) != 2:
+        raise SystemExit(__doc__)
+    source = pathlib.Path(sys.argv[1]).resolve(strict=True)
+    if not source.is_dir():
+        raise SystemExit(__doc__)
+    token = sys.stdin.readline().strip()
+    if not token:
+        raise SystemExit(__doc__)
     manifest = json.loads((ROOT / 'releases/manifest.json').read_text())
     matches = []
     # Check the complete set before writing any object.

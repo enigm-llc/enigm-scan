@@ -45,7 +45,7 @@ export async function native<T>(
   command: string,
   args?: Record<string, unknown>,
 ): Promise<T> {
-  if (!isDesktop()) throw Error("app_only");
+  if (!isDesktop()) throw new Error("app_only");
   const { invoke } = await import("@tauri-apps/api/core");
   return invoke<T>(command, args);
 }

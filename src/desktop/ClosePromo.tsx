@@ -13,7 +13,7 @@ const ENIGM = "https://enigm.io";
  * Enigm invitation. Its close button (or Escape, or closing the window again)
  * quits; trying Enigm opens it in the browser and quits too.
  */
-export function ClosePromo({ language }: { language: Language }) {
+export function ClosePromo({ language }: Readonly<{ language: Language }>) {
   const c = productCopy[language];
   const f = flowCopy[language];
   const quit = () => void native("close_application").catch(() => {});
@@ -32,7 +32,7 @@ export function ClosePromo({ language }: { language: Language }) {
     <div className="promo-backdrop">
       <section
         className="promo-dialog"
-        role="dialog"
+        role="dialog" // NOSONAR: drawn over the app, focus handled here
         aria-modal="true"
         aria-labelledby="promo-title"
       >

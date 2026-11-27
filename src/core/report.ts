@@ -71,7 +71,7 @@ export const reportSchema = z
 export type ScanReport = z.infer<typeof reportSchema>;
 export function parseReport(input: string): ScanReport {
   if (new TextEncoder().encode(input).byteLength > MAX_REPORT_BYTES)
-    throw Error("Report exceeds limit");
+    throw new Error("Report exceeds limit");
   return reportSchema.parse(JSON.parse(input));
 }
 /**

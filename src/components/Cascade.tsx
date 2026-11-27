@@ -3,7 +3,7 @@
  * character by character. Spaces stay plain text so the accessible name and
  * text content remain the original string; reduced motion shows it at once.
  */
-export function Cascade({ text }: { text: string }) {
+export function Cascade({ text }: Readonly<{ text: string }>) {
   let index = 0;
   return (
     <span className="cascade" key={text}>
@@ -11,10 +11,10 @@ export function Cascade({ text }: { text: string }) {
         /^\s+$/.test(part) ? (
           part
         ) : (
-          <span className="cascade-word" key={p}>
+          <span className="cascade-word" key={p /* NOSONAR: fixed letters */}>
             {[...part].map((char, i) => (
               <span
-                key={i}
+                key={i /* NOSONAR: fixed letters */}
                 style={{ animationDelay: `${Math.min(index++, 48) * 16}ms` }}
               >
                 {char}

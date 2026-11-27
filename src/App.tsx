@@ -21,7 +21,9 @@ const PATHS: Record<Route, string> = {
   download: "/download",
 };
 function routeOf(path: string): Route {
-  const clean = path.replace(/\/+$/, "") || "/";
+  let end = path.length;
+  while (end > 0 && path[end - 1] === "/") end--;
+  const clean = path.slice(0, end) || "/";
   if (/\/(como-funciona|how-it-works)$/.test(clean)) return "how";
   return clean === PATHS.download ? "download" : "home";
 }

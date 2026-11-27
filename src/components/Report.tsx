@@ -63,7 +63,7 @@ export function Report({
   originLabel,
   onScanAnother,
   finishing = false,
-}: {
+}: Readonly<{
   report: ScanReport;
   language?: Language;
   t: Copy;
@@ -72,7 +72,7 @@ export function Report({
   originLabel?: string;
   /** A clearing action is running. */
   finishing?: boolean;
-}) {
+}>) {
   const c = productCopy[language];
   const r = reportCopy[language];
   const enough =

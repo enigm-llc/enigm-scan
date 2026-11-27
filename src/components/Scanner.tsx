@@ -24,19 +24,30 @@ import {
   diagnosticCode,
 } from "../shared/i18n/device-errors";
 
+/** Ends the scan on the app, retrying briefly while it is still busy. */
+async function clearSession(attempt = 0): Promise<void> {
+  try {
+    await native("finish_scan");
+  } catch {
+    if (attempt >= 39) return;
+    await new Promise((done) => setTimeout(done, 150));
+    return clearSession(attempt + 1);
+  }
+}
+
 export function Scanner({
   language,
   t,
   onReport,
   onCancelled,
-}: {
+}: Readonly<{
   language: Language;
   t: Copy;
   onReport: (report: ScanReport) => void;
   /** The scan was cancelled and its session cleared: start again from the
    *  first step. */
   onCancelled?: () => void;
-}) {
+}>) {
   const a = agentDictionaries[language],
     c = productCopy[language],
     f = flowCopy[language];
@@ -53,11 +64,11 @@ export function Scanner({
   const [androidConnections, setAndroidConnections] = useState(false);
   // iPhone deep check: the owner presses buttons during the copy.
   // Kept for this tab, so a reload during the copy still shows its steps.
-  const [deepConsent, setDeepConsentState] = useState(
+  const [deepConsent, setDeepConsent] = useState(
     () => sessionStorage.getItem(DEEP_CHECK_KEY) === "1",
   );
-  const setDeepConsent = (value: boolean) => {
-    setDeepConsentState(value);
+  const saveDeepConsent = (value: boolean) => {
+    setDeepConsent(value);
     if (value) sessionStorage.setItem(DEEP_CHECK_KEY, "1");
     else sessionStorage.removeItem(DEEP_CHECK_KEY);
   };
@@ -86,14 +97,14 @@ export function Scanner({
   const [discoveryError, setDiscoveryError] = useState<string | null>(null);
   // Failures the person can fix on the phone keep the chosen phone, so
   // "Try again" restarts the scan without going back through the steps.
-  const RETRYABLE = [
+  const RETRYABLE = new Set([
     "device_not_trusted",
     "device_trust_denied",
     "device_locked",
     "device_passcode_timeout",
     "device_cancelled",
     "device_disconnected",
-  ];
+  ]);
   const [searchRound, setSearchRound] = useState(0);
   const [now, setNow] = useState(() => Date.now());
   const [androidWait, setAndroidWait] = useState<{
@@ -117,7 +128,11 @@ export function Scanner({
   callback.current = onReport;
   const cancelledCallback = useRef(onCancelled);
   cancelledCallback.current = onCancelled;
-  const [rulesOnline, setRulesOnline] = useState<boolean | null>(null);
+  async function showCapabilities() {
+    try {
+      setCaps(await native<Capabilities>("capabilities"));
+    } catch {}
+  }
   // What the app can do comes first, so the search is ready at once; the
   // signed rules are refreshed afterwards and the figures follow.
   async function refresh() {
@@ -131,7 +146,7 @@ export function Scanner({
       await load();
     } catch {}
     try {
-      setRulesOnline(await native<boolean>("update_intelligence"));
+      await native<boolean>("update_intelligence");
       await load();
     } catch {}
     if (!loaded) setCapError(true);
@@ -162,9 +177,7 @@ export function Scanner({
           setStatus(next);
           setBusy(true);
           // A scan already running still shows how many indicators it uses.
-          void native<Capabilities>("capabilities")
-            .then(setCaps)
-            .catch(() => {});
+          void showCapabilities();
           return;
         }
         void refresh();
@@ -207,7 +220,7 @@ export function Scanner({
           if (next.error === "backup_password_required") {
             setEncrypted(true);
             setMethod("usb");
-          } else if (!RETRYABLE.includes(next.error ?? "")) {
+          } else if (!RETRYABLE.has(next.error ?? "")) {
             setSelected(null);
           }
           return;
@@ -294,7 +307,7 @@ export function Scanner({
           setPrep(null);
           if (next.phase === "failed") {
             // Back to the search, with what went wrong and what to check.
-            if (next.error === "deep_check_failed") setDeepConsent(false);
+            if (next.error === "deep_check_failed") saveDeepConsent(false);
             setSelected(null);
             setStatus(next);
           }
@@ -333,16 +346,6 @@ export function Scanner({
   }
   /** Forget the native session; it refuses while the scan is still winding
    *  down, so try again for a few seconds. */
-  async function clearSession() {
-    for (let attempt = 0; attempt < 40; attempt += 1) {
-      try {
-        await native("finish_scan");
-        return;
-      } catch {
-        await new Promise((done) => setTimeout(done, 150));
-      }
-    }
-  }
   async function choose() {
     setDiscoveryError(null);
     if (lock.current) return;
@@ -384,8 +387,8 @@ export function Scanner({
         setSelected(allowed[0]);
         setDevice(allowed[0].platform as "ios" | "android");
       }
-    } catch (failure) {
-      setDiscoveryError(deviceErrorCode(failure));
+    } catch (error_) {
+      setDiscoveryError(deviceErrorCode(error_));
       setError(true);
     } finally {
       setFinding(false);
@@ -675,7 +678,7 @@ export function Scanner({
         <>
           <Notice message={failureMessage(status.error)} />
           {status.phase === "failed" &&
-            RETRYABLE.includes(status.error ?? "") &&
+            RETRYABLE.has(status.error ?? "") &&
             selected && (
               <button
                 className="quiet-action retry-scan"
@@ -698,7 +701,7 @@ export function Scanner({
           {status.phase === "failed" &&
             // Not for what the person fixes on the phone: the checks beside
             // it already say what to do.
-            !RETRYABLE.includes(status.error ?? "") &&
+            !RETRYABLE.has(status.error ?? "") &&
             diagnosticCode(status.error) && (
               <details className="diagnostic-code">
                 <summary>{detectionCopy.code}</summary>
@@ -733,7 +736,7 @@ export function Scanner({
                   title: f.optionDeep,
                   help: f.optionDeepHelp,
                   checked: deepConsent,
-                  set: setDeepConsent,
+                  set: saveDeepConsent,
                 },
               ]
             : []),
@@ -835,60 +838,57 @@ export function Scanner({
                   deepChosen && prep?.phase === "deep_wait" && !prepConfirmed
                 }
                 screen={
-                  problem
-                    ? problem
-                    : androidAsking
+                  problem ??
+                  (androidAsking
+                    ? {
+                        kind: "usb-debug",
+                        title: f.usbDebugTitle,
+                        body: f.usbDebugBody,
+                        always: f.usbDebugAlways,
+                        cancel: f.usbDebugCancel,
+                        allow: f.usbDebugAllow,
+                      }
+                    : prep?.phase === "awaiting_trust"
                       ? {
-                          kind: "usb-debug",
-                          title: f.usbDebugTitle,
-                          body: f.usbDebugBody,
-                          always: f.usbDebugAlways,
-                          cancel: f.usbDebugCancel,
-                          allow: f.usbDebugAllow,
+                          kind: "trust",
+                          title: a.phoneTrustTitle,
+                          no: a.phoneTrustNo,
+                          yes: a.phoneTrustYes,
                         }
-                      : prep?.phase === "awaiting_trust"
-                        ? {
-                            kind: "trust",
-                            title: a.phoneTrustTitle,
-                            no: a.phoneTrustNo,
-                            yes: a.phoneTrustYes,
-                          }
-                        : prepConfirmed
-                          ? { kind: "confirmed", title: f.deepConfirmedTitle }
-                          : deepChosen && prep?.phase === "deep_wait"
-                            ? { kind: "lock", subtitle: f.deepWaitTitle }
-                            : shown
-                              ? {
-                                  kind: "device",
-                                  platform,
-                                  name:
-                                    shown.name ||
-                                    (platform === "ios" ? "iPhone" : "Android"),
-                                  status: ready
-                                    ? f.bannerReady
-                                    : f.bannerUnlock,
-                                  ready,
-                                }
-                              : {
-                                  kind: "guide",
-                                  trust: {
-                                    title: a.phoneTrustTitle,
-                                    body: f.trustBody,
-                                    no: a.phoneTrustNo,
-                                    yes: a.phoneTrustYes,
-                                  },
-                                  dev: {
-                                    title: f.devTitle,
-                                    main: f.devMain,
-                                    section: f.devSection,
-                                    usb: f.devUsb,
-                                    hint: f.devUsbHint,
-                                  },
-                                  aside: {
-                                    ios: f.asideIos,
-                                    android: f.asideAndroid,
-                                  },
-                                }
+                      : prepConfirmed
+                        ? { kind: "confirmed", title: f.deepConfirmedTitle }
+                        : deepChosen && prep?.phase === "deep_wait"
+                          ? { kind: "lock", subtitle: f.deepWaitTitle }
+                          : shown
+                            ? {
+                                kind: "device",
+                                platform,
+                                name:
+                                  shown.name ||
+                                  (platform === "ios" ? "iPhone" : "Android"),
+                                status: ready ? f.bannerReady : f.bannerUnlock,
+                                ready,
+                              }
+                            : {
+                                kind: "guide",
+                                trust: {
+                                  title: a.phoneTrustTitle,
+                                  body: f.trustBody,
+                                  no: a.phoneTrustNo,
+                                  yes: a.phoneTrustYes,
+                                },
+                                dev: {
+                                  title: f.devTitle,
+                                  main: f.devMain,
+                                  section: f.devSection,
+                                  usb: f.devUsb,
+                                  hint: f.devUsbHint,
+                                },
+                                aside: {
+                                  ios: f.asideIos,
+                                  android: f.asideAndroid,
+                                },
+                              })
                 }
               />
             );
@@ -956,19 +956,19 @@ export function Scanner({
                 )}
                 {/* The drawn phone marks the button to press; said aloud only. */}
                 {pairing && (
-                  <p role="status" className="visually-hidden">
+                  <output className="visually-hidden">
                     {prep?.phase === "awaiting_trust"
                       ? f.deepTrustHint
                       : f.pairingHint}
-                  </p>
+                  </output>
                 )}
                 {androidWait && !androidWait.timedOut ? (
-                  <p role="status" className="visually-hidden">
+                  <output className="visually-hidden">
                     {a.androidAllow}{" "}
                     <span className="wait-left">
                       {waitLeft(androidWait.start, ANDROID_WAIT)}
                     </span>
-                  </p>
+                  </output>
                 ) : androidWait?.timedOut ? (
                   // "Find my phone" below asks again.
                   <Notice message={a.androidAllowTimeout} />
@@ -976,15 +976,18 @@ export function Scanner({
                   searched &&
                   devices.length > 0 &&
                   !devices.some((d) => d.authorized || d.needsTrust) && (
-                    <p role="status" className="flow-note">
+                    <p
+                      role="status"
+                      className="flow-note" /* NOSONAR: styled paragraph */
+                    >
                       {a.unlock}
                     </p>
                   )
                 )}
                 {missing && (
-                  <p role="status" className="visually-hidden">
+                  <output className="visually-hidden">
                     {f.notFoundTitle}. {f.notFoundHelp}
-                  </p>
+                  </output>
                 )}
                 {caps && !caps.iosUsb && (
                   <p className="capability-note">{c.usbPending}</p>
@@ -1054,7 +1057,7 @@ export function Scanner({
             {method === "usb" && ready && options.length > 0 && (
               <div
                 className="scan-options"
-                role="group"
+                role="group" // NOSONAR: a styled list of options
                 aria-label={f.optionsLabel}
               >
                 {options.map((option) => (
@@ -1081,7 +1084,7 @@ export function Scanner({
                       {option.id === "deep" && option.checked && (
                         <span
                           className={`scan-option-steps ${prepConfirmed ? "is-ready" : ""}`}
-                          role="status"
+                          role="status" // NOSONAR: styled steps inside a label
                         >
                           <span>
                             {prepConfirmed
@@ -1141,9 +1144,7 @@ export function Scanner({
             </div>
             {/* The spinning button says it is searching; said aloud too. */}
             {finding && (
-              <p className="visually-hidden" role="status">
-                {f.searchingHint}
-              </p>
+              <output className="visually-hidden">{f.searchingHint}</output>
             )}
             {caps && method !== "files" && !caps.androidUsb && !caps.iosUsb && (
               <Notice message={a.enginesMissing} />
@@ -1154,9 +1155,7 @@ export function Scanner({
                 <p className="capability-note">{a.noEngines}</p>
               )}
             {!caps && !capError && (
-              <p role="status" className="visually-hidden">
-                {c.loading}
-              </p>
+              <output className="visually-hidden">{c.loading}</output>
             )}
             {capError && (
               <Notice message={a.capError}>

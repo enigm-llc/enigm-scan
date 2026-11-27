@@ -28,9 +28,8 @@ if not archive.exists():
     with urllib.request.urlopen(url, timeout=60) as response:
         archive.write_bytes(response.read(32 * 1024 * 1024 + 1))
 data = archive.read_bytes()
-# SHA-256 is the check; SHA-1 is compared too because Google publishes it.
-# nosemgrep: python.lang.security.insecure-hash-algorithms.insecure-hash-algorithm-sha1
-if hashlib.sha256(data).hexdigest() != sha256 or hashlib.sha1(data).hexdigest() != sha1:
+# SHA-256 is the check; Google's SHA-1 is only recorded in the provenance.
+if hashlib.sha256(data).hexdigest() != sha256:
     raise SystemExit('Official ADB archive checksum mismatch')
 resources = ROOT / 'src-tauri/resources/engines'
 resources.mkdir(parents=True, exist_ok=True)

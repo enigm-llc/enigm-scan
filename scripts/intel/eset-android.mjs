@@ -13,7 +13,7 @@
 // omitted, see intelligence/shared-infrastructure.json.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { gitHead } from "./git-head.mjs";
 import { BlockList, isIP } from "node:net";
 
 const COMMIT = "8921a81d245cce3f9b7a199b123d221ed8f1fe33";
@@ -39,7 +39,7 @@ const FAMILIES = [
     about:
       "Android espionage tool in patched Signal and Telegram apps (Signal Plus, FlyGram)",
     apps: ["org.thoughtcrime.securesmsplus", "org.telegram.FlyGram"],
-    skip: ["82.180.174.230", "156.67.73.71"],
+    skip: ["82.180.174.230", "156.67.73.71"], // NOSONAR: reviewed indicators, never contacted
   },
   {
     dir: "vajraspy",
@@ -119,12 +119,10 @@ const source = process.argv
   .find((a) => a.startsWith("--source="))
   ?.split("=")[1];
 if (!source || !existsSync(`${source}/LICENSE`))
-  throw Error("Provide --source=<checkout of eset/malware-ioc>");
-const head = execFileSync("git", ["-C", source, "rev-parse", "HEAD"], {
-  encoding: "utf8",
-}).trim();
+  throw new Error("Provide --source=<checkout of eset/malware-ioc>");
+const head = gitHead(source);
 if (head !== COMMIT)
-  throw Error(`Expected ESET commit ${COMMIT}, found ${head}`);
+  throw new Error(`Expected ESET commit ${COMMIT}, found ${head}`);
 
 const shared = JSON.parse(
   readFileSync("intelligence/shared-infrastructure.json", "utf8"),
@@ -156,11 +154,18 @@ const read = (path) => {
   return bytes.toString("utf8");
 };
 
+/** Drops the punctuation that ends a sentence after a domain. */
+const trimPunctuation = (text) => {
+  let end = text.length;
+  while (end > 0 && ".,;:".includes(text[end - 1])) end--;
+  return text.slice(0, end);
+};
 const objects = [];
 const omitted = { sharedInfrastructure: [], reviewed: [], unparsable: 0 };
 for (const family of FAMILIES) {
   const created = `${family.date}T00:00:00.000Z`;
-  const malwareId = `malware--${uuid(`eset:${family.dir}`)}`;
+  const familyKey = `eset:${family.dir}`;
+  const malwareId = `malware--${uuid(familyKey)}`;
   const reference = {
     source_name: "ESET Research",
     url: `${REPO}/tree/${COMMIT}/${family.dir}`,
@@ -188,13 +193,12 @@ for (const family of FAMILIES) {
   const network =
     family.network === false || start < 0 ? "" : readme.slice(start);
   for (const raw of network.split(/[\s|`'"]+/)) {
-    const token = raw
-      .replace(/\[\.\]/g, ".")
+    const cleaned = raw
+      .replaceAll("[.]", ".")
       .replace(/^h(xx|tt)ps?\[?:\]?\/\//i, "")
       .replace(/^https?:\/\//i, "")
-      .split("/")[0]
-      .replace(/[.,;:]+$/, "")
-      .toLowerCase();
+      .split("/")[0];
+    const token = trimPunctuation(cleaned).toLowerCase();
     if (!token.includes(".") || /^\d{4}-\d{2}-\d{2}$/.test(token)) continue;
     if (family.skip?.includes(token)) {
       omitted.reviewed.push(`${family.dir}: ${token}`);
@@ -221,35 +225,39 @@ for (const family of FAMILIES) {
   for (const { kind, value } of [...values.values()].sort((a, b) =>
     `${a.kind}${a.value}`.localeCompare(`${b.kind}${b.value}`, "en"),
   )) {
-    const id = `indicator--${uuid(`eset:${family.dir}:${kind}:${value}`)}`;
-    objects.push({
-      type: "indicator",
-      spec_version: "2.1",
-      id,
-      created,
-      modified: created,
-      valid_from: created,
-      indicator_types: ["malicious-activity"],
-      pattern_type: "stix",
-      pattern: patterns[kind](value),
-      name: `${family.name} ${kind}`,
-      external_references: [reference],
-    });
-    objects.push({
-      type: "relationship",
-      spec_version: "2.1",
-      id: `relationship--${uuid(`${id}:${malwareId}`)}`,
-      created,
-      modified: created,
-      relationship_type: "indicates",
-      source_ref: id,
-      target_ref: malwareId,
-    });
+    const indicatorKey = `${familyKey}:${kind}:${value}`;
+    const id = `indicator--${uuid(indicatorKey)}`;
+    const relationKey = `${id}:${malwareId}`;
+    objects.push(
+      {
+        type: "indicator",
+        spec_version: "2.1",
+        id,
+        created,
+        modified: created,
+        valid_from: created,
+        indicator_types: ["malicious-activity"],
+        pattern_type: "stix",
+        pattern: patterns[kind](value),
+        name: `${family.name} ${kind}`,
+        external_references: [reference],
+      },
+      {
+        type: "relationship",
+        spec_version: "2.1",
+        id: `relationship--${uuid(relationKey)}`,
+        created,
+        modified: created,
+        relationship_type: "indicates",
+        source_ref: id,
+        target_ref: malwareId,
+      },
+    );
   }
 }
 const bundle = {
   type: "bundle",
-  id: `bundle--${uuid(`eset:${COMMIT}`)}`,
+  id: `bundle--${uuid("eset:" + COMMIT)}`,
   objects,
 };
 writeFileSync(OUTPUT, JSON.stringify(bundle, null, 1) + "\n");

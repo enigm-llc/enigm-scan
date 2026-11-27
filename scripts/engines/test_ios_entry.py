@@ -909,8 +909,9 @@ class Tests(unittest.IsolatedAsyncioTestCase):
 
     def test_network_policy_denies_external_and_arbitrary_local_services(self):
         for address in [("example.com", 443), ("127.0.0.1", 80), ("192.168.1.1", 27015)]:
+            arguments = (SimpleNamespace(family=socket.AF_INET), address)
             with self.assertRaises(PermissionError):
-                adapter.usb_only("socket.connect", (SimpleNamespace(family=socket.AF_INET), address))
+                adapter.usb_only("socket.connect", arguments)
         adapter.usb_only("socket.connect", (SimpleNamespace(family=socket.AF_INET), ("127.0.0.1", 27015)))
         if hasattr(socket, "AF_UNIX"):
             adapter.usb_only("socket.connect", (SimpleNamespace(family=socket.AF_UNIX), "/var/run/usbmuxd"))

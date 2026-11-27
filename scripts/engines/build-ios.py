@@ -40,9 +40,9 @@ for stale in [resources / filename]:
 installed, tree_sha = install(work / "dist" / "ios-usb", resources, "ios-usb")
 manifest_path = resources / "manifest.json"
 manifest = [item for item in json.loads(manifest_path.read_text()) if item["id"] != "ios-usb"]
-manifest.append(dict(id="ios-usb", file="ios-usb/" + filename, version=VERSION,
-                     sha256=hashlib.sha256(installed.read_bytes()).hexdigest(),
-                     tree="ios-usb", tree_sha256=tree_sha))
+manifest.append({"id": "ios-usb", "file": "ios-usb/" + filename, "version": VERSION,
+                 "sha256": hashlib.sha256(installed.read_bytes()).hexdigest(),
+                 "tree": "ios-usb", "tree_sha256": tree_sha})
 manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 # GPL upstream source and our wrapper/build source accompany the executable.
 notices = resources / "notices"

@@ -21,6 +21,8 @@ import {
   verify,
 } from "node:crypto";
 import { BlockList, isIP } from "node:net";
+// Sorts text by code unit, the order Array.prototype.sort uses by default.
+const byText = (a, b) => (a > b) - (a < b);
 const args = process.argv.slice(2);
 const option = (name) =>
   args
@@ -51,7 +53,8 @@ function readIfPresent(path, encoding) {
 function trustedKeys() {
   const bytes = readIfPresent(TRUSTED) ?? readIfPresent(CURRENT);
   if (bytes === null) return [];
-  if (!bytes.length || bytes.length % 32) throw Error("Invalid trusted keys");
+  if (!bytes.length || bytes.length % 32)
+    throw new Error("Invalid trusted keys");
   return Array.from({ length: bytes.length / 32 }, (_, i) =>
     bytes.subarray(i * 32, i * 32 + 32),
   );
@@ -73,15 +76,16 @@ if (mode === "assemble") {
 
 const version = Number(option("version"));
 if (!Number.isSafeInteger(version) || version < 1)
-  throw Error("Provide --version=<monotonic integer>");
-if (version <= previousVersion) throw Error("Release version must increase");
+  throw new Error("Provide --version=<monotonic integer>");
+if (version <= previousVersion)
+  throw new Error("Release version must increase");
 // Validity window. The native verifier rejects bundles valid for more than 90 days.
 const days = Number(option("days") ?? 30);
 if (!Number.isSafeInteger(days) || days < 1 || days > 90)
-  throw Error("--days must be an integer between 1 and 90");
+  throw new Error("--days must be an integer between 1 and 90");
 const popularPath = option("popular");
 if (!popularPath)
-  throw Error(
+  throw new Error(
     "Provide --popular=<Tranco top-1m.csv> (https://tranco-list.eu/top-1m.csv.zip) to check indicators against the most visited domains",
   );
 const now = Math.floor(Date.now() / 1000);
@@ -110,7 +114,7 @@ const plain = (v, max) =>
   v.length > 0 &&
   v.length <= max &&
   v.trim() === v &&
-  !/[\u0000-\u001f\u007f-\u009f='\[\]\\]/.test(v);
+  !/[\u0000-\u001f\u007f-\u009f='[\]\\]/.test(v);
 function normalizeValue(kind, raw) {
   switch (kind) {
     case "domain": {
@@ -207,10 +211,10 @@ let omitted = 0;
 const omittedShared = [];
 for (const source of sources) {
   if (!/^[a-zA-Z0-9_.-]+$/.test(source.file))
-    throw Error("Invalid source path");
+    throw new Error("Invalid source path");
   const bytes = readFileSync(`intelligence/sources/${source.file}`);
   if (createHash("sha256").update(bytes).digest("hex") !== source.sha256)
-    throw Error("Source hash changed");
+    throw new Error("Source hash changed");
   const objects = JSON.parse(bytes).objects ?? [];
   const family = families(objects);
   for (const obj of objects) {
@@ -284,7 +288,8 @@ for (const line of readFileSync(popularPath, "utf8").split("\n")) {
   if (Number(rank) > 10000) break;
   if (domain) top.set(domain.toLowerCase(), Number(rank));
 }
-if (top.size < 9000) throw Error("The popular domains list looks incomplete");
+if (top.size < 9000)
+  throw new Error("The popular domains list looks incomplete");
 const unreviewed = new Set();
 const popular = { kept: 0, monitoring: 0, dropped: [] };
 const screened = rules.filter((rule) => {
@@ -312,10 +317,10 @@ const screened = rules.filter((rule) => {
   return true;
 });
 if (unreviewed.size)
-  throw Error(
-    `Popular domains need a decision in intelligence/reviewed-popular.json: ${[...unreviewed].sort().join(", ")}`,
+  throw new Error(
+    `Popular domains need a decision in intelligence/reviewed-popular.json: ${[...unreviewed].sort(byText).join(", ")}`,
   );
-popular.dropped = [...new Set(popular.dropped)].sort();
+popular.dropped = [...new Set(popular.dropped)].sort(byText);
 
 // One rule per value: the same domain or hash published by several sources
 // would otherwise appear as several findings. Sources are listed with the
@@ -336,7 +341,7 @@ const duplicates = screened.length - byValue.size;
 const unique = [
   ...new Map([...byValue.values()].map((r) => [r.id, r])).values(),
 ].sort((a, b) => a.id.localeCompare(b.id, "en"));
-if (!unique.length) throw Error("No supported indicators");
+if (!unique.length) throw new Error("No supported indicators");
 // Schema 1 (domain/ip/sha256) stays at the original endpoint for released
 // apps; schema 2 adds the forensic types MVT matches natively.
 const payloadFor = (schemaVersion, selected) =>
@@ -358,7 +363,7 @@ const payloads = {
 };
 const byKind = Object.fromEntries(
   [...new Set(unique.map((r) => r.kind))]
-    .sort()
+    .sort(byText)
     .map((k) => [k, unique.filter((r) => r.kind === k).length]),
 );
 const summary = {
@@ -400,7 +405,7 @@ if (mode === "prepare") {
   let keyPem = readIfPresent(keyPath);
   if (keyPem === null) {
     if (!args.includes("--init-key"))
-      throw Error(
+      throw new Error(
         "Signing key missing; initialize explicitly or provision an offline release key",
       );
     mkdirSync(".secrets", { recursive: true, mode: 0o700 });
@@ -437,11 +442,11 @@ function write(summary, payloads, signatures) {
     const der = createPublicKey(
       createPrivateKey(readFileSync(".secrets/intelligence-signing.pem")),
     ).export({ type: "spki", format: "der" });
-    current = der.subarray(der.length - 32);
+    current = der.subarray(-32);
     writeFileSync(TRUSTED, current);
   }
   if (!current)
-    throw Error("The signatures do not match any key the app trusts");
+    throw new Error("The signatures do not match any key the app trusts");
   for (const [name, schema] of [
     ["bundle.json", "v1"],
     ["bundle-v2.json", "v2"],
@@ -484,14 +489,16 @@ function assemble() {
   const read = (name) => readFileSync(`${STAGING}/${name}`);
   const summary = JSON.parse(read("summary.json"));
   if (summary.version <= previousVersion)
-    throw Error("Release version must increase");
+    throw new Error("Release version must increase");
   const payloads = { v1: read("payload-v1.json"), v2: read("payload-v2.json") };
   for (const [schema, bytes] of Object.entries(payloads)) {
     const payload = JSON.parse(bytes);
     if (payload.version !== summary.version)
-      throw Error(`payload-${schema}.json is not release ${summary.version}`);
+      throw new Error(
+        `payload-${schema}.json is not release ${summary.version}`,
+      );
     if (payload.expiresAt <= Math.floor(Date.now() / 1000))
-      throw Error("The prepared release has expired: prepare it again");
+      throw new Error("The prepared release has expired: prepare it again");
   }
   write(summary, payloads, {
     v1: read("payload-v1.sig"),

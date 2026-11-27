@@ -71,17 +71,16 @@ def decrypt_backup(source, destination, secret_input):
     # Single-worker processing catches individual extraction exceptions in MVT.
     # Track those before the catch so a partial decryption cannot be accepted.
     original = backup._process_file
-    failed = False
+    failures = []
     def process_file(**kwargs):
-        nonlocal failed
         try:
             return original(**kwargs)
-        except Exception:
-            failed = True
+        except Exception as error:
+            failures.append(type(error).__name__)
             raise
     backup._process_file = process_file
     backup.process_backup()
-    if failed or not (Path(destination) / "Manifest.db").is_file():
+    if failures or not (Path(destination) / "Manifest.db").is_file():
         raise ValueError("backup decryption incomplete")
 
 

@@ -13,12 +13,12 @@ export function MobileStart({
   t,
   language,
   compact = false,
-}: {
+}: Readonly<{
   t: TextCopy;
   language: Language;
   /** Only the link and the share action (the page explains the rest). */
   compact?: boolean;
-}) {
+}>) {
   const c = productCopy[language];
   const canShare = typeof navigator.share === "function";
   const [result, setResult] = useState<"copied" | "shared" | null>(null);
@@ -84,7 +84,10 @@ export function MobileStart({
           </div>
         </>
       )}
-      <p className="handoff-feedback" role="status">
+      <p
+        className="handoff-feedback"
+        role="status" /* NOSONAR: styled paragraph */
+      >
         {result === "copied"
           ? t.linkCopied
           : result === "shared"

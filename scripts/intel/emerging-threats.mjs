@@ -17,6 +17,8 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 
+// Sorts text by code unit, the order Array.prototype.sort uses by default.
+const byText = (a, b) => (a > b) - (a < b);
 const OUTPUT = "intelligence/sources/et_open_mobile_spyware.stix2";
 const PROVENANCE = "intelligence/sources/ET_OPEN_PROVENANCE.json";
 const RULES = "emerging-mobile_malware.rules";
@@ -121,12 +123,12 @@ if (
   !existsSync(`${source}/${RULES}`) ||
   !existsSync(`${source}/LICENSE`)
 )
-  throw Error(`Provide --source=<folder with ${RULES} and LICENSE>`);
+  throw new Error(`Provide --source=<folder with ${RULES} and LICENSE>`);
 const bytes = readFileSync(`${source}/${RULES}`);
 const sha256 = createHash("sha256").update(bytes).digest("hex");
 const check = process.argv.includes("--check");
 if (!check && sha256 !== EXPECTED)
-  throw Error(
+  throw new Error(
     `Expected ruleset ${EXPECTED}, found ${sha256}: review the new rules first`,
   );
 const license = readFileSync(`${source}/LICENSE`, "utf8");
@@ -135,7 +137,9 @@ if (
     license,
   )
 )
-  throw Error("ET's licence terms changed: review them before using the rules");
+  throw new Error(
+    "ET's licence terms changed: review them before using the rules",
+  );
 
 const shared = JSON.parse(
   readFileSync("intelligence/shared-infrastructure.json", "utf8"),
@@ -223,8 +227,8 @@ if (check) {
   const next = new Set(
     [...byFamily.values()].flatMap((family) => [...family.values.keys()]),
   );
-  const added = [...next].filter((d) => !current.has(d)).sort();
-  const removed = [...current].filter((d) => !next.has(d)).sort();
+  const added = [...next].filter((d) => !current.has(d)).sort(byText);
+  const removed = [...current].filter((d) => !next.has(d)).sort(byText);
   console.log(JSON.stringify({ sha256, added, removed }));
   process.exit(0);
 }
@@ -289,11 +293,16 @@ writeFileSync(
     1,
   ) + "\n",
 );
-omitted.sharedInfrastructure.sort();
+omitted.sharedInfrastructure.sort(byText);
 writeFileSync(
   PROVENANCE,
   JSON.stringify(
-    { source: URL, sha256, families: [...byFamily.keys()].sort(), omitted },
+    {
+      source: URL,
+      sha256,
+      families: [...byFamily.keys()].sort(byText),
+      omitted,
+    },
     null,
     2,
   ) + "\n",

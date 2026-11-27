@@ -698,7 +698,7 @@ fn describe(package: &Package, origin: Origin, p: &Profile) -> String {
             p.monitoring_words.join(", ")
         ));
     }
-    facts.extend(p.channels.iter().map(|c| c.to_string()));
+    facts.extend(p.channels.iter().map(ToString::to_string));
     if !p.capabilities.is_empty() {
         facts.push(format!(
             "permissions granted: {}",

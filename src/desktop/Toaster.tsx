@@ -20,7 +20,7 @@ export function Toaster() {
           <button
             key={id}
             className={`toast is-${tone}`}
-            role={tone === "error" ? "alert" : "status"}
+            role={tone === "error" ? "alert" : "status"} // NOSONAR: a button that announces itself
             onClick={() => dismissToast(id)}
           >
             <Icon size={16} strokeWidth={1.75} aria-hidden="true" />

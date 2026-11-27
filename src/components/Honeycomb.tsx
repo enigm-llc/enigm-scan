@@ -40,7 +40,7 @@ export function Honeycomb({
   local = false,
   at,
   anchor,
-}: {
+}: Readonly<{
   name: string;
   /** Families to rotate through (real names from the rule set). */
   names?: string[];
@@ -51,7 +51,7 @@ export function Honeycomb({
   at?: [number, number];
   /** Centre the lit cell on this element (overrides `at`). */
   anchor?: React.RefObject<HTMLElement | null>;
-}) {
+}>) {
   const canvas = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -357,7 +357,7 @@ export function Honeycomb({
     <canvas
       className={local ? "honeycomb local" : "honeycomb"}
       ref={canvas}
-      aria-hidden="true"
+      aria-hidden="true" // NOSONAR: a canvas is never focusable
     />
   );
 }

@@ -162,11 +162,13 @@ const hexPoints = (x: number, y: number, r: number) =>
     return `${(x + r * Math.cos(a)).toFixed(1)},${(y + r * Math.sin(a)).toFixed(1)}`;
   }).join(" ");
 const nearest = ([tx, ty]: [number, number]) =>
-  HEX_CELLS.reduce((best, c) =>
-    (c[0] - tx) ** 2 + (c[1] - ty) ** 2 <
-    (best[0] - tx) ** 2 + (best[1] - ty) ** 2
-      ? c
-      : best,
+  HEX_CELLS.reduce(
+    (best, c) =>
+      (c[0] - tx) ** 2 + (c[1] - ty) ** 2 <
+      (best[0] - tx) ** 2 + (best[1] - ty) ** 2
+        ? c
+        : best,
+    HEX_CELLS[0],
   );
 /** Two short lines for a finding name inside a cell. */
 function split(name: string): [string, string] {
@@ -178,9 +180,9 @@ function split(name: string): [string, string] {
 
 function Honeycomb({
   cells,
-}: {
+}: Readonly<{
   cells?: Array<{ name: string; caption: string; severity?: string }>;
-}) {
+}>) {
   const shown = (cells ?? []).slice(0, FINDING_SPOTS.length - 1);
   const spots = FINDING_SPOTS[shown.length];
   const lit = shown.map((cell, i) => ({ ...cell, at: nearest(spots[i]) }));
@@ -255,7 +257,7 @@ export function PhoneStage({
   facts,
   press = false,
   network = false,
-}: {
+}: Readonly<{
   language: Language;
   screen: PhoneScreen;
   note?: { value: string; caption: string };
@@ -285,7 +287,7 @@ export function PhoneStage({
     detail?: string;
     items: Array<{ value: string; label: string }>;
   };
-}) {
+}>) {
   const guess = useAlternating(platform === "auto");
   const typing = useTyping(screen.kind === "passcode" && !paused);
   const android =
@@ -516,11 +518,9 @@ export function PhoneStage({
     }
     case "prompt":
       content = (
-        <>
-          <div className="phone-sheet single">
-            <b>{screen.text}</b>
-          </div>
-        </>
+        <div className="phone-sheet single">
+          <b>{screen.text}</b>
+        </div>
       );
       break;
     case "passcode": {

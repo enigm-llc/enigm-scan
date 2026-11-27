@@ -347,14 +347,18 @@ async fn choose_pcap(
     let picked = pick_path(&window, Pick::Open("PCAP", &["pcap", "cap"])).await;
     idle(&state)?;
     if let Some(picked) = picked {
-        let path = picked.canonicalize().map_err(|_| "pcap_unavailable")?;
-        if std::fs::metadata(&path)
-            .map_err(|_| "pcap_unavailable")?
-            .len()
-            > 128 * 1024 * 1024
-        {
-            return Err("pcap_size_invalid".into());
-        }
+        let path = tauri::async_runtime::spawn_blocking(move || {
+            let path = picked.canonicalize().map_err(|_| "pcap_unavailable")?;
+            let size = std::fs::metadata(&path)
+                .map_err(|_| "pcap_unavailable")?
+                .len();
+            if size > 128 * 1024 * 1024 {
+                return Err("pcap_size_invalid");
+            }
+            Ok(path)
+        })
+        .await
+        .map_err(|_| "pcap_unavailable")??;
         let name = path
             .file_name()
             .unwrap_or_default()
@@ -1166,7 +1170,10 @@ async fn save_export(
     .await;
     if let Some(mut path) = picked {
         path.set_extension(format);
-        std::fs::write(path, bytes).map_err(|_| "export_failed")?;
+        tauri::async_runtime::spawn_blocking(move || std::fs::write(path, bytes))
+            .await
+            .map_err(|_| "export_failed")?
+            .map_err(|_| "export_failed")?;
         Ok(true)
     } else {
         Ok(false)

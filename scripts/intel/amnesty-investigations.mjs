@@ -11,7 +11,7 @@
 // Offline and deterministic: the same checkout always produces the same bytes.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { execFileSync } from "node:child_process";
+import { gitHead } from "./git-head.mjs";
 
 const COMMIT = "3d8f248a0d015f183724ae7d096a5c46a8bb5fc7";
 const REPO = "https://github.com/AmnestyTech/investigations";
@@ -58,12 +58,10 @@ const source = process.argv
   .find((a) => a.startsWith("--source="))
   ?.split("=")[1];
 if (!source || !existsSync(`${source}/README.md`))
-  throw Error("Provide --source=<checkout of AmnestyTech/investigations>");
-const head = execFileSync("git", ["-C", source, "rev-parse", "HEAD"], {
-  encoding: "utf8",
-}).trim();
+  throw new Error("Provide --source=<checkout of AmnestyTech/investigations>");
+const head = gitHead(source);
 if (head !== COMMIT)
-  throw Error(`Expected Amnesty commit ${COMMIT}, found ${head}`);
+  throw new Error(`Expected Amnesty commit ${COMMIT}, found ${head}`);
 
 const shared = JSON.parse(
   readFileSync("intelligence/shared-infrastructure.json", "utf8"),
@@ -95,17 +93,18 @@ function values(text, column) {
   const header = lines
     .shift()
     .split(",")
-    .map((h) => h.replace(/"/g, "").trim());
+    .map((h) => h.replaceAll('"', "").trim());
   const at = header.indexOf(column);
-  if (at < 0) throw Error(`Column ${column} missing`);
-  return lines.map((l) => (l.split(",")[at] ?? "").replace(/"/g, "").trim());
+  if (at < 0) throw new Error(`Column ${column} missing`);
+  return lines.map((l) => (l.split(",")[at] ?? "").replaceAll('"', "").trim());
 }
 
 const objects = [];
 const omitted = { sharedInfrastructure: [], unparsable: 0 };
 for (const investigation of INVESTIGATIONS) {
   const created = `${investigation.date}T00:00:00.000Z`;
-  const malwareId = `malware--${uuid(`amnesty:${investigation.dir}`)}`;
+  const investigationKey = `amnesty:${investigation.dir}`;
+  const malwareId = `malware--${uuid(investigationKey)}`;
   const reference = {
     source_name: "Amnesty International Security Lab",
     url: `${REPO}/tree/${COMMIT}/${investigation.dir}`,
@@ -139,39 +138,43 @@ for (const investigation of INVESTIGATIONS) {
   for (const [kind, value] of [...found.values()].sort(([a, x], [b, y]) =>
     `${a}${x}`.localeCompare(`${b}${y}`, "en"),
   )) {
-    const id = `indicator--${uuid(`amnesty:${investigation.dir}:${kind}:${value}`)}`;
-    objects.push({
-      type: "indicator",
-      spec_version: "2.1",
-      id,
-      created,
-      modified: created,
-      valid_from: created,
-      indicator_types: ["malicious-activity"],
-      pattern_type: "stix",
-      pattern:
-        kind === "sha256"
-          ? `[file:hashes.sha256 = '${value}']`
-          : `[domain-name:value = '${value}']`,
-      name: `${investigation.name} ${kind}`,
-      external_references: [reference],
-    });
-    objects.push({
-      type: "relationship",
-      spec_version: "2.1",
-      id: `relationship--${uuid(`${id}:${malwareId}`)}`,
-      created,
-      modified: created,
-      relationship_type: "indicates",
-      source_ref: id,
-      target_ref: malwareId,
-    });
+    const indicatorKey = `${investigationKey}:${kind}:${value}`;
+    const id = `indicator--${uuid(indicatorKey)}`;
+    const relationKey = `${id}:${malwareId}`;
+    objects.push(
+      {
+        type: "indicator",
+        spec_version: "2.1",
+        id,
+        created,
+        modified: created,
+        valid_from: created,
+        indicator_types: ["malicious-activity"],
+        pattern_type: "stix",
+        pattern:
+          kind === "sha256"
+            ? `[file:hashes.sha256 = '${value}']`
+            : `[domain-name:value = '${value}']`,
+        name: `${investigation.name} ${kind}`,
+        external_references: [reference],
+      },
+      {
+        type: "relationship",
+        spec_version: "2.1",
+        id: `relationship--${uuid(relationKey)}`,
+        created,
+        modified: created,
+        relationship_type: "indicates",
+        source_ref: id,
+        target_ref: malwareId,
+      },
+    );
   }
 }
 writeFileSync(
   OUTPUT,
   JSON.stringify(
-    { type: "bundle", id: `bundle--${uuid(`amnesty:${COMMIT}`)}`, objects },
+    { type: "bundle", id: `bundle--${uuid("amnesty:" + COMMIT)}`, objects },
     null,
     1,
   ) + "\n",

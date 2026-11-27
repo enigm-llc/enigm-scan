@@ -45,14 +45,14 @@ export function DeviceIcon({
   size = 28,
   tint = false,
   tight = false,
-}: {
+}: Readonly<{
   device: "ios" | "android" | "linux" | "windows";
   size?: number;
   /** Paint the logo in the surrounding text colour. */
   tint?: boolean;
   /** Use the logo cropped to its own shape, so it centres in a badge. */
   tight?: boolean;
-}) {
+}>) {
   const name = device === "ios" ? "apple" : device;
   const src = `/platforms/${name}${tight && (device === "ios" || device === "android") ? "-tight" : ""}.svg`;
   if (tint)
@@ -83,10 +83,10 @@ export function DeviceIcon({
 export function ComputerIcon({
   platform,
   size = 18,
-}: {
+}: Readonly<{
   platform: string;
   size?: number;
-}) {
+}>) {
   if (platform === "macOS") return <DeviceIcon device="ios" size={size} />;
   if (platform === "Windows")
     return <DeviceIcon device="windows" size={size} />;

@@ -39,7 +39,7 @@ serves files listed in [releases/manifest.json](../releases/manifest.json).
 2. Upload them with a temporary R2 token kept outside the repository:
 
    ```sh
-   python scripts/upload-installers.py ARTIFACT_DIRECTORY TOKEN_FILE
+   python scripts/upload-installers.py ARTIFACT_DIRECTORY < TOKEN_FILE
    ```
 
    The script uploads only files that match the manifest, downloads each one

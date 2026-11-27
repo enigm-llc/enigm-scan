@@ -20,7 +20,7 @@ def tree_digest(folder):
         base = Path(current).relative_to(folder)
         names = list(files)
         # os.walk lists links to folders among dirs; treat them as links.
-        for name in list(dirs):
+        for name in list(dirs):  # NOSONAR: a copy, the loop removes from dirs
             if (Path(current) / name).is_symlink():
                 dirs.remove(name)
                 names.append(name)

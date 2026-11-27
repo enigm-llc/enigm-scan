@@ -1399,7 +1399,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
       ),
     ],
     [
-      /^Observed for (\d+) of at least 120 seconds: the\ phone\ ended\ the\ capture\ and\ it\ could\ not\ be\ resumed/,
+      /^Observed for (\d+) of at least 120 seconds: the phone ended the capture and it could not be resumed/,
       t(
         "Red observada solo {0} de al menos 120 s: el móvil cerró la captura y no se pudo reanudar.",
         "Network observed for only {0} of at least 120 s: the phone ended the capture and it could not be resumed.",
@@ -1410,7 +1410,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
       ),
     ],
     [
-      /^Observed for (\d+) of at least 120 seconds: the\ capture\ could\ not\ start/,
+      /^Observed for (\d+) of at least 120 seconds: the capture could not start/,
       t(
         "Red observada solo {0} de al menos 120 s: la captura no pudo empezar.",
         "Network observed for only {0} of at least 120 s: the capture could not start.",
@@ -1421,7 +1421,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
       ),
     ],
     [
-      /^Observed for (\d+) of at least 120 seconds: the\ capture\ was\ interrupted/,
+      /^Observed for (\d+) of at least 120 seconds: the capture was interrupted/,
       t(
         "Red observada solo {0} de al menos 120 s: la captura se interrumpió.",
         "Network observed for only {0} of at least 120 s: the capture was interrupted.",
@@ -1432,7 +1432,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
       ),
     ],
     [
-      /^Observed for (\d+) of at least 120 seconds: the\ capture\ reached\ its\ size\ limit/,
+      /^Observed for (\d+) of at least 120 seconds: the capture reached its size limit/,
       t(
         "Red observada solo {0} de al menos 120 s: la captura llegó a su tamaño máximo.",
         "Network observed for only {0} of at least 120 s: the capture reached its size limit.",
@@ -1443,7 +1443,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
       ),
     ],
     [
-      /^Observed for (\d+) of at least 120 seconds: its\ length\ could\ not\ be\ verified/,
+      /^Observed for (\d+) of at least 120 seconds: its length could not be verified/,
       t(
         "Red observada solo {0} de al menos 120 s: no se pudo verificar su duración.",
         "Network observed for only {0} of at least 120 s: its length could not be verified.",
@@ -1530,7 +1530,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
   ],
   android_behavior: [
     [
-      /^(\d+) apps not pre-installed were checked for spyware behaviour.*?(\d+) matched the spyware profile and (\d+) are listed for review/s,
+      /^(\d+) apps not pre-installed were checked for spyware behaviour.*?(\d+) matched the spyware profile and (\d+) are listed for review/s, // NOSONAR: short text written by the app
       t(
         "{0} apps no preinstaladas revisadas en busca de comportamiento de spyware: iconos ocultos, nombres que imitan al sistema, accesos especiales y permisos sensibles. {1} coinciden con el perfil de spyware y {2} quedan como puntos a revisar. No se ven las apps ocultas por un root o un sistema modificado.",
         "{0} apps not pre-installed checked for spyware behaviour: hidden icons, names imitating the system, special access and sensitive permissions. {1} matched the spyware profile and {2} are points to review. Apps hidden by root or a modified system cannot be seen.",
@@ -1567,7 +1567,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
   ],
   enigm_link_and_profile_analysis: [
     [
-      /(\d+) suspicious domain\(s\).*?; (\d+) profile\(s\) for review/s,
+      /(\d+) suspicious domain\(s\).*?; (\d+) profile\(s\) for review/s, // NOSONAR: short text written by the app
       t(
         "Enlaces de mensajes, historial y consultas DNS revisados en busca de dominios que suplantan marcas, letras parecidas, enlaces a direcciones IP, a DNS dinámico o a túneles, y perfiles capaces de interceptar el tráfico. Dominios sospechosos: {0}. Perfiles a revisar: {1}. Un enlace con aspecto legítimo también puede ser malicioso.",
         "Links in messages, browsing history and DNS lookups checked for domains impersonating brands, look-alike letters, bare IP links, links to dynamic DNS or tunnels, and profiles able to intercept traffic. Suspicious domains: {0}. Profiles to review: {1}. A link that looks legitimate can still be malicious.",
@@ -1580,7 +1580,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
   ],
   ios_crash_reports: [
     [
-      /^(\d+) crash report\(s\).*?read over USB.*?; (\d+) executable\(s\) ran from folders where code never runs/s,
+      /^(\d+) crash report\(s\).*?read over USB.*?; (\d+) executable\(s\) ran from folders where code never runs/s, // NOSONAR: short text written by the app
       t(
         "{0} informes de fallos leídos por USB. Los nombres y rutas de los procesos se compararon con los indicadores firmados y con ubicaciones inusuales: {1} se ejecutaron desde carpetas donde nunca se ejecuta código. El iPhone guarda estos informes durante un tiempo limitado.",
         "{0} crash reports read over USB. Process names and paths were compared with the signed indicators and with unusual locations: {1} ran from folders where code never runs. The iPhone keeps these reports for a limited time.",
@@ -1604,7 +1604,7 @@ export const EXTRA_DETAILS: Record<string, Detail[]> = {
   ],
   ios_shutdown_log: [
     [
-      /^(\d+) reboot record\(s\).*?; (\d+) process\(es\) delayed a reboot/s,
+      /^(\d+) reboot record\(s\).*?; (\d+) process\(es\) delayed a reboot/s, // NOSONAR: short text written by the app
       t(
         "{0} reinicios registrados; {1} procesos retrasaron un reinicio. Cada uno se comparó con los indicadores firmados y se buscaron ejecutables en carpetas inusuales, el método con el que Kaspersky encontró Pegasus.",
         "{0} reboots recorded; {1} processes delayed a reboot. Each was compared with the signed indicators and checked for executables in unusual folders, the method Kaspersky used to find Pegasus.",

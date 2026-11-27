@@ -727,7 +727,7 @@ export function moduleLabel(module: string, language: Language) {
 
 export function checkName(id: string, language: Language) {
   if (NAMES[id]) return NAMES[id][language];
-  const module = id.match(/^mvt_(.+)$/)?.[1];
+  const module = /^mvt_(.+)$/.exec(id)?.[1];
   if (module) return `MVT · ${moduleLabel(module, language) ?? module}`;
   return id;
 }
@@ -807,7 +807,7 @@ type Rule = [RegExp, T, Array<"n" | "b" | "d" | "s" | "raw">?];
 const DETAILS: Record<string, Rule[]> = {
   evidence_snapshot: [
     [
-      /^(\d+) acquired files checked in place.*?; (\d+) links or special entries removed/s,
+      /^(\d+) acquired files checked in place.*?; (\d+) links or special entries removed/s, // NOSONAR: short text written by the app
       t(
         "Archivos obtenidos del móvil: {0}, revisados en un espacio temporal privado. Enlaces o entradas especiales eliminados antes del análisis: {1}.",
         "Files acquired from the phone: {0}, checked in a private temporary workspace. Links or special entries removed before analysis: {1}.",
@@ -860,7 +860,7 @@ const DETAILS: Record<string, Rule[]> = {
   ],
   android_app_inventory: [
     [
-      /^(\d+) installed packages \((\d+) user-installed\).*?(\d+) APK files hashed/s,
+      /^(\d+) installed packages \((\d+) user-installed\).*?(\d+) APK files hashed/s, // NOSONAR: short text written by the app
       t(
         "{0} apps instaladas ({1} no preinstaladas) comparadas con identificadores de apps espía conocidas; {2} archivos de instalación comparados con las huellas de malware y stalkerware conocidos.",
         "{0} installed apps ({1} not pre-installed) compared with known spy app identifiers; {2} install files compared with the fingerprints of known malware and stalkerware.",
@@ -1018,7 +1018,7 @@ const DETAILS: Record<string, Rule[]> = {
   ],
   network_pcap: [
     [
-      /^(\d+) device-attributed packets, (\d+) unique bidirectional flows.*?(\d+) packets not decoded/s,
+      /^(\d+) device-attributed packets, (\d+) unique bidirectional flows.*?(\d+) packets not decoded/s, // NOSONAR: short text written by the app
       t(
         "{0} paquetes del móvil y {1} conexiones distintas comparados con servidores de spyware conocidos; {2} paquetes no se pudieron decodificar.",
         "{0} phone packets and {1} distinct connections compared with known spyware servers; {2} packets could not be decoded.",
@@ -1186,14 +1186,14 @@ function apply(rule: Rule, match: RegExpMatchArray, language: Language) {
 export function checkDetail(id: string, detail: string, language: Language) {
   if (id === "android_network_settings") {
     const parts = DNS.map((rule) => {
-      const match = detail.match(rule[0]);
+      const match = rule[0].exec(detail);
       return match ? apply(rule, match, language) : null;
     }).filter(Boolean);
     return parts.length ? parts.join(" ") : detail;
   }
   if (id.startsWith("mvt_") && !NAMES[id]) {
-    const match = detail.match(
-      /^Extraction: (\w+); indicator matching: (\w+)\./,
+    const match = /^Extraction: (\w+); indicator matching: (\w+)\./.exec(
+      detail,
     );
     if (match) {
       const state = (s: string) => STATE[s]?.[language] ?? s;
@@ -1211,11 +1211,11 @@ export function checkDetail(id: string, detail: string, language: Language) {
     }
   }
   for (const rule of DETAILS[id] ?? []) {
-    const match = detail.match(rule[0]);
+    const match = rule[0].exec(detail);
     if (match) return apply(rule, match, language);
   }
   for (const [pattern, tr] of EXTRA_DETAILS[id] ?? []) {
-    const match = detail.match(pattern);
+    const match = pattern.exec(detail);
     if (match)
       return fmt(
         tr[language],
@@ -1397,11 +1397,11 @@ const TEXTS: Rule[] = [
 
 export function nativeText(value: string, language: Language) {
   for (const rule of TEXTS) {
-    const match = value.match(rule[0]);
+    const match = rule[0].exec(value);
     if (match) return apply(rule, match, language);
   }
   for (const [pattern, tr] of EXTRA_TEXTS) {
-    const match = value.match(pattern);
+    const match = pattern.exec(value);
     if (match)
       return tr[language].replace(
         /\{(\d)\}/g,
@@ -1608,7 +1608,7 @@ const EVIDENCE: Rule[] = [
 ];
 export function evidenceText(value: string, language: Language) {
   for (const rule of EVIDENCE) {
-    const match = value.match(rule[0]);
+    const match = rule[0].exec(value);
     if (match)
       return translateFragments(apply(rule, match, language), language);
   }

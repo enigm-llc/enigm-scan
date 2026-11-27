@@ -6,14 +6,14 @@ const args = process.argv.slice(2);
 const option = (name) =>
   args.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 const days = Number(option("days") ?? 14);
-if (!Number.isSafeInteger(days) || days < 0) throw Error("Invalid --days");
+if (!Number.isSafeInteger(days) || days < 0) throw new Error("Invalid --days");
 const url = option("url");
 const file = option("file") ?? "src-tauri/resources/intelligence/bundle.json";
-if (url && !url.startsWith("https://")) throw Error("Only HTTPS URLs");
+if (url && !url.startsWith("https://")) throw new Error("Only HTTPS URLs");
 const envelope = url
   ? await (async () => {
       const response = await fetch(url, { redirect: "error" });
-      if (!response.ok) throw Error(`${url} returned ${response.status}`);
+      if (!response.ok) throw new Error(`${url} returned ${response.status}`);
       return response.json();
     })()
   : JSON.parse(readFileSync(file, "utf8"));

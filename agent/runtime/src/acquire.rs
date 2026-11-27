@@ -24,9 +24,7 @@ pub struct Device {
     pub issue: Option<String>,
 }
 fn valid_id(id: &str) -> bool {
-    id.as_bytes()
-        .first()
-        .is_some_and(|b| b.is_ascii_alphanumeric())
+    id.as_bytes().first().is_some_and(u8::is_ascii_alphanumeric)
         && id.len() <= 128
         && id
             .bytes()
@@ -694,7 +692,7 @@ fn copied_bytes(dir: &Path) -> u64 {
             entries
                 .filter_map(Result::ok)
                 .filter_map(|entry| entry.metadata().ok())
-                .filter(|meta| meta.is_file())
+                .filter(std::fs::Metadata::is_file)
                 .map(|meta| meta.len())
                 .sum()
         })

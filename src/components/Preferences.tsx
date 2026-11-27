@@ -14,13 +14,13 @@ export function Preferences({
   setLanguage,
   appearance,
   setAppearance,
-}: {
+}: Readonly<{
   t: Copy;
   language: Language;
   setLanguage: (l: Language) => void;
   appearance: Appearance;
   setAppearance: (a: Appearance) => void;
-}) {
+}>) {
   const [open, setOpen] = useState<"theme" | "language" | null>(null);
   const root = useRef<HTMLDivElement>(null),
     themeButton = useRef<HTMLButtonElement>(null),
@@ -47,7 +47,7 @@ export function Preferences({
   const Current =
     appearance === "system" ? Contrast : appearance === "dark" ? Moon : Sun;
   return (
-    <div
+    <div // NOSONAR: Escape for the native buttons inside
       className="footer-preferences"
       ref={root}
       onKeyDown={(e) => {

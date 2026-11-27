@@ -17,7 +17,7 @@ import { Welcome } from "./Welcome";
 import { UpdateAvailable } from "./UpdateAvailable";
 
 /** Phases in which a scan is still working on the phone or its copy. */
-const RUNNING = [
+const RUNNING = new Set([
   "awaiting_trust",
   "deep_wait",
   // An iPhone paired while searching, waiting for Start on the ready step.
@@ -32,7 +32,7 @@ const RUNNING = [
   "forensics",
   "network",
   "finalizing",
-];
+]);
 
 declare global {
   interface Window {
@@ -90,9 +90,7 @@ export default function DesktopApp() {
   }, [language]);
   useEffect(() => {
     void native<AgentStatus>("scan_status")
-      .then(
-        (status) => Boolean(status.report) || RUNNING.includes(status.phase),
-      )
+      .then((status) => Boolean(status.report) || RUNNING.has(status.phase))
       .catch(() => false)
       .then((busy) => setStarted((value) => value ?? busy));
   }, []);
@@ -106,7 +104,7 @@ export default function DesktopApp() {
       }
       closingRef.current = true;
       void native<AgentStatus>("scan_status")
-        .then((status) => RUNNING.includes(status.phase))
+        .then((status) => RUNNING.has(status.phase))
         .catch(() => false)
         .then((running) =>
           native(running ? "cancel_scan" : "finish_scan").catch(() => {}),

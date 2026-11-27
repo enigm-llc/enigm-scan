@@ -8,10 +8,10 @@ import type { Language } from "../shared/i18n/i18n";
 export function Welcome({
   language,
   onStart,
-}: {
+}: Readonly<{
   language: Language;
   onStart: () => void;
-}) {
+}>) {
   const f = flowCopy[language];
   return (
     <section className="welcome" aria-labelledby="welcome-title">
