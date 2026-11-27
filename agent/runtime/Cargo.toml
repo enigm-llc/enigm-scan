@@ -1,6 +1,6 @@
 [package]
 name = "enigm-scan-runtime"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"
 license = "PolyForm-Noncommercial-1.0.0"
 description = "Enigm Scan native runtime: verified engines, phone acquisition and private temporary folders."

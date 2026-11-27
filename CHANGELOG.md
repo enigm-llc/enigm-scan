@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.4 — 27 November 2026
+
+- The report's duration and start time cover the whole scan, from the
+  moment you start it (connecting, the passcode, the copy and the
+  analysis), not only the analysis at the end. A scan of over an hour no
+  longer shows a few minutes.
+
 ## 1.0.3 — 27 November 2026
 
 - The line under the title looks the same on every step: when the phone

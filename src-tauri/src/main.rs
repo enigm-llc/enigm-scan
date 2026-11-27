@@ -686,6 +686,9 @@ fn start_scan(
     let held = request.hold && request.device == "ios" && request.usb_id.is_some();
     let start = state.start.clone();
     let catalog = state.catalog.clone();
+    // The report covers the whole process, from the moment the person starts
+    // it (connection, passcode, copy and analysis), not only the analysis.
+    let started_at = enigm_scan_core::model::timestamp();
     std::thread::spawn(move || {
         // Held for the whole scan on this thread; dropping it (success,
         // failure or cancellation) lets the computer sleep again.
@@ -797,6 +800,7 @@ fn start_scan(
                     }
                 },
             )?;
+            report.started_at = started_at;
             if let Ok(mut s) = status.lock() {
                 s.phase = "forensics".into();
                 s.checks = report.checks.len() as u64;
