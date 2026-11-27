@@ -6520,8 +6520,9 @@ body:has(.promo-backdrop) {
   pointer-events: none;
 }
 :root[data-shell="app"][data-os="macos"] .toaster {
-  /* Messages start where the top fade ends, never over it. */
-  top: var(--top-fade);
+  /* Just under the buttons' strip, over the top fade (messages have their
+     own background, so the fade never shows through them). */
+  top: 36px;
 }
 .toast {
   display: inline-flex;
