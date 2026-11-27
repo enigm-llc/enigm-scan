@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { DeviceIcon } from "./Brand";
 import { useGlide } from "./glide";
+import { Crossfade } from "./Crossfade";
 import type { Language } from "../shared/i18n/i18n";
 
 export type PhoneScreen =
@@ -351,6 +352,13 @@ export function PhoneStage({
   const glide = useGlide<HTMLSpanElement>("dl > div");
   const [waved, setWaved] = useState(network);
   if (network && !waved) setWaved(true);
+  // The buttons to press for the deep check stay until they have faded out.
+  const pressing = press && platform !== "android";
+  const [keyed, setKeyed] = useState(pressing);
+  if (pressing && !keyed) setKeyed(true);
+  // Outside the app nothing fades: the buttons simply go.
+  if (!pressing && keyed && document.documentElement.dataset.shell !== "app")
+    setKeyed(false);
   const guess = useAlternating(platform === "auto");
   const typing = useTyping(screen.kind === "passcode" && !paused);
   const android =
@@ -681,8 +689,14 @@ export function PhoneStage({
     >
       <div className="phone-wrap">
         <div className="phone">
-          {press && !android && (
-            <span className="phone-keys" aria-hidden="true">
+          {keyed && !android && (
+            <span
+              className={`phone-keys ${pressing ? "" : "is-off"}`}
+              aria-hidden="true"
+              onAnimationEnd={(event) => {
+                if (event.animationName === "leave-fade") setKeyed(false);
+              }}
+            >
               <i className="key up">
                 <b>+</b>
               </i>
@@ -709,18 +723,18 @@ export function PhoneStage({
                 <BatteryFull size={16} strokeWidth={2} />
               </span>
             </div>
-            {/* In the app a new screen fades in, as the phone's own
-                screens do; the website keeps its own pace. */}
-            <div
-              className="phone-content"
-              key={`${android ? "android" : "ios"}${
+            {/* In the app one screen of the phone gives way to the next
+                (the copy, the passcode, the buttons to press...) without
+                blinking; the website keeps its own pace. */}
+            <Crossfade
+              id={`${android ? "android" : "ios"}${
                 document.documentElement.dataset.shell === "app"
-                  ? "-" + screen.kind
+                  ? `-${screen.kind}-${"title" in screen ? screen.title : ""}-${"subtitle" in screen ? screen.subtitle : ""}`
                   : ""
               }`}
             >
-              {content}
-            </div>
+              <div className="phone-content">{content}</div>
+            </Crossfade>
           </div>
         </div>
         {/* Once shown, the waves stay so they can fade out when the
@@ -748,49 +762,61 @@ export function PhoneStage({
         {screen.kind === "analyze" && (
           <span className="phone-beam sweep" aria-hidden="true" />
         )}
-        {checks && (
-          <span className="phone-aside phone-checks">
-            <b>{checks.title}</b>
-            <ul>
-              {checks.items.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </span>
-        )}
-        {!checks && facts && (
-          <span className="phone-aside phone-facts" ref={glide}>
-            {facts.device && (
-              <DeviceIcon device={facts.device} size={30} tint tight />
-            )}
-            {facts.title && <b>{facts.title}</b>}
-            {facts.detail && <small>{facts.detail}</small>}
-            {facts.items.length > 0 && (
-              <dl>
-                {facts.items.map((item) => (
-                  <div key={item.id ?? item.label}>
-                    <dd>
-                      <Count fact={item} />
-                    </dd>
-                    <dt>{item.label}</dt>
-                  </div>
+        {/* Beside the phone: one note at a time, each giving way to the next
+            (iPhone and Android in turn, then the phone found, its figures). */}
+        <Crossfade
+          id={
+            checks
+              ? "checks"
+              : facts
+                ? "facts"
+                : screen.kind === "guide"
+                  ? `guide-${android ? "android" : "ios"}`
+                  : "none"
+          }
+        >
+          {checks ? (
+            <span className="phone-aside phone-checks">
+              <b>{checks.title}</b>
+              <ul>
+                {checks.items.map((item) => (
+                  <li key={item}>{item}</li>
                 ))}
-              </dl>
-            )}
-          </span>
-        )}
-        {!checks && !facts && screen.kind === "guide" && (
-          <span className="phone-aside" key={android ? "a" : "i"}>
-            <DeviceIcon
-              device={android ? "android" : "ios"}
-              size={34}
-              tint
-              tight
-            />
-            <b>{android ? "Android" : "iPhone"}</b>
-            <small>{android ? screen.aside.android : screen.aside.ios}</small>
-          </span>
-        )}
+              </ul>
+            </span>
+          ) : facts ? (
+            <span className="phone-aside phone-facts" ref={glide}>
+              {facts.device && (
+                <DeviceIcon device={facts.device} size={30} tint tight />
+              )}
+              {facts.title && <b>{facts.title}</b>}
+              {facts.detail && <small>{facts.detail}</small>}
+              {facts.items.length > 0 && (
+                <dl>
+                  {facts.items.map((item) => (
+                    <div key={item.id ?? item.label}>
+                      <dd>
+                        <Count fact={item} />
+                      </dd>
+                      <dt>{item.label}</dt>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </span>
+          ) : screen.kind === "guide" ? (
+            <span className="phone-aside">
+              <DeviceIcon
+                device={android ? "android" : "ios"}
+                size={34}
+                tint
+                tight
+              />
+              <b>{android ? "Android" : "iPhone"}</b>
+              <small>{android ? screen.aside.android : screen.aside.ios}</small>
+            </span>
+          ) : null}
+        </Crossfade>
         {note && !facts && !checks && (
           <span className="phone-note">
             <b>{note.value}</b>

@@ -7068,3 +7068,53 @@ body:has(.promo-backdrop) {
   > .compact-consent:first-child {
   padding-top: 0;
 }
+
+/* ---------- App: the phone's content gives way, never blinks ----------
+   The phone stays; what it shows changes. The old screen, note or buttons
+   fade out over the same time the new ones fade in (see Crossfade), and
+   the drawn side buttons hand over to the marked ones the same way. */
+.phone-keys.is-off {
+  display: none;
+}
+:root[data-shell="app"] .app-window .is-leaving {
+  animation: leave-fade var(--enter) var(--ease) both;
+  pointer-events: none;
+}
+:root[data-shell="app"] .app-window .is-leaving * {
+  animation: none;
+}
+:root[data-shell="app"] .app-window .phone-stage.is-pressing .phone-keys {
+  animation: enter-fade var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .phone-keys.is-off {
+  display: block;
+  animation: leave-fade var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .phone::before,
+:root[data-shell="app"] .app-window .phone::after {
+  transition: opacity var(--enter) var(--ease);
+}
+@keyframes leave-fade {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-shell="app"] .app-window .is-leaving,
+  :root[data-shell="app"] .app-window .phone-keys.is-off {
+    display: none;
+  }
+  :root[data-shell="app"] .app-window .phone-stage.is-pressing .phone-keys {
+    animation: none;
+  }
+}
+/* Step 1: the phone's outline turns from iPhone to Android over the same
+   time as its screen and note. */
+:root[data-shell="app"] .app-window .is-guessing .phone,
+:root[data-shell="app"] .app-window .is-guessing .phone-screen {
+  transition-duration: var(--enter);
+}
+:root[data-shell="app"] .app-window .is-guessing .phone-bar .island,
+:root[data-shell="app"] .app-window .is-guessing .phone-bar .punch {
+  animation-duration: var(--enter);
+}
