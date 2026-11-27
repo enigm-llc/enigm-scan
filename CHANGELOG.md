@@ -5,6 +5,13 @@
 - The Mac packages are signed by Enigm and notarized by Apple, so they open
   without a warning. Release builds sign the bundled engines before the app is
   compiled, so the app still checks every engine against its own hashes.
+- Closing the app during a scan waits for the copy of the phone to be
+  deleted before it quits, instead of leaving it for the next start.
+- The app's two requests at start name its version and kind of system, the
+  same text for every copy, so the download server can count anonymously
+  which versions are in use. Website visits are counted the same way, by
+  page and country; nothing identifies a person. See
+  [STATISTICS.md](docs/STATISTICS.md).
 - When a newer version is published on the website, the app says so at
   start, in place of the welcome screen, with a button to its download page.
   It never downloads or installs anything itself.
