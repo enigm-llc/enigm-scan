@@ -180,59 +180,195 @@ it("turns the phone's own Trust and passcode prompts into explicit instructions"
   expect(screen.queryByText(a.awaiting_trust)).toBeNull();
   expect(screen.queryByText(a.awaiting_passcode)).toBeNull();
 });
-it("shows the phone's own copy progress, what it is doing and an estimate", () => {
+/** The figures beside the phone, as "value label" pairs. */
+const facts = () =>
+  [...document.querySelectorAll(".phone-facts dl > div")].map(
+    (row) =>
+      `${row.querySelector("dd")?.textContent} ${row.querySelector("dt")?.textContent}`,
+  );
+const copyStatus = (acquisition: object, phase = "acquiring") => ({
+  phase,
+  artifacts: 0,
+  error: null,
+  report: null,
+  acquisition: {
+    phase,
+    kept: 0,
+    discarded: 0,
+    receivedBytes: 0,
+    storedBytes: 0,
+    ...acquisition,
+  },
+});
+it("shows the same figures beside an iPhone and an Android phone, at most five", () => {
   document.documentElement.lang = "es";
   vi.useFakeTimers();
-  const a = agentDictionaries.es;
+  try {
+    const a = agentDictionaries.es;
+    const f = flowCopy.es;
+    const props = {
+      a,
+      t: dictionaries.es,
+      encrypted: false,
+      network: true,
+      onCancel: vi.fn(),
+    };
+    const { rerender } = render(
+      <ScanProgress
+        {...props}
+        ios
+        status={copyStatus({
+          percent: 93,
+          storedBytes: 159e6,
+          receivedBytes: 173e6,
+          discarded: 16,
+          capturing: true,
+        })}
+      />,
+    );
+    act(() => vi.advanceTimersByTime(60_000));
+    let shown = facts();
+    expect(shown.length).toBeLessThanOrEqual(5);
+    expect(shown[0]).toBe(`93 % ${f.factPercent}`);
+    expect(shown[1]).toMatch(new RegExp(`MB ${f.factCopied}$`));
+    expect(shown[2]).toBe(`16 ${a.statDiscarded}`);
+    expect(shown[3]).toBe(`50 % ${f.factObserved}`);
+    expect(shown[4]).toMatch(new RegExp(`${f.factElapsed}$`));
+    // Received bytes repeat the copied ones: not listed.
+    expect(shown.some((line) => line.includes("recibidos"))).toBe(false);
+    rerender(
+      <ScanProgress
+        {...props}
+        ios={false}
+        status={copyStatus({
+          percent: 45,
+          storedBytes: 120e6,
+          apps: 182,
+          connections: 37,
+        })}
+      />,
+    );
+    shown = facts();
+    expect(shown.length).toBeLessThanOrEqual(5);
+    expect(shown[0]).toBe(`45 % ${f.factPercent}`);
+    expect(shown[2]).toBe(`182 ${f.factApps}`);
+    expect(shown[3]).toBe(`37 ${f.factConnections}`);
+    // Nothing that does not exist on Android, and no invented percentage.
+    expect(shown.some((line) => line.includes(a.statDiscarded))).toBe(false);
+    expect(shown.some((line) => line.includes(f.factObserved))).toBe(false);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+it("the card says the step being done now, on one line, on iPhone and Android", () => {
+  document.documentElement.lang = "es";
+  vi.useFakeTimers();
+  try {
+    const f = flowCopy.es;
+    const props = {
+      a: agentDictionaries.es,
+      t: dictionaries.es,
+      encrypted: false,
+      network: true,
+      onCancel: vi.fn(),
+    };
+    const card = () =>
+      document.querySelector(".progress-card-line")?.textContent ?? "";
+    const { rerender } = render(
+      <ScanProgress
+        {...props}
+        ios
+        status={copyStatus({ percent: 40, capturing: true })}
+      />,
+    );
+    expect(card()).toBe(f.cardExtracting);
+    // It does not rotate: the same step stays.
+    act(() => vi.advanceTimersByTime(30_000));
+    expect(card()).toBe(f.cardExtracting);
+    // Out of the phone: said for a moment, then what it still waits for.
+    rerender(
+      <ScanProgress
+        {...props}
+        ios
+        status={copyStatus({
+          percent: 100,
+          capturing: true,
+          step: "extracted",
+        })}
+      />,
+    );
+    expect(card()).toBe(f.cardExtracted);
+    act(() => vi.advanceTimersByTime(5000));
+    expect(card()).toBe(f.cardObserving);
+    rerender(
+      <ScanProgress
+        {...props}
+        ios
+        status={copyStatus({ percent: 100, step: "diagnostics" })}
+      />,
+    );
+    expect(card()).toBe(f.cardDiagnostics);
+    // Android: the same extraction, then its own steps.
+    for (const [step, line] of [
+      ["apps", f.cardApps],
+      ["connections", f.cardConnections],
+    ] as const) {
+      rerender(
+        <ScanProgress
+          {...props}
+          ios={false}
+          status={copyStatus({ percent: 100, step })}
+        />,
+      );
+      expect(card()).toBe(line);
+    }
+    // The analysis is the same on both.
+    for (const [phase, line] of [
+      ["analyzing", f.cardComparing],
+      ["forensics", f.cardForensics],
+      ["network", f.cardNetwork],
+      ["finalizing", f.cardReport],
+    ] as const) {
+      rerender(
+        <ScanProgress
+          {...props}
+          ios={false}
+          status={{ phase, artifacts: 0, error: null, report: null }}
+        />,
+      );
+      expect(card()).toBe(line);
+    }
+  } finally {
+    vi.useRealTimers();
+  }
+});
+it("shows the analysis figures: indicators, files, checks, connections and time", () => {
+  document.documentElement.lang = "es";
   const f = flowCopy.es;
-  const props = {
-    a,
-    t: dictionaries.es,
-    encrypted: false,
-    network: false,
-    ios: true,
-    onCancel: vi.fn(),
-  };
-  const status = (acquisition: object) => ({
-    phase: "acquiring",
-    artifacts: 0,
-    error: null,
-    report: null,
-    acquisition: {
-      phase: "acquiring",
-      kept: 100,
-      discarded: 0,
-      receivedBytes: 2e9,
-      storedBytes: 2e9,
-      ...acquisition,
-    },
-  });
-  const { rerender } = render(
-    <ScanProgress {...props} status={status({ percent: 10 })} />,
-  );
-  // No bar under the title, the same as on Android: the figures are in the card.
-  expect(screen.queryByRole("progressbar")).toBeNull();
-  expect(screen.getByText(a.actCopy)).toBeTruthy();
-  let lines = cardRound();
-  expect(lines).toContain(f.cardCopying);
-  expect(lines.some((line) => line.startsWith("10 %"))).toBe(true);
-  // Photos are being received and dropped: the card says so.
-  rerender(
+  render(
     <ScanProgress
-      {...props}
-      status={status({ percent: 20, discarded: 5000, receivedBytes: 9e9 })}
+      a={agentDictionaries.es}
+      t={dictionaries.es}
+      encrypted={false}
+      network
+      rules={11669}
+      onCancel={vi.fn()}
+      status={{
+        phase: "finalizing",
+        artifacts: 3482,
+        checks: 18,
+        connections: 214,
+        error: null,
+        report: null,
+      }}
     />,
   );
-  lines = cardRound();
-  expect(lines).toContain(f.cardSkipping);
-  expect(lines.some((line) => line.endsWith(a.statDiscarded))).toBe(true);
-  // After a minute at 20 %, an estimate of the time left appears.
-  act(() => vi.advanceTimersByTime(30_000));
-  expect(screen.getByTitle(a.estimateNote).textContent).toMatch(/^Restante: /);
-  // A long silence from the phone is explained, not hidden.
-  act(() => vi.advanceTimersByTime(91_000));
-  expect(cardRound()).toContain(f.cardWaiting);
-  vi.useRealTimers();
+  const shown = facts();
+  expect(shown.length).toBe(5);
+  expect(shown[0]).toBe(`11.669 ${f.factSigned}`);
+  expect(shown[1]).toBe(`3482 ${f.factFiles}`);
+  expect(shown[2]).toBe(`18 ${f.factChecks}`);
+  expect(shown[3]).toBe(`214 ${f.factAnalyzed}`);
 });
 it("observes the network alongside the copy and says when the iPhone is no longer needed", () => {
   document.documentElement.lang = "es";
@@ -261,10 +397,10 @@ it("observes the network alongside the copy and says when the iPhone is no longe
       ...acquisition,
     },
   });
-  // The observation is one more line of the progress card, as on Android:
-  // a plain phrase, without a countdown.
+  // The observation is a figure beside the phone, as a percentage of its
+  // window; never a countdown in the card.
   const parallel = (_minutes: number) =>
-    cardRound().includes(flowCopy.es.cardObserving);
+    facts().some((line) => line.endsWith(flowCopy.es.factObserved));
   const { rerender } = render(
     <ScanProgress {...props} status={status("acquiring", {})} />,
   );
@@ -280,14 +416,17 @@ it("observes the network alongside the copy and says when the iPhone is no longe
   );
   expect(screen.getByRole("alert").textContent).toBe(a.passcodeNow);
   act(() => vi.advanceTimersByTime(20_000));
-  expect(parallel(1)).toBe(true);
-  // Data arrives: nothing else is needed from the iPhone.
+  // While the phone asks for its passcode, the instructions replace the figures.
+  expect(facts()).toEqual([]);
+  // Data arrives: nothing else is needed from the iPhone, and the network
+  // figure carries on from where it was.
   rerender(
     <ScanProgress
       {...props}
       status={status("acquiring", { kept: 3, receivedBytes: 4096 })}
     />,
   );
+  expect(parallel(1)).toBe(true);
   expect(screen.getByText(a.phoneKeep)).toBeTruthy();
   expect(screen.queryByText(a.noteCodeMaybe)).toBeNull();
   // The observation window ends; the copy continues.
@@ -301,9 +440,7 @@ it("observes the network alongside the copy and says when the iPhone is no longe
       })}
     />,
   );
-  expect(cardRound().some((line) => line.startsWith("Observando la red"))).toBe(
-    false,
-  );
+  expect(cardRound()).toEqual([flowCopy.es.cardExtracting]);
   expect(screen.getByText(a.phoneKeep)).toBeTruthy();
   vi.useRealTimers();
 });
@@ -324,95 +461,6 @@ it("groups network observation under the copy step and names it as the phase", (
     a.stepExtract,
   );
   expect(screen.getByRole("status").textContent).toBe(a.capturing);
-});
-it("the progress card says what is being done in real numbers, then how long it has taken", () => {
-  vi.useFakeTimers();
-  try {
-    const a = agentDictionaries.en;
-    render(
-      <ScanProgress
-        a={a}
-        t={dictionaries.en}
-        encrypted={false}
-        network={false}
-        onCancel={vi.fn()}
-        status={{
-          phase: "acquiring",
-          artifacts: 0,
-          error: null,
-          report: null,
-          acquisition: {
-            phase: "acquiring",
-            percent: 40,
-            kept: 10,
-            discarded: 0,
-            receivedBytes: 2e9,
-            storedBytes: 1e9,
-          },
-        }}
-      />,
-    );
-    const line = () =>
-      document.querySelector(".progress-card-line")?.textContent ?? "";
-    const seen = new Set<string>();
-    for (let second = 0; second < 30; second++) {
-      seen.add(line());
-      act(() => vi.advanceTimersByTime(1000));
-    }
-    // Real figures from the phone's own report, one at a time…
-    expect([...seen].some((text) => text.startsWith("40 %"))).toBe(true);
-    expect([...seen].some((text) => /GB/.test(text))).toBe(true);
-    // …and, once per round, the elapsed time.
-    expect([...seen]).toContain(a.elapsed.replace("{t}", a.lessThanMinute));
-  } finally {
-    vi.useRealTimers();
-  }
-});
-it("shows the deep check during an iPhone copy only when it was chosen", () => {
-  vi.useFakeTimers();
-  const status = {
-    phase: "acquiring",
-    artifacts: 0,
-    error: null,
-    report: null,
-    acquisition: {
-      phase: "acquiring",
-      kept: 3,
-      discarded: 0,
-      receivedBytes: 1000,
-      storedBytes: 1000,
-    },
-  };
-  const props = {
-    a: agentDictionaries.en,
-    t: dictionaries.en,
-    encrypted: false,
-    network: false,
-    ios: true,
-    onCancel: vi.fn(),
-    status,
-  };
-  const generating = {
-    ...status,
-    acquisition: {
-      ...status.acquisition,
-      sysdiagnose: "generating" as const,
-    },
-  };
-  const { rerender } = render(
-    <ScanProgress {...props} status={generating} diagnostics={false} />,
-  );
-  try {
-    expect(cardRound()).not.toContain(flowCopy.en.cardDeepPreparing);
-    rerender(<ScanProgress {...props} status={generating} diagnostics />);
-    // No separate box: the card says it, among its other lines.
-    expect(document.querySelector(".deep-check")).toBeNull();
-    expect(cardRound()).toContain(flowCopy.en.cardDeepPreparing);
-    // Nothing about it on the drawn phone during the copy.
-    expect(document.querySelector(".phone-badge")).toBeNull();
-  } finally {
-    vi.useRealTimers();
-  }
 });
 it("draws the real iPhone keypad and plays the passcode being typed", () => {
   vi.useFakeTimers();

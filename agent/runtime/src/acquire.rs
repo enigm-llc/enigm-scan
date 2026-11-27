@@ -268,18 +268,15 @@ pub fn acquire(
             work,
             cancel,
             Duration::from_secs(1800),
-            &|| {
+            &|output| {
                 let copied = copied_bytes(&evidence);
-                if copied > 0 {
+                let percent = adb_percent(output);
+                if copied > 0 || percent.is_some() {
                     on_progress(&Progress {
                         phase: "acquiring".into(),
-                        percent: None,
-                        kept: 0,
-                        discarded: 0,
-                        received_bytes: 0,
+                        percent,
                         stored_bytes: copied,
-                        capturing: false,
-                        sysdiagnose: None,
+                        ..Progress::default()
                     });
                 }
             },
@@ -293,7 +290,7 @@ pub fn acquire(
             work,
             cancel,
             Duration::from_secs(4 * 60 * 60),
-            &|| {
+            &|_| {
                 if let Some(progress) = acquisition_progress(work) {
                     on_progress(&progress);
                 }
@@ -355,7 +352,21 @@ pub fn acquire(
     }
     if platform == "android" {
         if let Some(session) = adb_session {
-            let inventory = android_inventory(catalog, session, id, work, cancel, capture_network);
+            let copied = copied_bytes(&target.parent().map(Path::to_path_buf).unwrap_or_default());
+            let report = |step: &str, apps: u64, connections: u64| {
+                on_progress(&Progress {
+                    phase: "acquiring".into(),
+                    percent: Some(100.0),
+                    stored_bytes: copied,
+                    step: Some(step.into()),
+                    apps,
+                    connections,
+                    ..Progress::default()
+                });
+            };
+            report("extracted", 0, 0);
+            let inventory =
+                android_inventory(catalog, session, id, work, cancel, capture_network, &report);
             if cancel.load(std::sync::atomic::Ordering::Relaxed) {
                 return Err("cancelled".into());
             }
@@ -382,6 +393,7 @@ pub fn android_inventory(
     work: &Path,
     cancel: &AtomicBool,
     connections: bool,
+    report: &dyn Fn(&str, u64, u64),
 ) -> enigm_scan_core::android::Inventory {
     use enigm_scan_core::android;
     let shell = |command: &str, seconds: u64| -> Option<String> {
@@ -395,9 +407,11 @@ pub fn android_inventory(
         (out.code == Some(0)).then(|| String::from_utf8_lossy(&out.stdout).into_owned())
     };
     let mut inventory = android::Inventory::default();
+    report("apps", 0, 0);
     match shell("pm list packages -f -i -U", 120) {
         Some(text) => {
             inventory.packages = android::parse_packages(&text);
+            report("apps", inventory.packages.len() as u64, 0);
             inventory.packages_status = if inventory.packages.is_empty() {
                 "failed"
             } else {
@@ -433,6 +447,10 @@ pub fn android_inventory(
         "completed"
     }
     .into();
+    let apps = inventory.packages.len() as u64;
+    if connections {
+        report("connections", apps, 0);
+    }
     match connections
         .then(|| {
             shell(
@@ -446,6 +464,7 @@ pub fn android_inventory(
         Some(text) if text.contains("local_address") => {
             inventory.remote_addresses = android::parse_proc_net(&text);
             inventory.network_status = "completed".into();
+            report("connections", apps, inventory.remote_addresses.len() as u64);
         }
         // Android 10+ may deny /proc/net to the shell user.
         Some(_) => inventory.network_status = "unsupported".into(),
@@ -683,6 +702,29 @@ pub struct Progress {
     /// "generating", then "ready". Absent when none was started.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sysdiagnose: Option<String>,
+    /// What the copy is doing once the data is out of the phone:
+    /// "extracted", "diagnostics" (iPhone, waiting for the sysdiagnose),
+    /// "apps" or "connections" (Android, read over ADB).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub step: Option<String>,
+    /// Android: installed apps whose permissions and access were read.
+    #[serde(default)]
+    pub apps: u64,
+    /// Android: open connections read from the phone.
+    #[serde(default)]
+    pub connections: u64,
+}
+/// Steps the copy may report, in the order they happen.
+const STEPS: [&str; 4] = ["extracted", "diagnostics", "apps", "connections"];
+/// The last percentage ADB printed while the phone gathers its bug report
+/// ("[ 45%] generating bugreport-...zip"), when it prints one.
+fn adb_percent(output: &[u8]) -> Option<f64> {
+    let text = String::from_utf8_lossy(output);
+    text.rmatch_indices("%]").find_map(|(end, _)| {
+        let start = text[..end].rfind('[')?;
+        let value: f64 = text[start + 1..end].trim().parse().ok()?;
+        (0.0..=100.0).contains(&value).then_some(value)
+    })
 }
 /// Bytes written so far by the files directly in `dir` (the Android bug
 /// report while ADB copies it).
@@ -745,11 +787,30 @@ fn acquisition_progress(work: &Path) -> Option<Progress> {
             .as_str()
             .filter(|s| ["generating", "ready"].contains(s))
             .map(str::to_owned),
+        step: value["step"]
+            .as_str()
+            .filter(|s| STEPS.contains(s))
+            .map(str::to_owned),
+        ..Progress::default()
     })
 }
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn reads_the_percentage_adb_prints_while_the_phone_gathers_its_data() {
+        assert_eq!(adb_percent(b"[  5%] generating bugreport-x.zip"), Some(5.0));
+        // The latest one counts; ADB rewrites the line as it goes.
+        assert_eq!(
+            adb_percent(b"[  5%] generating\r[ 45%] generating\r[ 46%] gen"),
+            Some(46.0)
+        );
+        assert_eq!(adb_percent(b"[100%] /tmp/x/bugreport.zip"), Some(100.0));
+        // Nothing that is not a percentage in brackets, and never above 100.
+        assert_eq!(adb_percent(b"no progress here"), None);
+        assert_eq!(adb_percent(b"[140%] odd"), None);
+        assert_eq!(adb_percent(b"[ab%] odd"), None);
+    }
     #[test]
     fn the_android_copy_is_measured_by_the_bytes_on_disk() {
         let dir = tempfile::tempdir().unwrap();
@@ -859,8 +920,18 @@ mod tests {
                 stored_bytes: 400,
                 capturing: false,
                 sysdiagnose: None,
+                ..Progress::default()
             })
         );
+        // The adapter says when the data is out of the phone; unknown steps
+        // are dropped.
+        std::fs::write(&path, r#"{"phase":"acquiring","step":"extracted"}"#).unwrap();
+        assert_eq!(
+            acquisition_progress(work.path()).unwrap().step.as_deref(),
+            Some("extracted")
+        );
+        std::fs::write(&path, r#"{"phase":"acquiring","step":"anything"}"#).unwrap();
+        assert_eq!(acquisition_progress(work.path()).unwrap().step, None);
         std::fs::write(&path, r#"{"phase":"awaiting_passcode","capturing":true}"#).unwrap();
         assert!(acquisition_progress(work.path()).unwrap().capturing);
         std::fs::write(&path, r#"{"phase":"acquiring","capturing":"yes"}"#).unwrap();

@@ -45,10 +45,8 @@ const phases = [
 type Phase = (typeof phases)[number][0];
 /** The adapter's network observation window, in seconds. */
 const CAPTURE_SECONDS = 120;
-/** No new data for this long while copying: say the phone is preparing data. */
-const QUIET_SECONDS = 90;
-/** How long each line of the progress card stays before the next. */
-const CARD_SECONDS = 5;
+/** How long "Extraction complete" stays before the next step's line. */
+const EXTRACTED_SECONDS = 4;
 /** How long the adapter waits for "Trust This Computer?" (TRUST_SECONDS). */
 const TRUST_SECONDS = 180;
 /** How long the adapter waits for the deep check (DEEP_WAIT_SECONDS). */
@@ -107,7 +105,6 @@ export function ScanProgress({
   network,
   connections = false,
   ios = false,
-  diagnostics = false,
   rules,
   onCancel,
   cancelLabel,
@@ -121,8 +118,6 @@ export function ScanProgress({
   connections?: boolean;
   /** iPhone USB acquisition: the phone may ask for its passcode. */
   ios?: boolean;
-  /** The deep check was chosen for this iPhone scan. */
-  diagnostics?: boolean;
   /** Number of signed indicators in use, when known. */
   rules?: number;
   onCancel: () => void;
@@ -142,35 +137,33 @@ export function ScanProgress({
   const phaseStart = useRef({ phase: status.phase, at: Date.now() });
   if (phaseStart.current.phase !== status.phase)
     phaseStart.current = { phase: status.phase, at: Date.now() };
-  // Detect what the copy is doing from counter changes between updates.
-  const last = useRef<{
-    sample?: AcquisitionProgress;
-    activity: "copy" | "discard";
-    changed: number;
-  }>({ activity: "copy", changed: Date.now() });
   const sample = status.acquisition ?? undefined;
-  if (sample && sample !== last.current.sample) {
-    const previous = last.current.sample;
-    if (!previous)
-      last.current = { ...last.current, sample, changed: Date.now() };
-    else if (sample.discarded > previous.discarded)
-      last.current = { sample, activity: "discard", changed: Date.now() };
-    else if (
-      sample.kept > previous.kept ||
-      sample.receivedBytes > previous.receivedBytes
-    )
-      last.current = { sample, activity: "copy", changed: Date.now() };
-    else last.current = { ...last.current, sample };
-  }
   // Network observation alongside the copy: measured locally from when the
   // adapter first reported it, bounded by its fixed window.
   const captureStart = useRef<number | null>(null);
   if (sample?.capturing && captureStart.current === null)
     captureStart.current = Date.now();
-  const captureLeft =
-    sample?.capturing && captureStart.current !== null
-      ? Math.max(0, CAPTURE_SECONDS - (now - captureStart.current) / 1000)
-      : undefined;
+  // How much of the observation window has passed (iPhone), measured
+  // locally from when the adapter reported it; it never goes back.
+  const observedMax = useRef(0);
+  if (sample?.capturing && captureStart.current !== null)
+    observedMax.current = Math.max(
+      observedMax.current,
+      Math.min(
+        100,
+        ((now - captureStart.current) / 1000 / CAPTURE_SECONDS) * 100,
+      ),
+    );
+  const observed =
+    ios && captureStart.current !== null ? observedMax.current : undefined;
+  // The data is out of the phone: said for a moment, then the next step.
+  const step = sample?.step;
+  const extractedAt = useRef<number | null>(null);
+  if (step === "extracted" && extractedAt.current === null)
+    extractedAt.current = Date.now();
+  const justExtracted =
+    extractedAt.current !== null &&
+    now - extractedAt.current < EXTRACTED_SECONDS * 1000;
   // The phone accepted (Trust and passcode) once copied data arrives.
   const accepted =
     status.phase === "acquiring" &&
@@ -179,9 +172,6 @@ export function ScanProgress({
   // Optional deep check on iPhone: the owner starts the sysdiagnose before
   // the scan (no Trust or passcode prompt open yet); here only what the
   // phone reports about it is shown.
-  const sysdiagnose = sample?.sysdiagnose;
-  const deepCheck =
-    ios && diagnostics && status.phase === "acquiring" && !!sysdiagnose;
   const f = flowCopy[(language in flowCopy ? language : "en") as Language];
   const current = phases.find(([phase]) => phase === status.phase);
   // Android asks to allow USB debugging, not to "Trust" an iPhone.
@@ -217,11 +207,6 @@ export function ScanProgress({
     status.phase === "acquiring" && sample?.percent !== undefined
       ? Math.min(100, Math.max(0, sample.percent))
       : undefined;
-  // Remaining time from the phone's own percentage, once it is meaningful.
-  const remaining =
-    percent !== undefined && percent >= 3 && percent < 100 && phaseSeconds >= 60
-      ? (phaseSeconds * (100 - percent)) / percent
-      : undefined;
   // Under the title: what this step is, the same for its whole duration.
   const indicators = rules
     ? a.actIndicators.replace("{n}", rules.toLocaleString(language))
@@ -247,19 +232,21 @@ export function ScanProgress({
         return undefined;
     }
   })();
-  // In the card: what is being done right now, in a few words.
+  // In the card: the step being done right now, in a few words, always on
+  // one line. The same steps on iPhone and Android where they share them.
   const doing = (() => {
     switch (status.phase as Phase) {
       case "acquiring":
-        if (!sample) return f.cardCopying;
-        if (percent !== undefined && percent >= 99) return f.cardFinishing;
-        if ((now - last.current.changed) / 1000 > QUIET_SECONDS)
-          return f.cardWaiting;
-        return last.current.activity === "discard"
-          ? f.cardSkipping
-          : f.cardCopying;
+      case "capturing":
       case "decrypting":
-        return f.cardDecrypting;
+        if (step === "diagnostics") return f.cardDiagnostics;
+        if (step === "apps") return f.cardApps;
+        if (step === "connections") return f.cardConnections;
+        if (step === "extracted")
+          return !justExtracted && ios && sample?.capturing
+            ? f.cardObserving
+            : f.cardExtracted;
+        return f.cardExtracting;
       case "analyzing":
         return f.cardComparing;
       case "forensics":
@@ -267,7 +254,7 @@ export function ScanProgress({
       case "network":
         return f.cardNetwork;
       case "finalizing":
-        return f.cardCleanup;
+        return f.cardReport;
       default:
         return undefined;
     }
@@ -309,33 +296,39 @@ export function ScanProgress({
   const copying = ["acquiring", "capturing", "decrypting"].includes(
     status.phase,
   );
+  const count = (n: number, many: string, one: string) => ({
+    value: n.toLocaleString(language),
+    label: new Intl.PluralRules(language).select(n) === "one" ? one : many,
+  });
+  // At most five, in the same order on iPhone and Android: extracted,
+  // copied, what each phone adds, the network, the time.
   const facts: Array<{ value: string; label: string }> = copying
     ? [
         ...(percent !== undefined
           ? [{ value: `${Math.floor(percent)} %`, label: f.factPercent }]
           : []),
-        ...(remaining !== undefined
-          ? [{ value: compact(remaining), label: f.factLeft }]
-          : []),
         ...(sample && sample.storedBytes > 0
           ? [{ value: size(sample.storedBytes, language), label: f.factCopied }]
           : []),
-        ...(sample && sample.receivedBytes > 0
-          ? [
-              {
-                value: size(sample.receivedBytes, language),
-                label: f.factReceived,
-              },
-            ]
-          : []),
-        ...(sample && sample.discarded > 0
-          ? [
-              {
-                value: sample.discarded.toLocaleString(language),
-                label: a.statDiscarded,
-              },
-            ]
-          : []),
+        ...(ios
+          ? sample && sample.discarded > 0
+            ? [
+                {
+                  value: sample.discarded.toLocaleString(language),
+                  label: a.statDiscarded,
+                },
+              ]
+            : []
+          : sample?.apps
+            ? [count(sample.apps, f.factApps, f.factApp)]
+            : []),
+        ...(ios
+          ? observed !== undefined
+            ? [{ value: `${Math.floor(observed)} %`, label: f.factObserved }]
+            : []
+          : sample?.connections
+            ? [count(sample.connections, f.factConnections, f.factConnection)]
+            : []),
         { value: elapsedShort, label: f.factElapsed },
       ]
     : [
@@ -343,55 +336,24 @@ export function ScanProgress({
           ? [{ value: rules.toLocaleString(language), label: f.factSigned }]
           : []),
         ...(status.artifacts > 0
-          ? [
-              {
-                value: status.artifacts.toLocaleString(language),
-                label:
-                  new Intl.PluralRules(language).select(status.artifacts) ===
-                  "one"
-                    ? f.factFile
-                    : f.factFiles,
-              },
-            ]
+          ? [count(status.artifacts, f.factFiles, f.factFile)]
+          : []),
+        ...(status.checks
+          ? [count(status.checks, f.factChecks, f.factCheck)]
+          : []),
+        ...(status.connections
+          ? [count(status.connections, f.factAnalyzed, f.factAnalyzedOne)]
           : []),
         { value: elapsedShort, label: f.factElapsed },
       ];
-  // The card under the steps says what is being done now, in real numbers
-  // (copied, received, files reviewed…), one at a time; once per round, how
-  // long the scan has taken. While waiting on the phone, only the time.
+  // The card under the steps says the step being done now; while the
+  // phone waits for the person, how long the scan has taken.
   const elapsedLine = a.elapsed.replace(
     "{t}",
     duration((now - started.current) / 1000, a, language),
   );
-  const workLines = PROMPT_PHASES.has(status.phase)
-    ? []
-    : facts
-        .filter((fact) => fact.label !== f.factElapsed)
-        .map((fact) => `${fact.value} ${fact.label}`);
-  const observing =
-    captureLeft !== undefined &&
-    ["acquiring", "awaiting_passcode"].includes(status.phase)
-      ? f.cardObserving
-      : undefined;
-  // The deep check is one more line of the card, as the phone reports it.
-  const deepLine = deepCheck
-    ? sysdiagnose === "ready"
-      ? f.cardDeepReady
-      : f.cardDeepPreparing
-    : undefined;
-  const cardLines = [
-    ...(doing ? [doing] : []),
-    ...(observing ? [observing] : []),
-    ...(deepLine ? [deepLine] : []),
-    ...workLines,
-    elapsedLine,
-  ];
   const cardLine =
-    cardLines[
-      // The clock can read a moment before the start: never a negative turn.
-      Math.floor(Math.max(0, now - started.current) / 1000 / CARD_SECONDS) %
-        cardLines.length
-    ];
+    PROMPT_PHASES.has(status.phase) || !doing ? elapsedLine : doing;
   return (
     <section
       className={`scan-progress scan-cinema ${paused ? "motion-paused" : ""}`}
@@ -560,11 +522,6 @@ export function ScanProgress({
               <b key={cardLine} className="progress-card-line">
                 {cardLine}
               </b>
-              {remaining !== undefined && (
-                <small title={a.estimateNote}>
-                  {a.remaining.replace("{t}", duration(remaining, a, language))}
-                </small>
-              )}
             </span>
             <span className="progress-card-actions">
               {/* Round icon buttons, named for screen readers and on hover,

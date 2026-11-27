@@ -36,7 +36,6 @@ const view = (status: ReturnType<typeof waiting>) => (
     encrypted={false}
     network={false}
     ios
-    diagnostics
     onCancel={vi.fn()}
     status={status}
   />

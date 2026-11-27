@@ -28,13 +28,24 @@ const EVIDENCE_FILE_LIMIT: u64 = 256 * 1024 * 1024 * 1024;
 fn cpu_limit_seconds(timeout: Duration) -> u64 {
     timeout.as_secs().saturating_add(60).max(900)
 }
-fn drain(mut stream: impl Read) -> Vec<u8> {
+/// The last bytes a monitored program wrote, for an observer that reads its
+/// own progress lines (ADB's percentage) while it runs.
+type Tail = std::sync::Arc<std::sync::Mutex<Vec<u8>>>;
+/// Called while a monitored program runs, with the last bytes it wrote.
+type Observer<'a> = &'a dyn Fn(&[u8]);
+const TAIL_BYTES: usize = 512;
+fn drain(mut stream: impl Read, tail: Option<Tail>) -> Vec<u8> {
     let mut kept = Vec::new();
     let mut chunk = [0u8; 8192];
     loop {
         match stream.read(&mut chunk) {
             Ok(0) | Err(_) => break,
             Ok(n) => {
+                if let Some(Ok(mut last)) = tail.as_ref().map(|t| t.lock()) {
+                    last.extend_from_slice(&chunk[..n]);
+                    let excess = last.len().saturating_sub(TAIL_BYTES);
+                    last.drain(..excess);
+                }
                 let remaining = MAX_OUTPUT - kept.len();
                 kept.extend_from_slice(&chunk[..n.min(remaining)])
             }
@@ -97,14 +108,15 @@ pub(crate) fn run_with_input(
         EVIDENCE_FILE_LIMIT,
     )
 }
-/// Observe only fixed adapter status while retaining cancellation and process isolation.
+/// Observe only fixed adapter status while retaining cancellation and process
+/// isolation. The observer gets the last bytes the program wrote.
 pub(crate) fn run_monitored(
     executable: &Path,
     args: &[String],
     workspace: &Path,
     cancel: &AtomicBool,
     timeout: Duration,
-    observe: &dyn Fn(),
+    observe: &dyn Fn(&[u8]),
 ) -> Result<Output, String> {
     run_inner(
         executable,
@@ -129,7 +141,7 @@ fn run_inner(
     timeout: Duration,
     usb: bool,
     input: Option<&[u8]>,
-    observe: Option<&dyn Fn()>,
+    observe: Option<Observer>,
     file_limit: u64,
 ) -> Result<Output, String> {
     if cancel.load(Ordering::SeqCst) {
@@ -245,8 +257,10 @@ fn run_inner(
     let mut job = Some(crate::windows_job::Job::attach(&mut child)?);
     let out = child.stdout.take().ok_or("engine_pipe_failed")?;
     let err = child.stderr.take().ok_or("engine_pipe_failed")?;
-    let stdout = std::thread::spawn(move || drain(out));
-    let stderr = std::thread::spawn(move || drain(err));
+    let tail: Option<Tail> = observe.map(|_| Tail::default());
+    let (out_tail, err_tail) = (tail.clone(), tail.clone());
+    let stdout = std::thread::spawn(move || drain(out, out_tail));
+    let stderr = std::thread::spawn(move || drain(err, err_tail));
     if let Some(input) = input {
         // At most one pipe-buffer of input; output is already being drained.
         // Close stdin immediately so the fixed adapter can read through EOF.
@@ -263,7 +277,11 @@ fn run_inner(
     let status = loop {
         if observed.elapsed() >= Duration::from_millis(250) {
             if let Some(observe) = observe {
-                observe();
+                let last = tail
+                    .as_ref()
+                    .and_then(|t| t.lock().ok().map(|b| b.clone()))
+                    .unwrap_or_default();
+                observe(&last);
             }
             observed = Instant::now();
         }
@@ -394,7 +412,7 @@ mod tests {
                 work,
                 &AtomicBool::new(false),
                 four_hours,
-                &|| {},
+                &|_| {},
             )
             .unwrap()
         });

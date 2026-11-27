@@ -157,6 +157,10 @@ const ENGINE_MANIFEST: &[u8] = include_bytes!("../resources/engines/manifest.jso
 struct Status {
     phase: String,
     artifacts: u64,
+    /// Checks the analysis has completed so far.
+    checks: u64,
+    /// Network connections analysed (iPhone traffic flows, Android sockets).
+    connections: u64,
     error: Option<String>,
     report: Option<Report>,
     /// Real device acquisition progress (phone-reported percentage, counters).
@@ -854,7 +858,8 @@ fn start_scan(
                 },
             )?;
             if let Ok(mut s) = status.lock() {
-                s.phase = "forensics".into()
+                s.phase = "forensics".into();
+                s.checks = report.checks.len() as u64;
             }
             let complete = copied.skipped == 0 && !copied.truncated;
             report.check("evidence_snapshot", if complete { "completed" } else { "skipped" },
@@ -923,7 +928,8 @@ fn start_scan(
             }
             if let (Some(pcap), Some(phone)) = (pcap, phone) {
                 if let Ok(mut s) = status.lock() {
-                    s.phase = "network".into()
+                    s.phase = "network".into();
+                    s.checks = report.checks.len() as u64;
                 }
                 let mut bytes = Vec::new();
                 std::fs::File::open(pcap)
@@ -947,6 +953,7 @@ fn start_scan(
             } else if capture_network && request.device == "ios" {
                 if let Ok(mut s) = status.lock() {
                     s.phase = "network".into();
+                    s.checks = report.checks.len() as u64;
                 }
                 // Missing or interrupted observation metadata must never imply full coverage.
                 let observation = std::fs::read(work.path().join("network-status.json"))
@@ -1026,6 +1033,8 @@ fn start_scan(
             }
             if let Ok(mut s) = status.lock() {
                 s.phase = "finalizing".into();
+                s.checks = report.checks.len() as u64;
+                s.connections = report.network_connections;
             }
             drop(lock); // Windows cannot remove a folder with an open file.
             report.cleanup = if work.close().is_ok() && usb_cleanup {

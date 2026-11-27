@@ -772,7 +772,6 @@ export function Scanner({
           }
           rules={caps?.rules}
           ios={method === "usb" && device === "ios"}
-          diagnostics={!!caps?.iosUsb && deepConsent}
           onCancel={() =>
             void native("cancel_scan").catch(() => setError(true))
           }

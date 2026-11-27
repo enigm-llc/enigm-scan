@@ -33,7 +33,6 @@ const view = (ios: boolean, status: ReturnType<typeof copying>) =>
       encrypted={false}
       network={false}
       ios={ios}
-      diagnostics
       onCancel={() => {}}
       status={status}
     />,
@@ -46,22 +45,13 @@ it("does not repeat the steps during the copy: they were shown before starting",
   expect(document.querySelector(".phone-keys")).toBeNull();
 });
 
-it("says in the progress card when the phone prepares and finishes it", () => {
-  vi.useFakeTimers();
+it("says in the progress card that it waits for the diagnostics after the copy", () => {
+  document.documentElement.lang = "es";
   try {
-    const lines = () => {
-      const seen = new Set<string>();
-      for (let step = 0; step < 8; step++) {
-        seen.add(
-          document.querySelector(".progress-card-line")?.textContent ?? "",
-        );
-        act(() => vi.advanceTimersByTime(5000));
-      }
-      return [...seen];
-    };
-    document.documentElement.lang = "es";
+    const card = () =>
+      document.querySelector(".progress-card-line")?.textContent ?? "";
     const { rerender } = view(true, copying({ sysdiagnose: "generating" }));
-    expect(lines()).toContain(flowCopy.es.cardDeepPreparing);
+    expect(card()).toBe(flowCopy.es.cardExtracting);
     rerender(
       <ScanProgress
         a={a}
@@ -69,16 +59,14 @@ it("says in the progress card when the phone prepares and finishes it", () => {
         encrypted={false}
         network={false}
         ios
-        diagnostics
         onCancel={() => {}}
-        status={copying({ sysdiagnose: "ready" })}
+        status={copying({ sysdiagnose: "ready", step: "diagnostics" })}
       />,
     );
-    expect(lines()).toContain(flowCopy.es.cardDeepReady);
+    expect(card()).toBe(flowCopy.es.cardDiagnostics);
     expect(document.querySelector(".phone-keys")).toBeNull();
   } finally {
     document.documentElement.lang = "";
-    vi.useRealTimers();
   }
 });
 

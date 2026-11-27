@@ -6844,3 +6844,32 @@ body:has(.promo-backdrop) {
 .phone-hex .phone-hex-lit text.caption {
   fill: rgba(255, 255, 255, 0.72);
 }
+
+/* ---------- App: changing step keeps the phone in place ----------
+   Between extracting and analysing nothing leaves the window: the phone
+   stays and only the words change. From the phone step to the copy, and
+   from the analysis to the report, the phone is in the same place too, so
+   it stays put and only the words and actions arrive. */
+.app-window .scan-main .desktop-flow.is-running > .scan-progress,
+.app-window .report,
+.app-window .report .result-summary.verdict {
+  animation: none;
+}
+.app-window
+  .scan-main
+  .desktop-flow.is-running
+  > .scan-progress
+  > :not(.phone-stage),
+.app-window .report .result-summary.verdict > :not(.phone-stage) {
+  animation: console-in 800ms var(--ease) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-window
+    .scan-main
+    .desktop-flow.is-running
+    > .scan-progress
+    > :not(.phone-stage),
+  .app-window .report .result-summary.verdict > :not(.phone-stage) {
+    animation: none;
+  }
+}

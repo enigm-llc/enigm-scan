@@ -140,7 +140,7 @@ impl Session {
         work: &Path,
         cancel: &AtomicBool,
         timeout: Duration,
-        observe: &dyn Fn(),
+        observe: &dyn Fn(&[u8]),
     ) -> Result<process::Output, String> {
         if !self.alive() {
             return Err("adb_session_expired".into());

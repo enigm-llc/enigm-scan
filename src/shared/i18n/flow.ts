@@ -29,24 +29,22 @@ export type FlowCopy = {
   pairingHint: string;
   deepFailed: string;
   /** Short lines for the progress card: what is being done right now. */
-  cardCopying: string;
-  cardSkipping: string;
-  cardWaiting: string;
-  cardFinishing: string;
-  cardDecrypting: string;
+  cardExtracting: string;
+  cardExtracted: string;
+  cardObserving: string;
+  cardDiagnostics: string;
+  cardApps: string;
+  cardConnections: string;
   cardComparing: string;
   cardForensics: string;
   cardNetwork: string;
-  cardCleanup: string;
-  cardObserving: string;
-  cardDeepPreparing: string;
+  cardReport: string;
   /** After Trust, before the copy: the owner starts the deep check. */
   deepWaitTitle: string;
   deepWaitHint: string;
   deepConfirmedTitle: string;
   deepConfirmedHint: string;
   deepSkip: string;
-  cardDeepReady: string;
   /** Closing the app: everything of the session was deleted. */
   closeNow: string;
   welcomeTitle: string;
@@ -77,12 +75,19 @@ export type FlowCopy = {
   viaUsb: string;
   deviceId: string;
   factPercent: string;
-  factLeft: string;
   factCopied: string;
-  factReceived: string;
+  factApps: string;
+  factApp: string;
+  factObserved: string;
+  factConnections: string;
+  factConnection: string;
   factSigned: string;
   factFiles: string;
   factFile: string;
+  factChecks: string;
+  factCheck: string;
+  factAnalyzed: string;
+  factAnalyzedOne: string;
   factElapsed: string;
   checkTitle: string;
   chkCable: string;
@@ -142,24 +147,22 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "No se pudo activar el análisis profundo. Vuelve a marcarlo para intentarlo de nuevo.",
     optionDeepSteps:
       "Te pediremos pulsar a la vez tres botones del iPhone. Podrás empezar cuando el iPhone lo confirme.",
-    cardCopying: "Copiando archivos",
-    cardSkipping: "Saltando fotos y vídeos",
-    cardWaiting: "Esperando más datos del móvil",
-    cardFinishing: "Recibiendo los últimos datos",
-    cardDecrypting: "Descifrando la copia",
-    cardComparing: "Buscando spyware conocido",
-    cardForensics: "Revisando registros y apps",
-    cardNetwork: "Revisando las conexiones",
-    cardCleanup: "Borrando archivos temporales",
+    cardExtracting: "Extrayendo datos",
+    cardExtracted: "Extracción completa",
+    cardDiagnostics: "Esperando diagnóstico",
+    cardApps: "Revisando apps",
+    cardConnections: "Revisando conexiones",
+    cardReport: "Preparando el informe",
+    cardComparing: "Comparando indicadores",
+    cardForensics: "Revisando el sistema",
+    cardNetwork: "Analizando la red",
     cardObserving: "Observando la red",
-    cardDeepPreparing: "Preparando análisis profundo",
     deepWaitTitle: "Activa el análisis profundo",
     deepWaitHint:
       "Pulsa a la vez los tres botones marcados en el iPhone y suéltalos al notar la vibración. No los mantengas: llamarías a emergencias.",
     deepConfirmedTitle: "Análisis profundo activado",
     deepConfirmedHint: "El iPhone prepara el registro. Empezamos la copia.",
     deepSkip: "Seguir sin análisis profundo",
-    cardDeepReady: "Análisis profundo completo",
     closeNow: "Cerrar",
     welcomeTitle: "Bienvenido a Enigm Scan",
     welcomeBody:
@@ -223,10 +226,17 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkRetry: "Si lo rechazaste, desconecta y vuelve a conectar el cable",
     viaUsb: "Conectado por USB",
     deviceId: "Identificador",
-    factPercent: "copiado",
-    factLeft: "restante (aprox.)",
+    factPercent: "extraído",
     factCopied: "copiados",
-    factReceived: "recibidos",
+    factApps: "apps revisadas",
+    factApp: "app revisada",
+    factObserved: "red observada",
+    factConnections: "conexiones revisadas",
+    factConnection: "conexión revisada",
+    factChecks: "comprobaciones",
+    factCheck: "comprobación",
+    factAnalyzed: "conexiones analizadas",
+    factAnalyzedOne: "conexión analizada",
     factSigned: "indicadores firmados",
     factFiles: "archivos revisados",
     factFile: "archivo revisado",
@@ -261,24 +271,22 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "The deep check could not be turned on. Tick it again to try once more.",
     optionDeepSteps:
       "We’ll ask you to press three iPhone buttons at the same time. You can start once the iPhone confirms it.",
-    cardCopying: "Copying files",
-    cardSkipping: "Skipping photos and videos",
-    cardWaiting: "Waiting for the phone’s data",
-    cardFinishing: "Receiving the last data",
-    cardDecrypting: "Decrypting the copy",
-    cardComparing: "Looking for known spyware",
-    cardForensics: "Reviewing logs and apps",
-    cardNetwork: "Reviewing connections",
-    cardCleanup: "Deleting the temporary files",
+    cardExtracting: "Extracting data",
+    cardExtracted: "Extraction complete",
+    cardDiagnostics: "Waiting for diagnostics",
+    cardApps: "Checking apps",
+    cardConnections: "Checking connections",
+    cardReport: "Preparing the report",
+    cardComparing: "Comparing indicators",
+    cardForensics: "Checking the system",
+    cardNetwork: "Analyzing the network",
     cardObserving: "Watching the network",
-    cardDeepPreparing: "Preparing the deep check",
     deepWaitTitle: "Start the deep check",
     deepWaitHint:
       "Press the three marked buttons on the iPhone at the same time and release them when you feel the vibration. Don’t hold them: that calls emergency services.",
     deepConfirmedTitle: "Deep check started",
     deepConfirmedHint: "The iPhone is preparing the log. Starting the copy.",
     deepSkip: "Continue without the deep check",
-    cardDeepReady: "Deep check complete",
     closeNow: "Close",
     welcomeTitle: "Welcome to Enigm Scan",
     welcomeBody:
@@ -342,10 +350,17 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkRetry: "If you declined, unplug and plug the cable back in",
     viaUsb: "Connected over USB",
     deviceId: "Identifier",
-    factPercent: "copied",
-    factLeft: "left (estimate)",
+    factPercent: "extracted",
     factCopied: "copied",
-    factReceived: "received",
+    factApps: "apps checked",
+    factApp: "app checked",
+    factObserved: "network observed",
+    factConnections: "connections checked",
+    factConnection: "connection checked",
+    factChecks: "checks",
+    factCheck: "check",
+    factAnalyzed: "connections analyzed",
+    factAnalyzedOne: "connection analyzed",
     factSigned: "signed indicators",
     factFiles: "files checked",
     factFile: "file checked",
@@ -381,24 +396,22 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "L’analyse approfondie n’a pas pu être activée. Cochez-la de nouveau pour réessayer.",
     optionDeepSteps:
       "Nous vous demanderons d’appuyer en même temps sur trois boutons de l’iPhone. Vous pourrez commencer dès que l’iPhone le confirme.",
-    cardCopying: "Copie des fichiers",
-    cardSkipping: "Photos et vidéos ignorées",
-    cardWaiting: "En attente du téléphone",
-    cardFinishing: "Fin de la réception",
-    cardDecrypting: "Déchiffrement de la copie",
-    cardComparing: "Recherche d’espions connus",
-    cardForensics: "Examen des journaux et applis",
-    cardNetwork: "Examen des connexions",
-    cardCleanup: "Nettoyage des fichiers",
+    cardExtracting: "Extraction des données",
+    cardExtracted: "Extraction terminée",
+    cardDiagnostics: "Attente du diagnostic",
+    cardApps: "Vérification des applis",
+    cardConnections: "Vérification des connexions",
+    cardReport: "Préparation du rapport",
+    cardComparing: "Comparaison des indicateurs",
+    cardForensics: "Vérification du système",
+    cardNetwork: "Analyse du réseau",
     cardObserving: "Observation du réseau",
-    cardDeepPreparing: "Préparation de l’analyse",
     deepWaitTitle: "Lancez l’analyse approfondie",
     deepWaitHint:
       "Appuyez en même temps sur les trois boutons indiqués sur l’iPhone et relâchez-les dès que vous sentez la vibration. Ne les maintenez pas : cela appellerait les secours.",
     deepConfirmedTitle: "Analyse approfondie lancée",
     deepConfirmedHint: "L’iPhone prépare le journal. La copie commence.",
     deepSkip: "Continuer sans l’analyse approfondie",
-    cardDeepReady: "Analyse approfondie terminée",
     closeNow: "Fermer",
     welcomeTitle: "Bienvenue dans Enigm Scan",
     welcomeBody:
@@ -467,10 +480,17 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkRetry: "Si vous avez refusé, débranchez puis rebranchez le câble",
     viaUsb: "Connecté en USB",
     deviceId: "Identifiant",
-    factPercent: "copié",
-    factLeft: "restant (estimation)",
+    factPercent: "extrait",
     factCopied: "copiés",
-    factReceived: "reçus",
+    factApps: "applis vérifiées",
+    factApp: "appli vérifiée",
+    factObserved: "réseau observé",
+    factConnections: "connexions vérifiées",
+    factConnection: "connexion vérifiée",
+    factChecks: "vérifications",
+    factCheck: "vérification",
+    factAnalyzed: "connexions analysées",
+    factAnalyzedOne: "connexion analysée",
     factSigned: "indicateurs signés",
     factFiles: "fichiers vérifiés",
     factFile: "fichier vérifié",
@@ -507,17 +527,16 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "Die Tiefenprüfung konnte nicht aktiviert werden. Wählen Sie sie erneut, um es noch einmal zu versuchen.",
     optionDeepSteps:
       "Wir bitten Sie, gleichzeitig drei Tasten am iPhone zu drücken. Sie können starten, sobald das iPhone es bestätigt.",
-    cardCopying: "Dateien werden kopiert",
-    cardSkipping: "Medien werden übersprungen",
-    cardWaiting: "Warten auf das Telefon",
-    cardFinishing: "Letzte Daten kommen an",
-    cardDecrypting: "Die Kopie wird entschlüsselt",
-    cardComparing: "Suche nach Spyware",
-    cardForensics: "Protokolle und Apps prüfen",
-    cardNetwork: "Verbindungen werden geprüft",
-    cardCleanup: "Temporäre Dateien löschen",
+    cardExtracting: "Daten werden extrahiert",
+    cardExtracted: "Extraktion abgeschlossen",
+    cardDiagnostics: "Warten auf Diagnose",
+    cardApps: "Apps werden geprüft",
+    cardConnections: "Verbindungen werden geprüft",
+    cardReport: "Bericht wird erstellt",
+    cardComparing: "Indikatoren werden verglichen",
+    cardForensics: "System wird geprüft",
+    cardNetwork: "Netzwerk wird analysiert",
     cardObserving: "Netzwerk wird beobachtet",
-    cardDeepPreparing: "Tiefenprüfung startet",
     deepWaitTitle: "Tiefenprüfung starten",
     deepWaitHint:
       "Drücken Sie gleichzeitig die drei markierten Tasten am iPhone und lassen Sie sie los, sobald Sie die Vibration spüren. Nicht gedrückt halten: Das ruft den Notruf an.",
@@ -525,7 +544,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     deepConfirmedHint:
       "Das iPhone bereitet das Protokoll vor. Die Kopie beginnt.",
     deepSkip: "Ohne Tiefenprüfung fortfahren",
-    cardDeepReady: "Tiefenprüfung abgeschlossen",
     closeNow: "Schließen",
     welcomeTitle: "Willkommen bei Enigm Scan",
     welcomeBody:
@@ -596,10 +614,17 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkRetry: "Falls abgelehnt: Kabel trennen und wieder anschließen",
     viaUsb: "Per USB verbunden",
     deviceId: "Kennung",
-    factPercent: "kopiert",
-    factLeft: "verbleibend",
+    factPercent: "extrahiert",
     factCopied: "kopiert",
-    factReceived: "empfangen",
+    factApps: "geprüfte Apps",
+    factApp: "geprüfte App",
+    factObserved: "Netzwerk beobachtet",
+    factConnections: "geprüfte Verbindungen",
+    factConnection: "geprüfte Verbindung",
+    factChecks: "Prüfungen",
+    factCheck: "Prüfung",
+    factAnalyzed: "analysierte Verbindungen",
+    factAnalyzedOne: "analysierte Verbindung",
     factSigned: "signierte Indikatoren",
     factFiles: "geprüfte Dateien",
     factFile: "geprüfte Datei",
@@ -635,24 +660,22 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "Non è stato possibile attivare l’analisi approfondita. Selezionala di nuovo per riprovare.",
     optionDeepSteps:
       "Ti chiederemo di premere insieme tre tasti dell’iPhone. Potrai iniziare quando l’iPhone lo conferma.",
-    cardCopying: "Copia dei file",
-    cardSkipping: "Foto e video saltati",
-    cardWaiting: "In attesa del telefono",
-    cardFinishing: "Ricezione degli ultimi dati",
-    cardDecrypting: "Decifratura della copia",
-    cardComparing: "Ricerca di spyware noti",
-    cardForensics: "Controllo di registri e app",
-    cardNetwork: "Controllo delle connessioni",
-    cardCleanup: "Eliminazione dei file temporanei",
+    cardExtracting: "Estrazione dei dati",
+    cardExtracted: "Estrazione completata",
+    cardDiagnostics: "In attesa della diagnosi",
+    cardApps: "Controllo delle app",
+    cardConnections: "Controllo delle connessioni",
+    cardReport: "Preparazione del rapporto",
+    cardComparing: "Confronto degli indicatori",
+    cardForensics: "Controllo del sistema",
+    cardNetwork: "Analisi della rete",
     cardObserving: "Osservazione della rete",
-    cardDeepPreparing: "Preparazione dell’analisi",
     deepWaitTitle: "Avvia l’analisi approfondita",
     deepWaitHint:
       "Premi insieme i tre tasti indicati sull’iPhone e rilasciali appena senti la vibrazione. Non tenerli premuti: chiameresti i soccorsi.",
     deepConfirmedTitle: "Analisi approfondita avviata",
     deepConfirmedHint: "L’iPhone sta preparando il registro. Inizia la copia.",
     deepSkip: "Continua senza analisi approfondita",
-    cardDeepReady: "Analisi approfondita completata",
     closeNow: "Chiudi",
     welcomeTitle: "Benvenuto in Enigm Scan",
     welcomeBody:
@@ -719,10 +742,17 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkRetry: "Se hai rifiutato, scollega e ricollega il cavo",
     viaUsb: "Collegato via USB",
     deviceId: "Identificativo",
-    factPercent: "copiato",
-    factLeft: "rimanente (stima)",
+    factPercent: "estratto",
     factCopied: "copiati",
-    factReceived: "ricevuti",
+    factApps: "app controllate",
+    factApp: "app controllata",
+    factObserved: "rete osservata",
+    factConnections: "connessioni controllate",
+    factConnection: "connessione controllata",
+    factChecks: "controlli",
+    factCheck: "controllo",
+    factAnalyzed: "connessioni analizzate",
+    factAnalyzedOne: "connessione analizzata",
     factSigned: "indicatori firmati",
     factFiles: "file controllati",
     factFile: "file controllato",
@@ -758,17 +788,16 @@ export const flowCopy: Record<Language, FlowCopy> = {
       "Não foi possível ativar a análise profunda. Marque-a de novo para tentar outra vez.",
     optionDeepSteps:
       "Vamos pedir-lhe que prima ao mesmo tempo três botões do iPhone. Pode começar quando o iPhone o confirmar.",
-    cardCopying: "A copiar ficheiros",
-    cardSkipping: "A ignorar fotos e vídeos",
-    cardWaiting: "À espera do telemóvel",
-    cardFinishing: "A receber os últimos dados",
-    cardDecrypting: "A decifrar a cópia",
-    cardComparing: "A procurar spyware conhecido",
-    cardForensics: "A rever registos e apps",
-    cardNetwork: "A rever as ligações",
-    cardCleanup: "A apagar temporários",
+    cardExtracting: "A extrair dados",
+    cardExtracted: "Extração concluída",
+    cardDiagnostics: "À espera do diagnóstico",
+    cardApps: "A rever apps",
+    cardConnections: "A rever ligações",
+    cardReport: "A preparar o relatório",
+    cardComparing: "A comparar indicadores",
+    cardForensics: "A rever o sistema",
+    cardNetwork: "A analisar a rede",
     cardObserving: "A observar a rede",
-    cardDeepPreparing: "A preparar a análise",
     deepWaitTitle: "Ative a análise profunda",
     deepWaitHint:
       "Prima ao mesmo tempo os três botões assinalados no iPhone e solte-os quando sentir a vibração. Não os mantenha premidos: ligaria para a emergência.",
@@ -776,7 +805,6 @@ export const flowCopy: Record<Language, FlowCopy> = {
     deepConfirmedHint:
       "O iPhone está a preparar o registo. A cópia vai começar.",
     deepSkip: "Continuar sem análise profunda",
-    cardDeepReady: "Análise profunda concluída",
     closeNow: "Fechar",
     welcomeTitle: "Bem-vindo ao Enigm Scan",
     welcomeBody:
@@ -840,10 +868,17 @@ export const flowCopy: Record<Language, FlowCopy> = {
     chkRetry: "Se recusou, desligue e volte a ligar o cabo",
     viaUsb: "Ligado por USB",
     deviceId: "Identificador",
-    factPercent: "copiado",
-    factLeft: "restante",
+    factPercent: "extraído",
     factCopied: "copiados",
-    factReceived: "recebidos",
+    factApps: "apps verificadas",
+    factApp: "app verificada",
+    factObserved: "rede observada",
+    factConnections: "ligações verificadas",
+    factConnection: "ligação verificada",
+    factChecks: "verificações",
+    factCheck: "verificação",
+    factAnalyzed: "ligações analisadas",
+    factAnalyzedOne: "ligação analisada",
     factSigned: "indicadores assinados",
     factFiles: "ficheiros verificados",
     factFile: "ficheiro verificado",

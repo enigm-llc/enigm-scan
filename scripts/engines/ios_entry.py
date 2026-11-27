@@ -249,6 +249,8 @@ def publish(work):
         status["percent"] = SESSION["percent"]
     if SESSION.get("sysdiagnose") in ("generating", "ready"):
         status["sysdiagnose"] = SESSION["sysdiagnose"]
+    if SESSION.get("step") in ("extracted", "diagnostics"):
+        status["step"] = SESSION["step"]
     for key in ("kept", "discarded", "receivedBytes", "storedBytes"):
         status[key] = SESSION[key]
     temporary = work / "acquisition-status.tmp"
@@ -803,7 +805,13 @@ async def copy_once(client, backup_api, work, output, password_supplied, capture
             pass  # the copy and the later diagnostics work without it
         task = asyncio.create_task(backup.backup(full=True, backup_directory=output, filter_callback=select_file, patch_manifest=False,
                                                  progress_callback=on_backup_progress))
-        task.add_done_callback(lambda _: copied.set())
+        def extracted(done):
+            # The copy is out of the phone; the network may still be observed.
+            if not done.cancelled() and done.exception() is None:
+                SESSION["step"] = "extracted"
+                publish(work)
+            copied.set()
+        task.add_done_callback(extracted)
         guard = asyncio.create_task(budget())
         try:
             for awaited in (task, network):
@@ -850,7 +858,8 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False, ho
         """Replaces the async method that would store the pairing on disk."""
         await asyncio.sleep(0)
     SESSION.update(work=work, cancelled_on_device=False, phase="acquiring", percent=None,
-                   kept=0, discarded=0, receivedBytes=0, storedBytes=0, sysdiagnose=None)
+                   kept=0, discarded=0, receivedBytes=0, storedBytes=0, sysdiagnose=None,
+                   step=None)
     try:
         if temporary_pair:
             client.save_pair_record = memory_only
@@ -890,7 +899,7 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False, ho
                 attempt += 1
                 shutil.rmtree(output, ignore_errors=True)
                 SESSION.update(percent=None, kept=0, discarded=0, receivedBytes=0, storedBytes=0,
-                               before_prompt=None)
+                               before_prompt=None, step=None)
                 phase(work, "passcode_retry")
                 await asyncio.sleep(PASSCODE_RETRY_PAUSE)
         target = output / serial
@@ -905,6 +914,10 @@ async def acquire(serial, work, password_supplied, capture=False, deep=False, ho
             "manifestPreserved": True,
         }))
         # Crash reports and the shutdown log, once the backup service is closed.
+        if SESSION.get("sysdiagnose"):
+            # The deep check: the phone may still be finishing the sysdiagnose.
+            SESSION["step"] = "diagnostics"
+            publish(work)
         try:
             await collect_diagnostics(client, work)
         except Exception:

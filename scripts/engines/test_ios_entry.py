@@ -187,6 +187,15 @@ class DiagnosticsTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(json.loads((Path(work) / "acquisition-status.json").read_text())["sysdiagnose"], "ready")
         adapter.SESSION["sysdiagnose"] = None
 
+    def test_publishes_only_known_steps_of_the_copy(self):
+        with tempfile.TemporaryDirectory() as work:
+            for step, shown in (("extracted", "extracted"), ("diagnostics", "diagnostics"), ("other", None), (None, None)):
+                adapter.SESSION["step"] = step
+                adapter.publish(Path(work))
+                status = json.loads((Path(work) / "acquisition-status.json").read_text())
+                self.assertEqual(status.get("step"), shown)
+        adapter.SESSION["step"] = None
+
     async def test_a_sysdiagnose_started_before_the_copy_is_confirmed_at_once(self):
         afc = FakeAfc({
             "DiagnosticLogs/sysdiagnose/sysdiagnose_old.tar.gz": (b"x", 1),

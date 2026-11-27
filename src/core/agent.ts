@@ -19,10 +19,20 @@ export type AcquisitionProgress = {
   capturing?: boolean;
   /** A sysdiagnose the owner started during the copy (iPhone). */
   sysdiagnose?: "generating" | "ready";
+  /** What the copy does once the data is out of the phone. */
+  step?: "extracted" | "diagnostics" | "apps" | "connections";
+  /** Android: installed apps whose permissions and access were read. */
+  apps?: number;
+  /** Android: open connections read from the phone. */
+  connections?: number;
 };
 export type AgentStatus = {
   phase: string;
   artifacts: number;
+  /** Checks the analysis has completed so far. */
+  checks?: number;
+  /** Network connections analysed. */
+  connections?: number;
   error: string | null;
   report: ScanReport | null;
   acquisition?: AcquisitionProgress | null;
