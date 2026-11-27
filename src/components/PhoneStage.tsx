@@ -566,7 +566,7 @@ export function PhoneStage({
           <span className="phone-transfer" aria-hidden="true">
             {TRANSFER.map(([x, delay, size], i) => (
               <i
-                key={i}
+                key={i /* NOSONAR: fixed decorative particles */}
                 style={
                   {
                     "--x": `${x}em`,

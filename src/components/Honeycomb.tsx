@@ -102,7 +102,7 @@ export function Honeycomb({
     };
 
     const draw = (now: number) => {
-      if (begin === null) begin = now;
+      begin ??= now;
       // Time since the page appeared; the rotation starts after the entrance.
       const since = reduce ? INTRO + PERIOD / 2 : now - begin;
       const time = Math.max(0, since - INTRO);
