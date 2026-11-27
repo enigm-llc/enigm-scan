@@ -3,6 +3,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type ReactElement,
   type ReactNode,
 } from "react";
 import {
@@ -683,6 +684,72 @@ export function PhoneStage({
       );
       break;
   }
+  // What the phone's screen and the note beside it show, each with a name:
+  // when the name changes, the old one gives way to the new (Crossfade).
+  const title = "title" in screen ? screen.title : "";
+  const subtitle = "subtitle" in screen ? screen.subtitle : "";
+  const handsOver = document.documentElement.dataset.shell === "app";
+  const system = android ? "android" : "ios";
+  const screenId = handsOver
+    ? `${system}-${screen.kind}-${title}-${subtitle}`
+    : system;
+  let aside: { id: string; part: ReactElement<{ className?: string }> | null } =
+    { id: "none", part: null };
+  if (checks)
+    aside = {
+      id: "checks",
+      part: (
+        <span className="phone-aside phone-checks">
+          <b>{checks.title}</b>
+          <ul>
+            {checks.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+        </span>
+      ),
+    };
+  else if (facts)
+    aside = {
+      id: "facts",
+      part: (
+        <span className="phone-aside phone-facts" ref={glide}>
+          {facts.device && (
+            <DeviceIcon device={facts.device} size={30} tint tight />
+          )}
+          {facts.title && <b>{facts.title}</b>}
+          {facts.detail && <small>{facts.detail}</small>}
+          {facts.items.length > 0 && (
+            <dl>
+              {facts.items.map((item) => (
+                <div key={item.id ?? item.label}>
+                  <dd>
+                    <Count fact={item} />
+                  </dd>
+                  <dt>{item.label}</dt>
+                </div>
+              ))}
+            </dl>
+          )}
+        </span>
+      ),
+    };
+  else if (screen.kind === "guide")
+    aside = {
+      id: `guide-${system}`,
+      part: (
+        <span className="phone-aside">
+          <DeviceIcon
+            device={android ? "android" : "ios"}
+            size={34}
+            tint
+            tight
+          />
+          <b>{android ? "Android" : "iPhone"}</b>
+          <small>{android ? screen.aside.android : screen.aside.ios}</small>
+        </span>
+      ),
+    };
   return (
     <div
       className={`constellation phone-stage is-${screen.kind} ${android ? "is-android" : "is-ios"} ${platform === "auto" ? "is-guessing" : ""} ${attention ? "attention" : ""} ${paused ? "motion-paused" : ""} ${press && !android ? "is-pressing" : ""}`}
@@ -726,13 +793,7 @@ export function PhoneStage({
             {/* In the app one screen of the phone gives way to the next
                 (the copy, the passcode, the buttons to press...) without
                 blinking; the website keeps its own pace. */}
-            <Crossfade
-              id={`${android ? "android" : "ios"}${
-                document.documentElement.dataset.shell === "app"
-                  ? `-${screen.kind}-${"title" in screen ? screen.title : ""}-${"subtitle" in screen ? screen.subtitle : ""}`
-                  : ""
-              }`}
-            >
+            <Crossfade id={screenId}>
               <div className="phone-content">{content}</div>
             </Crossfade>
           </div>
@@ -764,59 +825,7 @@ export function PhoneStage({
         )}
         {/* Beside the phone: one note at a time, each giving way to the next
             (iPhone and Android in turn, then the phone found, its figures). */}
-        <Crossfade
-          id={
-            checks
-              ? "checks"
-              : facts
-                ? "facts"
-                : screen.kind === "guide"
-                  ? `guide-${android ? "android" : "ios"}`
-                  : "none"
-          }
-        >
-          {checks ? (
-            <span className="phone-aside phone-checks">
-              <b>{checks.title}</b>
-              <ul>
-                {checks.items.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </span>
-          ) : facts ? (
-            <span className="phone-aside phone-facts" ref={glide}>
-              {facts.device && (
-                <DeviceIcon device={facts.device} size={30} tint tight />
-              )}
-              {facts.title && <b>{facts.title}</b>}
-              {facts.detail && <small>{facts.detail}</small>}
-              {facts.items.length > 0 && (
-                <dl>
-                  {facts.items.map((item) => (
-                    <div key={item.id ?? item.label}>
-                      <dd>
-                        <Count fact={item} />
-                      </dd>
-                      <dt>{item.label}</dt>
-                    </div>
-                  ))}
-                </dl>
-              )}
-            </span>
-          ) : screen.kind === "guide" ? (
-            <span className="phone-aside">
-              <DeviceIcon
-                device={android ? "android" : "ios"}
-                size={34}
-                tint
-                tight
-              />
-              <b>{android ? "Android" : "iPhone"}</b>
-              <small>{android ? screen.aside.android : screen.aside.ios}</small>
-            </span>
-          ) : null}
-        </Crossfade>
+        <Crossfade id={aside.id}>{aside.part}</Crossfade>
         {note && !facts && !checks && (
           <span className="phone-note">
             <b>{note.value}</b>
