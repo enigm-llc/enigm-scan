@@ -19,6 +19,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   desktop:
+    name: desktop (${{ matrix.os }})
     strategy:
       fail-fast: false
       matrix:
@@ -32,6 +33,7 @@ jobs:
           - os: macos-15-intel
             bundles: app
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
     # The Mac jobs of a release use the protected environment that holds the
     # Developer ID certificate and the notary key; it waits for approval.
     # The Windows job of a signed release uses its own protected environment:
@@ -40,7 +42,7 @@ jobs:
     environment: ${{ inputs.sign_macos && startsWith(matrix.os, 'macos') && 'release-macos' || inputs.sign_windows && startsWith(matrix.os, 'windows') && 'release-windows' || '' }}
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Windows signing only; Azure accepts it from release-windows alone
     env:
       MACOSX_DEPLOYMENT_TARGET: "13.0"
       ENIGM_MACOS_IDENTITY: "${{ inputs.sign_macos && startsWith(matrix.os, 'macos') && 'Developer ID Application: Enigm, LLC (CRRU2PL879)' || '' }}"
@@ -185,7 +187,9 @@ jobs:
         run: rm -rf src-tauri/target/release/resources src-tauri/target/release/bundle
       - name: Build native application
         if: runner.os != 'Windows'
-        run: npm exec tauri -- build --bundles ${{ matrix.bundles }}
+        env:
+          BUNDLES: ${{ matrix.bundles }}
+        run: npm exec tauri -- build --bundles "$BUNDLES"
       - name: Build portable Windows executable without installer
         if: runner.os == 'Windows'
         run: npm exec tauri -- build --no-bundle
