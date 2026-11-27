@@ -173,7 +173,7 @@ export default function DesktopApp() {
     }
   }
   return (
-    <div className="app-window">
+    <div className={atTop ? "app-window" : "app-window is-scrolled"}>
       {/* macOS: the title bar is transparent over the app; this strip is
           where the window is dragged from. */}
       <div className="app-drag" data-tauri-drag-region aria-hidden="true" />

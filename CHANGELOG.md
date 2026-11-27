@@ -14,6 +14,8 @@
   phone, as on Android.
 - The "Recommended" badge has room above and below its word on every
   system.
+- On macOS, a page scrolled up fades out under the window's buttons instead
+  of ending in a hard line.
 
 ## 1.0.1 — 27 November 2026
 

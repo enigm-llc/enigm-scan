@@ -6411,6 +6411,26 @@ body:has(.promo-backdrop) {
 :root[data-shell="app"][data-os="macos"] .about-window {
   padding-top: 28px;
 }
+/* macOS draws no title bar of its own over the app, so content scrolled up
+   under the window's buttons would end in a hard line. Once the page has
+   been scrolled, it fades out under that strip instead, as macOS apps do;
+   at the top of a page nothing is drawn. */
+:root[data-shell="app"][data-os="macos"] .app-drag::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  /* The height of a standard macOS title bar. */
+  height: 28px;
+  background: linear-gradient(to bottom, var(--bg), transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms var(--ease);
+}
+:root[data-shell="app"][data-os="macos"]
+  .app-window.is-scrolled
+  .app-drag::before {
+  opacity: 1;
+}
 
 /* ---------- Desktop app: one button size ----------
    Every main button in the app has the welcome and "Download PDF" format:
