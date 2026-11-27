@@ -11,7 +11,6 @@ app checks before running an engine, so this runs after the engines are built
 and before the app is: the catalog compiled into the app then describes the
 signed files. Nothing else in the engines changes.
 """
-import hashlib
 import json
 import os
 import pathlib
@@ -20,7 +19,7 @@ import subprocess
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from engine_tree import tree_digest  # noqa: E402
+from refresh_catalog import refresh  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 ENGINES = ROOT / 'src-tauri/resources/engines'
@@ -50,19 +49,13 @@ def sign(path, identity, entitlements=None):
     subprocess.run(['codesign', '--verify', '--strict', str(path)], check=True)
 
 
-def sha256(path):
-    with path.open('rb') as handle:
-        return hashlib.file_digest(handle, 'sha256').hexdigest()
-
-
 def main():
     if platform.system() != 'Darwin':
         raise SystemExit('Signing for macOS runs on macOS')
     identity = os.environ.get('ENIGM_MACOS_IDENTITY', '')
     if not identity.startswith('Developer ID Application: '):
         raise SystemExit('Set ENIGM_MACOS_IDENTITY to the Developer ID Application identity')
-    manifest_path = ENGINES / 'manifest.json'
-    manifest = json.loads(manifest_path.read_text())
+    manifest = json.loads((ENGINES / 'manifest.json').read_text())
     signed = 0
     done = set()
     for entry in manifest:
@@ -81,15 +74,8 @@ def main():
                 signed += 1
         sign(executable, identity, entitlements)
         signed += 1
-    # Two catalog entries can share one engine (MVT serves iOS and Android):
-    # hashes are taken after every file is signed.
-    for entry in manifest:
-        entry['sha256'] = sha256(ENGINES / entry['file'])
-        if entry.get('tree'):
-            entry['tree_sha256'] = tree_digest(ENGINES / entry['tree'])
-        for support in entry.get('support', []):
-            support['sha256'] = sha256(ENGINES / support['file'])
-    manifest_path.write_text(json.dumps(manifest, indent=2) + '\n')
+    # Hashes are taken once every file is signed.
+    refresh()
     print(json.dumps({'signed': signed, 'engines': [e['id'] for e in manifest]}))
 
 
