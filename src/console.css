@@ -6157,6 +6157,11 @@ body:has(.promo-backdrop) {
   /* One time for everything that appears, one for everything that moves. */
   --enter: 800ms;
   --move: 600ms;
+  /* On the drawn phone one screen hands over to the next: the old one
+     leaves quickly, the new one arrives a little slower, so the phone is
+     never empty and two screens are hardly ever seen at once. */
+  --phone-out: 300ms;
+  --phone-in: 500ms;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI",
     system-ui, Cantarell, Ubuntu, "Noto Sans", sans-serif;
@@ -6958,19 +6963,21 @@ body:has(.promo-backdrop) {
 :root[data-shell="app"] .promo-dialog {
   animation: console-in var(--enter) var(--ease) both;
 }
-:root[data-shell="app"] .app-window .phone-content,
-:root[data-shell="app"] .app-window .phone-aside,
-:root[data-shell="app"] .app-window .phone-waves,
 :root[data-shell="app"] .promo-backdrop {
   animation: enter-fade var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .phone-content,
+:root[data-shell="app"] .app-window .phone-aside,
+:root[data-shell="app"] .app-window .phone-waves {
+  animation: enter-fade var(--phone-in) var(--ease) both;
 }
 :root[data-shell="app"] .app-window .phone-beam.sweep {
   animation:
     phone-sweep-full 5s ease-in-out infinite alternate,
-    enter-fade var(--enter) var(--ease) both;
+    enter-fade var(--phone-in) var(--ease) both;
 }
 :root[data-shell="app"] .app-window .phone-waves.is-off {
-  animation: waves-out var(--enter) var(--ease) both;
+  animation: waves-out var(--phone-out) var(--ease) both;
 }
 @keyframes enter-fade {
   from {
@@ -7077,22 +7084,22 @@ body:has(.promo-backdrop) {
   display: none;
 }
 :root[data-shell="app"] .app-window .is-leaving {
-  animation: leave-fade var(--enter) var(--ease) both;
+  animation: leave-fade var(--phone-out) var(--ease) both;
   pointer-events: none;
 }
 :root[data-shell="app"] .app-window .is-leaving * {
   animation: none;
 }
 :root[data-shell="app"] .app-window .phone-stage.is-pressing .phone-keys {
-  animation: enter-fade var(--enter) var(--ease) both;
+  animation: enter-fade var(--phone-in) var(--ease) both;
 }
 :root[data-shell="app"] .app-window .phone-keys.is-off {
   display: block;
-  animation: leave-fade var(--enter) var(--ease) both;
+  animation: leave-fade var(--phone-out) var(--ease) both;
 }
 :root[data-shell="app"] .app-window .phone::before,
 :root[data-shell="app"] .app-window .phone::after {
-  transition: opacity var(--enter) var(--ease);
+  transition: opacity var(--phone-in) var(--ease);
 }
 @keyframes leave-fade {
   to {
@@ -7112,9 +7119,9 @@ body:has(.promo-backdrop) {
    time as its screen and note. */
 :root[data-shell="app"] .app-window .is-guessing .phone,
 :root[data-shell="app"] .app-window .is-guessing .phone-screen {
-  transition-duration: var(--enter);
+  transition-duration: var(--phone-in);
 }
 :root[data-shell="app"] .app-window .is-guessing .phone-bar .island,
 :root[data-shell="app"] .app-window .is-guessing .phone-bar .punch {
-  animation-duration: var(--enter);
+  animation-duration: var(--phone-in);
 }

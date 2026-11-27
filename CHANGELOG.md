@@ -8,7 +8,8 @@
   longer shows a few minutes.
 - The drawn phone stays and only what it shows changes: each screen (the
   copy, the passcode, the buttons to press for the deep check) and each note
-  beside it gives way to the next with a crossfade, never blinking empty.
+  beside it gives way to the next: the old one leaves quickly while the new
+  one arrives, never blinking empty and hardly ever showing both.
   On step 1 the switch between iPhone and Android takes the same time.
 
 ## 1.0.3 — 27 November 2026
