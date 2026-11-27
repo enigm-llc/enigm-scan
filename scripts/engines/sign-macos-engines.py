@@ -15,8 +15,10 @@ import json
 import os
 import pathlib
 import platform
+import shutil
 import subprocess
 import sys
+import tempfile
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 from refresh_catalog import refresh  # noqa: E402
@@ -42,11 +44,25 @@ def is_code(path):
 
 
 def sign(path, identity, entitlements=None):
+    """Sign one executable or library, with its signature inside the file.
+
+    PyInstaller keeps Python as a folder named Python.framework, and the
+    engines are copied with their links resolved into plain files, so
+    codesign cannot tell whether that folder is an app or a framework and
+    refuses to sign in place. Each file is signed as a copy outside any
+    folder and its signed bytes are put back: macOS checks the signature
+    inside the file when it loads it."""
     command = ['codesign', '--force', '--sign', identity, '--options', 'runtime', '--timestamp']
     if entitlements:
         command += ['--entitlements', str(entitlements)]
-    subprocess.run([*command, str(path)], check=True)
-    subprocess.run(['codesign', '--verify', '--strict', str(path)], check=True)
+    with tempfile.TemporaryDirectory(prefix='enigm-sign-') as work:
+        copy = pathlib.Path(work) / path.name
+        shutil.copy2(path, copy)
+        subprocess.run([*command, str(copy)], check=True)
+        subprocess.run(['codesign', '--verify', '--strict', str(copy)], check=True)
+        mode = path.stat().st_mode
+        path.write_bytes(copy.read_bytes())
+        path.chmod(mode)
 
 
 def main():
