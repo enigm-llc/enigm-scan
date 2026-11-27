@@ -670,6 +670,9 @@ export function PhoneStage({
           <span
             className={`phone-waves ${network ? "" : "is-off"}`}
             aria-hidden="true"
+            onAnimationEnd={(event) => {
+              if (event.animationName === "waves-out") setWaved(false);
+            }}
           >
             <i />
             <i />

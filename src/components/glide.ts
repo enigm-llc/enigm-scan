@@ -62,6 +62,17 @@ export function useGlide<T extends HTMLElement>(parts?: string) {
           for (const [el, now] of after) {
             const was = before.get(el);
             if (was === undefined || Math.abs(was - now) < 2) continue;
+            // An element still moving in by its own entrance is left to it.
+            const entering = el
+              .getAnimations()
+              .some(
+                (other) =>
+                  other !== sliding.get(el) &&
+                  other.playState === "running" &&
+                  other.effect instanceof KeyframeEffect &&
+                  other.effect.getKeyframes().some((k) => "transform" in k),
+              );
+            if (entering) continue;
             const from = was - now + lift(el);
             const own = base(el);
             sliding.get(el)?.cancel();

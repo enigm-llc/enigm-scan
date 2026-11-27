@@ -927,18 +927,21 @@ export function Scanner({
                   ? f.notFoundTitle
                   : c.connectTitle}
             </h1>
-            <p
-              className="flow-intro lede"
-              key={`${ready}-${missing}-${device}`}
-            >
-              {!ready
+            {(() => {
+              const intro = !ready
                 ? missing
                   ? f.notFoundHelp
                   : f.connectHelp
                 : device === "android"
                   ? f.readyAndroid
-                  : f.readyIos}
-            </p>
+                  : f.readyIos;
+              // A new line arrives; the same line stays put.
+              return (
+                <p className="flow-intro lede" key={intro}>
+                  {intro}
+                </p>
+              );
+            })()}
             {method === "usb" ? (
               <>
                 {devices.length > 1 && (
