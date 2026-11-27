@@ -68,8 +68,7 @@ The bundle is signed with an Ed25519 key that the maintainers keep offline;
 it is never in this repository or in the app. The app accepts a bundle only
 if its signature matches one of the keys in
 `src-tauri/resources/intelligence/trusted-keys.bin`, it has not expired and
-its version is not lower than the one it already has. The VPN nodes of Enigm
-Gateway, which match the same domains, apply the same rules.
+its version is not lower than the one it already has.
 
 With the key on the maintainer's computer, in `.secrets/`:
 
@@ -106,17 +105,17 @@ Threats Open) without changing anything.
 ### Changing the signing key
 
 1. Create the new key where it will live, and add its 32-byte public key to
-   `trusted-keys.bin` (after the current one) and, as a PEM file, to Enigm
-   Gateway's `infra/vpn/suricata/enigm-scan-keys/`.
+   `trusted-keys.bin` (after the current one), and to any other system that
+   verifies the bundle.
 2. Publish an app release with it. Keep signing with the current key.
 3. Once the app versions that only know the current key are no longer in
    use, sign with the new one; the compiler accepts a key only if the app
-   trusts it. Then remove the old key from both places.
+   trusts it. Then remove the old key everywhere.
 
 `release.json` describes the current release: its version, the number of
 indicators by kind, what was omitted and why, and the validity window. The
-current release, 2026112502, has 11,323 indicators and expires on
-23 February 2027.
+current release, 2026112601, has 11,669 indicators and expires on
+25 February 2027.
 
 ## What a match means
 

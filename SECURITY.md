@@ -11,9 +11,9 @@ synthetic example is enough. We acknowledge reports within five working days.
 
 ## Supported versions
 
-Enigm Scan is in its 0.x test series. Only the latest release published at
-[scan.enigm.io](https://scan.enigm.io) receives fixes; older builds should be
-replaced with it.
+Only the latest release published at [scan.enigm.io](https://scan.enigm.io)
+receives fixes. The app says at start when a newer one exists; download it and
+delete the old one.
 
 ## Scope
 

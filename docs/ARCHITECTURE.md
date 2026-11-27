@@ -89,8 +89,9 @@ the next start finds those folders unlocked and removes them.
 ## Indicators
 
 The indicator bundle is signed with an Ed25519 key kept offline by the
-maintainers (see `intelligence/README.md`). The app embeds the public key, a
-minimum version and a copy of the bundle. At start it downloads the newest
+maintainers (see `intelligence/README.md`). The app embeds the public keys it
+trusts (`trusted-keys.bin`, more than one while the key changes), a minimum
+version and a copy of the bundle. At start it downloads the newest
 bundle from scan.enigm.io, with short timeouts and no redirects, and accepts
 it only if the signature is valid, the bundle has not expired (bundles last at
 most 90 days) and its version is not older than the one it already has. No
@@ -98,7 +99,28 @@ phone data is sent with the request.
 
 A match means a known indicator was found, which needs to be interpreted; a
 clean result means none of the known signs were found. The report says both
-in plain words.
+in plain words. Each match carries its own confidence: exact traces (file
+hashes, signing certificates, app and profile identifiers) are high, while
+domains and above all IP addresses lose confidence as they age.
+
+## New versions
+
+At start the app also reads the version published in
+`https://scan.enigm.io/downloads/manifest.json`. When it is newer, the app
+shows it in place of the welcome screen (`src/desktop/UpdateAvailable.tsx`)
+with a button to the download page. It never downloads or installs anything
+itself.
+
+## Release packages
+
+The packages are built by the **Build desktop app** workflow, started by
+hand. Before the app is compiled, a release build signs the engines (Developer
+ID on macOS, Artifact Signing on Windows) and records their new hashes, so the
+catalog compiled into the app describes the signed files. The Mac app and its
+disk image are then signed, notarized by Apple and checked with Gatekeeper;
+the Windows executable is signed and every signature is checked. The keys
+stay in protected GitHub environments and with Apple and Microsoft; see
+[RELEASE.md](RELEASE.md).
 
 ## Network check
 

@@ -2,6 +2,9 @@
 
 ## 1.0.0 — 27 November 2026
 
+- The Mac packages are signed by Enigm and notarized by Apple, so they open
+  without a warning. Release builds sign the bundled engines before the app is
+  compiled, so the app still checks every engine against its own hashes.
 - When a newer version is published on the website, the app says so at
   start, in place of the welcome screen, with a button to its download page.
   It never downloads or installs anything itself.
@@ -46,8 +49,8 @@
   FinSpy and Donot Team's Android spyware, and the mobile spyware domains
   detected by Emerging Threats Open (APT-C-23, Bahamut, RealRAT,
   PhantomLance and others). A value published by several sources now gives
-  one finding, not several. The new indicators reach the app with the next
-  signed release.
+  one finding, not several. Signed release 2026112601 has 11,669
+  indicators.
 - Apple's own notice of a mercenary spyware attack, received in Messages, is
   a critical detection instead of a point to review.
 - Each indicator match has its own confidence: exact traces (file hashes,

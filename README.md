@@ -7,13 +7,16 @@ partner's or relative's phone. It is free, it needs no account, and your data
 never leaves your computer.
 
 Download it from **[scan.enigm.io](https://scan.enigm.io)** for macOS (Apple
-Silicon and Intel), Windows and Linux. Every download is listed with its
-SHA-256 in [releases/manifest.json](releases/manifest.json).
+Silicon and Intel), Windows and Linux. The app is portable: there is nothing
+to install, and a new version replaces the old one by downloading it and
+deleting the old one. The Mac packages are signed by Enigm and notarized by
+Apple. Every download is listed with its SHA-256 in
+[releases/manifest.json](releases/manifest.json).
 
-**Status:** test releases (0.x). The app has been tried on real iPhones and
-Android phones, and detection depends on published indicators: a clean
-report is not proof that a phone is safe. Read
-[Privacy](docs/PRIVACY.md) and [Security](SECURITY.md) before relying on it.
+**Status:** version 1.0. The app has been tried on real iPhones and Android
+phones, and detection depends on published indicators: a clean report is
+not proof that a phone is safe. Read [Privacy](docs/PRIVACY.md) and
+[Security](SECURITY.md) before relying on it.
 
 ## How it works
 
@@ -25,8 +28,9 @@ report is not proof that a phone is safe. Read
 3. **Analysis.** The copy is compared with thousands of signed indicators of
    known spyware, and checked for behaviour that spyware leaves behind. Nothing
    is sent anywhere.
-4. **Report.** You get a clear result, with every sign explained, which you can
-   save as a PDF. When you finish, the copy and the report are deleted.
+4. **Report.** You get a clear result, with every sign explained and, when
+   something was found, what to do now, in order. You can save it as a PDF.
+   When you finish, the copy and the report are deleted.
 
 A clean report means that none of the known signs were found. No tool can
 prove that a phone is not being spied on, and the report says so.
@@ -36,8 +40,10 @@ prove that a phone is not being spied on, and the report says so.
 - **Known spyware and stalkerware.** Domains, IP addresses, file hashes, app
   identifiers, process names and other indicators published by Amnesty
   International's Security Lab, the MVT project, Echap, ESET Research and
-  Emerging Threats Open.
-  The bundle is signed, so the app only uses indicators that come from us.
+  Emerging Threats Open: more than 11,000 in all. The bundle is signed, so
+  the app only uses indicators that come from us. Each match has its own
+  confidence: exact traces such as file hashes are high, while domains and
+  IP addresses lose confidence as they age.
 - **Android behaviour.** Apps that hide their icon, were installed from a
   computer over USB, use accessibility or notification access, act as device
   administrators, or use the microphone, camera and location in the
@@ -117,8 +123,10 @@ on Linux (macOS has it built in).
 | `src-tauri/` | The desktop app (Tauri): window, menu, file choosers, scan orchestration |
 | `agent/core/` | Analysis in Rust: signed indicators, evidence parsing, behaviour rules |
 | `agent/runtime/` | Native runtime: engine verification, phone acquisition, temporary folders |
-| `scripts/engines/` | Engine adapters and their build scripts |
+| `scripts/engines/` | Engine adapters, their build scripts and release signing |
+| `scripts/intel/` | Converters for indicator sources and the weekly sources check |
 | `intelligence/` | Indicator sources and the signed release metadata |
+| `releases/` | The list of published packages, with their sizes and hashes |
 | `worker/` | The download server for scan.enigm.io (Cloudflare Workers) |
 | `docs/` | Architecture, privacy, report format, statistics and releases |
 
