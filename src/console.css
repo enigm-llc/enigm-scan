@@ -6168,6 +6168,8 @@ body:has(.promo-backdrop) {
 }
 /* macOS: window background and content greys of the system appearance. */
 :root[data-shell="app"][data-os="macos"] {
+  /* The strip of the window's buttons (28px) and the fade below it. */
+  --top-fade: 52px;
   --bg: #ececec;
   --soft: #e3e3e3;
   --raised: #ffffff;
@@ -6314,10 +6316,6 @@ body:has(.promo-backdrop) {
    starts below the window buttons. Windows and Linux keep their own bar. */
 .app-drag {
   display: none;
-}
-:root[data-shell="app"][data-os="macos"] {
-  /* The strip of the window's buttons (28px) and the fade below it. */
-  --top-fade: 52px;
 }
 :root[data-shell="app"][data-os="macos"] .app-drag {
   display: block;
