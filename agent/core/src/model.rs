@@ -61,7 +61,7 @@ impl Report {
         Self {schema_version:1, started_at:timestamp(), finished_at:timestamp(), device:device.into(),
             artifacts_analyzed:0, network_connections:0, checks:vec![], findings:vec![],
             limitations:vec!["Only authorized, accessible artifacts were checked. No findings do not guarantee safety. A match is not a confirmed infection.".into()],
-            engines:vec![Engine{name:"Enigm local engine".into(),version:env!("CARGO_PKG_VERSION").into()}],
+            engines:vec![Engine{name:"enigm-scan".into(),version:env!("CARGO_PKG_VERSION").into()}],
             rule_bundle_version:bundle_version.to_string(),cleanup:"not_started".into()}
     }
     pub fn check(&mut self, id: &str, status: &str, detail: &str) {

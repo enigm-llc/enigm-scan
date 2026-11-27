@@ -16,6 +16,8 @@
   system.
 - On macOS, a page scrolled up fades out under the window's buttons instead
   of ending in a hard line.
+- The report names the app's own analysis "enigm-scan" among its engines,
+  written like the others.
 
 ## 1.0.1 — 27 November 2026
 
