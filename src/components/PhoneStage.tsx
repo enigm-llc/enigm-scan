@@ -290,7 +290,7 @@ export function PhoneStage({
 }>) {
   // The notes beside the phone grow from their middle: when a line or a
   // figure comes or goes, the others slide to their new place.
-  const glide = useGlide<HTMLSpanElement>("dl, dl > div");
+  const glide = useGlide<HTMLSpanElement>("dl > div");
   const [waved, setWaved] = useState(network);
   if (network && !waved) setWaved(true);
   const guess = useAlternating(platform === "auto");
