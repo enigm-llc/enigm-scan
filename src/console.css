@@ -6833,9 +6833,6 @@ body:has(.promo-backdrop) {
    tallest step so far and grow into a longer one smoothly; a step label
    keeps the width of its bold version, so the next ones never shift; the
    scanning line fades in. */
-.app-window .scan-progress .scan-stage {
-  transition: height 360ms var(--ease);
-}
 .app-window .process-steps li > span[data-label] {
   display: inline-grid;
 }
@@ -6856,9 +6853,6 @@ body:has(.promo-backdrop) {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .app-window .scan-progress .scan-stage {
-    transition: none;
-  }
   .app-window .phone-beam.sweep {
     animation: none;
   }
@@ -6966,9 +6960,6 @@ body:has(.promo-backdrop) {
 :root[data-shell="app"] .app-window .phone-waves.is-off {
   animation: waves-out var(--enter) var(--ease) both;
 }
-:root[data-shell="app"] .app-window .scan-progress .scan-stage {
-  transition: height var(--move) var(--ease);
-}
 @keyframes enter-fade {
   from {
     opacity: 0;
@@ -7003,7 +6994,51 @@ body:has(.promo-backdrop) {
   :root[data-shell="app"] .app-window .phone-beam.sweep {
     animation: none;
   }
-  :root[data-shell="app"] .app-window .scan-progress .scan-stage {
-    transition: none;
-  }
+}
+
+/* ---------- App: one rhythm on every step ----------
+   Steps, title, the line under it and the block that follows sit at the
+   same distances on the steps before the scan and during it; the line under
+   the title looks the same whether it explains the step or asks for
+   something on the phone. (The report keeps its own layout.) */
+:root[data-shell="app"] .app-window {
+  --after-steps: 28px;
+  --after-title: 16px;
+  --after-subtext: 44px;
+}
+:root[data-shell="app"] .app-window .console-copy .process-steps {
+  margin-bottom: var(--after-steps);
+}
+:root[data-shell="app"] .app-window .scan-progress .scan-stage {
+  margin-top: 0;
+  padding-top: 0;
+}
+:root[data-shell="app"] .app-window .scan-progress .scan-caption > p,
+:root[data-shell="app"] .app-window .console-copy > .flow-intro {
+  margin-top: var(--after-title);
+}
+:root[data-shell="app"] .app-window .scan-progress .scan-caption > p + p {
+  margin-top: 4px;
+}
+:root[data-shell="app"] .app-window .scan-progress .scan-caption > p.scan-hint,
+:root[data-shell="app"] .app-window .scan-progress .scan-caption > p.scan-wait {
+  color: var(--tone);
+  font-size: var(--app-text);
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+:root[data-shell="app"] .app-window .scan-progress .progress-panel,
+:root[data-shell="app"]
+  .app-window
+  .console-copy
+  > .flow-intro
+  + :is(.scan-options, .flow-action, .connected-devices, .evidence-setup),
+:root[data-shell="app"]
+  .app-window
+  .console-copy
+  > .flow-intro
+  + .visually-hidden
+  + :is(.scan-options, .flow-action, .connected-devices, .evidence-setup) {
+  margin-top: var(--after-subtext);
 }

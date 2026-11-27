@@ -1,10 +1,4 @@
-import {
-  useEffect,
-  useLayoutEffect,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   FolderOpen,
   KeyRound,
@@ -22,6 +16,7 @@ import {
 } from "lucide-react";
 import { native, type AgentStatus } from "../core/agent";
 import { PhoneStage, type Fact } from "./PhoneStage";
+import { useGlide } from "./glide";
 import type { AgentCopy } from "../shared/i18n/agent";
 import type { Copy, Language } from "../shared/i18n/i18n";
 import { flowCopy } from "../shared/i18n/flow";
@@ -131,21 +126,9 @@ export function ScanProgress({
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
   }, []);
-  // In the app, the words under the steps keep the height of the tallest
-  // step seen so far, growing smoothly when a longer one comes: the steps
-  // above and the card below never jump when a prompt comes and goes.
-  const caption = useRef<HTMLDivElement>(null);
-  const [captionHeight, setCaptionHeight] = useState<number>();
-  useLayoutEffect(() => {
-    const box = caption.current;
-    if (!box || document.documentElement.dataset.shell !== "app") return;
-    const grow = () =>
-      setCaptionHeight((seen) => Math.max(seen ?? 0, box.offsetHeight));
-    grow();
-    const observer = new ResizeObserver(grow);
-    observer.observe(box);
-    return () => observer.disconnect();
-  }, []);
+  // The words slide when a line comes or goes; the card below them moves
+  // with them instead of jumping.
+  const glide = useGlide<HTMLDivElement>(".progress-panel");
   const [paused, setPaused] = useState(false);
   // "Continue without the deep check" was pressed: wait for the adapter.
   const [skipping, setSkipping] = useState(false);
@@ -529,7 +512,7 @@ export function ScanProgress({
         }
         facts={PROMPT_PHASES.has(status.phase) ? undefined : { items: facts }}
       />
-      <div className="console-copy">
+      <div className="console-copy" ref={glide}>
         <div className="progress-topline">
           <h2
             id="progress-heading"
@@ -559,8 +542,8 @@ export function ScanProgress({
             </li>
           ))}
         </ol>
-        <div className="scan-stage" style={{ height: captionHeight }}>
-          <div className="scan-caption" ref={caption}>
+        <div className="scan-stage">
+          <div className="scan-caption">
             <div
               role="status"
               aria-live="polite" /* NOSONAR: holds a heading */

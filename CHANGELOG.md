@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.3 — 27 November 2026
+
+- The line under the title looks the same on every step: when the phone
+  asks for its passcode it is written like the line that explains the copy.
+- Every step keeps the same distances between the steps, the title, the
+  line under it and what follows (the options, the button or the progress
+  card), before the scan and during it.
+
 ## 1.0.2 — 27 November 2026
 
 - Android shows its extraction percentage as the phone gathers its data,
