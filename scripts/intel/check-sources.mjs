@@ -1,7 +1,8 @@
 // Lists what changed upstream in the sources the indicators come from, so a
 // maintainer can review it, convert it and sign a new release. It never
 // changes anything here. Exits with 1 when there is something to review, so
-// the scheduled run that calls it shows up as failed.
+// the scheduled run that calls it shows up as failed; the workflow copies
+// what it prints into the job summary.
 //
 //   node scripts/intel/check-sources.mjs
 //
@@ -9,7 +10,7 @@
 // new campaigns in MVT's index and new investigations by Amnesty, and the
 // spyware domains of Emerging Threats Open (its ruleset changes daily, the
 // spyware part much less).
-import { readFileSync, appendFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 
@@ -140,7 +141,7 @@ if (result.added.length || result.removed.length)
     `Emerging Threats Open: ${result.added.length} spyware domain(s) added, ${result.removed.length} removed (ruleset ${result.sha256})`,
   );
 
-// Names from upstream end up in the job summary: plain characters only.
+// The workflow copies this report into the job summary: plain characters only.
 const plainText = (text) => text.replaceAll(/[^\w .,:;/()+'-]/g, "?");
 const report = changes.length
   ? ["Sources to review:", ...changes.map((c) => `- ${plainText(c)}`)].join(
@@ -148,6 +149,4 @@ const report = changes.length
     )
   : "No source changed upstream.";
 console.log(report);
-if (process.env.GITHUB_STEP_SUMMARY)
-  appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${report}\n`);
 process.exit(changes.length ? 1 : 0);

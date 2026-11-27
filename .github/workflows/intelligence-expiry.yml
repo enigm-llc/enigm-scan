@@ -26,6 +26,8 @@ jobs:
         env:
           EVENT: ${{ github.event_name }}
           GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
           [ "$(date -u +%u)" = 1 ] || [ "$EVENT" = workflow_dispatch ] || exit 0
-          node scripts/intel/check-sources.mjs
+          set -o pipefail
+          node scripts/intel/check-sources.mjs | tee -a "$GITHUB_STEP_SUMMARY"
