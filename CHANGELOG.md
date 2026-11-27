@@ -7,6 +7,9 @@
 - Every step keeps the same distances between the steps, the title, the
   line under it and what follows (the options, the button or the progress
   card), before the scan and during it.
+- On macOS, a scrolled page no longer shows through under the window's
+  buttons: their strip takes the window's colour and the page fades out
+  below it, over a taller band.
 
 ## 1.0.2 — 27 November 2026
 

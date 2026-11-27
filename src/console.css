@@ -6328,20 +6328,28 @@ body:has(.promo-backdrop) {
 :root[data-shell="app"][data-os="macos"] .about-window {
   padding-top: 28px;
 }
-/* macOS draws no title bar of its own over the app, so content scrolled up
-   under the window's buttons would end in a hard line. Once the page has
-   been scrolled, it fades out under that strip instead, as macOS apps do;
-   at the top of a page nothing is drawn. */
+/* macOS draws no title bar of its own over the app. Once the page has been
+   scrolled, the strip of the window's buttons is covered in the window's
+   colour, so no text passes under them, and the page fades out below it
+   over a little more than that strip's height. At the top of a page
+   nothing is drawn. */
 :root[data-shell="app"][data-os="macos"] .app-drag::before {
   content: "";
   position: absolute;
   inset: 0 0 auto;
-  /* The height of a standard macOS title bar. */
-  height: 28px;
-  background: linear-gradient(to bottom, var(--bg), transparent);
+  height: 64px;
+  background: linear-gradient(
+    to bottom,
+    var(--bg) 0,
+    var(--bg) 28px,
+    color-mix(in srgb, var(--bg) 82%, transparent) 36px,
+    color-mix(in srgb, var(--bg) 52%, transparent) 46px,
+    color-mix(in srgb, var(--bg) 20%, transparent) 56px,
+    transparent 64px
+  );
   opacity: 0;
   pointer-events: none;
-  transition: opacity 240ms var(--ease);
+  transition: opacity var(--move) var(--ease);
 }
 :root[data-shell="app"][data-os="macos"]
   .app-window.is-scrolled
