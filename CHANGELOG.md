@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.0.1 — 27 November 2026
+
+- Beside the phone, the same figures in the same order on iPhone and
+  Android, at most five: extracted, copied, photos and videos skipped or
+  apps checked, network observed or connections checked, and time. On
+  Android the extraction percentage comes from the phone as it gathers its
+  data. During the analysis: indicators, files, checks, connections and
+  time.
+- The card under the steps says the step being done, on one line: from
+  "Extracting data" and "Extraction complete" to "Watching the network" or
+  "Checking apps" and "Checking connections", "Waiting for diagnostics",
+  then "Comparing indicators", "Checking the system", "Analyzing the
+  network" and "Preparing the report". An iPhone at 100 % now says it is
+  watching the network instead of seeming stuck.
+- The iPhone's passcode prompt no longer flashes right after the copy
+  screen, and asking for it no longer takes the steps back to Connect.
+- Moving from the phone step to the copy, and from the analysis to the
+  report, keeps the phone in place; only the words arrive. The report's
+  phone has the size and place it had during the analysis.
+- The notes beside the phone end at the page margin, as far from the right
+  edge as the words are from the left.
+- The window is never narrower than 1100 x 600, where every screen shows
+  everything, and on a small screen (such as a laptop at 1920 x 1080 and
+  150 %) it opens as large as fits.
+- A scan resumed after the window reloads keeps the phone being scanned.
+
 ## 1.0.0 — 27 November 2026
 
 - The Mac packages are signed by Enigm and notarized by Apple, so they open

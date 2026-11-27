@@ -219,7 +219,7 @@ dependencies = [
 
 [[package]]
 name = "enigm-scan-core"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "base64 0.23.1",
  "cap-std",
@@ -236,7 +236,7 @@ dependencies = [
 
 [[package]]
 name = "enigm-scan-runtime"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "base64 0.23.1",
  "enigm-scan-core",
