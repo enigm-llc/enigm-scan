@@ -90,7 +90,7 @@ jobs:
           cargo test --manifest-path src-tauri/Cargo.toml --locked
       - name: RustSec advisories
         run: |
-          cargo audit --version 2>/dev/null | grep -qx 'cargo-audit 0.23.0' || cargo install cargo-audit --locked --version 0.23.0
+          cargo audit --version 2>/dev/null | grep -q ' 0\.23\.0$' || cargo install cargo-audit --locked --version 0.23.0 --force
           cargo audit --file agent/core/Cargo.lock
           cargo audit --file agent/runtime/Cargo.lock
           cargo audit --file src-tauri/Cargo.lock
