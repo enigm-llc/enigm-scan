@@ -658,7 +658,16 @@ export function PhoneStage({
                 <BatteryFull size={16} strokeWidth={2} />
               </span>
             </div>
-            <div className="phone-content" key={android ? "android" : "ios"}>
+            {/* In the app a new screen fades in, as the phone's own
+                screens do; the website keeps its own pace. */}
+            <div
+              className="phone-content"
+              key={`${android ? "android" : "ios"}${
+                document.documentElement.dataset.shell === "app"
+                  ? "-" + screen.kind
+                  : ""
+              }`}
+            >
               {content}
             </div>
           </div>

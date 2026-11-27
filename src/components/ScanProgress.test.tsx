@@ -410,11 +410,19 @@ it("observes the network alongside the copy and says when the iPhone is no longe
   expect(parallel(2)).toBe(true);
   expect(screen.queryByText(a.capturing)).toBeNull();
   expect(screen.queryByText(a.phoneKeep)).toBeNull();
-  // The phone prompts for its passcode while the observation continues.
+  // The phone prompts for its passcode while the observation continues. A
+  // second after the copy screen appeared, that screen stays a moment
+  // first, so the two do not flash one after the other.
   rerender(
     <ScanProgress {...props} status={status("awaiting_passcode", {})} />,
   );
+  expect(screen.queryByRole("alert")).toBeNull();
+  act(() => vi.advanceTimersByTime(2500));
   expect(screen.getByRole("alert").textContent).toBe(a.passcodeNow);
+  // Still the extract step: the passcode authorizes the copy.
+  expect(document.querySelector('[aria-current="step"]')?.textContent).toBe(
+    a.stepExtract,
+  );
   act(() => vi.advanceTimersByTime(20_000));
   // While the phone asks for its passcode, the instructions replace the figures.
   expect(facts()).toEqual([]);

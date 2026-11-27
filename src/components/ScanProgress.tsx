@@ -45,6 +45,9 @@ const phases = [
 type Phase = (typeof phases)[number][0];
 /** The adapter's network observation window, in seconds. */
 const CAPTURE_SECONDS = 120;
+/** The copy screen stays at least this long before the iPhone's first
+ *  passcode prompt replaces it, so the two do not flash one after the other. */
+const PROMPT_HOLD_MS = 2500;
 /** How long "Extraction complete" stays before the next step's line. */
 const EXTRACTED_SECONDS = 4;
 /** How long the adapter waits for "Trust This Computer?" (TRUST_SECONDS). */
@@ -98,7 +101,7 @@ function size(bytes: number, language: string) {
  * times are measured locally and the remaining time is a labelled estimate.
  */
 export function ScanProgress({
-  status,
+  status: reported,
   a,
   t,
   encrypted,
@@ -131,6 +134,35 @@ export function ScanProgress({
   // "Continue without the deep check" was pressed: wait for the adapter.
   const [skipping, setSkipping] = useState(false);
   const now = useClock();
+  // An iPhone often asks for its passcode a second after the copy starts.
+  // Until the copy screen has been seen for PROMPT_HOLD_MS, it stays; then
+  // the passcode screen follows. Later prompts are shown at once.
+  const copyShownAt = useRef<number | null>(null);
+  if (reported.phase === "acquiring" && copyShownAt.current === null)
+    copyShownAt.current = Date.now();
+  const early = reported.acquisition;
+  const holdLeft =
+    ios &&
+    reported.phase === "awaiting_passcode" &&
+    copyShownAt.current !== null &&
+    !(early && (early.receivedBytes > 0 || early.kept > 0))
+      ? PROMPT_HOLD_MS - (Date.now() - copyShownAt.current)
+      : 0;
+  const [, release] = useState(0);
+  const holding = holdLeft > 0;
+  useEffect(() => {
+    if (!holding) return;
+    const timer = setTimeout(() => release((n) => n + 1), holdLeft);
+    return () => clearTimeout(timer);
+    // Scheduled once, when the hold starts.
+  }, [holding]);
+  const status: AgentStatus = holding
+    ? {
+        ...reported,
+        phase: "acquiring",
+        acquisition: early && { ...early, phase: "acquiring" },
+      }
+    : reported;
   const language = document.documentElement.lang || "en";
   // Local timing: when the whole run and the current phase started.
   const started = useRef(Date.now());
@@ -261,12 +293,20 @@ export function ScanProgress({
   })();
   // Four plain steps instead of engine phases.
   const macro = [
+    ["connect", a.stepConnect, ["awaiting_trust", "deep_wait"]],
+    // The passcode authorizes the copy, which has already started: asking
+    // for it never takes the steps back to Connect.
     [
-      "connect",
-      a.stepConnect,
-      ["awaiting_trust", "deep_wait", "awaiting_passcode", "passcode_retry"],
+      "copy",
+      a.stepExtract,
+      [
+        "capturing",
+        "acquiring",
+        "decrypting",
+        "awaiting_passcode",
+        "passcode_retry",
+      ],
     ],
-    ["copy", a.stepExtract, ["capturing", "acquiring", "decrypting"]],
     ["analyze", a.stepAnalyze, ["analyzing", "forensics", "network"]],
     ["report", a.stepReport, ["finalizing"]],
   ] as const;
