@@ -8,8 +8,10 @@
   it from the phone, where ADB's own bug report used to leave it. Phones
   without that tool (before Android 7) are copied as before.
 - The figures beside the phone no longer jump: they sit together, centred
-  on the phone, and a new one fades in while the others slide apart to make
-  room. The time is always the last one.
+  on the phone; each new one arrives last while the others move up to make
+  room, and their numbers count up to each new value the phone reports.
+- Everything that appears in the window fades in the same way and over the
+  same time, and everything that moves slides over one shared time.
 - No progress bar on the drawn iPhone's screen: the percentage is beside the
   phone, as on Android.
 - The "Recommended" badge has room above and below its word on every

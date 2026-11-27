@@ -213,7 +213,7 @@ it("shows the same figures beside an iPhone and an Android phone, at most five",
       network: true,
       onCancel: vi.fn(),
     };
-    const { rerender } = render(
+    const { unmount } = render(
       <ScanProgress
         {...props}
         ios
@@ -238,7 +238,9 @@ it("shows the same figures beside an iPhone and an Android phone, at most five",
     expect(document.querySelector(".phone-progress")).toBeNull();
     // Received bytes repeat the copied ones: not listed.
     expect(shown.some((line) => line.includes("recibidos"))).toBe(false);
-    rerender(
+    // Another scan, of an Android phone.
+    unmount();
+    render(
       <ScanProgress
         {...props}
         ios={false}
@@ -508,4 +510,33 @@ it("draws the real iPhone keypad and plays the passcode being typed", () => {
   } finally {
     vi.useRealTimers();
   }
+});
+
+it("adds a new figure last: the ones already shown keep their order", () => {
+  document.documentElement.lang = "es";
+  const f = flowCopy.es;
+  const props = {
+    a: agentDictionaries.es,
+    t: dictionaries.es,
+    encrypted: false,
+    network: true,
+    onCancel: vi.fn(),
+  };
+  const { rerender } = render(
+    <ScanProgress {...props} status={copyStatus({})} />,
+  );
+  expect(facts()[0]).toMatch(new RegExp(`${f.factElapsed}$`));
+  rerender(<ScanProgress {...props} status={copyStatus({ percent: 12 })} />);
+  let shown = facts();
+  expect(shown[0]).toMatch(new RegExp(`${f.factElapsed}$`));
+  expect(shown[1]).toBe(`12 % ${f.factPercent}`);
+  rerender(
+    <ScanProgress
+      {...props}
+      status={copyStatus({ percent: 30, storedBytes: 40e6 })}
+    />,
+  );
+  shown = facts();
+  expect(shown[1]).toBe(`30 % ${f.factPercent}`);
+  expect(shown[2]).toMatch(new RegExp(`MB ${f.factCopied}$`));
 });

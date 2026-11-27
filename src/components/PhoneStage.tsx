@@ -1,4 +1,10 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import {
   BatteryFull,
   Check,
@@ -245,6 +251,58 @@ const TRANSFER: Array<[number, number, number]> = [
  * the Trust sheet, the passcode, data leaving it through the cable while it
  * is copied, the analysis, the result). Beside it only a quiet value.
  */
+/** A figure beside the phone. With `amount` and `show`, a new value is
+ *  reached by counting from the one shown before, as a counter does. */
+export type Fact = {
+  id?: string;
+  value: string;
+  label: string;
+  amount?: number;
+  show?: (amount: number) => string;
+};
+
+/** Counts from the value shown to the new one over the app's move time;
+ *  the first value, and every value without motion, shows at once. */
+function Count({ fact }: Readonly<{ fact: Fact }>) {
+  const { amount, show, value } = fact;
+  const [shown, setShown] = useState(amount);
+  const from = useRef(amount);
+  useEffect(() => {
+    if (amount === undefined || from.current === undefined) {
+      from.current = amount;
+      setShown(amount);
+      return;
+    }
+    const start = from.current;
+    if (
+      start === amount ||
+      document.documentElement.dataset.shell !== "app" ||
+      matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      from.current = amount;
+      setShown(amount);
+      return;
+    }
+    const time =
+      Number.parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue("--move"),
+      ) || 600;
+    const began = performance.now();
+    let frame = 0;
+    const step = (at: number) => {
+      const t = Math.min(1, (at - began) / time);
+      const eased = 1 - (1 - t) ** 3;
+      const current = start + (amount - start) * eased;
+      from.current = current;
+      setShown(current);
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [amount]);
+  return <>{show && shown !== undefined ? show(shown) : value}</>;
+}
+
 export function PhoneStage({
   language,
   screen,
@@ -285,7 +343,7 @@ export function PhoneStage({
     device?: "ios" | "android";
     title?: string;
     detail?: string;
-    items: Array<{ value: string; label: string }>;
+    items: Fact[];
   };
 }>) {
   // The notes beside the phone grow from their middle: when a line or a
@@ -710,8 +768,10 @@ export function PhoneStage({
             {facts.items.length > 0 && (
               <dl>
                 {facts.items.map((item) => (
-                  <div key={item.label}>
-                    <dd>{item.value}</dd>
+                  <div key={item.id ?? item.label}>
+                    <dd>
+                      <Count fact={item} />
+                    </dd>
                     <dt>{item.label}</dt>
                   </div>
                 ))}

@@ -6916,3 +6916,95 @@ body:has(.promo-backdrop) {
     display: none;
   }
 }
+
+/* ---------- App: one way to arrive, one way to move ----------
+   Everything that appears or changes in the app window fades in over the
+   same time with the same curve: words and blocks rise a few pixels as
+   they come, as the report's verdict does; what sits on or beside the
+   drawn phone (its screen, its notes, the scanning line, the waves) only
+   fades, since its place is set by a transform. What moves to a new place
+   slides over one shared time. The step line keeps its own motion and the
+   figures simply count. */
+:root[data-shell="app"] {
+  --enter: 800ms;
+  --move: 600ms;
+}
+:root[data-shell="app"] .app-window .welcome,
+:root[data-shell="app"] .app-window .desktop-flow:not(.is-running),
+:root[data-shell="app"] .app-window .console-copy > h1,
+:root[data-shell="app"] .app-window .console-copy > .flow-intro,
+:root[data-shell="app"] .app-window .console-copy .scan-options,
+:root[data-shell="app"] .app-window .console-copy .scan-option-steps,
+:root[data-shell="app"] .app-window .console-copy .flow-note,
+:root[data-shell="app"] .app-window .console-copy .notice,
+:root[data-shell="app"] .app-window .console-copy .retry-scan,
+:root[data-shell="app"] .app-window .wait-left,
+:root[data-shell="app"] .app-window .scan-progress > :not(.phone-stage),
+:root[data-shell="app"] .app-window .scan-progress .phase-copy > .text-in,
+:root[data-shell="app"] .app-window .scan-progress .scan-caption > p,
+:root[data-shell="app"] .app-window .scan-progress .progress-card-line,
+:root[data-shell="app"]
+  .app-window
+  .report
+  .result-summary.verdict
+  > :not(.phone-stage),
+:root[data-shell="app"] .app-window .phone-facts dl > div,
+:root[data-shell="app"] .toast,
+:root[data-shell="app"] .promo-dialog {
+  animation: console-in var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .phone-content,
+:root[data-shell="app"] .app-window .phone-aside,
+:root[data-shell="app"] .app-window .phone-waves,
+:root[data-shell="app"] .promo-backdrop {
+  animation: enter-fade var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .phone-beam.sweep {
+  animation:
+    phone-sweep-full 5s ease-in-out infinite alternate,
+    enter-fade var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .phone-waves.is-off {
+  animation: waves-out var(--enter) var(--ease) both;
+}
+:root[data-shell="app"] .app-window .scan-progress .scan-stage {
+  transition: height var(--move) var(--ease);
+}
+@keyframes enter-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-shell="app"] .app-window .welcome,
+  :root[data-shell="app"] .app-window .desktop-flow:not(.is-running),
+  :root[data-shell="app"] .app-window .console-copy > h1,
+  :root[data-shell="app"] .app-window .console-copy > .flow-intro,
+  :root[data-shell="app"] .app-window .console-copy .scan-options,
+  :root[data-shell="app"] .app-window .console-copy .scan-option-steps,
+  :root[data-shell="app"] .app-window .console-copy .flow-note,
+  :root[data-shell="app"] .app-window .console-copy .notice,
+  :root[data-shell="app"] .app-window .console-copy .retry-scan,
+  :root[data-shell="app"] .app-window .wait-left,
+  :root[data-shell="app"] .app-window .scan-progress > :not(.phone-stage),
+  :root[data-shell="app"] .app-window .scan-progress .phase-copy > .text-in,
+  :root[data-shell="app"] .app-window .scan-progress .scan-caption > p,
+  :root[data-shell="app"] .app-window .scan-progress .progress-card-line,
+  :root[data-shell="app"]
+    .app-window
+    .report
+    .result-summary.verdict
+    > :not(.phone-stage),
+  :root[data-shell="app"] .app-window .phone-facts dl > div,
+  :root[data-shell="app"] .toast,
+  :root[data-shell="app"] .promo-dialog,
+  :root[data-shell="app"] .app-window .phone-content,
+  :root[data-shell="app"] .app-window .phone-aside,
+  :root[data-shell="app"] .promo-backdrop,
+  :root[data-shell="app"] .app-window .phone-beam.sweep {
+    animation: none;
+  }
+  :root[data-shell="app"] .app-window .scan-progress .scan-stage {
+    transition: none;
+  }
+}

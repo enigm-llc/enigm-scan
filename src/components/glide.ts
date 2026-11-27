@@ -1,6 +1,11 @@
 import { useCallback, useRef } from "react";
 
 const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+/** The app's one time for moving things (--move in the app's styles). */
+const moveTime = () =>
+  Number.parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue("--move"),
+  ) || 600;
 
 /**
  * In the app, a block that moves because its height changed (a line added
@@ -81,7 +86,7 @@ export function useGlide<T extends HTMLElement>(parts?: string) {
                   { transform: `${own} translateY(${from}px)` },
                   { transform: own || "none" },
                 ],
-                { duration: 420, easing: EASE },
+                { duration: moveTime(), easing: EASE },
               ),
             );
           }

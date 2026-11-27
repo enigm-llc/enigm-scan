@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { native, type AgentStatus } from "../core/agent";
-import { PhoneStage } from "./PhoneStage";
+import { PhoneStage, type Fact } from "./PhoneStage";
 import type { AgentCopy } from "../shared/i18n/agent";
 import type { Copy, Language } from "../shared/i18n/i18n";
 import { flowCopy } from "../shared/i18n/flow";
@@ -352,60 +352,126 @@ export function ScanProgress({
   const copying = ["acquiring", "capturing", "decrypting"].includes(
     status.phase,
   );
-  const count = (n: number, many: string, one: string) => ({
-    value: n.toLocaleString(language),
+  // A figure the phone or the analysis reports: its number counts up to
+  // each new value it reports, and only to values it reported.
+  const whole = (n: number) => Math.round(n).toLocaleString(language);
+  const count = (id: string, n: number, many: string, one: string): Fact => ({
+    id,
+    value: whole(n),
+    amount: n,
+    show: whole,
     label: new Intl.PluralRules(language).select(n) === "one" ? one : many,
   });
+  const percentOf = (n: number) => `${Math.floor(n)} %`;
   // What each phone adds beside the phone: photos and videos skipped and the
   // network observed on iPhone, apps and connections checked on Android.
-  const phoneFacts: Array<{ value: string; label: string }> = [];
+  const phoneFacts: Fact[] = [];
   if (ios) {
     if (sample && sample.discarded > 0)
       phoneFacts.push({
-        value: sample.discarded.toLocaleString(language),
+        id: "discarded",
+        value: whole(sample.discarded),
+        amount: sample.discarded,
+        show: whole,
         label: a.statDiscarded,
       });
     if (observed !== undefined)
       phoneFacts.push({
-        value: `${Math.floor(observed)} %`,
+        id: "observed",
+        value: percentOf(observed),
+        amount: observed,
+        show: percentOf,
         label: f.factObserved,
       });
   } else {
     if (sample?.apps)
-      phoneFacts.push(count(sample.apps, f.factApps, f.factApp));
+      phoneFacts.push(count("apps", sample.apps, f.factApps, f.factApp));
     if (sample?.connections)
       phoneFacts.push(
-        count(sample.connections, f.factConnections, f.factConnection),
+        count(
+          "connections",
+          sample.connections,
+          f.factConnections,
+          f.factConnection,
+        ),
       );
   }
-  // At most five, in the same order on iPhone and Android: extracted,
-  // copied, what each phone adds, the time.
-  const facts: Array<{ value: string; label: string }> = copying
+  // At most five, the same on iPhone and Android: extracted, copied, what
+  // each phone adds, the time.
+  const elapsedFact: Fact = {
+    id: "elapsed",
+    value: elapsedShort,
+    label: f.factElapsed,
+  };
+  const shownFacts: Fact[] = copying
     ? [
         ...(percent !== undefined
-          ? [{ value: `${Math.floor(percent)} %`, label: f.factPercent }]
+          ? [
+              {
+                id: "percent",
+                value: percentOf(percent),
+                amount: percent,
+                show: percentOf,
+                label: f.factPercent,
+              },
+            ]
           : []),
         ...(sample && sample.storedBytes > 0
-          ? [{ value: size(sample.storedBytes, language), label: f.factCopied }]
+          ? [
+              {
+                id: "copied",
+                value: size(sample.storedBytes, language),
+                amount: sample.storedBytes,
+                show: (n: number) => size(n, language),
+                label: f.factCopied,
+              },
+            ]
           : []),
         ...phoneFacts,
-        { value: elapsedShort, label: f.factElapsed },
+        elapsedFact,
       ]
     : [
         ...(rules
-          ? [{ value: rules.toLocaleString(language), label: f.factSigned }]
+          ? [
+              {
+                id: "rules",
+                value: whole(rules),
+                label: f.factSigned,
+              },
+            ]
           : []),
         ...(status.artifacts > 0
-          ? [count(status.artifacts, f.factFiles, f.factFile)]
+          ? [count("files", status.artifacts, f.factFiles, f.factFile)]
           : []),
         ...(status.checks
-          ? [count(status.checks, f.factChecks, f.factCheck)]
+          ? [count("checks", status.checks, f.factChecks, f.factCheck)]
           : []),
         ...(status.connections
-          ? [count(status.connections, f.factAnalyzed, f.factAnalyzedOne)]
+          ? [
+              count(
+                "analyzed",
+                status.connections,
+                f.factAnalyzed,
+                f.factAnalyzedOne,
+              ),
+            ]
           : []),
-        { value: elapsedShort, label: f.factElapsed },
+        elapsedFact,
       ];
+  // In the order they arrived: a new figure takes the last place and the
+  // others move up to make room for it.
+  const arrival = useRef<string[]>([]);
+  const idOf = (fact: Fact) => fact.id ?? fact.label;
+  // Only figures actually shown count as arrived (none while the phone
+  // asks the person something).
+  if (!PROMPT_PHASES.has(status.phase))
+    for (const fact of shownFacts)
+      if (!arrival.current.includes(idOf(fact)))
+        arrival.current.push(idOf(fact));
+  const facts = [...shownFacts].sort(
+    (x, y) =>
+      arrival.current.indexOf(idOf(x)) - arrival.current.indexOf(idOf(y)),
+  );
   // The card under the steps says the step being done now; while the
   // phone waits for the person, how long the scan has taken.
   const elapsedLine = a.elapsed.replace(
