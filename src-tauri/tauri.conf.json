@@ -16,7 +16,7 @@
         "title": "Enigm Scan",
         "width": 1120,
         "height": 700,
-        "minWidth": 1024,
+        "minWidth": 1100,
         "minHeight": 660,
         "create": false,
         "incognito": true,
