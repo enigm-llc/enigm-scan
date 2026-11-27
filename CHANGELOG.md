@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.2 — 27 November 2026
+
+- Android shows its extraction percentage as the phone gathers its data,
+  instead of jumping to 100 % at the end. The app now asks the phone for its
+  bug report directly and follows its progress, then copies it and deletes
+  it from the phone, where ADB's own bug report used to leave it. Phones
+  without that tool (before Android 7) are copied as before.
+- The "Recommended" badge has room above and below its word on every
+  system.
+
 ## 1.0.1 — 27 November 2026
 
 - Beside the phone, the same figures in the same order on iPhone and

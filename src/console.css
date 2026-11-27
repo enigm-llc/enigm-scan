@@ -6739,13 +6739,11 @@ body:has(.promo-backdrop) {
   animation-play-state: paused;
 }
 
-/* In the app the badge's text is centred on its capitals too, so it lines
-   up with the option's title beside it. */
+/* In the app the badge is a little taller and wider, so its text never
+   sits tight against its edges, with sizes every system's webview reads. */
 .app-window .scan-option-badge {
-  display: block;
-  height: auto;
-  padding: calc((20px - 1cap) / 2) 8px;
-  text-box: trim-both cap alphabetic;
+  height: 22px;
+  padding: 0 10px;
 }
 
 /* The report's first screen fills the window, whatever its height: the

@@ -40,7 +40,8 @@ next start deletes them.
   temporary folder, so they disappear with the session. Android itself
   remembers that it allowed USB debugging from this computer: you can remove
   that in Developer options › Revoke USB debugging authorisations, and turn
-  USB debugging off when you are done.
+  USB debugging off when you are done. The bug report the phone creates for
+  the copy is deleted from the phone once it has been copied.
 
 The operating system may keep its own records of connected USB devices and of
 the app having run. Enigm Scan does not claim to leave no trace on the

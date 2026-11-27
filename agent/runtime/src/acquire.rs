@@ -259,28 +259,89 @@ pub fn acquire(
     };
     let (program, _) = catalog.resolve(tool)?;
     let out = if platform == "android" {
+        let session = adb_session.ok_or("adb_session_required")?;
         // The bug report arrives as one file: how much of it has been copied
-        // so far, measured on disk, is the copy's progress.
+        // so far, measured on disk, is the copy's size.
         let evidence = target.parent().map(Path::to_path_buf).unwrap_or_default();
-        adb_session.ok_or("adb_session_required")?.run_monitored(
+        let report = |percent: Option<f64>| {
+            let copied = copied_bytes(&evidence);
+            if copied > 0 || percent.is_some() {
+                on_progress(&Progress {
+                    phase: "acquiring".into(),
+                    percent,
+                    stored_bytes: copied,
+                    ..Progress::default()
+                });
+            }
+        };
+        // ADB keeps its own progress line to itself unless it writes to a
+        // terminal, so the phone is asked directly: `bugreportz -p` prints
+        // its progress as it gathers the report, which is then pulled and
+        // deleted from the phone (ADB's own bugreport leaves it there).
+        let shown = std::cell::Cell::new(0.0_f64);
+        let gathered = session.run_monitored(
             catalog,
-            &args,
+            &[
+                "-s".into(),
+                id.into(),
+                "shell".into(),
+                "bugreportz".into(),
+                "-p".into(),
+            ],
             work,
             cancel,
             Duration::from_secs(1800),
             &|output| {
-                let copied = copied_bytes(&evidence);
-                let percent = adb_percent(output);
-                if copied > 0 || percent.is_some() {
-                    on_progress(&Progress {
-                        phase: "acquiring".into(),
-                        percent,
-                        stored_bytes: copied,
-                        ..Progress::default()
-                    });
+                if let Some(percent) = bugreportz_percent(output) {
+                    shown.set(shown.get().max(percent));
+                    report(Some(shown.get()));
                 }
             },
-        )?
+        )?;
+        match bugreportz_path(&gathered.stdout) {
+            Some(remote) => {
+                report(Some(100.0));
+                let pulled = session.run_monitored(
+                    catalog,
+                    &[
+                        "-s".into(),
+                        id.into(),
+                        "pull".into(),
+                        remote.clone(),
+                        target.to_string_lossy().into_owned(),
+                    ],
+                    work,
+                    cancel,
+                    Duration::from_secs(1800),
+                    &|_| report(Some(100.0)),
+                )?;
+                let _ = session.run(
+                    catalog,
+                    &[
+                        "-s".into(),
+                        id.into(),
+                        "shell".into(),
+                        "rm".into(),
+                        "-f".into(),
+                        remote,
+                    ],
+                    work,
+                    cancel,
+                    Duration::from_secs(30),
+                );
+                pulled
+            }
+            // Android before 7 has no bugreportz: ADB's own bug report, with
+            // the size copied as its only progress.
+            None => session.run_monitored(
+                catalog,
+                &args,
+                work,
+                cancel,
+                Duration::from_secs(1800),
+                &|output| report(adb_percent(output)),
+            )?,
+        }
     } else {
         // The choice last handed to the adapter; it starts at "hold".
         let written = AtomicU8::new(u8::MAX);
@@ -716,6 +777,37 @@ pub struct Progress {
 }
 /// Steps the copy may report, in the order they happen.
 const STEPS: [&str; 4] = ["extracted", "diagnostics", "apps", "connections"];
+/// The phone's own progress while it gathers its bug report, from the last
+/// complete `PROGRESS:<done>/<total>` line of `bugreportz -p`, below 100
+/// until the report is ready.
+fn bugreportz_percent(output: &[u8]) -> Option<f64> {
+    let text = String::from_utf8_lossy(output);
+    // The last line may still be arriving; only finished lines count.
+    let done_lines = text.rsplit_once('\n').map_or("", |(lines, _)| lines);
+    done_lines.lines().rev().find_map(|line| {
+        let (done, total) = line.trim().strip_prefix("PROGRESS:")?.split_once('/')?;
+        let (done, total): (f64, f64) = (done.parse().ok()?, total.parse().ok()?);
+        (total > 0.0 && done >= 0.0).then(|| (done * 100.0 / total).min(99.0))
+    })
+}
+/// Where `bugreportz` left the report on the phone (`OK:<path>`), only when
+/// it is a plain absolute path to a ZIP file.
+fn bugreportz_path(output: &[u8]) -> Option<String> {
+    let text = String::from_utf8_lossy(output);
+    let path = text
+        .lines()
+        .rev()
+        .find_map(|line| line.trim().strip_prefix("OK:"))?
+        .trim();
+    let plain = path.starts_with('/')
+        && path.ends_with(".zip")
+        && path.len() <= 255
+        && !path.contains("..")
+        && path
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"/_.-".contains(&b));
+    plain.then(|| path.to_owned())
+}
 /// The last percentage ADB printed while the phone gathers its bug report
 /// ("[ 45%] generating bugreport-...zip"), when it prints one.
 fn adb_percent(output: &[u8]) -> Option<f64> {
@@ -797,6 +889,31 @@ fn acquisition_progress(work: &Path) -> Option<Progress> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn follows_the_phone_while_it_gathers_its_bug_report() {
+        let out = b"BEGIN:/data/user_de/0/com.android.shell/files/bugreports/b.zip\nPROGRESS:120/400\nPROGRESS:200/400\n";
+        assert_eq!(bugreportz_percent(out), Some(50.0));
+        // A line still arriving is not read.
+        assert_eq!(
+            bugreportz_percent(b"PROGRESS:200/400\nPROGRESS:399/4"),
+            Some(50.0)
+        );
+        // Never 100 before the report is ready, never anything invented.
+        assert_eq!(bugreportz_percent(b"PROGRESS:500/400\n"), Some(99.0));
+        assert_eq!(bugreportz_percent(b"PROGRESS:5/0\n"), None);
+        assert_eq!(bugreportz_percent(b"nothing\n"), None);
+        assert_eq!(
+            bugreportz_path(b"PROGRESS:400/400\nOK:/data/user_de/0/com.android.shell/files/bugreports/bugreport-x_2026-11-27-18-16-02.zip\n")
+                .as_deref(),
+            Some("/data/user_de/0/com.android.shell/files/bugreports/bugreport-x_2026-11-27-18-16-02.zip")
+        );
+        // Only a plain path to a ZIP file: never a failure or anything a
+        // shell would read differently.
+        assert_eq!(bugreportz_path(b"FAIL:could not take it\n"), None);
+        assert_eq!(bugreportz_path(b"OK:/data/x.zip; rm -rf /\n"), None);
+        assert_eq!(bugreportz_path(b"OK:/data/../x.zip\n"), None);
+        assert_eq!(bugreportz_path(b"OK:relative.zip\n"), None);
+    }
     #[test]
     fn reads_the_percentage_adb_prints_while_the_phone_gathers_its_data() {
         assert_eq!(adb_percent(b"[  5%] generating bugreport-x.zip"), Some(5.0));
