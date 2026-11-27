@@ -31,6 +31,8 @@ type ProductCopy = {
   mobileStep3: string;
   review: string;
   noSignals: string;
+  /** Inside the drawn phone when nothing known was found. */
+  scanComplete: string;
   insufficient: string;
   partial: string;
   coverage: string;
@@ -91,6 +93,7 @@ export const productCopy: Record<Language, ProductCopy> = {
       "La conexión por cable de iPhone aún no está disponible. Puedes analizar una copia local.",
     review: "Hemos encontrado indicios",
     noSignals: "No hay spyware conocido",
+    scanComplete: "Análisis completo",
     insufficient: "Faltan datos para concluir",
     partial: "Algunas comprobaciones no se pudieron hacer",
     coverage: "Qué hemos revisado",
@@ -159,6 +162,7 @@ export const productCopy: Record<Language, ProductCopy> = {
       "iPhone cable acquisition is not available yet. You can analyze a local backup.",
     review: "We found signs",
     noSignals: "No known spyware",
+    scanComplete: "Scan complete",
     insufficient: "Not enough data to conclude",
     partial: "Some checks couldn’t be run",
     coverage: "What we checked",
@@ -228,6 +232,7 @@ export const productCopy: Record<Language, ProductCopy> = {
       "L’acquisition par câble sur iPhone est indisponible. Vous pouvez analyser une sauvegarde locale.",
     review: "Nous avons trouvé des indices",
     noSignals: "Aucun logiciel espion connu",
+    scanComplete: "Analyse terminée",
     insufficient: "Pas assez de données pour conclure",
     partial: "Certaines vérifications n’ont pas pu être faites",
     coverage: "Ce que nous avons vérifié",
@@ -297,6 +302,7 @@ export const productCopy: Record<Language, ProductCopy> = {
       "iPhone-Erfassung per Kabel ist noch nicht verfügbar. Eine lokale Sicherung kann analysiert werden.",
     review: "Wir haben Hinweise gefunden",
     noSignals: "Keine bekannte Spyware",
+    scanComplete: "Analyse abgeschlossen",
     insufficient: "Zu wenige Daten für ein Ergebnis",
     partial: "Einige Prüfungen waren nicht möglich",
     coverage: "Was wir geprüft haben",
@@ -366,6 +372,7 @@ export const productCopy: Record<Language, ProductCopy> = {
       "L’acquisizione via cavo su iPhone non è ancora disponibile. Puoi analizzare un backup locale.",
     review: "Abbiamo trovato indizi",
     noSignals: "Nessuno spyware noto",
+    scanComplete: "Analisi completata",
     insufficient: "Dati insufficienti per concludere",
     partial: "Alcuni controlli non sono stati possibili",
     coverage: "Cosa abbiamo controllato",
@@ -433,6 +440,7 @@ export const productCopy: Record<Language, ProductCopy> = {
       "A aquisição por cabo no iPhone ainda não está disponível. Podes analisar uma cópia local.",
     review: "Encontrámos indícios",
     noSignals: "Nenhum spyware conhecido",
+    scanComplete: "Análise concluída",
     insufficient: "Dados insuficientes para concluir",
     partial: "Algumas verificações não foram possíveis",
     coverage: "O que verificámos",

@@ -222,7 +222,8 @@ export function Report({
                 ? {
                     kind: "clean",
                     subtitle: t.results,
-                    title: c.noSignals,
+                    // The verdict is the title beside it; here, shorter.
+                    title: c.scanComplete,
                     detail: `${report.artifactsAnalyzed.toLocaleString(language)} ${t.artifacts.toLowerCase()}`,
                   }
                 : { kind: "lock", subtitle: c.insufficient }

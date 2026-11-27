@@ -27,7 +27,7 @@ export const howCopy: Record<Language, HowCopy> = {
     compatHeads: ["Ordenador", "Móvil", "Cable"],
     heroTitle: "El spyware se esconde bien.",
     heroSub:
-      "Sabemos dónde buscarlo. Desde tu ordenador, sin que tus datos salgan de él.",
+      "Sabemos dónde buscarlo. Desde tu ordenador, sin que tus datos salgan de él",
     familiesTitle: "Lo que buscamos",
     familiesSub:
       "Indicadores de Amnistía Internacional, MVT, Echap, ESET y Emerging Threats, verificados y firmados por Enigm, y detección propia de Enigm.",
@@ -80,7 +80,7 @@ export const howCopy: Record<Language, HowCopy> = {
     compatHeads: ["Computer", "Phone", "Cable"],
     heroTitle: "Spyware hides well.",
     heroSub:
-      "We know where to look. From your computer, without your data ever leaving it.",
+      "We know where to look. From your computer, without your data ever leaving it",
     familiesTitle: "What we look for",
     familiesSub:
       "Indicators from Amnesty International, MVT, Echap, ESET and Emerging Threats, verified and signed by Enigm, plus Enigm’s own detection.",
@@ -132,7 +132,7 @@ export const howCopy: Record<Language, HowCopy> = {
     compatHeads: ["Ordinateur", "Téléphone", "Câble"],
     heroTitle: "Les logiciels espions se cachent bien.",
     heroSub:
-      "Nous savons où les chercher. Depuis votre ordinateur, sans que vos données le quittent.",
+      "Nous savons où les chercher. Depuis votre ordinateur, sans que vos données le quittent",
     familiesTitle: "Ce que nous cherchons",
     familiesSub:
       "Indicateurs d’Amnesty International, MVT, Echap, ESET et Emerging Threats, vérifiés et signés par Enigm, et détection propre à Enigm.",
@@ -184,7 +184,7 @@ export const howCopy: Record<Language, HowCopy> = {
     compatHeads: ["Computer", "Handy", "Kabel"],
     heroTitle: "Spyware versteckt sich gut.",
     heroSub:
-      "Wir wissen, wo wir suchen müssen. Von Ihrem Computer aus, ohne dass Ihre Daten ihn verlassen.",
+      "Wir wissen, wo wir suchen müssen. Von Ihrem Computer aus, ohne dass Ihre Daten ihn verlassen",
     familiesTitle: "Wonach wir suchen",
     familiesSub:
       "Indikatoren von Amnesty International, MVT, Echap, ESET und Emerging Threats, von Enigm geprüft und signiert, dazu Enigms eigene Erkennung.",
@@ -239,7 +239,7 @@ export const howCopy: Record<Language, HowCopy> = {
     compatHeads: ["Computer", "Telefono", "Cavo"],
     heroTitle: "Lo spyware si nasconde bene.",
     heroSub:
-      "Sappiamo dove cercarlo. Dal tuo computer, senza che i tuoi dati lo lascino.",
+      "Sappiamo dove cercarlo. Dal tuo computer, senza che i tuoi dati lo lascino",
     familiesTitle: "Cosa cerchiamo",
     familiesSub:
       "Indicatori di Amnesty International, MVT, Echap, ESET ed Emerging Threats, verificati e firmati da Enigm, più il rilevamento proprio di Enigm.",
@@ -291,7 +291,7 @@ export const howCopy: Record<Language, HowCopy> = {
     compatHeads: ["Computador", "Telemóvel", "Cabo"],
     heroTitle: "O spyware esconde-se bem.",
     heroSub:
-      "Sabemos onde procurá-lo. A partir do seu computador, sem que os seus dados saiam dele.",
+      "Sabemos onde procurá-lo. A partir do seu computador, sem que os seus dados saiam dele",
     familiesTitle: "O que procuramos",
     familiesSub:
       "Indicadores da Amnistia Internacional, MVT, Echap, ESET e Emerging Threats, verificados e assinados pela Enigm, e deteção própria da Enigm.",
