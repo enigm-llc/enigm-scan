@@ -6992,3 +6992,23 @@ body:has(.promo-backdrop) {
     animation: none;
   }
 }
+
+/* The network waves leave as they came: in the app they fade out when the
+   network is no longer observed; elsewhere they are simply gone. */
+.phone-waves.is-off {
+  display: none;
+}
+.app-window .phone-waves.is-off {
+  display: block;
+  animation: waves-out 600ms ease both;
+}
+@keyframes waves-out {
+  to {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-window .phone-waves.is-off {
+    display: none;
+  }
+}

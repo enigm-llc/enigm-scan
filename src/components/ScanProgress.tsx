@@ -589,7 +589,12 @@ export function ScanProgress({
             </span>
             <span className="progress-card-text">
               {/* What is being done now; now and then, how long it has taken. */}
-              <b key={cardLine} className="progress-card-line">
+              {/* A new kind of line arrives; a minute more on the same
+                  line only changes its number. */}
+              <b
+                key={cardLine === elapsedLine ? "elapsed" : cardLine}
+                className="progress-card-line"
+              >
                 {cardLine}
               </b>
             </span>

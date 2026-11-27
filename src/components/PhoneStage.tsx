@@ -290,6 +290,8 @@ export function PhoneStage({
 }>) {
   // The notes beside the phone slide when a line comes or goes.
   const glide = useGlide<HTMLSpanElement>("dl");
+  const [waved, setWaved] = useState(network);
+  if (network && !waved) setWaved(true);
   const guess = useAlternating(platform === "auto");
   const typing = useTyping(screen.kind === "passcode" && !paused);
   const android =
@@ -662,8 +664,13 @@ export function PhoneStage({
             </div>
           </div>
         </div>
-        {network && (
-          <span className="phone-waves" aria-hidden="true">
+        {/* Once shown, the waves stay so they can fade out when the
+            network is no longer observed. */}
+        {waved && (
+          <span
+            className={`phone-waves ${network ? "" : "is-off"}`}
+            aria-hidden="true"
+          >
             <i />
             <i />
             <i />

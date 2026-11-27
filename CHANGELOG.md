@@ -20,7 +20,7 @@
   written like the others.
 - Nothing jumps while you go through the steps: the words, the steps and the
   buttons slide into place when a line comes or goes, and the notes beside
-  the phone and the scanning line fade in.
+  the phone and the scanning line fade in, and the network waves fade out.
 - Every title and line on the left arrives the same way on every step,
   as the report's verdict does.
 - When nothing known is found, the drawn phone says "Scan complete" instead
