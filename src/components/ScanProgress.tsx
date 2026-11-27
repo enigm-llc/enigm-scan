@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useReducer, useRef, useState } from "react";
 import {
   FolderOpen,
   KeyRound,
@@ -14,11 +14,7 @@ import {
   LoaderCircle,
   X,
 } from "lucide-react";
-import {
-  native,
-  type AcquisitionProgress,
-  type AgentStatus,
-} from "../core/agent";
+import { native, type AgentStatus } from "../core/agent";
 import { PhoneStage } from "./PhoneStage";
 import { Cascade } from "./Cascade";
 import type { AgentCopy } from "../shared/i18n/agent";
@@ -148,11 +144,11 @@ export function ScanProgress({
     !(early && (early.receivedBytes > 0 || early.kept > 0))
       ? PROMPT_HOLD_MS - (Date.now() - copyShownAt.current)
       : 0;
-  const [, release] = useState(0);
+  const [, release] = useReducer((n: number) => n + 1, 0);
   const holding = holdLeft > 0;
   useEffect(() => {
     if (!holding) return;
-    const timer = setTimeout(() => release((n) => n + 1), holdLeft);
+    const timer = setTimeout(release, holdLeft);
     return () => clearTimeout(timer);
     // Scheduled once, when the hold starts.
   }, [holding]);
@@ -340,8 +336,30 @@ export function ScanProgress({
     value: n.toLocaleString(language),
     label: new Intl.PluralRules(language).select(n) === "one" ? one : many,
   });
+  // What each phone adds beside the phone: photos and videos skipped and the
+  // network observed on iPhone, apps and connections checked on Android.
+  const phoneFacts: Array<{ value: string; label: string }> = [];
+  if (ios) {
+    if (sample && sample.discarded > 0)
+      phoneFacts.push({
+        value: sample.discarded.toLocaleString(language),
+        label: a.statDiscarded,
+      });
+    if (observed !== undefined)
+      phoneFacts.push({
+        value: `${Math.floor(observed)} %`,
+        label: f.factObserved,
+      });
+  } else {
+    if (sample?.apps)
+      phoneFacts.push(count(sample.apps, f.factApps, f.factApp));
+    if (sample?.connections)
+      phoneFacts.push(
+        count(sample.connections, f.factConnections, f.factConnection),
+      );
+  }
   // At most five, in the same order on iPhone and Android: extracted,
-  // copied, what each phone adds, the network, the time.
+  // copied, what each phone adds, the time.
   const facts: Array<{ value: string; label: string }> = copying
     ? [
         ...(percent !== undefined
@@ -350,25 +368,7 @@ export function ScanProgress({
         ...(sample && sample.storedBytes > 0
           ? [{ value: size(sample.storedBytes, language), label: f.factCopied }]
           : []),
-        ...(ios
-          ? sample && sample.discarded > 0
-            ? [
-                {
-                  value: sample.discarded.toLocaleString(language),
-                  label: a.statDiscarded,
-                },
-              ]
-            : []
-          : sample?.apps
-            ? [count(sample.apps, f.factApps, f.factApp)]
-            : []),
-        ...(ios
-          ? observed !== undefined
-            ? [{ value: `${Math.floor(observed)} %`, label: f.factObserved }]
-            : []
-          : sample?.connections
-            ? [count(sample.connections, f.factConnections, f.factConnection)]
-            : []),
+        ...phoneFacts,
         { value: elapsedShort, label: f.factElapsed },
       ]
     : [

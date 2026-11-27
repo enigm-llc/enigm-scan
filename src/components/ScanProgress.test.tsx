@@ -364,7 +364,7 @@ it("shows the analysis figures: indicators, files, checks, connections and time"
     />,
   );
   const shown = facts();
-  expect(shown.length).toBe(5);
+  expect(shown).toHaveLength(5);
   expect(shown[0]).toBe(`11.669 ${f.factSigned}`);
   expect(shown[1]).toBe(`3482 ${f.factFiles}`);
   expect(shown[2]).toBe(`18 ${f.factChecks}`);
