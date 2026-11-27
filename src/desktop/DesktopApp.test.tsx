@@ -143,6 +143,17 @@ it("skips the welcome screen while a scan is still running", async () => {
   expect(screen.queryByRole("button", { name: f.welcomeAction })).toBeNull();
 });
 
+it("a scan resumed after a reload keeps drawing the phone being scanned", async () => {
+  // The Android phone was chosen before the window reloaded.
+  sessionStorage.setItem("enigm-scan-phone", "android");
+  nativeApp({ report: null, phase: "acquiring" });
+  render(<DesktopApp />);
+  await waitFor(() =>
+    expect(document.querySelector(".phone-stage.is-android")).toBeTruthy(),
+  );
+  expect(document.querySelector(".phone-stage.is-ios")).toBeNull();
+});
+
 it("offers the next phone from the report, and no separate delete button", async () => {
   const app = nativeApp();
   render(<DesktopApp />);
@@ -275,6 +286,8 @@ it("cancelling clears the session and starts again from the first step", async (
     await screen.findByRole("button", { name: "Find my phone" }),
   ).toBeTruthy();
   expect(app.called("finish_scan")).toBe(true);
+  // The choices of that scan are forgotten.
+  expect(sessionStorage.getItem("enigm-scan-phone")).toBeNull();
   // A fresh first step: no notice and the permission asked again.
   expect(screen.queryByText(/cancelled/i)).toBeNull();
   expect((screen.getByRole("checkbox") as HTMLInputElement).checked).toBe(

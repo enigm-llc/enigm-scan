@@ -8,7 +8,7 @@ import {
 } from "../core/agent";
 import { parseReport, type ScanReport } from "../core/report";
 import { preloadPdf } from "../core/pdf-loader";
-import { DEEP_CHECK_KEY } from "../core/scan-choices";
+import { DEEP_CHECK_KEY, PHONE_KEY } from "../core/scan-choices";
 import { agentDictionaries } from "../shared/i18n/agent";
 import { productCopy } from "../shared/i18n/product";
 import type { Language, Copy } from "../shared/i18n/i18n";
@@ -55,8 +55,16 @@ export function Scanner({
   useEffect(preloadPdf, []);
   const [caps, setCaps] = useState<Capabilities | null>(null),
     [capError, setCapError] = useState(false);
-  const [method, setMethod] = useState<"usb" | "files">("usb"),
-    [device, setDevice] = useState<"ios" | "android">("ios");
+  const [method, setMethod] = useState<"usb" | "files">("usb");
+  // Kept for this tab too: a reload during an Android copy must not draw an
+  // iPhone or show iPhone figures.
+  const [device, setDevice] = useState<"ios" | "android">(() =>
+    sessionStorage.getItem(PHONE_KEY) === "android" ? "android" : "ios",
+  );
+  const chooseDevice = (value: "ios" | "android") => {
+    setDevice(value);
+    sessionStorage.setItem(PHONE_KEY, value);
+  };
   // iPhone: observe its traffic for 2 minutes (off unless asked).
   const [networkConsent, setNetworkConsent] = useState(false);
   // Android: read its open connections (no wait; off unless asked, as on
@@ -385,7 +393,7 @@ export function Scanner({
       const allowed = list.filter((d) => d.authorized || d.needsTrust);
       if (allowed.length === 1) {
         setSelected(allowed[0]);
-        setDevice(allowed[0].platform as "ios" | "android");
+        chooseDevice(allowed[0].platform as "ios" | "android");
       }
     } catch (error_) {
       setDiscoveryError(deviceErrorCode(error_));
@@ -476,7 +484,7 @@ export function Scanner({
         const allowed = list.filter((d) => d.authorized);
         if (allowed.length === 1) {
           setSelected(allowed[0]);
-          setDevice("android");
+          chooseDevice("android");
           return;
         }
       } catch {
@@ -936,7 +944,7 @@ export function Scanner({
                         }
                         onClick={() => {
                           setSelected(d);
-                          setDevice(d.platform as "ios" | "android");
+                          chooseDevice(d.platform as "ios" | "android");
                         }}
                       >
                         <DeviceIcon
@@ -1001,7 +1009,7 @@ export function Scanner({
                       aria-pressed={device === d}
                       disabled={starting}
                       onClick={() => {
-                        setDevice(d);
+                        chooseDevice(d);
                         setEncrypted(false);
                         setPassword("");
                       }}
