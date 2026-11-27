@@ -6845,6 +6845,18 @@ body:has(.promo-backdrop) {
   fill: rgba(255, 255, 255, 0.72);
 }
 
+/* ---------- App: the report's phone where the analysis left it ----------
+   The same size and place as on the steps before, so arriving at the
+   report does not move it. */
+.app-window .report .result-summary.verdict > .phone-stage .phone-wrap {
+  --ph: clamp(360px, calc(100 * var(--vh) - 350px), 760px);
+}
+@media (min-width: 1024px) {
+  .app-window .report .result-summary.verdict > .phone-stage {
+    transform: translateX(clamp(24px, calc(3 * var(--vw)), 56px));
+  }
+}
+
 /* ---------- App: changing step keeps the phone in place ----------
    Between extracting and analysing nothing leaves the window: the phone
    stays and only the words change. From the phone step to the copy, and
