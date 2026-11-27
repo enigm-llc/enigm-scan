@@ -63,7 +63,10 @@ jobs:
           restore-keys: ci-rust-${{ runner.os }}-
       - name: Desktop shell build dependencies
         timeout-minutes: 15
+        # The runner image also lists Microsoft's package repository, which
+        # these builds never use; when it fails, apt-get update fails too.
         run: |
+          sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list /etc/apt/sources.list.d/microsoft-prod.sources
           sudo apt-get -o Acquire::Retries=3 update
           sudo apt-get -o Acquire::Retries=3 install --no-install-recommends -y libwebkit2gtk-4.1-dev build-essential libxdo-dev libssl-dev librsvg2-dev libayatana-appindicator3-dev
       - run: rustup component add rustfmt clippy
