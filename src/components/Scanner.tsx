@@ -915,16 +915,17 @@ export function Scanner({
                 ),
               )}
             </ol>
-            <h1
-              id="scanner-heading"
-              key={ready ? "ready" : missing ? "missing" : "connect"}
-            >
-              {ready
-                ? f.readyTitle
-                : missing
-                  ? f.notFoundTitle
-                  : c.connectTitle}
-            </h1>
+            {(() => {
+              let title = c.connectTitle;
+              if (missing) title = f.notFoundTitle;
+              if (ready) title = f.readyTitle;
+              // A new title arrives; the same title stays put.
+              return (
+                <h1 id="scanner-heading" key={title}>
+                  {title}
+                </h1>
+              );
+            })()}
             {(() => {
               const intro = !ready
                 ? missing

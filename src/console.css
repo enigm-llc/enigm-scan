@@ -6154,6 +6154,9 @@ body:has(.promo-backdrop) {
    and dark, instead of the website's near-black and page grey. main.tsx sets
    data-shell and data-os before the first paint (src/desktop/native-shell.ts). */
 :root[data-shell="app"] {
+  /* One time for everything that appears, one for everything that moves. */
+  --enter: 800ms;
+  --move: 600ms;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI",
     system-ui, Cantarell, Ubuntu, "Noto Sans", sans-serif;
@@ -6925,10 +6928,6 @@ body:has(.promo-backdrop) {
    fades, since its place is set by a transform. What moves to a new place
    slides over one shared time. The step line keeps its own motion and the
    figures simply count. */
-:root[data-shell="app"] {
-  --enter: 800ms;
-  --move: 600ms;
-}
 :root[data-shell="app"] .app-window .welcome,
 :root[data-shell="app"] .app-window .desktop-flow:not(.is-running),
 :root[data-shell="app"] .app-window .console-copy > h1,
