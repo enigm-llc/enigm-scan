@@ -1276,6 +1276,43 @@ fn close_application(window: WebviewWindow, state: State<'_, Agent>) -> Result<(
     });
     Ok(())
 }
+/// The window's usual size and the smallest one at which every screen still
+/// shows everything (checked on each step, for iPhone and Android).
+const WINDOW_SIZE: (f64, f64) = (1120.0, 700.0);
+const WINDOW_MIN: (f64, f64) = (1100.0, 600.0);
+/// The window size for a screen whose free area (without the taskbar, dock
+/// or menu bar) is `area`, with `frame` taken by the title bar and borders,
+/// all in logical pixels: the usual size when it fits, otherwise as large as
+/// fits, never below the minimum.
+fn window_size(area: (f64, f64), frame: (f64, f64)) -> (f64, f64) {
+    let fit = |free: f64, usual: f64, least: f64| free.min(usual).max(least);
+    (
+        fit(area.0 - frame.0, WINDOW_SIZE.0, WINDOW_MIN.0),
+        fit(area.1 - frame.1, WINDOW_SIZE.1, WINDOW_MIN.1),
+    )
+}
+/// Small screens: a laptop at 1920 x 1080 and 150 % shows 1280 x 720, of
+/// which the taskbar takes part, too little for the usual 1120 x 700 window
+/// and its title bar. There the window opens as large as fits, centred.
+fn fit_to_screen(window: &WebviewWindow) {
+    let Ok(Some(monitor)) = window.current_monitor() else {
+        return;
+    };
+    let scale = monitor.scale_factor();
+    let area = monitor.work_area().size.to_logical::<f64>(scale);
+    let (Ok(outer), Ok(inner)) = (window.outer_size(), window.inner_size()) else {
+        return;
+    };
+    let frame = (
+        f64::from(outer.width.saturating_sub(inner.width)) / scale,
+        f64::from(outer.height.saturating_sub(inner.height)) / scale,
+    );
+    let size = window_size((area.width, area.height), frame);
+    if size != WINDOW_SIZE {
+        let _ = window.set_size(tauri::LogicalSize::new(size.0, size.1));
+        let _ = window.center();
+    }
+}
 /// How long quitting waits for a cancelled scan to delete its temporary
 /// folder. Engines are stopped with their whole process tree on cancel, so
 /// this is normally a moment; past it, the next start deletes what is left.
@@ -1520,6 +1557,7 @@ fn main() {
                 .title_bar_style(tauri::TitleBarStyle::Overlay)
                 .hidden_title(true);
             let window = main.build()?;
+            fit_to_screen(&window);
             paint_window(&window);
             show_later(window);
             Ok(())
@@ -1627,6 +1665,15 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn the_window_fits_small_screens_without_going_below_its_minimum() {
+        // A large screen: the usual size.
+        assert_eq!(window_size((1920.0, 1040.0), (0.0, 32.0)), (1120.0, 700.0));
+        // 1920 x 1080 at 150 %: 1280 x 672 free, 32 px of title bar.
+        assert_eq!(window_size((1280.0, 672.0), (0.0, 32.0)), (1120.0, 640.0));
+        // Smaller still: never below the minimum.
+        assert_eq!(window_size((1024.0, 560.0), (0.0, 32.0)), (1100.0, 600.0));
+    }
     #[test]
     fn quitting_waits_for_a_cancelled_scan_to_stop() {
         let running = Arc::new(AtomicBool::new(true));

@@ -17,7 +17,7 @@
         "width": 1120,
         "height": 700,
         "minWidth": 1100,
-        "minHeight": 660,
+        "minHeight": 600,
         "create": false,
         "incognito": true,
         "center": true,
