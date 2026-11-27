@@ -22,7 +22,6 @@ import {
 } from "lucide-react";
 import { native, type AgentStatus } from "../core/agent";
 import { PhoneStage } from "./PhoneStage";
-import { Cascade } from "./Cascade";
 import type { AgentCopy } from "../shared/i18n/agent";
 import type { Copy, Language } from "../shared/i18n/i18n";
 import { flowCopy } from "../shared/i18n/flow";
@@ -181,7 +180,6 @@ export function ScanProgress({
       }
     : reported;
   const language = document.documentElement.lang || "en";
-  const app = document.documentElement.dataset.shell === "app";
   // Local timing: when the whole run and the current phase started.
   const started = useRef(Date.now());
   const phaseStart = useRef({ phase: status.phase, at: Date.now() });
@@ -502,15 +500,10 @@ export function ScanProgress({
               aria-live="polite" /* NOSONAR: holds a heading */
             >
               <h3 className="phase-copy">
-                {/* In the app every title arrives the same way, as the
-                    report's does; the website keeps its cascade. */}
-                {app ? (
-                  <span className="text-in" key={label}>
-                    {label}
-                  </span>
-                ) : (
-                  <Cascade text={label} />
-                )}
+                {/* Every title arrives the same way, as the report's does. */}
+                <span className="text-in" key={label}>
+                  {label}
+                </span>
               </h3>
             </div>
             {status.phase === "awaiting_trust" ? (

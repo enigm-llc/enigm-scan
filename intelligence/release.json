@@ -13,7 +13,6 @@
     "process_name": 83,
     "sha256": 3793
   },
-  "legacyRules": 10760,
   "omittedUnsupportedPatterns": 501,
   "omittedSharedInfrastructure": [
     "2026-05-26_btmob_btmob.stix2: ip 104.21.64.137",
@@ -127,6 +126,5 @@
     }
   ],
   "publicKeySha256": "05bbf90bb0e813961ef8c15cc7931f4eaae3de57c92c56e4c6ee2d2413ec859d",
-  "payloadSha256": "ae937821a927ba70e49e277ea4fbe059d827587468eeaa8a749fc1e94d168bcb",
-  "payloadV2Sha256": "ee4c840ae584ea926e74827388511d5b9b362685522469661add0df21cd1125e"
+  "payloadSha256": "ee4c840ae584ea926e74827388511d5b9b362685522469661add0df21cd1125e"
 }

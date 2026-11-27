@@ -25,6 +25,10 @@
   as the report's verdict does.
 - When nothing known is found, the drawn phone says "Scan complete" instead
   of repeating the title beside it.
+- What remained of the old connector is gone: the website no longer allows
+  a local connection, the indicator bundle for apps older than 0.7 is no
+  longer published, and unused code (importing a network capture file,
+  unused texts and styles) has been removed.
 
 ## 1.0.1 — 27 November 2026
 

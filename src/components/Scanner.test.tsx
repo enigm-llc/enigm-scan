@@ -69,7 +69,6 @@ it("requires consent for device discovery and selects the sole authorized device
         device: "android",
         usbId: "test-device",
         consent: true,
-        phoneIp: null,
         // Like the iPhone's, Android's connections check starts off.
         pcapConsent: false,
       }),

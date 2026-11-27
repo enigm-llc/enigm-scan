@@ -7,8 +7,8 @@ The download Worker keeps anonymous counts so the team can see how Enigm Scan is
 | Event | When | Recorded fields |
 | --- | --- | --- |
 | `download` | A complete `GET` of a published package, from byte 0. Resumed ranges and `HEAD` requests are not counted again. | platform, architecture, release version, country |
-| `rules` | A `GET` of the signed indicator bundle, which the app requests when it starts. It approximates app starts, not people. | bundle schema (`v1`/`v2`), app version, system and architecture, country |
-| `version_check` | A `GET` of the download list by the app, which reads it at start to offer a newer version. The website reading the same list is not counted. | app version, system and architecture, country |
+| `rules` | A `GET` of the signed indicator bundle, which the app requests when it starts. It approximates app starts, not people. | bundle schema (`v2`), app version, system and architecture, country |
+| `version_check` | A `GET` of the download list by the app, which reads it at start to offer a newer version. | app version, system and architecture, country |
 | `visit` | A page of the website opened in a browser (home, how it works, download). The files a page loads are not counted, nor are requests that announce themselves as crawlers. | page, country |
 
 The app names itself in its two requests as `EnigmScan/<version> (<system>; <architecture>)`, for example `EnigmScan/1.0.0 (macos; aarch64)`: the same text for every copy of a release, with nothing that tells one computer from another. Only that exact form is counted; anything else is recorded as `unknown`.

@@ -9,7 +9,6 @@ const en = {
   decrypting: "Opening the encrypted backup",
   title: "Analyze locally",
   evidence: "Choose evidence folder",
-  rules: "Load a signed rule update",
   run: "Analyze selected data",
   cancel: "Cancel",
   progress: "Analysis progress",
@@ -41,8 +40,6 @@ const en = {
   deviceCancelled:
     "The copy was cancelled on the iPhone. Press “Try again” whenever you like.",
   elapsed: "Elapsed {t}",
-  remaining: "About {t} left",
-  estimateNote: "Estimate based on the phone’s own progress.",
   lessThanMinute: "less than a minute",
   actCapture:
     "Watching the iPhone’s connections to compare them with known spyware servers · {t} left.",
@@ -60,7 +57,6 @@ const en = {
     "Deleting the temporary files of the copy. This computer keeps only the report, if you choose to save it.",
   statDiscarded: "media files skipped",
   unlock: "Unlock it and accept the prompt on the phone.",
-  code: "Single-use pairing key",
   error: "We couldn’t finish the scan. Please try again.",
   nativeReport: "Analyzed on your computer",
   finishError:
@@ -95,9 +91,7 @@ const en = {
   noEngines:
     "USB or forensic engines are unavailable in this build. Local file checks remain available, with reduced coverage.",
   files: "Existing local evidence",
-  method: "Analysis method",
   ready: "Ready",
-  ruleVersion: "Active rule version",
   capError:
     "Rules are unavailable, expired or invalid. Load a valid signed update before scanning.",
   stepConnect: "Connect",
@@ -123,7 +117,6 @@ const es: AgentCopy = {
   decrypting: "Abriendo la copia cifrada",
   title: "Analizar localmente",
   evidence: "Elegir carpeta de evidencias",
-  rules: "Cargar actualización de reglas firmada",
   run: "Analizar datos seleccionados",
   cancel: "Cancelar",
   progress: "Progreso del análisis",
@@ -155,8 +148,6 @@ const es: AgentCopy = {
   deviceCancelled:
     "La copia se canceló desde el iPhone. Pulsa «Reintentar» cuando quieras.",
   elapsed: "Llevamos {t}",
-  remaining: "Restante: {t}",
-  estimateNote: "Estimación según el avance que informa el propio teléfono.",
   lessThanMinute: "menos de un minuto",
   actCapture:
     "Observamos las conexiones del iPhone para compararlas con servidores de spyware conocidos · tiempo restante: {t}.",
@@ -174,7 +165,6 @@ const es: AgentCopy = {
     "Borramos los archivos temporales de la copia. Este ordenador solo conservará el informe si decides guardarlo.",
   statDiscarded: "fotos y vídeos omitidos",
   unlock: "Desbloquéalo y acepta el aviso del móvil.",
-  code: "Clave de emparejamiento de un solo uso",
   error: "No hemos podido terminar el análisis. Vuelve a intentarlo.",
   nativeReport: "Analizado en tu ordenador",
   finishError:
@@ -209,9 +199,7 @@ const es: AgentCopy = {
   noEngines:
     "Los motores USB o forenses no están disponibles en esta compilación. Puedes analizar archivos locales con cobertura reducida.",
   files: "Evidencias locales existentes",
-  method: "Método de análisis",
   ready: "Preparado",
-  ruleVersion: "Versión activa de reglas",
   capError:
     "Las reglas no están disponibles, han caducado o no son válidas. Carga una actualización firmada válida antes de analizar.",
   stepConnect: "Conectar",
@@ -236,7 +224,6 @@ const fr: AgentCopy = {
   decrypting: "Ouverture de la sauvegarde chiffrée",
   title: "Analyser localement",
   evidence: "Choisir le dossier de preuves",
-  rules: "Charger des règles signées",
   run: "Analyser les données sélectionnées",
   cancel: "Annuler",
   progress: "Progression de l’analyse",
@@ -269,8 +256,6 @@ const fr: AgentCopy = {
   deviceCancelled:
     "La copie a été annulée sur l’iPhone. Appuyez sur « Réessayer » quand vous voulez.",
   elapsed: "Écoulé : {t}",
-  remaining: "Encore environ {t}",
-  estimateNote: "Estimation selon l’avancement indiqué par le téléphone.",
   lessThanMinute: "moins d’une minute",
   actCapture:
     "Observation des connexions de l’iPhone pour les comparer à des serveurs de logiciels espions connus · encore {t}.",
@@ -288,7 +273,6 @@ const fr: AgentCopy = {
     "Suppression des fichiers temporaires de la copie. Cet ordinateur ne garde que le rapport, si vous choisissez de l’enregistrer.",
   statDiscarded: "médias ignorés",
   unlock: "Déverrouillez-le et acceptez l’alerte du téléphone.",
-  code: "Clé d’appairage à usage unique",
   error: "Impossible de terminer l’analyse. Réessayez.",
   nativeReport: "Analysé sur votre ordinateur",
   finishError:
@@ -323,9 +307,7 @@ const fr: AgentCopy = {
   noEngines:
     "Les moteurs USB ou forensiques sont indisponibles dans cette version. Les vérifications locales restent disponibles avec une couverture réduite.",
   files: "Preuves locales existantes",
-  method: "Méthode d’analyse",
   ready: "Prêt",
-  ruleVersion: "Version active des règles",
   capError:
     "Règles absentes, expirées ou invalides. Chargez une mise à jour signée valide avant l’analyse.",
   stepConnect: "Connecter",
@@ -350,7 +332,6 @@ const de: AgentCopy = {
   decrypting: "Verschlüsseltes Backup wird geöffnet",
   title: "Lokal analysieren",
   evidence: "Beweisordner auswählen",
-  rules: "Signierte Regeln laden",
   run: "Ausgewählte Daten analysieren",
   cancel: "Abbrechen",
   progress: "Analysefortschritt",
@@ -382,8 +363,6 @@ const de: AgentCopy = {
   deviceCancelled:
     "Die Kopie wurde auf dem iPhone abgebrochen. Tippen Sie auf „Erneut versuchen“, wann Sie möchten.",
   elapsed: "Bisher {t}",
-  remaining: "Noch etwa {t}",
-  estimateNote: "Schätzung anhand des vom Telefon gemeldeten Fortschritts.",
   lessThanMinute: "weniger als eine Minute",
   actCapture:
     "Die Verbindungen des iPhones werden beobachtet und mit bekannten Spyware-Servern abgeglichen · noch {t}.",
@@ -401,7 +380,6 @@ const de: AgentCopy = {
     "Die temporären Dateien der Kopie werden gelöscht. Auf diesem Computer bleibt nur der Bericht, wenn Sie ihn speichern.",
   statDiscarded: "Medien übersprungen",
   unlock: "Entsperren Sie es und bestätigen Sie die Meldung auf dem Handy.",
-  code: "Einmaliger Kopplungsschlüssel",
   error:
     "Die Prüfung konnte nicht abgeschlossen werden. Versuchen Sie es erneut.",
   nativeReport: "Auf Ihrem Computer geprüft",
@@ -437,9 +415,7 @@ const de: AgentCopy = {
   noEngines:
     "USB- oder Forensik-Engines sind in diesem Build nicht verfügbar. Lokale Dateiprüfungen mit eingeschränkter Abdeckung sind möglich.",
   files: "Vorhandene lokale Belege",
-  method: "Analysemethode",
   ready: "Bereit",
-  ruleVersion: "Aktive Regelversion",
   capError:
     "Regeln fehlen, sind abgelaufen oder ungültig. Vor der Analyse ein gültiges signiertes Update laden.",
   stepConnect: "Verbinden",
@@ -464,7 +440,6 @@ const it: AgentCopy = {
   decrypting: "Apertura del backup cifrato",
   title: "Analizza localmente",
   evidence: "Scegli cartella delle prove",
-  rules: "Carica regole firmate",
   run: "Analizza dati selezionati",
   cancel: "Annulla",
   progress: "Avanzamento analisi",
@@ -497,8 +472,6 @@ const it: AgentCopy = {
   deviceCancelled:
     "La copia è stata annullata sull’iPhone. Premi «Riprova» quando vuoi.",
   elapsed: "Trascorso: {t}",
-  remaining: "Rimanente: {t}",
-  estimateNote: "Stima basata sull’avanzamento indicato dal telefono.",
   lessThanMinute: "meno di un minuto",
   actCapture:
     "Osserviamo le connessioni dell’iPhone per confrontarle con server di spyware noti · ancora {t}.",
@@ -516,7 +489,6 @@ const it: AgentCopy = {
     "Cancelliamo i file temporanei della copia. Su questo computer resta solo il rapporto, se decidi di salvarlo.",
   statDiscarded: "foto e video saltati",
   unlock: "Sbloccalo e accetta l’avviso sul telefono.",
-  code: "Chiave di associazione monouso",
   error: "Non è stato possibile completare l’analisi. Riprova.",
   nativeReport: "Analizzato sul tuo computer",
   finishError:
@@ -551,9 +523,7 @@ const it: AgentCopy = {
   noEngines:
     "I motori USB o forensi non sono disponibili in questa versione. Puoi verificare file locali con copertura ridotta.",
   files: "Prove locali esistenti",
-  method: "Metodo di analisi",
   ready: "Pronto",
-  ruleVersion: "Versione attiva delle regole",
   capError:
     "Regole assenti, scadute o non valide. Carica un aggiornamento firmato valido prima dell’analisi.",
   stepConnect: "Collega",
@@ -578,7 +548,6 @@ const pt: AgentCopy = {
   decrypting: "A abrir a cópia encriptada",
   title: "Analisar localmente",
   evidence: "Escolher pasta de evidências",
-  rules: "Carregar regras assinadas",
   run: "Analisar dados selecionados",
   cancel: "Cancelar",
   progress: "Progresso da análise",
@@ -610,8 +579,6 @@ const pt: AgentCopy = {
   deviceCancelled:
     "A cópia foi cancelada no iPhone. Prima «Tentar novamente» quando quiser.",
   elapsed: "Decorrido: {t}",
-  remaining: "Restante: {t}",
-  estimateNote: "Estimativa com base no progresso indicado pelo telefone.",
   lessThanMinute: "menos de um minuto",
   actCapture:
     "A observar as ligações do iPhone para as comparar com servidores de spyware conhecidos · faltam {t}.",
@@ -629,7 +596,6 @@ const pt: AgentCopy = {
     "A apagar os ficheiros temporários da cópia. Este computador só guarda o relatório, se decidir guardá-lo.",
   statDiscarded: "fotos e vídeos saltados",
   unlock: "Desbloqueie-o e aceite o aviso no telemóvel.",
-  code: "Chave de emparelhamento de utilização única",
   error: "Não foi possível concluir a análise. Tente novamente.",
   nativeReport: "Analisado no seu computador",
   finishError:
@@ -664,9 +630,7 @@ const pt: AgentCopy = {
   noEngines:
     "Os motores USB ou forenses não estão disponíveis nesta compilação. As verificações locais continuam disponíveis com cobertura reduzida.",
   files: "Evidências locais existentes",
-  method: "Método de análise",
   ready: "Pronto",
-  ruleVersion: "Versão ativa das regras",
   capError:
     "Regras indisponíveis, expiradas ou inválidas. Carregue uma atualização assinada válida antes de analisar.",
   stepConnect: "Ligar",

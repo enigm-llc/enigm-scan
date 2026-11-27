@@ -82,10 +82,9 @@ signed there and assembled here; the key never touches this computer:
 
 ```sh
 node scripts/build-intelligence.mjs --prepare --version=2026112601 --days=90 --popular=top-1m.csv
-# copy .release/payload-v1.json and payload-v2.json to the signing computer:
-openssl pkeyutl -sign -inkey key.pem -rawin -in payload-v1.json -out payload-v1.sig
+# copy .release/payload-v2.json to the signing computer:
 openssl pkeyutl -sign -inkey key.pem -rawin -in payload-v2.json -out payload-v2.sig
-# copy the two .sig files back next to the payloads, then:
+# copy the .sig file back next to the payload, then:
 node scripts/build-intelligence.mjs --assemble
 ```
 

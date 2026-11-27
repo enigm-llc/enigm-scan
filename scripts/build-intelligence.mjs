@@ -106,7 +106,6 @@ const KINDS = {
   "app:cert.sha256": "app_cert_sha256",
   "configuration-profile:id": "configuration_profile_id",
 };
-const LEGACY = new Set(["domain", "ip", "sha256"]);
 // MVT splits STIX patterns on "=" and strips quotes/brackets: reject, never escape.
 const plain = (v, max) =>
   v.length > 0 &&
@@ -340,24 +339,17 @@ const unique = [
   ...new Map([...byValue.values()].map((r) => [r.id, r])).values(),
 ].sort((a, b) => a.id.localeCompare(b.id, "en"));
 if (!unique.length) throw new Error("No supported indicators");
-// Schema 1 (domain/ip/sha256) stays at the original endpoint for released
-// apps; schema 2 adds the forensic types MVT matches natively.
-const payloadFor = (schemaVersion, selected) =>
-  Buffer.from(
+// Schema 2: every indicator type, including the forensic ones MVT matches.
+const payloads = {
+  v2: Buffer.from(
     JSON.stringify({
-      schemaVersion,
+      schemaVersion: 2,
       version,
       issuedAt: now,
       expiresAt: expiry,
-      rules: selected,
+      rules: unique,
     }),
-  );
-const payloads = {
-  v1: payloadFor(
-    1,
-    unique.filter((r) => LEGACY.has(r.kind)),
   ),
-  v2: payloadFor(2, unique),
 };
 const byKind = Object.fromEntries(
   [...new Set(unique.map((r) => r.kind))]
@@ -368,7 +360,6 @@ const summary = {
   version,
   rules: unique.length,
   rulesByKind: byKind,
-  legacyRules: unique.filter((r) => LEGACY.has(r.kind)).length,
   omittedUnsupportedPatterns: omitted,
   omittedSharedInfrastructure: omittedShared,
   popularDomains: popular,
@@ -380,7 +371,6 @@ const summary = {
 
 if (mode === "prepare") {
   mkdirSync(STAGING, { recursive: true, mode: 0o700 });
-  writeFileSync(`${STAGING}/payload-v1.json`, payloads.v1);
   writeFileSync(`${STAGING}/payload-v2.json`, payloads.v2);
   writeFileSync(
     `${STAGING}/summary.json`,
@@ -390,10 +380,9 @@ if (mode === "prepare") {
   console.log(
     [
       `Unsigned release ${version} in ${STAGING}/ (${unique.length} indicators).`,
-      `payload-v1.json  sha256 ${hash(payloads.v1)}`,
       `payload-v2.json  sha256 ${hash(payloads.v2)}`,
-      "Sign each payload with the release key (Ed25519, raw 64-byte signature) as",
-      "payload-v1.sig and payload-v2.sig next to it, for example on the signing computer:",
+      "Sign the payload with the release key (Ed25519, raw 64-byte signature) as",
+      "payload-v2.sig next to it, for example on the signing computer:",
       "  openssl pkeyutl -sign -inkey key.pem -rawin -in payload-v2.json -out payload-v2.sig",
       "then run: node scripts/build-intelligence.mjs --assemble",
     ].join("\n"),
@@ -415,23 +404,17 @@ if (mode === "prepare") {
     writeFileSync(keyPath, keyPem, { mode: 0o600, flag: "wx" });
   }
   const key = createPrivateKey(keyPem);
-  write(summary, payloads, {
-    v1: sign(null, payloads.v1, key),
-    v2: sign(null, payloads.v2, key),
-  });
+  write(summary, payloads, { v2: sign(null, payloads.v2, key) });
 }
 
-/** Checks both signatures against a key the app trusts, then writes the
- *  bundles, the key that signed them and release.json. */
+/** Checks the signature against a key the app trusts, then writes the
+ *  bundle, the key that signed it and release.json. */
 function write(summary, payloads, signatures) {
   const trusted = trustedKeys();
   const signer = (trusted.length ? trusted : [null]).find((raw) => {
     if (raw === null) return false;
     const key = spki(raw);
-    return (
-      verify(null, payloads.v1, key, signatures.v1) &&
-      verify(null, payloads.v2, key, signatures.v2)
-    );
+    return verify(null, payloads.v2, key, signatures.v2);
   });
   mkdirSync("src-tauri/resources/intelligence", { recursive: true });
   let current = signer;
@@ -445,17 +428,13 @@ function write(summary, payloads, signatures) {
   }
   if (!current)
     throw new Error("The signatures do not match any key the app trusts");
-  for (const [name, schema] of [
-    ["bundle.json", "v1"],
-    ["bundle-v2.json", "v2"],
-  ])
-    writeFileSync(
-      `src-tauri/resources/intelligence/${name}`,
-      JSON.stringify({
-        payload: payloads[schema].toString("base64"),
-        signature: signatures[schema].toString("base64"),
-      }) + "\n",
-    );
+  writeFileSync(
+    "src-tauri/resources/intelligence/bundle-v2.json",
+    JSON.stringify({
+      payload: payloads.v2.toString("base64"),
+      signature: signatures.v2.toString("base64"),
+    }) + "\n",
+  );
   writeFileSync(CURRENT, current);
   const hash = (b) => createHash("sha256").update(b).digest("hex");
   writeFileSync(
@@ -464,8 +443,7 @@ function write(summary, payloads, signatures) {
       {
         ...summary,
         publicKeySha256: hash(current),
-        payloadSha256: hash(payloads.v1),
-        payloadV2Sha256: hash(payloads.v2),
+        payloadSha256: hash(payloads.v2),
       },
       null,
       2,
@@ -488,7 +466,7 @@ function assemble() {
   const summary = JSON.parse(read("summary.json"));
   if (summary.version <= previousVersion)
     throw new Error("Release version must increase");
-  const payloads = { v1: read("payload-v1.json"), v2: read("payload-v2.json") };
+  const payloads = { v2: read("payload-v2.json") };
   for (const [schema, bytes] of Object.entries(payloads)) {
     const payload = JSON.parse(bytes);
     if (payload.version !== summary.version)
@@ -498,8 +476,5 @@ function assemble() {
     if (payload.expiresAt <= Math.floor(Date.now() / 1000))
       throw new Error("The prepared release has expired: prepare it again");
   }
-  write(summary, payloads, {
-    v1: read("payload-v1.sig"),
-    v2: read("payload-v2.sig"),
-  });
+  write(summary, payloads, { v2: read("payload-v2.sig") });
 }

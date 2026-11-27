@@ -272,7 +272,6 @@ export function Scanner({
       request: {
         device: "ios",
         consent,
-        phoneIp: null,
         pcapConsent: false,
         usbId: prepWanted,
         backupPassword: null,
@@ -419,7 +418,6 @@ export function Scanner({
         request: {
           device,
           consent,
-          phoneIp: null,
           pcapConsent:
             method === "usb" &&
             (device === "ios"

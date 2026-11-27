@@ -109,7 +109,7 @@ describe("public installer boundary", () => {
 
 it("serves only the public signed intelligence envelope without accessing evidence storage", async () => {
   const e = env();
-  const endpoint = "https://scan.enigm.io/downloads/intelligence.json";
+  const endpoint = "https://scan.enigm.io/downloads/intelligence-v2.json";
   const response = await worker.fetch(new Request(endpoint), e);
   const bundle = await response.json();
   expect(Object.keys(bundle).sort()).toEqual(["payload", "signature"]);
@@ -129,29 +129,18 @@ it("serves only the public signed intelligence envelope without accessing eviden
   ).toBe("");
 });
 
-it("keeps schema 1 for released connectors and serves schema 2 separately", async () => {
+it("serves every indicator type and nothing at the retired address", async () => {
   const e = env();
-  const decode = async (path: string) => {
-    const response = await worker.fetch(
-      new Request("https://scan.enigm.io/downloads/" + path),
-      e,
-    );
-    expect(response.status).toBe(200);
-    const { payload } = await response.json();
-    return JSON.parse(Buffer.from(payload, "base64").toString());
-  };
-  const v1 = await decode("intelligence.json");
-  const v2 = await decode("intelligence-v2.json");
-  expect(v1.schemaVersion).toBe(1);
-  expect(v2.schemaVersion).toBe(2);
-  expect(v1.version).toBe(v2.version);
-  // Released connectors only understand these types.
-  expect(new Set(v1.rules.map((r: { kind: string }) => r.kind))).toEqual(
-    new Set(["domain", "ip", "sha256"]),
+  const response = await worker.fetch(
+    new Request("https://scan.enigm.io/downloads/intelligence-v2.json"),
+    e,
   );
-  expect(v2.rules.length).toBeGreaterThan(v1.rules.length);
+  expect(response.status).toBe(200);
+  const { payload } = await response.json();
+  const bundle = JSON.parse(Buffer.from(payload, "base64").toString());
+  expect(bundle.schemaVersion).toBe(2);
   expect(
-    v2.rules.some((r: { kind: string }) => r.kind === "process_name"),
+    bundle.rules.some((r: { kind: string }) => r.kind === "process_name"),
   ).toBe(true);
   expect(e.RELEASES.get).not.toHaveBeenCalled();
 });

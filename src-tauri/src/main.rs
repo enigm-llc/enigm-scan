@@ -172,7 +172,6 @@ struct Status {
 #[derive(Default)]
 struct Selection {
     evidence: Option<PathBuf>,
-    pcap: Option<PathBuf>,
     rules: Option<Vec<u8>>,
     usb: Option<Arc<adb::Session>>,
 }
@@ -216,7 +215,6 @@ fn idle(a: &Agent) -> Result<(), String> {
 /// What a file chooser asks for.
 enum Pick {
     Folder,
-    Open(&'static str, &'static [&'static str]),
     Save(String, String),
 }
 /// A file or folder chooser from the app window, brought to the front like
@@ -241,7 +239,6 @@ async fn chooser(window: &WebviewWindow, pick: Pick) -> Option<std::path::PathBu
         let parent = target.gtk_window().ok();
         let action = match pick {
             Pick::Folder => gtk::FileChooserAction::SelectFolder,
-            Pick::Open(..) => gtk::FileChooserAction::Open,
             Pick::Save(..) => gtk::FileChooserAction::Save,
         };
         let dialog =
@@ -256,7 +253,6 @@ async fn chooser(window: &WebviewWindow, pick: Pick) -> Option<std::path::PathBu
         };
         match &pick {
             Pick::Folder => {}
-            Pick::Open(name, extensions) => dialog.add_filter(filter(name, extensions)),
             Pick::Save(file, extension) => {
                 dialog.add_filter(filter(&extension.to_uppercase(), &[extension.as_str()]));
                 dialog.set_current_name(file);
@@ -304,7 +300,6 @@ async fn chooser(_window: &WebviewWindow, pick: Pick) -> Option<std::path::PathB
     let dialog = rfd::AsyncFileDialog::new();
     let picked = match pick {
         Pick::Folder => dialog.pick_folder().await,
-        Pick::Open(name, extensions) => dialog.add_filter(name, extensions).pick_file().await,
         Pick::Save(file, extension) => {
             dialog
                 .set_file_name(file)
@@ -336,43 +331,6 @@ async fn choose_evidence(
             .lock()
             .map_err(|_| "state_unavailable")?
             .evidence = Some(path);
-        Ok(Some(name))
-    } else {
-        Ok(None)
-    }
-}
-#[tauri::command]
-async fn choose_pcap(
-    window: WebviewWindow,
-    state: State<'_, Agent>,
-) -> Result<Option<String>, String> {
-    local(&window)?;
-    idle(&state)?;
-    let picked = pick_path(&window, Pick::Open("PCAP", &["pcap", "cap"])).await;
-    idle(&state)?;
-    if let Some(picked) = picked {
-        let path = tauri::async_runtime::spawn_blocking(move || {
-            let path = picked.canonicalize().map_err(|_| "pcap_unavailable")?;
-            let size = std::fs::metadata(&path)
-                .map_err(|_| "pcap_unavailable")?
-                .len();
-            if size > 128 * 1024 * 1024 {
-                return Err("pcap_size_invalid");
-            }
-            Ok(path)
-        })
-        .await
-        .map_err(|_| "pcap_unavailable")??;
-        let name = path
-            .file_name()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .into_owned();
-        state
-            .selection
-            .lock()
-            .map_err(|_| "state_unavailable")?
-            .pcap = Some(path);
         Ok(Some(name))
     } else {
         Ok(None)
@@ -637,7 +595,6 @@ async fn refresh_devices(
 struct ScanRequest {
     device: String,
     consent: bool,
-    phone_ip: Option<String>,
     pcap_consent: bool,
     usb_id: Option<String>,
     backup_password: Option<String>,
@@ -682,26 +639,9 @@ fn start_scan(
     {
         return Err("adb_session_required".into());
     }
-    let pcap = selection.pcap.clone();
     // iPhone: observe the phone's traffic for a fixed window. Android: read
     // the phone's open connections (no traffic). Both only when asked.
-    let capture_network = request.pcap_consent && pcap.is_none() && request.usb_id.is_some();
-
-    let phone = if pcap.is_some() {
-        if !request.pcap_consent {
-            return Err("pcap_consent_required".into());
-        }
-        Some(
-            request
-                .phone_ip
-                .as_deref()
-                .ok_or("phone_ip_required")?
-                .parse::<std::net::IpAddr>()
-                .map_err(|_| "phone_ip_invalid")?,
-        )
-    } else {
-        None
-    };
+    let capture_network = request.pcap_consent && request.usb_id.is_some();
     let rules_bytes = current_rules(&state.data, selection.rules.as_deref())?;
     let rules = VerifiedRules::verify(
         &rules_bytes,
@@ -926,31 +866,7 @@ fn start_scan(
                     &e,
                 ),
             }
-            if let (Some(pcap), Some(phone)) = (pcap, phone) {
-                if let Ok(mut s) = status.lock() {
-                    s.phase = "network".into();
-                    s.checks = report.checks.len() as u64;
-                }
-                let mut bytes = Vec::new();
-                std::fs::File::open(pcap)
-                    .map_err(|_| "pcap_unavailable")?
-                    .take(128 * 1024 * 1024 + 1)
-                    .read_to_end(&mut bytes)
-                    .map_err(|_| "pcap_unavailable")?;
-                // Apply network results transactionally, so malformed captures cannot leave partial findings presented as complete.
-                let mut network_report = report.clone();
-                match enigm_scan_core::network::analyze_pcap(
-                    &bytes,
-                    phone,
-                    &rules,
-                    &mut network_report,
-                    &cancel,
-                ) {
-                    Ok(()) => report = network_report,
-                    Err(e) if e == "cancelled" => return Err(e),
-                    Err(e) => report.check("network_pcap", "failed", &e),
-                }
-            } else if capture_network && request.device == "ios" {
+            if capture_network && request.device == "ios" {
                 if let Ok(mut s) = status.lock() {
                     s.phase = "network".into();
                     s.checks = report.checks.len() as u64;
@@ -1198,17 +1114,6 @@ fn export_name(name: Option<&str>, format: &str) -> String {
     })
     .map(str::to_string)
     .unwrap_or_else(|| format!("enigm-scan-report.{format}"))
-}
-#[tauri::command]
-fn remove_pcap(window: WebviewWindow, state: State<'_, Agent>) -> Result<(), String> {
-    local(&window)?;
-    idle(&state)?;
-    state
-        .selection
-        .lock()
-        .map_err(|_| "state_unavailable")?
-        .pcap = None;
-    Ok(())
 }
 /// An address the system browser may open: https only, with a host, no
 /// credentials, bounded length. Report sources and help pages qualify;
@@ -1614,7 +1519,6 @@ fn main() {
             close_application,
             set_menu_language,
             choose_evidence,
-            choose_pcap,
             update_intelligence,
             capabilities,
             list_devices,
@@ -1627,8 +1531,7 @@ fn main() {
             window_ready,
             begin_copy,
             finish_scan,
-            save_export,
-            remove_pcap
+            save_export
         ])
         .build(tauri::generate_context!())
         .expect("Unable to start Enigm Scan");

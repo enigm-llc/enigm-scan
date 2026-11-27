@@ -4330,34 +4330,6 @@ body {
 .notice.is-info > svg {
   color: var(--tone);
 }
-.notice-body {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-.notice-body p {
-  margin: 0;
-}
-.notice-body .quiet-action {
-  align-self: flex-start;
-  margin-left: -10px;
-}
-.notice-body .device-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0;
-}
-.notice-body details summary {
-  color: var(--tone);
-  font-size: 13px;
-  cursor: pointer;
-}
-.notice-body code {
-  font-size: 12px;
-  color: var(--tone);
-}
 /* Older inline errors (app window, report, session) read the same way. */
 .error,
 p.error[role="alert"],
@@ -4391,30 +4363,6 @@ p.error[role="alert"]::before,
     center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' x2='12' y1='8' y2='12'/%3E%3Cline x1='12' x2='12.01' y1='16' y2='16'/%3E%3C/svg%3E")
     center / contain no-repeat;
-}
-.notice-body .device-options button {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 0 16px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 14px;
-  font-weight: 500;
-}
-.notice-body .device-options button .platform-icon {
-  width: 15px;
-  height: 15px;
-}
-@media (hover: hover) and (pointer: fine) {
-  .notice-body .device-options button:not(:disabled):hover {
-    background: var(--bg);
-    border-color: var(--muted);
-  }
 }
 
 /* ---------- When something fails, the device shows it ---------- */
@@ -4984,16 +4932,6 @@ p.error[role="alert"],
 .progress-panel .progress-card {
   margin: 0;
 }
-.deep-check {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 18px 18px 16px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--raised);
-  color: var(--text);
-}
 .progress-card {
   display: flex;
   align-items: center;
@@ -5239,17 +5177,6 @@ p.error[role="alert"],
   border-radius: 50%;
   background: var(--sev);
 }
-.tile-clean {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 6px 0 0;
-  color: var(--text);
-  font-size: 15px;
-}
-.tile-clean svg {
-  color: var(--good, #127a3d);
-}
 @media (max-width: 1100px) {
   .report-tiles {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5369,9 +5296,6 @@ p.error[role="alert"],
     padding-left: 18px;
   }
 }
-.report .report-tile .tile-clean {
-  color: var(--text);
-}
 
 /* ---------- Report: the same page frame and phone layout as every step ---------- */
 @media (min-width: 1024px) {
@@ -5407,13 +5331,6 @@ p.error[role="alert"],
 .progress-panel,
 .progress-panel .progress-card-text {
   text-align: left;
-}
-.progress-panel .deep-check p,
-.progress-panel .deep-check small {
-  max-width: none;
-}
-.progress-panel .deep-check :is(p, li, small) {
-  text-wrap: pretty;
 }
 
 /* Tile icons keep their size next to long text. */
@@ -5616,7 +5533,6 @@ p.error[role="alert"],
 .scan-main .console-copy .retry-scan,
 .scan-progress .scan-hint,
 .scan-progress .scan-wait,
-.scan-progress .deep-check,
 .scan-progress .progress-card {
   animation: surface-in 420ms var(--motion-ease) both;
 }
@@ -6180,22 +6096,18 @@ body:has(.promo-backdrop) {
 }
 .app-window .scan-main .primary,
 .app-window .scan-main .button.primary,
-.app-window .report-actions button,
 .app-window .verdict-actions button {
   min-height: 40px;
   font-size: var(--app-text);
 }
 /* Facts beside the phone: device, identifier, copy figures. */
-.app-window .phone-facts b,
-.app-window .device-facts b {
+.app-window .phone-facts b {
   font-size: 15px;
 }
-.app-window .phone-facts dd,
-.app-window .acquisition-stats dd {
+.app-window .phone-facts dd {
   font-size: 18px;
 }
-.app-window .phone-facts dd:first-of-type,
-.app-window .acquisition-stats div:first-child dd {
+.app-window .phone-facts dd:first-of-type {
   font-size: 22px;
 }
 .app-window .progress-card-line {

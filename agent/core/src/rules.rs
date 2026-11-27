@@ -60,12 +60,6 @@ pub enum Kind {
     AppCertSha256,
     ConfigurationProfileId,
 }
-impl Kind {
-    /// Types understood by schema 1 clients (apps released before schema 2).
-    pub fn legacy(&self) -> bool {
-        matches!(self, Kind::Domain | Kind::Ip | Kind::Sha256)
-    }
-}
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Rule {
@@ -187,10 +181,7 @@ impl VerifiedRules {
         }
         let bundle: Bundle =
             serde_json::from_slice(&payload).map_err(|_| "invalid_rules_schema")?;
-        if !(1..=2).contains(&bundle.schema_version)
-            || bundle.version < minimum_version
-            || bundle.version == 0
-        {
+        if bundle.schema_version != 2 || bundle.version < minimum_version || bundle.version == 0 {
             return Err("rules_rollback_or_version".into());
         }
         if bundle.issued_at > now
@@ -206,9 +197,6 @@ impl VerifiedRules {
         let mut ids = HashSet::new();
         let mut index: HashMap<(Kind, String), Vec<usize>> = HashMap::new();
         for (i, r) in bundle.rules.iter().enumerate() {
-            if bundle.schema_version == 1 && !r.kind.legacy() {
-                return Err("rules_kind_unsupported".into());
-            }
             if r.id.is_empty()
                 || r.id.len() > 100
                 || !r
@@ -373,7 +361,7 @@ pub(crate) mod tests {
     pub fn fixture(now: i64) -> (Vec<u8>, [u8; 32]) {
         let key = SigningKey::from_bytes(&[7; 32]);
         let payload = serde_json::to_vec(&Bundle {
-            schema_version: 1,
+            schema_version: 2,
             version: 1,
             issued_at: now - 1,
             expires_at: now + 100,
@@ -391,19 +379,10 @@ pub(crate) mod tests {
     }
     #[test]
     fn bundled_intelligence_verifies_at_release_time() {
-        let bytes = include_bytes!("../../../src-tauri/resources/intelligence/bundle.json");
         let key = include_bytes!("../../../src-tauri/resources/intelligence/trusted-keys.bin");
         let release: serde_json::Value =
             serde_json::from_slice(include_bytes!("../../../intelligence/release.json")).unwrap();
-        let rules = VerifiedRules::verify(
-            bytes,
-            key,
-            release["issuedAt"].as_i64().unwrap(),
-            release["version"].as_u64().unwrap(),
-        )
-        .unwrap();
-        assert_eq!(rules.len() as u64, release["legacyRules"].as_u64().unwrap());
-        // Schema 2 carries every compiled indicator, including forensic types.
+        // Every compiled indicator, including forensic types.
         let full = include_bytes!("../../../src-tauri/resources/intelligence/bundle-v2.json");
         let rules = VerifiedRules::verify(
             full,
@@ -544,7 +523,7 @@ pub(crate) mod tests {
         }
     }
     #[test]
-    fn schema_two_carries_forensic_indicator_types_and_schema_one_stays_legacy() {
+    fn schema_two_carries_forensic_indicator_types_and_no_other_schema_is_read() {
         let rules = vec![
             rule("t.process", Kind::ProcessName, "roleaccountd"),
             rule("t.email", Kind::Email, "attacker@example.invalid"),
@@ -572,11 +551,11 @@ pub(crate) mod tests {
                 .len(),
             1
         );
-        // Schema 1 apps must never receive the new types.
+        // The retired schema 1 is refused outright.
         let (bytes, key) = signed(1, rules, 1000);
         assert_eq!(
             VerifiedRules::verify(&bytes, &key, 1000, 1).unwrap_err(),
-            "rules_kind_unsupported"
+            "rules_rollback_or_version"
         );
     }
     #[test]

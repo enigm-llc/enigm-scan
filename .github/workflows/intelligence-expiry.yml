@@ -23,7 +23,6 @@ jobs:
       # The copy embedded in the next app build, and the public copies apps download.
       - run: node scripts/check-intelligence-expiry.mjs --days=14
       - run: node scripts/check-intelligence-expiry.mjs --days=14 --file=src-tauri/resources/intelligence/bundle-v2.json
-      - run: node scripts/check-intelligence-expiry.mjs --days=14 --url=https://scan.enigm.io/downloads/intelligence.json
       - run: node scripts/check-intelligence-expiry.mjs --days=14 --url=https://scan.enigm.io/downloads/intelligence-v2.json
       # Mondays, or when run by hand: what changed upstream in the sources,
       # to review before the next signed release. It changes nothing.

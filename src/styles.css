@@ -435,55 +435,6 @@ dialog p {
   margin: 4px 0;
   white-space: pre-wrap;
 }
-.scanner {
-  padding: 24px 0 56px;
-}
-.scanner-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 32px;
-  margin-bottom: 36px;
-}
-.scanner h1 {
-  font-size: 34px;
-  letter-spacing: -0.04em;
-  font-weight: 500;
-  margin: 0 0 8px;
-}
-.scanner-heading p {
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.7;
-  max-width: 650px;
-  margin: 0;
-}
-.scanner-heading > .badge {
-  flex-shrink: 0;
-  margin-top: 7px;
-}
-.scanner fieldset {
-  border: 0;
-  padding: 0;
-  margin: 0;
-  min-width: 0;
-}
-.scanner legend {
-  font-size: 16px;
-  font-weight: 550;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.scanner .device-options {
-  margin: 20px 0;
-}
-.scanner .device-options button {
-  flex-direction: row;
-  justify-content: flex-start;
-  padding: 24px;
-  min-height: 90px;
-}
 .busy-icon {
   animation: working 1s linear infinite;
 }
@@ -496,12 +447,6 @@ dialog p {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-.scanner small {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
-  line-height: 1.6;
 }
 .field {
   display: flex;
@@ -563,10 +508,6 @@ dialog p {
   .subtitle {
     font-size: 16px;
   }
-  .scanner-heading {
-    flex-direction: column;
-    gap: 16px;
-  }
 }
 @media (max-width: 600px) {
   header {
@@ -613,17 +554,6 @@ dialog p {
   }
   .device-options button {
     padding: 24px 12px;
-  }
-  .scanner h1 {
-    font-size: 30px;
-  }
-  .scanner .device-options button {
-    padding: 18px 14px;
-    gap: 12px;
-  }
-  .scanner .device-options .platform-icon {
-    width: 27px;
-    height: 27px;
   }
   .report h1 {
     font-size: 30px;
@@ -879,10 +809,6 @@ dialog[open]::backdrop {
     scroll-behavior: auto !important;
   }
 }
-.scanner.is-running .scan-progress {
-  max-width: 920px;
-  margin: 0 auto;
-}
 /* Installer choices share the existing type, borders and monochrome palette. */
 .downloads {
   padding: 32px 0;
@@ -941,51 +867,6 @@ main {
   margin: 0 auto;
   border-top: 0;
 }
-.scanner.panel {
-  max-width: 720px;
-  margin: 20px auto 50px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-}
-.scanner-heading {
-  padding: 0 0 24px;
-  margin-bottom: 24px;
-  border-bottom: 1px solid var(--border);
-}
-.scanner h1 {
-  font-size: 26px;
-  letter-spacing: -0.025em;
-}
-.scanner-heading p {
-  font-size: 13px;
-  max-width: 48ch;
-}
-.scanner fieldset {
-  padding: 0;
-  border: 0;
-}
-.scanner .device-options {
-  gap: 10px;
-}
-.scanner .device-options button {
-  flex-direction: row;
-  min-height: 52px;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 12px 20px;
-}
-.scanner .device-options .platform-icon {
-  width: 24px;
-  height: 24px;
-}
-.scanner .consent {
-  font-size: 13px;
-}
-.scanner.is-running .scanner-heading {
-  display: none;
-}
 .report {
   max-width: 1000px;
   margin: 20px auto 48px;
@@ -1002,12 +883,6 @@ main {
   .app-footer {
     padding: 16px 20px;
     gap: 8px;
-  }
-  .scanner-heading {
-    flex-wrap: wrap;
-  }
-  .scanner .device-options button {
-    min-width: 0;
   }
 }
 /* Login footer geometry: legal on the left, appearance then locale on the right. */
@@ -1103,36 +978,6 @@ main {
   outline: 2px solid var(--text);
   outline-offset: 2px;
 }
-.scanner.panel {
-  margin-top: 8px;
-  margin-bottom: 24px;
-}
-.scanner-heading {
-  padding-bottom: 14px;
-  margin-bottom: 16px;
-}
-.scanner-heading h1 {
-  margin: 0 0 8px;
-  font-size: 24px;
-}
-.scanner-heading p {
-  margin: 0;
-}
-.scanner .device-options {
-  margin-top: 10px;
-}
-.scanner .device-options button {
-  min-height: 44px;
-  padding: 9px 16px;
-}
-.scanner .consent {
-  margin: 14px 0;
-}
-.scanner .notice.compact {
-  padding: 12px 14px;
-  margin: 10px 0;
-  font-size: 12px;
-}
 @media (max-width: 600px) {
   .login-footer {
     padding: 0 20px calc(16px + env(safe-area-inset-bottom, 0px));
@@ -1152,11 +997,6 @@ main {
   .locale-control > svg:last-of-type {
     display: none;
   }
-}
-.scanner.is-running .scan-progress {
-  border: 0;
-  border-radius: 0;
-  padding: 16px 0;
 }
 
 /* One continuous desktop journey; quiet header links match Enigm documentation. */
@@ -1436,7 +1276,7 @@ header nav .nav-link:focus-visible {
   background: transparent;
 }
 
-/* Web-led connector journey. One focused surface within the first viewport. */
+/* The app's main surface: one focused step within the first viewport. */
 .scan-header {
   max-width: 1280px;
   min-height: 80px;

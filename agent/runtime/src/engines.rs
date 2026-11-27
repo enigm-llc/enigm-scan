@@ -872,7 +872,7 @@ mod tests {
     }
     #[test]
     fn only_verified_indicator_identity_can_link_forensic_and_network_findings() {
-        let bytes = include_bytes!("../../../src-tauri/resources/intelligence/bundle.json");
+        let bytes = include_bytes!("../../../src-tauri/resources/intelligence/bundle-v2.json");
         let key = include_bytes!("../../../src-tauri/resources/intelligence/public-key.bin");
         let release: serde_json::Value =
             serde_json::from_slice(include_bytes!("../../../intelligence/release.json")).unwrap();

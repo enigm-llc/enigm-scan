@@ -6,7 +6,7 @@ use std::{
     time::Duration,
 };
 
-// Schema 2 (all indicator types). Apps released before schema 2 keep the schema 1 URL.
+// Schema 2: every indicator type.
 const ENDPOINT: &str = "https://scan.enigm.io/downloads/intelligence-v2.json";
 const LIMIT: u64 = 12 * 1024 * 1024;
 
@@ -88,7 +88,8 @@ pub fn save(data: &Path, bytes: &[u8], keys: &[u8], now: i64, floor: u64) -> Res
 #[cfg(test)]
 mod tests {
     use super::*;
-    const BUNDLE: &[u8] = include_bytes!("../../../src-tauri/resources/intelligence/bundle.json");
+    const BUNDLE: &[u8] =
+        include_bytes!("../../../src-tauri/resources/intelligence/bundle-v2.json");
     const KEY: &[u8; 32] =
         include_bytes!("../../../src-tauri/resources/intelligence/public-key.bin");
     fn now() -> i64 {

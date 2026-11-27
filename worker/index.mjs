@@ -1,4 +1,3 @@
-import intelligence from "../src-tauri/resources/intelligence/bundle.json";
 import intelligenceV2 from "../src-tauri/resources/intelligence/bundle-v2.json";
 import manifest from "../releases/manifest.json";
 
@@ -79,13 +78,8 @@ export default {
         headers: { ...secure, Allow: "GET, HEAD" },
       });
     }
-    // Schema 1 for released connectors; schema 2 adds forensic indicator types.
-    if (
-      path === "/downloads/intelligence.json" ||
-      path === "/downloads/intelligence-v2.json"
-    ) {
-      const bundle =
-        path === "/downloads/intelligence.json" ? intelligence : intelligenceV2;
+    // The signed indicators the app downloads when it starts.
+    if (path === "/downloads/intelligence-v2.json") {
       // Each rule refresh is one app start: active use, not people.
       if (request.method === "GET") {
         const app = appOf(request);
@@ -93,21 +87,21 @@ export default {
           env,
           request,
           "rules",
-          path === "/downloads/intelligence.json" ? "v1" : "v2",
+          "v2",
           app.version,
           app.system,
         );
       }
       return new Response(
-        request.method === "HEAD" ? null : JSON.stringify(bundle),
+        request.method === "HEAD" ? null : JSON.stringify(intelligenceV2),
         {
           headers: { ...secure, "Content-Type": "application/json" },
         },
       );
     }
     if (path === "/downloads/manifest.json") {
-      // The app reads this at start to offer a newer version; the website
-      // reads it too, and only the app's requests are counted.
+      // The app reads this at start to offer a newer version; only the
+      // app's requests are counted.
       const app = appOf(request);
       if (request.method === "GET" && app.version !== "unknown")
         count(env, request, "version_check", app.version, app.system);
