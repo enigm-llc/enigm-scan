@@ -436,7 +436,6 @@ export function ScanProgress({
                     )
                   ? {
                       kind: "copy",
-                      percent,
                       subtitle:
                         ios && !accepted ? a.noteCodeMaybe : a.phoneKeep,
                     }

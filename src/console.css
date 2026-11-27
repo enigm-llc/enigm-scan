@@ -927,24 +927,8 @@ body:has(.landing) .app-footer {
   transform: scale(0.96);
   transition-duration: 60ms;
 }
-/* The copy: a quiet bar of the real percentage under the clock, and data
-   blocks converging on the port, continued by the pulses in the cable. */
-.phone-progress {
-  display: block;
-  width: 9em;
-  height: 0.28em;
-  margin: 1.1em auto 0;
-  overflow: hidden;
-  border-radius: 1em;
-  background: rgba(255, 255, 255, 0.16);
-}
-.phone-progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--good, #6bd898);
-  transition: width 900ms var(--ease);
-}
+/* The copy: data blocks converging on the port, continued by the pulses in
+   the cable. */
 .phone-transfer {
   position: absolute;
   z-index: 2;
@@ -1243,7 +1227,6 @@ body:has(.landing) .app-footer {
     animation: none;
     box-shadow: 0 0 10px 3px color-mix(in srgb, var(--good) 50%, transparent);
   }
-  .phone-progress span,
   .phone-beam,
   .phone-note,
   .phone-sheet {
@@ -6886,6 +6869,33 @@ body:has(.promo-backdrop) {
     > .scan-progress
     > :not(.phone-stage),
   .app-window .report .result-summary.verdict > :not(.phone-stage) {
+    animation: none;
+  }
+}
+
+/* ---------- App: the figures beside the phone arrive smoothly ----------
+   Their column keeps the room of all five figures, so a new one takes its
+   place without moving the others; each new figure fades in as the words
+   do between steps. */
+.app-window .scan-progress .phone-facts dl {
+  min-height: calc(5 * 44px + 4 * 14px);
+}
+/* The time is always the last figure: it keeps the last place from the
+   start, so the others fill the room above it without moving it. */
+.app-window .scan-progress .phone-facts dl > div:last-child {
+  margin-top: auto;
+}
+.app-window .phone-facts dl > div {
+  animation: fact-in 420ms var(--ease) both;
+}
+@keyframes fact-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-window .phone-facts dl > div {
     animation: none;
   }
 }

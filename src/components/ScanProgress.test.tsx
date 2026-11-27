@@ -234,6 +234,8 @@ it("shows the same figures beside an iPhone and an Android phone, at most five",
     expect(shown[2]).toBe(`16 ${a.statDiscarded}`);
     expect(shown[3]).toBe(`50 % ${f.factObserved}`);
     expect(shown[4]).toMatch(new RegExp(`${f.factElapsed}$`));
+    // The percentage is beside the phone, not drawn on its screen as well.
+    expect(document.querySelector(".phone-progress")).toBeNull();
     // Received bytes repeat the copied ones: not listed.
     expect(shown.some((line) => line.includes("recibidos"))).toBe(false);
     rerender(

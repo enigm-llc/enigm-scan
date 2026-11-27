@@ -60,7 +60,6 @@ export type PhoneScreen =
     }
   | {
       kind: "copy";
-      percent?: number;
       subtitle: string;
     }
   | { kind: "analyze"; subtitle: string }
@@ -330,12 +329,8 @@ export function PhoneStage({
     day: "numeric",
     month: "long",
   });
-  const copyLevel =
-    screen.kind === "copy" && screen.percent !== undefined
-      ? Math.max(0, Math.min(100, screen.percent))
-      : undefined;
   // iPhone: one thin line under the date. Android: stacked hours and minutes.
-  const big = (subtitle?: string, extra?: ReactNode) =>
+  const big = (subtitle?: string) =>
     android ? (
       <div className="phone-clock android">
         <small>{subtitle ?? date}</small>
@@ -343,13 +338,11 @@ export function PhoneStage({
           <span>{hour.padStart(2, "0")}</span>
           <span>{minute}</span>
         </b>
-        {extra}
       </div>
     ) : (
       <div className="phone-clock">
         <b>{time}</b>
         <small>{subtitle ?? date}</small>
-        {extra}
       </div>
     );
   const home = (
@@ -552,17 +545,11 @@ export function PhoneStage({
     }
     case "copy":
       // A transfer, not a scan: data blocks leave through the port and
-      // continue down the cable; the bar shows the percentage the phone sent.
+      // continue down the cable. The percentage is beside the phone, the
+      // same on iPhone and Android, not drawn on its screen.
       content = (
         <>
-          {big(
-            screen.subtitle,
-            copyLevel !== undefined && (
-              <span className="phone-progress" aria-hidden="true">
-                <span style={{ width: `${copyLevel}%` }} />
-              </span>
-            ),
-          )}
+          {big(screen.subtitle)}
           <span className="phone-transfer" aria-hidden="true">
             {TRANSFER.map(([x, delay, size], i) => (
               <i
