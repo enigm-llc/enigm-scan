@@ -181,6 +181,7 @@ export function ScanProgress({
       }
     : reported;
   const language = document.documentElement.lang || "en";
+  const app = document.documentElement.dataset.shell === "app";
   // Local timing: when the whole run and the current phase started.
   const started = useRef(Date.now());
   const phaseStart = useRef({ phase: status.phase, at: Date.now() });
@@ -501,7 +502,15 @@ export function ScanProgress({
               aria-live="polite" /* NOSONAR: holds a heading */
             >
               <h3 className="phase-copy">
-                <Cascade text={label} />
+                {/* In the app every title arrives the same way, as the
+                    report's does; the website keeps its cascade. */}
+                {app ? (
+                  <span className="text-in" key={label}>
+                    {label}
+                  </span>
+                ) : (
+                  <Cascade text={label} />
+                )}
               </h3>
             </div>
             {status.phase === "awaiting_trust" ? (
@@ -553,7 +562,7 @@ export function ScanProgress({
                 </>
               )
             ) : status.phase === "passcode_retry" ? (
-              <p className="scan-hint" role="alert">
+              <p className="scan-hint" role="alert" key="retry">
                 {a.passcodeRetryNow}
               </p>
             ) : status.phase === "awaiting_passcode" ? (

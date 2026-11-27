@@ -6968,3 +6968,27 @@ body:has(.promo-backdrop) {
 .app-window .wait-left {
   animation: fade-in 480ms ease both;
 }
+
+/* ---------- App: every text on the left arrives the same way ----------
+   On every step, a new title, line under it or line in the card fades in
+   and settles, as the report's verdict does. Only the step line above has
+   its own motion. */
+.app-window .scan-progress .phase-copy > .text-in,
+.app-window .scan-progress .scan-caption > p,
+.app-window .scan-progress .progress-card-line,
+.app-window .desktop-flow:not(.is-running) .console-copy > h1,
+.app-window .desktop-flow:not(.is-running) .console-copy > .flow-intro {
+  animation: console-in 800ms var(--ease) both;
+}
+.app-window .scan-progress .phase-copy > .text-in {
+  display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-window .scan-progress .phase-copy > .text-in,
+  .app-window .scan-progress .scan-caption > p,
+  .app-window .scan-progress .progress-card-line,
+  .app-window .desktop-flow:not(.is-running) .console-copy > h1,
+  .app-window .desktop-flow:not(.is-running) .console-copy > .flow-intro {
+    animation: none;
+  }
+}

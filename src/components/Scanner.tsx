@@ -917,14 +917,20 @@ export function Scanner({
                 ),
               )}
             </ol>
-            <h1 id="scanner-heading">
+            <h1
+              id="scanner-heading"
+              key={ready ? "ready" : missing ? "missing" : "connect"}
+            >
               {ready
                 ? f.readyTitle
                 : missing
                   ? f.notFoundTitle
                   : c.connectTitle}
             </h1>
-            <p className="flow-intro lede">
+            <p
+              className="flow-intro lede"
+              key={`${ready}-${missing}-${device}`}
+            >
               {!ready
                 ? missing
                   ? f.notFoundHelp
