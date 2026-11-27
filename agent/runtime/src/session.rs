@@ -123,7 +123,17 @@ mod tests {
         // Unrelated entries are never touched.
         let other = temp.path().join("unrelated");
         std::fs::create_dir(&other).unwrap();
-        let removed = remove_orphans_in(temp.path(), current.path());
+        // A process another test starts at this moment can inherit the
+        // released lock until it executes its program; the next pass sees it
+        // free, as the app's next start would.
+        let mut removed = remove_orphans_in(temp.path(), current.path());
+        for _ in 0..50 {
+            if !killed_path.exists() {
+                break;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(20));
+            removed.extend(remove_orphans_in(temp.path(), current.path()));
+        }
         assert!(!killed_path.exists());
         assert!(!legacy.exists());
         assert!(running.path().exists());

@@ -1,19 +1,19 @@
 {
-  "version": 2026112502,
-  "rules": 11323,
+  "version": 2026112601,
+  "rules": 11669,
   "rulesByKind": {
     "app_cert_sha256": 11,
-    "app_id": 691,
+    "app_id": 685,
     "configuration_profile_id": 1,
-    "domain": 6771,
+    "domain": 6883,
     "email": 65,
     "file_name": 15,
     "file_path": 49,
     "ip": 84,
     "process_name": 83,
-    "sha256": 3553
+    "sha256": 3793
   },
-  "legacyRules": 10408,
+  "legacyRules": 10760,
   "omittedUnsupportedPatterns": 501,
   "omittedSharedInfrastructure": [
     "2026-05-26_btmob_btmob.stix2: ip 104.21.64.137",
@@ -21,11 +21,21 @@
     "2026-05-26_btmob_btmob.stix2: ip 74.125.132.95",
     "2026-05-26_btmob_btmob.stix2: ip 74.125.202.103"
   ],
-  "issuedAt": 1795571139,
-  "expiresAt": 1803347139,
-  "publicKeySha256": "05bbf90bb0e813961ef8c15cc7931f4eaae3de57c92c56e4c6ee2d2413ec859d",
-  "payloadSha256": "630f2a31a7aed168887e9ee4f638d48a1a7079f64b7e9de43e695a7f12fb89fe",
-  "payloadV2Sha256": "1fb57a58875e57e02e16644fbd74621a1e80fc534fffbb0eb74ffa90e39515ba",
+  "popularDomains": {
+    "kept": 16,
+    "monitoring": 6,
+    "dropped": [
+      "accounts.wondershare.com",
+      "alog.umeng.com",
+      "api.wondershare.cc",
+      "app-api-pro.wondershare.cc",
+      "dc.wondershare.cc",
+      "sparrow.wondershare.com"
+    ]
+  },
+  "duplicatesMerged": 1010,
+  "issuedAt": 1795771010,
+  "expiresAt": 1803547010,
   "sources": [
     {
       "url": "https://raw.githubusercontent.com/mvt-project/mvt-indicators/b22ddf05e1a31e7732b8895676987c5c3482ef65/2022-06-23_rcs_lab/rcs.stix2",
@@ -106,6 +116,17 @@
     {
       "url": "https://github.com/eset/malware-ioc/tree/8921a81d245cce3f9b7a199b123d221ed8f1fe33",
       "sha256": "eb0db15832bbe5b051b89645dc2f91067b91757b2ddc61da78d53a9abb08df1a"
+    },
+    {
+      "url": "https://github.com/AmnestyTech/investigations/tree/3d8f248a0d015f183724ae7d096a5c46a8bb5fc7",
+      "sha256": "26d5893d41e9ab3a4fbc13ef6b8b469c842f67c4a7210088deeaa8c8695c5475"
+    },
+    {
+      "url": "https://rules.emergingthreats.net/open/suricata-7.0/rules/emerging-mobile_malware.rules",
+      "sha256": "b00c5c113880c56536be708bf918a46d44f213c6a6bf8f185a1eef998c6bb0b7"
     }
-  ]
+  ],
+  "publicKeySha256": "05bbf90bb0e813961ef8c15cc7931f4eaae3de57c92c56e4c6ee2d2413ec859d",
+  "payloadSha256": "ae937821a927ba70e49e277ea4fbe059d827587468eeaa8a749fc1e94d168bcb",
+  "payloadV2Sha256": "ee4c840ae584ea926e74827388511d5b9b362685522469661add0df21cd1125e"
 }
