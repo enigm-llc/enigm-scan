@@ -6315,6 +6315,10 @@ body:has(.promo-backdrop) {
 .app-drag {
   display: none;
 }
+:root[data-shell="app"][data-os="macos"] {
+  /* The strip of the window's buttons (28px) and the fade below it. */
+  --top-fade: 52px;
+}
 :root[data-shell="app"][data-os="macos"] .app-drag {
   display: block;
   position: fixed;
@@ -6337,15 +6341,15 @@ body:has(.promo-backdrop) {
   content: "";
   position: absolute;
   inset: 0 0 auto;
-  height: 64px;
+  height: var(--top-fade);
   background: linear-gradient(
     to bottom,
     var(--bg) 0,
     var(--bg) 28px,
-    color-mix(in srgb, var(--bg) 82%, transparent) 36px,
-    color-mix(in srgb, var(--bg) 52%, transparent) 46px,
-    color-mix(in srgb, var(--bg) 20%, transparent) 56px,
-    transparent 64px
+    color-mix(in srgb, var(--bg) 80%, transparent) 34px,
+    color-mix(in srgb, var(--bg) 48%, transparent) 41px,
+    color-mix(in srgb, var(--bg) 18%, transparent) 47px,
+    transparent var(--top-fade)
   );
   opacity: 0;
   pointer-events: none;
@@ -6516,7 +6520,8 @@ body:has(.promo-backdrop) {
   pointer-events: none;
 }
 :root[data-shell="app"][data-os="macos"] .toaster {
-  top: 36px;
+  /* Messages start where the top fade ends, never over it. */
+  top: var(--top-fade);
 }
 .toast {
   display: inline-flex;
