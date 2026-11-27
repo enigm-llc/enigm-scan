@@ -6896,17 +6896,9 @@ body:has(.promo-backdrop) {
 }
 
 /* ---------- App: the figures beside the phone arrive smoothly ----------
-   Their column keeps the room of all five figures, so a new one takes its
-   place without moving the others; each new figure fades in as the words
-   do between steps. */
-.app-window .scan-progress .phone-facts dl {
-  min-height: calc(5 * 44px + 4 * 14px);
-}
-/* The time is always the last figure: it keeps the last place from the
-   start, so the others fill the room above it without moving it. */
-.app-window .scan-progress .phone-facts dl > div:last-child {
-  margin-top: auto;
-}
+   They sit together, centred on the phone, on every step. A new figure
+   fades in where it belongs and the column grows from its middle: the
+   others slide apart to make room (see useGlide), never jump. */
 .app-window .phone-facts dl > div {
   animation: fact-in 420ms var(--ease) both;
 }

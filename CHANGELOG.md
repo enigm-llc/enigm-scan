@@ -7,9 +7,9 @@
   bug report directly and follows its progress, then copies it and deletes
   it from the phone, where ADB's own bug report used to leave it. Phones
   without that tool (before Android 7) are copied as before.
-- The figures beside the phone no longer jump: their column keeps room for
-  all of them, each new one fades into its own place and the time stays in
-  the last one.
+- The figures beside the phone no longer jump: they sit together, centred
+  on the phone, and a new one fades in while the others slide apart to make
+  room. The time is always the last one.
 - No progress bar on the drawn iPhone's screen: the percentage is beside the
   phone, as on Android.
 - The "Recommended" badge has room above and below its word on every

@@ -24,7 +24,16 @@ export function useGlide<T extends HTMLElement>(parts?: string) {
       const sliding = new Map<Element, Animation>();
       // Its own transform (a centring one, say), which a slide adds to.
       const resting = new Map<Element, string>();
-      const moving = (el: Element) => sliding.get(el)?.playState === "running";
+      // Moved for now by an animation: a slide, or its own entrance.
+      const moving = (el: Element) =>
+        el
+          .getAnimations()
+          .some(
+            (one) =>
+              one.playState === "running" &&
+              one.effect instanceof KeyframeEffect &&
+              one.effect.getKeyframes().some((k) => "transform" in k),
+          );
       const base = (el: Element) => {
         if (!moving(el)) resting.set(el, getComputedStyle(el).transform);
         const own = resting.get(el) ?? "none";
