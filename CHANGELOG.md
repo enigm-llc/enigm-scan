@@ -18,6 +18,9 @@
   of ending in a hard line.
 - The report names the app's own analysis "enigm-scan" among its engines,
   written like the others.
+- Nothing jumps while you go through the steps: the words, the steps and the
+  buttons slide into place when a line comes or goes, and the notes beside
+  the phone and the scanning line fade in.
 
 ## 1.0.1 — 27 November 2026
 

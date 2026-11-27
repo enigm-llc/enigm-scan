@@ -6165,7 +6165,9 @@ body:has(.promo-backdrop) {
   line-height: 1.5;
   letter-spacing: 0;
 }
-.app-window .process-steps li {
+.app-window .process-steps li,
+.app-window .process-steps li.current,
+.app-window .process-steps li.done {
   font-size: 13px;
 }
 .app-window .scan-main .console-copy .scan-option-text b,
@@ -6918,4 +6920,51 @@ body:has(.promo-backdrop) {
   .app-window .phone-facts dl > div {
     animation: none;
   }
+}
+
+/* While the scan runs nothing jumps: the words keep the height of the
+   tallest step so far and grow into a longer one smoothly; a step label
+   keeps the width of its bold version, so the next ones never shift; the
+   scanning line fades in. */
+.app-window .scan-progress .scan-stage {
+  transition: height 360ms var(--ease);
+}
+.app-window .process-steps li > span[data-label] {
+  display: inline-grid;
+}
+.app-window .process-steps li > span[data-label]::after {
+  content: attr(data-label);
+  height: 0;
+  font-weight: 600;
+  visibility: hidden;
+}
+.app-window .phone-beam.sweep {
+  animation:
+    phone-sweep-full 5s ease-in-out infinite alternate,
+    beam-in 600ms ease both;
+}
+@keyframes beam-in {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-window .scan-progress .scan-stage {
+    transition: none;
+  }
+  .app-window .phone-beam.sweep {
+    animation: none;
+  }
+}
+/* The notes beside the phone fade in, in the app. */
+.app-window .phone-aside {
+  animation-name: aside-in;
+}
+@keyframes aside-in {
+  from {
+    opacity: 0;
+  }
+}
+.app-window .wait-left {
+  animation: fade-in 480ms ease both;
 }

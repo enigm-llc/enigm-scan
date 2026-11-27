@@ -1,4 +1,10 @@
-import { useEffect, useReducer, useRef, useState } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import {
   FolderOpen,
   KeyRound,
@@ -125,6 +131,21 @@ export function ScanProgress({
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     heading.current?.focus({ preventScroll: true });
+  }, []);
+  // In the app, the words under the steps keep the height of the tallest
+  // step seen so far, growing smoothly when a longer one comes: the steps
+  // above and the card below never jump when a prompt comes and goes.
+  const caption = useRef<HTMLDivElement>(null);
+  const [captionHeight, setCaptionHeight] = useState<number>();
+  useLayoutEffect(() => {
+    const box = caption.current;
+    if (!box || document.documentElement.dataset.shell !== "app") return;
+    const grow = () =>
+      setCaptionHeight((seen) => Math.max(seen ?? 0, box.offsetHeight));
+    grow();
+    const observer = new ResizeObserver(grow);
+    observer.observe(box);
+    return () => observer.disconnect();
   }, []);
   const [paused, setPaused] = useState(false);
   // "Continue without the deep check" was pressed: wait for the adapter.
@@ -468,12 +489,13 @@ export function ScanProgress({
                   <Check size={12} strokeWidth={3} />
                 </span>
               )}
-              <span>{name}</span>
+              {/* The label keeps the width of its bold version. */}
+              <span data-label={name}>{name}</span>
             </li>
           ))}
         </ol>
-        <div className="scan-stage">
-          <div className="scan-caption">
+        <div className="scan-stage" style={{ height: captionHeight }}>
+          <div className="scan-caption" ref={caption}>
             <div
               role="status"
               aria-live="polite" /* NOSONAR: holds a heading */

@@ -18,6 +18,7 @@ import { toast } from "../desktop/toast";
 import { Notice } from "./Notice";
 import { flowCopy } from "../shared/i18n/flow";
 import { ScanProgress } from "./ScanProgress";
+import { useGlide } from "./glide";
 import {
   deviceErrorCopy,
   deviceErrorCode,
@@ -87,6 +88,8 @@ export function Scanner({
   // (and for the deep check's confirmation, when it is chosen there).
   const [prep, setPrep] = useState<AgentStatus | null>(null);
   const preparing = useRef<string | null>(null);
+  // The words slide when a line comes or goes, never jump.
+  const glide = useGlide<HTMLDivElement>(".flow-action > *");
   const [devices, setDevices] = useState<Device[]>([]),
     [selected, setSelected] = useState<Device | null>(null);
   const iphoneUsb =
@@ -900,7 +903,7 @@ export function Scanner({
               />
             );
           })()}
-          <div className="console-copy">
+          <div className="console-copy" ref={glide}>
             <ol className="process-steps" aria-label={a.progress}>
               {[a.stepConnect, a.stepExtract, a.stepAnalyze, a.stepReport].map(
                 (name, position) => (

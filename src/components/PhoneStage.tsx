@@ -12,6 +12,7 @@ import {
   Wifi,
 } from "lucide-react";
 import { DeviceIcon } from "./Brand";
+import { useGlide } from "./glide";
 import type { Language } from "../shared/i18n/i18n";
 
 export type PhoneScreen =
@@ -287,6 +288,8 @@ export function PhoneStage({
     items: Array<{ value: string; label: string }>;
   };
 }>) {
+  // The notes beside the phone slide when a line comes or goes.
+  const glide = useGlide<HTMLSpanElement>("dl");
   const guess = useAlternating(platform === "auto");
   const typing = useTyping(screen.kind === "passcode" && !paused);
   const android =
@@ -687,7 +690,7 @@ export function PhoneStage({
           </span>
         )}
         {!checks && facts && (
-          <span className="phone-aside phone-facts">
+          <span className="phone-aside phone-facts" ref={glide}>
             {facts.device && (
               <DeviceIcon device={facts.device} size={30} tint tight />
             )}
