@@ -8,7 +8,7 @@ import subprocess
 import sys
 import zipfile
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from engine_tree import install  # noqa: E402
+from engine_tree import drop_python_framework, install  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 VERSION = "11.45.0"
@@ -30,6 +30,7 @@ subprocess.run([sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "
     "--copy-metadata", "pymobiledevice3", str(ROOT / "scripts/engines/ios_entry.py")], check=True)
 filename = "ios-usb.exe" if sys.platform == "win32" else "ios-usb"
 exe = work / "dist" / "ios-usb" / filename
+drop_python_framework(work / "dist" / "ios-usb")
 result = subprocess.run([str(exe), "self-check"], capture_output=True, timeout=90, check=True)
 if json.loads(result.stdout)["version"] != VERSION:
     raise SystemExit("Packaged iOS adapter version mismatch")

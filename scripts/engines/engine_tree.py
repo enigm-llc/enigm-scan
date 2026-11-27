@@ -62,6 +62,44 @@ def tree_digest(folder):
     return hashlib.sha256("\n".join(line for _, line in lines).encode()).hexdigest()
 
 
+def drop_python_framework(dist_folder):
+    """On macOS, keep Python as the single library the engine loads.
+
+    With a python.org (framework) Python, PyInstaller collects the whole
+    Python.framework and links `_internal/Python` to the library inside it;
+    the bootloader loads `_internal/Python`. Once links are resolved into
+    plain files (see `install`) the framework is no longer a valid bundle,
+    and Apple refuses to notarize the copies of the library inside it. This
+    replaces the link with the library itself and removes the framework,
+    after checking that nothing in the engine loads the library from there.
+    Run it right after PyInstaller, before the engine's smoke tests, so they
+    test the engine as it ships."""
+    if sys.platform != "darwin":
+        return
+    import shutil
+    import subprocess
+    internal = Path(dist_folder) / "_internal"
+    framework = internal / "Python.framework"
+    library = internal / "Python"
+    if not framework.is_dir():
+        return
+    if not library.exists():
+        raise SystemExit("Python.framework without _internal/Python: unexpected layout")
+    for path in Path(dist_folder).rglob("*"):
+        if framework in path.parents or path.is_symlink() or not path.is_file():
+            continue
+        with path.open("rb") as handle:
+            if handle.read(4) not in (b"\xcf\xfa\xed\xfe", b"\xca\xfe\xba\xbe"):
+                continue
+        linked = subprocess.run(["otool", "-L", str(path)], capture_output=True, text=True, check=True).stdout
+        if "Python.framework/" in linked.split("\n", 1)[-1]:
+            raise SystemExit(f"{path.name} loads Python from Python.framework; keep the framework")
+    resolved = library.resolve()
+    library.unlink()
+    shutil.copy2(resolved, library)
+    shutil.rmtree(framework)
+
+
 def install(dist_folder, resources, name):
     """Replace resources/<name> (file or folder) with a verbatim copy of the
     PyInstaller one-dir output and return (executable path, tree digest)."""

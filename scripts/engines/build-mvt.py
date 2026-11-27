@@ -8,7 +8,7 @@ import subprocess
 import sys
 import tempfile
 from ios_fixture import encrypted_fixture, PASSWORD, PAYLOAD, FILE_ID
-from engine_tree import install
+from engine_tree import drop_python_framework, install
 
 ROOT = Path(__file__).resolve().parents[2]
 VERSION = "2026.10.12"
@@ -23,6 +23,7 @@ args = [sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean", "--onedir
 subprocess.run(args, env=env, check=True)
 filename = "mvt-engine.exe" if sys.platform == "win32" else "mvt-engine"
 exe = work / "dist" / "mvt-engine" / filename
+drop_python_framework(work / "dist" / "mvt-engine")
 # Smoke-check both parser entry points using the packaged executable, offline.
 for platform, command in [("ios", "check-backup"), ("android", "check-androidqf")]:
     result = subprocess.run([str(exe), platform, "--disable-update-check", "--disable-indicator-update-check", command, "--help"], env=env, check=True, capture_output=True, timeout=60)
