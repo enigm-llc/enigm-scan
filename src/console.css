@@ -6507,11 +6507,11 @@ body:has(.promo-backdrop) {
   .app-window .scan-main .desktop-flow.is-running > .scan-progress {
     column-gap: clamp(88px, calc(10 * var(--vw)), 140px);
   }
-  /* More room between the words and the phone without narrowing the words:
-     the phone and its facts move right, into the margin they left free. */
-  .app-window .scan-main .desktop-flow > .phone-stage,
-  .app-window .scan-main .scan-progress > .phone-stage {
-    transform: translateX(clamp(24px, calc(3 * var(--vw)), 56px));
+  /* The notes beside the phone fill the room kept for them exactly, so they
+     end at the page margin: as far from the right edge as the words are
+     from the left one. */
+  .app-window .phone-aside {
+    width: 186px;
   }
 }
 
@@ -6846,15 +6846,10 @@ body:has(.promo-backdrop) {
 }
 
 /* ---------- App: the report's phone where the analysis left it ----------
-   The same size and place as on the steps before, so arriving at the
-   report does not move it. */
+   The same size as on the steps before (and the same column), so arriving
+   at the report does not move it. */
 .app-window .report .result-summary.verdict > .phone-stage .phone-wrap {
   --ph: clamp(360px, calc(100 * var(--vh) - 350px), 760px);
-}
-@media (min-width: 1024px) {
-  .app-window .report .result-summary.verdict > .phone-stage {
-    transform: translateX(clamp(24px, calc(3 * var(--vw)), 56px));
-  }
 }
 
 /* ---------- App: changing step keeps the phone in place ----------
