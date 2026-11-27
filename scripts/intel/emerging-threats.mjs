@@ -118,20 +118,30 @@ const source = process.argv
   .slice(2)
   .find((a) => a.startsWith("--source="))
   ?.split("=")[1];
-if (
-  !source ||
-  !existsSync(`${source}/${RULES}`) ||
-  !existsSync(`${source}/LICENSE`)
-)
-  throw new Error(`Provide --source=<folder with ${RULES} and LICENSE>`);
-const bytes = readFileSync(`${source}/${RULES}`);
-const sha256 = createHash("sha256").update(bytes).digest("hex");
 const check = process.argv.includes("--check");
+let bytes;
+let license;
+if (check) {
+  // The weekly check (check-sources.mjs) passes what it downloaded on
+  // standard input, as JSON: nothing downloaded is written to disk.
+  const input = JSON.parse(readFileSync(0, "utf8"));
+  bytes = Buffer.from(input.rules, "base64");
+  license = String(input.license);
+} else {
+  if (
+    !source ||
+    !existsSync(`${source}/${RULES}`) ||
+    !existsSync(`${source}/LICENSE`)
+  )
+    throw new Error(`Provide --source=<folder with ${RULES} and LICENSE>`);
+  bytes = readFileSync(`${source}/${RULES}`);
+  license = readFileSync(`${source}/LICENSE`, "utf8");
+}
+const sha256 = createHash("sha256").update(bytes).digest("hex");
 if (!check && sha256 !== EXPECTED)
   throw new Error(
     `Expected ruleset ${EXPECTED}, found ${sha256}: review the new rules first`,
   );
-const license = readFileSync(`${source}/LICENSE`, "utf8");
 if (
   !/sids 2000000 through 2799999 are from Emerging Threats and are covered under the BSD License/.test(
     license,
