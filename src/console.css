@@ -6933,8 +6933,8 @@ body:has(.promo-backdrop) {
 
 /* ---------- App: one way to arrive, one way to move ----------
    Everything that appears or changes in the app window fades in over the
-   same time with the same curve: words and blocks rise a few pixels as
-   they come, as the report's verdict does; what sits on or beside the
+   same time with the same curve: the words and blocks on the left simply
+   fade in, without moving; what sits on or beside the
    drawn phone (its screen, its notes, the scanning line, the waves) only
    fades, since its place is set by a transform. What moves to a new place
    slides over one shared time. The step line keeps its own motion and the
@@ -6957,7 +6957,11 @@ body:has(.promo-backdrop) {
   .app-window
   .report
   .result-summary.verdict
-  > :not(.phone-stage),
+  > :not(.phone-stage) {
+  animation: enter-fade var(--enter) var(--ease) both;
+}
+/* Figures beside the phone, messages and the closing dialog still rise a
+   few pixels as they come. */
 :root[data-shell="app"] .app-window .phone-facts dl > div,
 :root[data-shell="app"] .toast,
 :root[data-shell="app"] .promo-dialog {

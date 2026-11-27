@@ -11,6 +11,8 @@
   beside it gives way to the next: the old one leaves quickly while the new
   one arrives, never blinking empty and hardly ever showing both.
   On step 1 the switch between iPhone and Android takes the same time.
+- The words on the left (titles, the line under them, the card and the
+  report's verdict) simply fade in, without rising.
 
 ## 1.0.3 — 27 November 2026
 
