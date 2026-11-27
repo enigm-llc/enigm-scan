@@ -64,7 +64,10 @@ Neither contains phone data, an identifier or a report.
 Links you open from the app (help pages, the sources of a finding) open in
 your browser, as normal web visits.
 
-The app has no analytics, crash reporting or telemetry.
+The app has no analytics, crash reporting or usage tracking: it never reports
+what it does or finds. The anonymous count of indicator downloads, with the
+country Cloudflare infers for the request, is the only figure kept, and it is
+kept by the server, not sent by the app.
 
 ## The website
 

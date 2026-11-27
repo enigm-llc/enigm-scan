@@ -1254,12 +1254,34 @@ async fn open_link(window: WebviewWindow, url: String) -> Result<(), String> {
 #[tauri::command]
 fn close_application(window: WebviewWindow, state: State<'_, Agent>) -> Result<(), String> {
     local(&window)?;
-    // From the closing screen: a running scan stops, everything is cleared
-    // on the exit event and the app quits.
+    // From the closing screen: a running scan stops and deletes its copy of
+    // the phone before the app quits; everything else is cleared on the exit
+    // event. The wait runs off the main thread, so the window stays drawn.
     QUITTING.store(true, Ordering::SeqCst);
     state.cancel.store(true, Ordering::SeqCst);
-    window.app_handle().exit(0);
+    let running = state.running.clone();
+    let app = window.app_handle().clone();
+    std::thread::spawn(move || {
+        wait_for_scan(&running, SCAN_STOP_LIMIT);
+        app.exit(0);
+    });
     Ok(())
+}
+/// How long quitting waits for a cancelled scan to delete its temporary
+/// folder. Engines are stopped with their whole process tree on cancel, so
+/// this is normally a moment; past it, the next start deletes what is left.
+const SCAN_STOP_LIMIT: std::time::Duration = std::time::Duration::from_secs(30);
+/// Waits until a cancelled scan has stopped (its thread deletes the temporary
+/// folder on the way out), at most `limit`. Returns whether it stopped.
+fn wait_for_scan(running: &AtomicBool, limit: std::time::Duration) -> bool {
+    let deadline = std::time::Instant::now() + limit;
+    while running.load(Ordering::SeqCst) {
+        if std::time::Instant::now() >= deadline {
+            return false;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+    true
 }
 /// The macOS menu bar in the interface's language (the system's, as the
 /// webview reports it). Other systems have no app menu.
@@ -1580,6 +1602,9 @@ fn main() {
         if let tauri::RunEvent::Exit = event {
             if let Some(state) = handle.try_state::<Agent>() {
                 end_session(&state);
+                // Any other way out (the system shutting down, a signal) still
+                // gives a running scan the chance to delete its copy.
+                wait_for_scan(&state.running, SCAN_STOP_LIMIT);
             }
             // Webview processes can briefly retain handles on Windows; the
             // next start removes what is left. A failure must not be
@@ -1593,6 +1618,25 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn quitting_waits_for_a_cancelled_scan_to_stop() {
+        let running = Arc::new(AtomicBool::new(true));
+        let worker = running.clone();
+        let stopper = std::thread::spawn(move || {
+            std::thread::sleep(std::time::Duration::from_millis(200));
+            worker.store(false, Ordering::SeqCst);
+        });
+        let started = std::time::Instant::now();
+        assert!(wait_for_scan(&running, std::time::Duration::from_secs(5)));
+        assert!(started.elapsed() >= std::time::Duration::from_millis(200));
+        stopper.join().unwrap();
+        // A scan that does not stop in time does not hold the app open.
+        let stuck = AtomicBool::new(true);
+        assert!(!wait_for_scan(
+            &stuck,
+            std::time::Duration::from_millis(100)
+        ));
+    }
     #[test]
     fn resources_are_found_through_the_real_path_of_a_linked_app() {
         let temp = tempfile::tempdir().unwrap();

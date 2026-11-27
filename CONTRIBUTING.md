@@ -25,7 +25,10 @@ tests are easier to validate than broad refactors.
 
 - Never invent results: no made-up detections, percentages, progress or counts.
   A check that could not run is reported as reduced coverage.
-- Phone data stays on the computer. No uploads, telemetry or stored reports.
+- Phone data stays on the computer. No uploads, usage tracking or stored
+  reports. The only counts are the anonymous ones of the download server,
+  described in [STATISTICS.md](docs/STATISTICS.md); adding one is a privacy
+  change that has to be documented there.
   Backups, bug reports and engine output are untrusted input.
 - A phone is only touched after the person confirms that it is theirs or that
   they have its owner's permission; the native side refuses to search or scan

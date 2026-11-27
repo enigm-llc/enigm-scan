@@ -65,8 +65,8 @@ used by security researchers.
 
 ## Privacy
 
-Scans happen entirely on your computer. Phone data is never uploaded and the
-app has no telemetry. When it starts it makes two requests to `scan.enigm.io`:
+Scans happen entirely on your computer. Phone data is never uploaded, and
+the app never reports what it does or finds. When it starts it makes two requests to `scan.enigm.io`:
 it downloads the latest signed indicator bundle, and it reads which version of
 the app is published, to point you to the download page when there is a newer
 one (it never updates itself). The download server keeps anonymous counts of
