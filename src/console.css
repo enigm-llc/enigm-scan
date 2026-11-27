@@ -7042,3 +7042,17 @@ body:has(.promo-backdrop) {
   + :is(.scan-options, .flow-action, .connected-devices, .evidence-setup) {
   margin-top: var(--after-subtext);
 }
+/* The rhythm counts from what is seen: the first option or consent line
+   starts at the top of its block, as the progress card does. */
+:root[data-shell="app"]
+  .app-window
+  .console-copy
+  .scan-options
+  > .scan-option:first-child,
+:root[data-shell="app"]
+  .app-window
+  .console-copy
+  .flow-action
+  > .compact-consent:first-child {
+  padding-top: 0;
+}
