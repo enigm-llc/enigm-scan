@@ -1,0 +1,8 @@
+{
+  "device": "android",
+  "about": "No indicator: a hidden app from an APK file with accessibility, device admin, notification access and microphone, location and SMS.",
+  "expect": [
+    "enigm.behavior.android_spyware_profile"
+  ],
+  "allow": []
+}

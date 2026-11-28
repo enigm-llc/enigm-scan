@@ -1,0 +1,54 @@
+{
+  "packages": [
+    {
+      "id": "com.miui.securitycenter",
+      "path": "/data/app/~~x==/com.miui.securitycenter-y==/base.apk",
+      "installer": "com.xiaomi.market",
+      "sha256": null,
+      "system": true,
+      "granted": []
+    },
+    {
+      "id": "com.xiaomi.market",
+      "path": "/system/priv-app/com.xiaomi.market/com.xiaomi.market.apk",
+      "installer": null,
+      "sha256": null,
+      "system": true,
+      "granted": []
+    },
+    {
+      "id": "com.miui.packageinstaller",
+      "path": "/system/priv-app/com.miui.packageinstaller/com.miui.packageinstaller.apk",
+      "installer": null,
+      "sha256": null,
+      "system": true,
+      "granted": []
+    },
+    {
+      "id": "org.telegram.messenger",
+      "path": "/data/app/~~a1==/org.telegram.messenger-b2==/base.apk",
+      "installer": "com.android.vending",
+      "sha256": null,
+      "system": false,
+      "granted": [
+        "RECORD_AUDIO",
+        "READ_CONTACTS"
+      ]
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "com.miui.securitycenter",
+    "com.xiaomi.market",
+    "org.telegram.messenger"
+  ]
+}

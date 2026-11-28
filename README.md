@@ -128,13 +128,13 @@ on Linux (macOS has it built in).
 | `intelligence/` | Indicator sources and the signed release metadata |
 | `releases/` | The list of published packages, with their sizes and hashes |
 | `worker/` | The download server for scan.enigm.io (Cloudflare Workers) |
-| `docs/` | Architecture, privacy, report format, statistics and releases |
+| `docs/` | Architecture, detection, privacy, report format, statistics and releases |
 
 ## Documentation
 
-[Architecture](docs/ARCHITECTURE.md), [privacy](docs/PRIVACY.md),
-[report format](docs/REPORT-FORMAT.md), [anonymous statistics](docs/STATISTICS.md),
-[indicators](intelligence/README.md), [release procedure](docs/RELEASE.md) and
+[Architecture](docs/ARCHITECTURE.md), [how detection works](docs/DETECTION.md),
+[privacy](docs/PRIVACY.md), [report format](docs/REPORT-FORMAT.md),
+[anonymous statistics](docs/STATISTICS.md), [indicators](intelligence/README.md), [release procedure](docs/RELEASE.md) and
 the [changelog](CHANGELOG.md).
 
 ## Contributing

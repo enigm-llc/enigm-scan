@@ -1,0 +1,12 @@
+{
+  "crashReports": {
+    "status": "completed",
+    "files": 0,
+    "skipped": 0
+  },
+  "sysdiagnose": {
+    "status": "completed",
+    "archive": "sysdiagnose_2026.11.20.tar.gz",
+    "modified": 1795000000
+  }
+}

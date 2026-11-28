@@ -1,0 +1,66 @@
+{
+  "packages": [
+    {
+      "id": "com.samsung.android.messaging",
+      "path": "/system/priv-app/com.samsung.android.messaging/com.samsung.android.messaging.apk",
+      "installer": null,
+      "sha256": null,
+      "system": true,
+      "granted": []
+    },
+    {
+      "id": "com.sec.android.easyMover",
+      "path": "/system/priv-app/com.sec.android.easyMover/com.sec.android.easyMover.apk",
+      "installer": "com.sec.android.easyMover",
+      "sha256": null,
+      "system": true,
+      "granted": []
+    },
+    {
+      "id": "com.sec.android.app.samsungapps",
+      "path": "/system/priv-app/com.sec.android.app.samsungapps/com.sec.android.app.samsungapps.apk",
+      "installer": null,
+      "sha256": null,
+      "system": true,
+      "granted": []
+    },
+    {
+      "id": "com.whatsapp",
+      "path": "/data/app/~~a1==/com.whatsapp-b2==/base.apk",
+      "installer": "com.sec.android.easyMover",
+      "sha256": null,
+      "system": false,
+      "granted": [
+        "RECORD_AUDIO",
+        "CAMERA",
+        "READ_CONTACTS"
+      ]
+    },
+    {
+      "id": "com.spotify.music",
+      "path": "/data/app/~~a1==/com.spotify.music-b2==/base.apk",
+      "installer": "com.android.vending",
+      "sha256": null,
+      "system": false,
+      "granted": []
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "com.samsung.android.messaging",
+    "com.sec.android.app.samsungapps",
+    "com.whatsapp",
+    "com.spotify.music"
+  ],
+  "httpProxy": ":0",
+  "privateDnsMode": "opportunistic"
+}

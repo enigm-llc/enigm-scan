@@ -1,0 +1,51 @@
+{
+  "packages": [
+    {
+      "id": "com.android.services.syncmgr",
+      "path": "/data/app/~~a1==/com.android.services.syncmgr-b2==/base.apk",
+      "installer": null,
+      "sha256": null,
+      "system": false,
+      "granted": [
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION",
+        "READ_SMS"
+      ]
+    },
+    {
+      "id": "com.whatsapp",
+      "path": "/data/app/~~a1==/com.whatsapp-b2==/base.apk",
+      "installer": "com.android.vending",
+      "sha256": null,
+      "system": false,
+      "granted": [
+        "RECORD_AUDIO",
+        "CAMERA",
+        "READ_CONTACTS"
+      ]
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "com.whatsapp"
+  ],
+  "accessibilityServices": [
+    "com.android.services.syncmgr/.Acc"
+  ],
+  "notificationListeners": [
+    "com.android.services.syncmgr/.Notif",
+    "com.whatsapp/.Notif"
+  ],
+  "deviceAdmins": [
+    "com.android.services.syncmgr/.Admin"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "device": "ios",
+  "about": "A security app's block list naming many known spyware domains: one review point, not one detection per domain.",
+  "expect": [
+    "enigm.heuristic.indicator_list"
+  ],
+  "allow": []
+}

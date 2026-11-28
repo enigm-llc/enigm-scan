@@ -1,0 +1,28 @@
+{
+  "packages": [
+    {
+      "id": "com.whatsapp",
+      "path": "/data/app/~~a1==/com.whatsapp-b2==/base.apk",
+      "installer": "com.android.vending",
+      "sha256": null,
+      "system": false,
+      "granted": []
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [
+    "142.250.184.4",
+    "45.133.238.92"
+  ],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "com.whatsapp"
+  ]
+}

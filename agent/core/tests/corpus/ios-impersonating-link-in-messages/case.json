@@ -1,0 +1,8 @@
+{
+  "device": "ios",
+  "about": "A message link to a look-alike of Apple's sign-in, as MVT extracts it.",
+  "expect": [
+    "enigm.heuristic.suspicious_link"
+  ],
+  "allow": []
+}

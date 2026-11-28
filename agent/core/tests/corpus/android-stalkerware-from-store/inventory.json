@@ -1,0 +1,38 @@
+{
+  "packages": [
+    {
+      "id": "us.trackview",
+      "path": "/data/app/~~a1==/us.trackview-b2==/base.apk",
+      "installer": "com.android.vending",
+      "sha256": null,
+      "system": false,
+      "granted": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    {
+      "id": "com.whatsapp",
+      "path": "/data/app/~~a1==/com.whatsapp-b2==/base.apk",
+      "installer": "com.android.vending",
+      "sha256": null,
+      "system": false,
+      "granted": []
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "us.trackview",
+    "com.whatsapp"
+  ]
+}

@@ -1,0 +1,61 @@
+name: Finding that looks wrong
+description: Report a detection or review point that you believe is not spyware.
+title: "false positive: "
+labels:
+  - false positive
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This helps us correct rules that warn about ordinary phones. Do not paste the report, screenshots, phone numbers, contact names, messages, links you received or anything else from the phone. The finding's title and the kind of evidence are enough.
+
+        If you think the phone may really be targeted, do not post here: contact a help line such as [Access Now's Digital Security Helpline](https://www.accessnow.org/help/).
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: 1.0.5
+    validations:
+      required: true
+  - type: input
+    id: rules
+    attributes:
+      label: Indicator version
+      description: Shown in the report, for example 2026112601.
+  - type: input
+    id: finding
+    attributes:
+      label: Finding title
+      description: As shown in the report. Add the rule (for example enigm.heuristic.suspicious_link) if you saved the report as JSON.
+    validations:
+      required: true
+  - type: dropdown
+    id: phone
+    attributes:
+      label: Phone
+      options:
+        - iPhone
+        - Android
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Phone model and system version
+      placeholder: For example Pixel 8, Android 16 or iPhone 15, iOS 26.1
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it looks wrong
+      description: The kind of evidence (an app from the manufacturer, a domain of a known company, a system process) and why you believe it is ordinary. Leave out anything personal.
+    validations:
+      required: true
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Privacy confirmation
+      options:
+        - label: This issue contains no report, screenshot, message, contact, phone number or link taken from the phone.
+          required: true

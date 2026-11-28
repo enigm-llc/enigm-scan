@@ -9,7 +9,10 @@ tests are easier to validate than broad refactors.
 1. Install Node.js 22, a stable Rust toolchain and the
    [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/), then run
    `npm ci`.
-2. Add tests for every changed success and failure condition.
+2. Add tests for every changed success and failure condition. A change that
+   adds a detection or removes a false alarm also adds a case to the
+   detection corpus (`agent/core/tests/corpus/`, see
+   [docs/DETECTION.md](docs/DETECTION.md)).
 3. Run `npm test` and `npm run build`.
 4. Run `cargo fmt --check`, `cargo clippy --locked --all-targets -- -D warnings`
    and `cargo test --locked` for `agent/core`, `agent/runtime` and

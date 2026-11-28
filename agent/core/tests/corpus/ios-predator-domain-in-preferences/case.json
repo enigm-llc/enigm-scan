@@ -1,0 +1,8 @@
+{
+  "device": "ios",
+  "about": "A Predator domain (Amnesty, 2023) inside a text property list of the copy.",
+  "expect": [
+    "mvt. | Predator"
+  ],
+  "allow": []
+}

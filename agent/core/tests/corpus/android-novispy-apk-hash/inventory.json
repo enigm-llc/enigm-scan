@@ -1,0 +1,25 @@
+{
+  "packages": [
+    {
+      "id": "com.example.wallpapers",
+      "path": "/data/app/~~a1==/com.example.wallpapers-b2==/base.apk",
+      "installer": null,
+      "sha256": "087fc1217c897033425fe7f1f12b913cd48918c875e99c25bdb9e1ffcf80f57e",
+      "system": false,
+      "granted": []
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "com.example.wallpapers"
+  ]
+}

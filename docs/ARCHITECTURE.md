@@ -156,6 +156,9 @@ worker keeps anonymous counts described in [STATISTICS.md](STATISTICS.md).
 ## What the tests cover
 
 Unit and integration tests cover the parsers, the indicator verification, the
-engine checks, the process handling and the interface. They do not prove that
-a given phone model works or measure how much spyware is detected; those
-depend on real devices and real samples.
+engine checks, the process handling and the interface. A detection corpus
+(`agent/core/tests/corpus/`, described in [DETECTION.md](DETECTION.md)) runs
+whole cases through the analysis with the shipped indicators: phones with
+known spyware must give their detections, ordinary phones no finding. None of
+this proves that a given phone model works or measures how much spyware is
+detected on real phones; those depend on real devices and real samples.

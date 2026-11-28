@@ -1,0 +1,57 @@
+name: Indicators from published research
+description: Suggest phone spyware indicators that a public report has published.
+title: "indicators: "
+labels:
+  - indicators
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Only indicators that a public report already publishes. Never send indicators taken from a person's phone, backups, reports, phone numbers or anything that identifies someone who may be targeted; if you have that, contact the research lab that handles the case.
+
+        A maintainer checks each indicator against the report before adding it to a signed release. Nothing is added without that check.
+  - type: input
+    id: report
+    attributes:
+      label: Public report
+      description: Link to the report or article that publishes the indicators.
+      placeholder: https://
+    validations:
+      required: true
+  - type: input
+    id: family
+    attributes:
+      label: Spyware family or campaign
+      placeholder: For example Predator, Graphite, a stalkerware app
+    validations:
+      required: true
+  - type: dropdown
+    id: phone
+    attributes:
+      label: Phone
+      options:
+        - iPhone
+        - Android
+        - Both
+    validations:
+      required: true
+  - type: textarea
+    id: indicators
+    attributes:
+      label: Indicators
+      description: One per line, with its type (domain, IP address, file hash, app identifier, certificate, process name, file path, email address, configuration profile). Defanged values such as example[.]com are fine.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Where in the report each indicator appears, its licence if the report states one, and anything that limits it (shared hosting, dates it was active).
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: Every indicator above is published in the linked report, and this issue contains no data from anyone's phone.
+          required: true

@@ -1,0 +1,8 @@
+{
+  "device": "android",
+  "about": "An open connection to a BadBazaar server address (ESET, 2023).",
+  "expect": [
+    "mvt. | BadBazaar"
+  ],
+  "allow": []
+}

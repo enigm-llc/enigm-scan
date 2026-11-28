@@ -1,0 +1,28 @@
+{
+  "packages": [
+    {
+      "id": "org.telegram.FlyGram",
+      "path": "/data/app/~~a1==/org.telegram.FlyGram-b2==/base.apk",
+      "installer": "com.google.android.packageinstaller",
+      "sha256": null,
+      "system": false,
+      "granted": [
+        "READ_CONTACTS",
+        "RECORD_AUDIO"
+      ]
+    }
+  ],
+  "packagesStatus": "completed",
+  "hashesStatus": "completed",
+  "remoteAddresses": [],
+  "networkStatus": "completed",
+  "behaviorStatus": "completed",
+  "settingsStatus": "completed",
+  "adminsStatus": "completed",
+  "permissionsStatus": "completed",
+  "appOpsStatus": "completed",
+  "integrityStatus": "completed",
+  "launchable": [
+    "org.telegram.FlyGram"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "device": "android",
+  "about": "An APK whose SHA-256 is a NoviSpy sample (Amnesty, 2024), under an innocent name.",
+  "expect": [
+    "mvt. | NoviSpy"
+  ],
+  "allow": [
+    "enigm.heuristic.sideloaded",
+    "enigm.heuristic.android_surveillance_capabilities",
+    "enigm.behavior.android_spyware_profile"
+  ]
+}
