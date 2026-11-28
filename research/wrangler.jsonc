@@ -1,7 +1,8 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Reads new public research on phone spyware every six hours and publishes
-  // the indicators found, each with its literal quote, at /latest.json for
+  // the indicators found, each with its literal quote, at
+  // https://research.scan.enigm.io/latest.json for
   // the daily review (.github/workflows/intelligence-watch.yml). It holds no
   // signing key and cannot change the indicators the app uses.
   "name": "enigm-scan-research",
@@ -15,7 +16,8 @@
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ResearchState"] }],
   "triggers": { "crons": ["17 */6 * * *"] },
   // Secret, set in Cloudflare by the maintainer: ANTHROPIC_API_KEY.
-  "workers_dev": true,
+  "routes": [{ "pattern": "research.scan.enigm.io", "custom_domain": true }],
+  "workers_dev": false,
   "preview_urls": false,
   "observability": { "enabled": true },
 }

@@ -42,7 +42,7 @@ to the open issue labelled `intelligence` what may deserve new indicators:
   article publishes, each with the sentence it comes from, and keeps only
   those whose sentence is word for word in the article. Its result is
   public, read-only, at
-  <https://enigm-scan-research.enigm.workers.dev/latest.json>.
+  <https://research.scan.enigm.io/latest.json>.
 
 Nothing in this review changes the indicators the app uses. A maintainer
 checks each candidate against its article, adds the accepted ones to a
