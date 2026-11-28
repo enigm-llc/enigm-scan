@@ -134,6 +134,7 @@ async function main() {
     console.log(parts.join("\n\n") || "Nothing to review.");
     return;
   }
+  if (!parts.length) return console.log("Nothing to review.");
   const fresh = parts.filter((text) => {
     const markers = text.match(/<!-- [a-z]+:[0-9a-f]+ -->/g) || [];
     return !markers.length || markers.some((m) => !posted.includes(m));
