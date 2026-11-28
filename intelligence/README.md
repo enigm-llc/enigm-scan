@@ -84,6 +84,12 @@ curl -fsSLO https://tranco-list.eu/top-1m.csv.zip && unzip -o top-1m.csv.zip
 
 ### Signing
 
+The app trusts two keys (`src-tauri/resources/intelligence/trusted-keys.bin`):
+the signing key and a reserve key that is kept offline, apart from it and
+never on the signing computer. If the signing key is ever lost, releases are
+signed with the reserve key and installed apps accept them without an
+update; a new reserve key then ships with the next version of the app.
+
 The bundle is signed with an Ed25519 key that the maintainers keep offline;
 it is never in this repository or in the app. The app accepts a bundle only
 if its signature matches one of the keys in

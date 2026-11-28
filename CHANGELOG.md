@@ -16,6 +16,9 @@
 - iPhone: the kernel's own line in shutdown.log (process 0, shown as
   `/kernel/` followed by its identifier) is no longer reported as a process
   in an unrecognised folder. Any other process with such a path still is.
+- The app also trusts a reserve key for the signed indicators, kept offline
+  apart from the signing key, so losing the signing key would not stop
+  installed apps from receiving new indicators.
 - Fewer false alarms, from a review of every rule of our own:
   - Links: Telegram's own telegra.ph, Apple's and Google's country sites
     (icloud.com.cn), google.org and PayPal's and Amazon's own domains are
