@@ -10,6 +10,7 @@
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { ARTICLE_HOSTS } from "../../research/src/sources.mjs";
 
 // The worker's own address: research.scan.enigm.io is for people, and the
 // zone's bot protection challenges scripts there.
@@ -47,6 +48,15 @@ export function signedValues(
   return new Set(
     rules.map((r) => `${r.kind}\0${String(r.value).toLowerCase()}`),
   );
+}
+
+function allowed(link) {
+  try {
+    const url = new URL(link);
+    return url.protocol === "https:" && ARTICLE_HOSTS.has(url.hostname);
+  } catch {
+    return false;
+  }
 }
 
 /** What one article adds: its new candidates, as a table. */
@@ -110,7 +120,10 @@ export function researchSection(report, known, posted = "", now = Date.now()) {
     (a) =>
       Date.parse(a.answered_at) >= now - WINDOW &&
       (a.relevant || a.outcome !== "answered") &&
-      !posted.includes("<!-- article:" + a.id + " -->"),
+      !posted.includes("<!-- article:" + a.id + " -->") &&
+      // Only links to the sources the worker reads, whatever it reports.
+      /^[0-9a-f]{32}$/.test(a.id) &&
+      allowed(a.url),
   );
   return recent.flatMap((a) => articleLines(a, known)).join("\n");
 }

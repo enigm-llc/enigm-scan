@@ -3,7 +3,7 @@ import { code, plain, researchSection } from "./review.mjs";
 
 const now = Date.parse("2026-11-28T12:00:00Z");
 const article = (over = {}) => ({
-  id: "a1b2",
+  id: "a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2",
   url: "https://citizenlab.ca/2026/11/graphite/",
   title: "Graphite [click](https://evil.example) @someone",
   source: "Citizen Lab",
@@ -42,7 +42,7 @@ describe("the daily review", () => {
   it("lists new candidates, counts signed and dropped ones, and posts each article once", () => {
     const known = new Set(["domain\0known.example"]);
     const text = researchSection({ articles: [article()] }, known, "", now);
-    expect(text).toContain("<!-- article:a1b2 -->");
+    expect(text).toContain("<!-- article:a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2 -->");
     expect(text).toContain(
       "1 new indicator(s) quoted from the article, 1 already signed, 1 dropped",
     );
@@ -53,7 +53,25 @@ describe("the daily review", () => {
       researchSection(
         { articles: [article()] },
         known,
-        "<!-- article:a1b2 -->",
+        "<!-- article:a1b2a1b2a1b2a1b2a1b2a1b2a1b2a1b2 -->",
+        now,
+      ),
+    ).toBe("");
+  });
+  it("never links outside the sources the worker reads", () => {
+    expect(
+      researchSection(
+        { articles: [article({ url: "https://evil.example/x" })] },
+        new Set(),
+        "",
+        now,
+      ),
+    ).toBe("");
+    expect(
+      researchSection(
+        { articles: [article({ url: "http://citizenlab.ca/x" })] },
+        new Set(),
+        "",
         now,
       ),
     ).toBe("");

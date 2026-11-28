@@ -40,10 +40,18 @@ export default {
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(state(env).run());
   },
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const { pathname } = new URL(request.url);
     if (request.method !== "GET") return json({ error: "method" }, 405);
-    if (pathname === "/latest.json") return json(await state(env).report());
-    return json({ error: "not_found" }, 404);
+    if (pathname !== "/latest.json") return json({ error: "not_found" }, 404);
+    // Answered from the edge cache for five minutes: requests in between
+    // never reach the worker's state.
+    const cache = caches.default;
+    const hit = await cache.match(request);
+    if (hit) return hit;
+    const response = json(await state(env).report());
+    response.headers.set("cache-control", "public, max-age=300");
+    ctx.waitUntil(cache.put(request, response.clone()));
+    return response;
   },
 };
