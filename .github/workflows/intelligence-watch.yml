@@ -29,4 +29,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          REVIEWER: ntncstr
         run: node scripts/intel/review.mjs | tee -a "$GITHUB_STEP_SUMMARY"

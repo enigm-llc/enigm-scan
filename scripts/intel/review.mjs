@@ -210,14 +210,27 @@ async function main() {
     return !markers.length || markers.some((m) => !posted.includes(m));
   });
   if (!fresh.length) return console.log("Already posted.");
-  const body = `${fresh.join("\n\n")}\n\n_Candidates are checked against the article's own words. Review them before converting and signing (intelligence/README.md)._`;
+  const body = `${fresh.join("\n\n")}\n\n_Candidates are checked against the article's own words. To accept some, reply here with the values or the article; they go into the next signed release (intelligence/README.md). Nothing is signed without that._`;
+  // Assigned to the maintainer: GitHub notifies the assignee (email and the
+  // app) of an issue an automated job opens or comments on.
+  const reviewer = process.env.REVIEWER;
   if (!issue) {
     await github("/issues", {
       method: "POST",
-      body: JSON.stringify({ title: TITLE, labels: [LABEL], body }),
+      body: JSON.stringify({
+        title: TITLE,
+        labels: [LABEL],
+        assignees: reviewer ? [reviewer] : [],
+        body,
+      }),
     });
     console.log("Opened the review issue.");
   } else {
+    if (reviewer && !issue.assignees?.some((a) => a.login === reviewer))
+      await github(`/issues/${issue.number}/assignees`, {
+        method: "POST",
+        body: JSON.stringify({ assignees: [reviewer] }),
+      });
     await github(`/issues/${issue.number}/comments`, {
       method: "POST",
       body: JSON.stringify({ body }),
