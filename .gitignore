@@ -11,6 +11,9 @@ secrets/
 evidence/
 reports/
 .DS_Store
+# The detection corpus is synthetic test data, never a real phone's.
+!agent/core/tests/corpus/*/evidence/
+!agent/core/tests/corpus/**/*.log
 
 .local-tools/
 .secrets/

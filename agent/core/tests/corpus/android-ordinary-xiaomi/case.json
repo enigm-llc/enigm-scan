@@ -1,6 +1,9 @@
 {
   "device": "android",
   "about": "A Xiaomi phone whose own store updates its own apps.",
+  "inputs": [
+    "inventory.json"
+  ],
   "expect": [],
   "allow": []
 }

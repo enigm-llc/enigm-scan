@@ -1,6 +1,9 @@
 {
   "device": "android",
   "about": "A BadBazaar Telegram look-alike (ESET, 2023) installed from an APK file.",
+  "inputs": [
+    "inventory.json"
+  ],
   "expect": [
     "mvt. | BadBazaar"
   ],

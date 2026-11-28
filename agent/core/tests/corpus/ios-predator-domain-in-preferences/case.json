@@ -1,6 +1,9 @@
 {
   "device": "ios",
   "about": "A Predator domain (Amnesty, 2023) inside a text property list of the copy.",
+  "inputs": [
+    "evidence/Library/Preferences/com.example.reader.plist"
+  ],
   "expect": [
     "mvt. | Predator"
   ],

@@ -1,6 +1,9 @@
 {
   "device": "android",
   "about": "An APK whose SHA-256 is a NoviSpy sample (Amnesty, 2024), under an innocent name.",
+  "inputs": [
+    "inventory.json"
+  ],
   "expect": [
     "mvt. | NoviSpy"
   ],

@@ -10,7 +10,9 @@
 //! - `diagnostics/`: iPhone crash reports and shutdown.log;
 //! - `mvt/`: MVT's JSON results (links, browsing history, profiles).
 //!
-//! `case.json`: `device` (`ios` or `android`), `about`, `expect` (findings
+//! `case.json`: `device` (`ios` or `android`), `about`, `inputs` (every file
+//! of the case, so a file missing from a checkout fails instead of making the
+//! case pass with nothing to analyse), `expect` (findings
 //! that must appear) and `allow` (findings that may appear). Each entry is
 //! `rule prefix` or `rule prefix | text in the evidence`. Any finding not
 //! matched by `expect` or `allow` fails the case.
@@ -82,6 +84,25 @@ fn run(case: &Path, rules: &VerifiedRules) -> Report {
     report
 }
 
+/// Every file under `dir`, relative to it, with `/` separators.
+fn walk(dir: &Path) -> Vec<String> {
+    let mut files = Vec::new();
+    let mut pending = vec![dir.to_path_buf()];
+    while let Some(next) = pending.pop() {
+        for entry in std::fs::read_dir(&next).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_dir() {
+                pending.push(path);
+            } else {
+                let relative = path.strip_prefix(dir).unwrap();
+                let parts: Vec<_> = relative.iter().map(|p| p.to_string_lossy()).collect();
+                files.push(parts.join("/"));
+            }
+        }
+    }
+    files
+}
+
 #[test]
 fn detection_corpus() {
     let rules = shipped_rules();
@@ -109,6 +130,22 @@ fn detection_corpus() {
                 })
                 .unwrap_or_default()
         };
+        let mut inputs: Vec<String> = spec["inputs"]
+            .as_array()
+            .map(|a| a.iter().map(|v| v.as_str().unwrap().to_string()).collect())
+            .unwrap_or_default();
+        inputs.sort();
+        let mut present: Vec<String> = walk(case)
+            .into_iter()
+            .filter(|p| p != "case.json")
+            .collect();
+        present.sort();
+        if inputs.is_empty() || inputs != present {
+            failures.push(format!(
+                "{name}: inputs {inputs:?} but the folder holds {present:?}"
+            ));
+            continue;
+        }
         let (expect, allow) = (list("expect"), list("allow"));
         let report = run(case, &rules);
         for pattern in &expect {

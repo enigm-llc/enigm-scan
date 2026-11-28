@@ -1,0 +1,8 @@
+remaining client pid: 0 (/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1)
+remaining client pid: 1023 (/usr/libexec/backboardd)
+remaining client pid: 1450 (/private/var/containers/Bundle/Application/3F2B/WhatsApp.app/WhatsApp)
+remaining client pid: 99 (/System/Library/PrivateFrameworks/MobileBackup.framework/BackupAgent)
+SIGTERM: [1794900000]
+remaining client pid: 0 (/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1)
+remaining client pid: 2001 (/private/preboot/Cryptexes/OS/usr/libexec/webinspectord)
+SIGTERM: [1795100000]

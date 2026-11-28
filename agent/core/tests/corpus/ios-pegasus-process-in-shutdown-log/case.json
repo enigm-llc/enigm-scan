@@ -1,6 +1,10 @@
 {
   "device": "ios",
   "about": "A Pegasus process name (Amnesty, 2024) delaying a reboot from a system database folder.",
+  "inputs": [
+    "diagnostics/shutdown.log",
+    "diagnostics/status.json"
+  ],
   "expect": [
     "mvt. | Pegasus",
     "enigm.behavior.ios_process_unusual_location"

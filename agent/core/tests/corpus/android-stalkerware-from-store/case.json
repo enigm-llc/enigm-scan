@@ -1,6 +1,9 @@
 {
   "device": "android",
   "about": "TrackView, listed as stalkerware by Echap, installed from the Play Store.",
+  "inputs": [
+    "inventory.json"
+  ],
   "expect": [
     "mvt. | TrackView"
   ],

@@ -1,6 +1,9 @@
 {
   "device": "android",
   "about": "A Samsung phone: manufacturer apps, apps restored by Smart Switch, a removed proxy (:0) and automatic private DNS.",
+  "inputs": [
+    "inventory.json"
+  ],
   "expect": [],
   "allow": []
 }

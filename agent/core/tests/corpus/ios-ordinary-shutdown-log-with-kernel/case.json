@@ -1,6 +1,10 @@
 {
   "device": "ios",
   "about": "shutdown.log of an ordinary iPhone: system daemons, apps and the kernel itself (process 0, /kernel/<UUID>).",
+  "inputs": [
+    "diagnostics/shutdown.log",
+    "diagnostics/status.json"
+  ],
   "expect": [],
   "allow": []
 }
