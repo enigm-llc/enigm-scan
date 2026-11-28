@@ -13,8 +13,9 @@
 - The window no longer freezes for a moment right after opening: the check
   of the analysis engines runs in the background as soon as the app starts,
   once, instead of on the window's own thread each time it was asked.
-- iPhone: the kernel's own line in shutdown.log (`/kernel/` followed by its
-  identifier) is no longer reported as a process in an unrecognised folder.
+- iPhone: the kernel's own line in shutdown.log (process 0, shown as
+  `/kernel/` followed by its identifier) is no longer reported as a process
+  in an unrecognised folder. Any other process with such a path still is.
 
 ## 1.0.4 — 28 November 2026
 

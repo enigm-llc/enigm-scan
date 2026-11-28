@@ -46,8 +46,12 @@ pub fn parse_shutdown_log(text: &str) -> (Vec<ShutdownEntry>, usize) {
         let line = line.trim();
         if let Some(rest) = line.strip_prefix("remaining client pid:") {
             if let (Some(open), Some(close)) = (rest.find('('), rest.rfind(')')) {
+                let pid = rest[..open].trim();
                 let path = rest[open + 1..close].trim();
-                if path.starts_with('/') && path.len() <= 1024 && !pending.iter().any(|p| p == path)
+                if path.starts_with('/')
+                    && path.len() <= 1024
+                    && !kernel(pid, path)
+                    && !pending.iter().any(|p| p == path)
                 {
                     pending.push(path.to_string());
                 }
@@ -214,9 +218,13 @@ const SUSPICIOUS: &[(&str, &str)] = &[
     ("/private/var/containers/Data/", "an app's data folder"),
     ("/private/var/containers/Shared/", "a shared data folder"),
 ];
-/// How shutdown.log names the kernel itself (pid 0): `/kernel/` and the
-/// kernel's UUID. It is not a folder: no program can be placed there.
-fn kernel(path: &str) -> bool {
+/// How shutdown.log names the kernel itself: process 0, shown as `/kernel/`
+/// and the kernel's UUID. It is not a program in a folder. Only that exact
+/// pairing is the kernel; any other process with such a path is reported.
+fn kernel(pid: &str, path: &str) -> bool {
+    pid == "0" && kernel_path(path)
+}
+fn kernel_path(path: &str) -> bool {
     path.strip_prefix("/kernel/").is_some_and(|id| {
         id.len() == 36
             && id.char_indices().all(|(i, c)| {
@@ -231,9 +239,6 @@ fn kernel(path: &str) -> bool {
 pub fn location(path: &str) -> Location {
     if path.contains("/../") || path.contains("/./") {
         return Location::Suspicious("a disguised path");
-    }
-    if kernel(path) {
-        return Location::Expected;
     }
     if JAILBREAK.iter().any(|p| path.starts_with(p))
         || (path.starts_with("/private/preboot/") && path.contains("/jb-"))
@@ -805,14 +810,9 @@ SIGTERM: [1732600000]
             ("bh", Some("/private/var/tmp/bh"))
         );
         assert_eq!(location("/usr/libexec/backboardd"), Location::Expected);
-        // The kernel's own entry in shutdown.log, not a program's folder.
+        // A path alone is never the kernel: see the shutdown log test.
         assert_eq!(
             location("/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1"),
-            Location::Expected
-        );
-        assert_eq!(location("/kernel/evil"), Location::Unrecognised);
-        assert_eq!(
-            location("/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1/x"),
             Location::Unrecognised
         );
         assert_eq!(
@@ -1072,5 +1072,29 @@ root    0    0     0  0.0 9:00AM   0:10.00 (kernel_task)
                 .status,
             "failed"
         );
+    }
+    #[test]
+    fn the_kernel_itself_in_shutdown_log_is_not_a_process_to_report() {
+        let log = "remaining client pid: 0 (/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1)\n\
+                   remaining client pid: 1023 (/usr/libexec/backboardd)\n\
+                   SIGTERM: [1732000000]\n\
+                   remaining client pid: 812 (/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1)\n\
+                   remaining client pid: 0 (/kernel/not-a-uuid)\n\
+                   SIGTERM: [1732000100]\n";
+        let (entries, reboots) = parse_shutdown_log(log);
+        assert_eq!(reboots, 2);
+        let paths: Vec<&str> = entries.iter().map(|e| e.path.as_str()).collect();
+        // Process 0 with the kernel's UUID is the kernel: left out.
+        assert_eq!(
+            paths,
+            [
+                "/usr/libexec/backboardd",
+                "/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1",
+                "/kernel/not-a-uuid"
+            ]
+        );
+        // Anything else posing as it is still reported.
+        assert_eq!(location(paths[1]), Location::Unrecognised);
+        assert_eq!(location(paths[2]), Location::Unrecognised);
     }
 }
