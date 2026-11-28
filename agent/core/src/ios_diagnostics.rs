@@ -214,9 +214,26 @@ const SUSPICIOUS: &[(&str, &str)] = &[
     ("/private/var/containers/Data/", "an app's data folder"),
     ("/private/var/containers/Shared/", "a shared data folder"),
 ];
+/// How shutdown.log names the kernel itself (pid 0): `/kernel/` and the
+/// kernel's UUID. It is not a folder: no program can be placed there.
+fn kernel(path: &str) -> bool {
+    path.strip_prefix("/kernel/").is_some_and(|id| {
+        id.len() == 36
+            && id.char_indices().all(|(i, c)| {
+                if [8, 13, 18, 23].contains(&i) {
+                    c == '-'
+                } else {
+                    c.is_ascii_hexdigit()
+                }
+            })
+    })
+}
 pub fn location(path: &str) -> Location {
     if path.contains("/../") || path.contains("/./") {
         return Location::Suspicious("a disguised path");
+    }
+    if kernel(path) {
+        return Location::Expected;
     }
     if JAILBREAK.iter().any(|p| path.starts_with(p))
         || (path.starts_with("/private/preboot/") && path.contains("/jb-"))
@@ -788,6 +805,16 @@ SIGTERM: [1732600000]
             ("bh", Some("/private/var/tmp/bh"))
         );
         assert_eq!(location("/usr/libexec/backboardd"), Location::Expected);
+        // The kernel's own entry in shutdown.log, not a program's folder.
+        assert_eq!(
+            location("/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1"),
+            Location::Expected
+        );
+        assert_eq!(location("/kernel/evil"), Location::Unrecognised);
+        assert_eq!(
+            location("/kernel/C3774576-A524-30FC-A09E-5E55CB6475F1/x"),
+            Location::Unrecognised
+        );
         assert_eq!(
             location("/private/var/containers/Bundle/Application/A/X.app/X"),
             Location::Expected

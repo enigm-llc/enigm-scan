@@ -426,28 +426,42 @@ struct Capabilities {
     mvt_ios: bool,
     mvt_android: bool,
 }
+/// The engines the window asks about when it opens, checked in the
+/// background as soon as the app starts (see `Catalog::available`).
+const ENGINES: [&str; 4] = ["ios-usb", "adb", "mvt-ios", "mvt-android"];
 #[tauri::command]
-fn capabilities(window: WebviewWindow, state: State<'_, Agent>) -> Result<Capabilities, String> {
+async fn capabilities(
+    window: WebviewWindow,
+    state: State<'_, Agent>,
+) -> Result<Capabilities, String> {
     local(&window)?;
-    let selection = state.selection.lock().map_err(|_| "state_unavailable")?;
-    let bytes = current_rules(&state.data, selection.rules.as_deref())?;
-    let rules = VerifiedRules::verify(
-        &bytes,
-        TRUSTED_KEYS,
-        time::OffsetDateTime::now_utc().unix_timestamp(),
-        minimum(&state.data)?,
-    )?;
-    // Each check verifies a whole engine folder: run it once per engine.
-    let ios = state.catalog.available("ios-usb");
-    let android = state.catalog.available("adb");
-    Ok(Capabilities {
-        rules: rules.len(),
-        rule_version: rules.version(),
-        ios_usb: ios,
-        android_usb: android,
-        mvt_ios: state.catalog.available("mvt-ios"),
-        mvt_android: state.catalog.available("mvt-android"),
+    let bytes = {
+        let selection = state.selection.lock().map_err(|_| "state_unavailable")?;
+        current_rules(&state.data, selection.rules.as_deref())?
+    };
+    let minimum = minimum(&state.data)?;
+    let catalog = state.catalog.clone();
+    // Reading the engines' files takes a moment on a cold disk: never on the
+    // window's own thread, so the window always answers.
+    tauri::async_runtime::spawn_blocking(move || {
+        let rules = VerifiedRules::verify(
+            &bytes,
+            TRUSTED_KEYS,
+            time::OffsetDateTime::now_utc().unix_timestamp(),
+            minimum,
+        )?;
+        let [ios_usb, android_usb, mvt_ios, mvt_android] = ENGINES.map(|id| catalog.available(id));
+        Ok(Capabilities {
+            rules: rules.len(),
+            rule_version: rules.version(),
+            ios_usb,
+            android_usb,
+            mvt_ios,
+            mvt_android,
+        })
     })
+    .await
+    .map_err(|_| "state_unavailable")?
 }
 #[tauri::command]
 async fn list_devices(
@@ -1453,6 +1467,15 @@ fn main() {
                 app.handle().exit(0);
                 return Ok(());
             }
+            let catalog = Arc::new(catalog);
+            // Checked while the welcome screen shows, so the first step is
+            // ready when the person gets there.
+            let warm = catalog.clone();
+            std::thread::spawn(move || {
+                for id in ENGINES {
+                    warm.available(id);
+                }
+            });
             app.manage(Agent {
                 status: Arc::new(Mutex::new(Status::default())),
                 selection: Mutex::new(Selection::default()),
@@ -1460,7 +1483,7 @@ fn main() {
                 cancel: Arc::new(AtomicBool::new(false)),
                 skip_deep: Arc::new(AtomicBool::new(false)),
                 start: Arc::new(AtomicU8::new(acquire::START_HOLD)),
-                catalog: Arc::new(catalog),
+                catalog,
                 data,
             });
             let main = tauri::WebviewWindowBuilder::from_config(

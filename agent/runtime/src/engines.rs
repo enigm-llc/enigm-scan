@@ -198,6 +198,9 @@ pub fn tree_digest(dir: &Path) -> Result<String, String> {
 pub struct Catalog {
     root: PathBuf,
     specs: Vec<EngineSpec>,
+    /// Whether each engine passed its check, for saying what the app can do.
+    /// Running an engine always checks it again (`resolve`).
+    checked: std::sync::Mutex<std::collections::HashMap<String, bool>>,
 }
 impl Catalog {
     pub fn new(root: PathBuf, manifest: &[u8]) -> Result<Self, String> {
@@ -252,7 +255,11 @@ impl Catalog {
                 }
             }
         }
-        Ok(Self { root, specs })
+        Ok(Self {
+            root,
+            specs,
+            checked: Default::default(),
+        })
     }
     pub fn resolve(&self, id: &str) -> Result<(PathBuf, String), String> {
         let spec = self
@@ -320,8 +327,16 @@ impl Catalog {
         }
         Ok(())
     }
+    /// Whether an engine is present and intact. Each engine's files are read
+    /// once per run of the app for this: the answer is kept, and a second
+    /// question waits for the first instead of reading them again.
     pub fn available(&self, id: &str) -> bool {
-        self.resolve(id).is_ok()
+        let Ok(mut checked) = self.checked.lock() else {
+            return self.resolve(id).is_ok();
+        };
+        *checked
+            .entry(id.to_string())
+            .or_insert_with(|| self.resolve(id).is_ok())
     }
 }
 pub fn mvt_args(
