@@ -702,6 +702,9 @@ fn start_scan(
             // this process is killed before it can (see `remove_leftovers`).
             let lock =
                 enigm_scan_runtime::session::hold(work.path()).map_err(|_| "workspace_failed")?;
+            // Out of the computer's backups and search indexes before the
+            // phone's data arrives.
+            enigm_scan_runtime::session::keep_private(work.path());
             let acquired = request.usb_id.is_some();
             let target = if let Some(id) = request.usb_id {
                 acquire::acquire(
@@ -760,6 +763,8 @@ fn start_scan(
                 let copied = enigm_scan_core::evidence::snapshot(root, &path, &cancel)?;
                 (path, copied)
             };
+            // Read now: an acquired encrypted copy is deleted once opened.
+            let target_is_dir = target.is_dir();
             let decrypted = request.backup_password.is_some();
             if let Some(password) = request.backup_password {
                 if let Ok(mut s) = status.lock() {
@@ -779,12 +784,17 @@ fn start_scan(
                 if checked.skipped != 0 {
                     return Err("backup_decryption_incomplete".into());
                 }
+                // The encrypted copy is no longer needed once opened; a
+                // backup the person chose is theirs and is never touched.
+                if acquired && snapshot != work.path() && snapshot.starts_with(work.path()) {
+                    let _ = std::fs::remove_dir_all(&snapshot);
+                }
                 snapshot = output;
             }
             if let Ok(mut s) = status.lock() {
                 s.phase = "analyzing".into();
             }
-            let parser_target = if target.is_dir() {
+            let parser_target = if target_is_dir {
                 snapshot.clone()
             } else {
                 snapshot.join(target.file_name().ok_or("evidence_path_invalid")?)
@@ -870,6 +880,13 @@ fn start_scan(
                     &e,
                 ),
             }
+            // The copy of the phone has been read by every analysis: it is
+            // deleted now rather than at the end. Only the network capture,
+            // still to be analysed, stays a little longer.
+            enigm_scan_runtime::session::discard(
+                work.path(),
+                &["device-network.pcap", "network-status.json"],
+            );
             if capture_network && request.device == "ios" {
                 if let Ok(mut s) = status.lock() {
                     s.phase = "network".into();
@@ -934,6 +951,8 @@ fn start_scan(
                     )?;
                     Ok::<_, String>(candidate)
                 })();
+                // The capture has been read: deleted before the report is made.
+                enigm_scan_runtime::session::discard(work.path(), &[]);
                 match result {
                     Ok(candidate) => report = candidate,
                     Err(e) if e == "cancelled" => return Err(e),

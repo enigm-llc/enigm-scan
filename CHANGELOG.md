@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.0.5 — 28 November 2026
+
+- The copy of the phone stays out of the computer's backups and search
+  indexes: Time Machine and Spotlight on macOS, the search index on Windows,
+  and backup tools that honour CACHEDIR.TAG on every system.
+- Each part of the copy is deleted as soon as it has been analysed (the
+  phone's data once every check has read it, the network capture once it has
+  been analysed) instead of at the end, so less is left on the disk if the
+  computer stops mid-scan. An encrypted copy is deleted as soon as it has
+  been opened.
+
 ## 1.0.4 — 28 November 2026
 
 - The report's duration and start time cover the whole scan, from the

@@ -72,8 +72,11 @@ memory. The PDF is rendered locally with jsPDF.
    and browsing history, and hosts on services spyware reports to
    (`infrastructure.rs`: data collection services, tunnels used for web
    traffic, and dynamic DNS names checked in with at a steady pace).
-6. **Cleanup.** The temporary folder is deleted and the report says whether
-   that succeeded.
+6. **Cleanup.** The scan folder is kept out of backups and search indexes
+   from the moment it is created (`session::keep_private`). The copy of the
+   phone is deleted as soon as every analysis has read it, the network
+   capture once it has been analysed (`session::discard`), and the folder
+   when the scan ends; the report says whether that succeeded.
 
 Every engine is a fixed program in `src-tauri/resources/engines`. Before each
 run, `agent/runtime/src/engines.rs` checks it (or, for folder engines, every

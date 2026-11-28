@@ -7,9 +7,15 @@ the scan runs on. This page lists everything the app reads, keeps and sends.
 
 - **The copy of the phone.** An iPhone backup (personal photos and videos are
   skipped as they arrive) or an Android bug report, plus the app inventory and
-  settings read over adb. It lives in a private temporary folder for the
-  duration of the scan and is deleted when the analysis ends. The report says
-  whether the deletion completed.
+  settings read over adb. It lives in a private temporary folder of your user
+  account (other accounts on the computer cannot open it), marked so that the computer's backups and search
+  indexes leave it out (Time Machine and Spotlight on macOS, the search index
+  on Windows, and backup tools that honour `CACHEDIR.TAG`). Each part is
+  deleted as soon as it has been analysed, and the folder itself when the scan
+  ends. The report says whether the deletion completed. Deleting is not secure
+  erasure: with the computer's disk encryption on (FileVault, BitLocker or
+  your Linux system's), what may remain on the disk cannot be read without
+  your login.
 - **The report.** It is kept in the app's memory until you close the session
   or the app. It is written to disk only if you save it as a PDF, in a place
   you choose. Saved files are not deleted by the app.

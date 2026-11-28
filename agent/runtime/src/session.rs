@@ -51,6 +51,78 @@ pub fn hold(dir: &Path) -> std::io::Result<File> {
     lock.try_lock_exclusive()?;
     Ok(lock)
 }
+/// The tag of the Cache Directory Tagging convention: backup tools that
+/// follow it (tar, Borg, restic and others) skip the folder holding it.
+const CACHEDIR_TAG: &str = "Signature: 8a477f597d28d172789f06886806bc55\n# Enigm Scan: a temporary copy of a phone, deleted when the scan ends.\n";
+/// Files `keep_private` adds, which stay until the folder is removed.
+const MARKS: [&str; 2] = ["CACHEDIR.TAG", ".metadata_never_index"];
+/// Keep a scan folder out of the computer's backups and search indexes, so
+/// the copy of a phone never outlives the scan there: Time Machine (and its
+/// local snapshots) and Spotlight on macOS, the search index on Windows and,
+/// on every system, backup tools that honour CACHEDIR.TAG. Best effort: a
+/// mark that cannot be set does not stop the scan.
+pub fn keep_private(dir: &Path) {
+    let _ = std::fs::write(dir.join(MARKS[0]), CACHEDIR_TAG);
+    #[cfg(target_os = "macos")]
+    {
+        // Spotlight does not index a folder holding this file.
+        let _ = File::create(dir.join(MARKS[1]));
+        // What `tmutil addexclusion` sets: a binary property list holding
+        // "com.apple.backupd".
+        const VALUE: &[u8] = b"bplist00_\x10\x11com.apple.backupd\x08\x00\x00\x00\x00\x00\x00\x01\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x1c";
+        use std::os::unix::ffi::OsStrExt;
+        if let Ok(path) = std::ffi::CString::new(dir.as_os_str().as_bytes()) {
+            // SAFETY: both strings are NUL-terminated and VALUE outlives the call.
+            unsafe {
+                libc::setxattr(
+                    path.as_ptr(),
+                    c"com.apple.metadata:com_apple_backup_excludeItem".as_ptr(),
+                    VALUE.as_ptr().cast(),
+                    VALUE.len(),
+                    0,
+                    0,
+                );
+            }
+        }
+    }
+    #[cfg(windows)]
+    {
+        use std::os::windows::ffi::OsStrExt;
+        use windows_sys::Win32::Storage::FileSystem::{
+            GetFileAttributesW, SetFileAttributesW, FILE_ATTRIBUTE_NOT_CONTENT_INDEXED,
+            INVALID_FILE_ATTRIBUTES,
+        };
+        let wide: Vec<u16> = dir.as_os_str().encode_wide().chain([0]).collect();
+        // SAFETY: `wide` is a NUL-terminated path that lives through both calls.
+        unsafe {
+            let current = GetFileAttributesW(wide.as_ptr());
+            if current != INVALID_FILE_ATTRIBUTES {
+                SetFileAttributesW(wide.as_ptr(), current | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED);
+            }
+        }
+    }
+}
+/// Delete from a scan folder everything already analysed, as soon as it is,
+/// instead of at the end: all but its lock, its marks and the entries named
+/// in `keep`. What cannot be deleted now goes with the folder at the end.
+pub fn discard(dir: &Path, keep: &[&str]) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let name = name.to_string_lossy();
+        if name == LOCK || MARKS.contains(&name.as_ref()) || keep.contains(&name.as_ref()) {
+            continue;
+        }
+        let path = entry.path();
+        // Never follow a link out of the folder: remove the link itself.
+        let _ = match entry.file_type() {
+            Ok(kind) if kind.is_dir() => std::fs::remove_dir_all(&path),
+            _ => std::fs::remove_file(&path),
+        };
+    }
+}
 /// Remove orphaned profile directories left by killed apps. Returns the
 /// removed paths. Symlinks and entries that are not directories are ignored.
 pub fn remove_orphans_in(temp: &Path, keep: &Path) -> Vec<PathBuf> {
@@ -171,5 +243,59 @@ mod tests {
             std::thread::sleep(std::time::Duration::from_millis(20));
         }
         assert_eq!(removed, vec![held]);
+    }
+    #[test]
+    fn a_scan_folder_stays_out_of_backups_and_drops_what_was_analysed() {
+        let temp = tempfile::tempdir().unwrap();
+        let dir = temp.path();
+        let lock = hold(dir).unwrap();
+        keep_private(dir);
+        let tag = std::fs::read_to_string(dir.join("CACHEDIR.TAG")).unwrap();
+        assert!(tag.starts_with("Signature: 8a477f597d28d172789f06886806bc55"));
+        #[cfg(target_os = "macos")]
+        {
+            assert!(dir.join(".metadata_never_index").is_file());
+            let out = std::process::Command::new("xattr")
+                .arg("-p")
+                .arg("com.apple.metadata:com_apple_backup_excludeItem")
+                .arg(dir)
+                .output()
+                .unwrap();
+            assert!(out.status.success());
+            let status = std::process::Command::new("tmutil")
+                .arg("isexcluded")
+                .arg(dir)
+                .output()
+                .unwrap();
+            assert!(String::from_utf8_lossy(&status.stdout).contains("[Excluded]"));
+        }
+        std::fs::create_dir_all(dir.join("ios-backup/0000")).unwrap();
+        std::fs::write(dir.join("ios-backup/0000/Manifest.db"), b"x").unwrap();
+        std::fs::write(dir.join("android-inventory.json"), b"{}").unwrap();
+        std::fs::write(dir.join("device-network.pcap"), b"p").unwrap();
+        #[cfg(unix)]
+        {
+            let outside = temp
+                .path()
+                .parent()
+                .unwrap()
+                .join(format!("enigm-discard-outside-{}", std::process::id()));
+            std::fs::create_dir_all(&outside).unwrap();
+            std::fs::write(outside.join("keep"), b"k").unwrap();
+            std::os::unix::fs::symlink(&outside, dir.join("link")).unwrap();
+            discard(dir, &["device-network.pcap"]);
+            assert!(
+                outside.join("keep").is_file(),
+                "a link is removed, not followed"
+            );
+            std::fs::remove_dir_all(&outside).unwrap();
+        }
+        #[cfg(not(unix))]
+        discard(dir, &["device-network.pcap"]);
+        assert!(!dir.join("ios-backup").exists());
+        assert!(!dir.join("android-inventory.json").exists());
+        assert!(dir.join("device-network.pcap").exists());
+        assert!(dir.join(LOCK).exists() && dir.join("CACHEDIR.TAG").exists());
+        drop(lock);
     }
 }
