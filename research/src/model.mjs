@@ -39,7 +39,10 @@ export const SCHEMA = {
           kind: { type: "string", enum: KINDS },
           value: { type: "string" },
           family: { type: "string" },
-          platform: { type: "string", enum: ["ios", "android", "both", "other"] },
+          platform: {
+            type: "string",
+            enum: ["ios", "android", "both", "other"],
+          },
           quote: { type: "string" },
         },
       },
@@ -53,7 +56,10 @@ export function params(article) {
     model: MODEL,
     max_tokens: 16000,
     system: SYSTEM,
-    output_config: { effort: "high", format: { type: "json_schema", schema: SCHEMA } },
+    output_config: {
+      effort: "high",
+      format: { type: "json_schema", schema: SCHEMA },
+    },
     messages: [
       {
         role: "user",

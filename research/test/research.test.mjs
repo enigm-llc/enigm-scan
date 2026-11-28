@@ -14,16 +14,59 @@ describe("verification of the model's answer", () => {
   it("keeps only indicators quoted word for word from the article", () => {
     const { kept, dropped } = verify(
       [
-        { kind: "domain", value: "c2.example-spy.net", family: "Graphite", platform: "ios", quote: "contacted c2[.]example-spy[.]net and 203.0.113.7 after the zero-click exploit." },
-        { kind: "ip", value: "203.0.113.7", family: "Graphite", platform: "ios", quote: "c2[.]example-spy[.]net and 203.0.113.7" },
-        { kind: "sha256", value: "A".repeat(64), family: "Graphite", platform: "android", quote: "(SHA-256: " + "A".repeat(64) + ")" },
-        { kind: "app_id", value: "com.evil.monitor", family: "Graphite", platform: "android", quote: "installed the package com.evil.monitor." },
+        {
+          kind: "domain",
+          value: "c2.example-spy.net",
+          family: "Graphite",
+          platform: "ios",
+          quote:
+            "contacted c2[.]example-spy[.]net and 203.0.113.7 after the zero-click exploit.",
+        },
+        {
+          kind: "ip",
+          value: "203.0.113.7",
+          family: "Graphite",
+          platform: "ios",
+          quote: "c2[.]example-spy[.]net and 203.0.113.7",
+        },
+        {
+          kind: "sha256",
+          value: "A".repeat(64),
+          family: "Graphite",
+          platform: "android",
+          quote: "(SHA-256: " + "A".repeat(64) + ")",
+        },
+        {
+          kind: "app_id",
+          value: "com.evil.monitor",
+          family: "Graphite",
+          platform: "android",
+          quote: "installed the package com.evil.monitor.",
+        },
         // Invented: not in the article.
-        { kind: "domain", value: "invented.example", family: "x", platform: "ios", quote: "contacted invented.example" },
+        {
+          kind: "domain",
+          value: "invented.example",
+          family: "x",
+          platform: "ios",
+          quote: "contacted invented.example",
+        },
         // The quote is real but does not hold the value.
-        { kind: "domain", value: "other.example", family: "x", platform: "ios", quote: "after the zero-click exploit." },
+        {
+          kind: "domain",
+          value: "other.example",
+          family: "x",
+          platform: "ios",
+          quote: "after the zero-click exploit.",
+        },
         // Not an indicator of its kind.
-        { kind: "sha256", value: "1234", family: "x", platform: "ios", quote: "after the zero-click exploit." },
+        {
+          kind: "sha256",
+          value: "1234",
+          family: "x",
+          platform: "ios",
+          quote: "after the zero-click exploit.",
+        },
       ],
       ARTICLE,
     );
@@ -36,11 +79,15 @@ describe("verification of the model's answer", () => {
     expect(dropped).toBe(3);
   });
   it("undoes defanging and compares without layout", () => {
-    expect(refang("hxxps://a[.]b(.)c[dot]d x[@]y.z")).toBe("https://a.b.c.d x@y.z");
+    expect(refang("hxxps://a[.]b(.)c[dot]d x[@]y.z")).toBe(
+      "https://a.b.c.d x@y.z",
+    );
     expect(normalize("  A​  B\n C ")).toBe("a b c");
     expect(canonical("domain", "*.Example.COM.")).toBe("example.com");
     expect(canonical("domain", "not a domain")).toBeNull();
-    expect(canonical("app_cert_sha256", "AB:".repeat(31) + "AB")).toBe("ab".repeat(32));
+    expect(canonical("app_cert_sha256", "AB:".repeat(31) + "AB")).toBe(
+      "ab".repeat(32),
+    );
   });
 });
 
@@ -48,7 +95,12 @@ describe("feeds and pages", () => {
   it("reads RSS and Atom items", () => {
     const rss = `<rss><channel><item><title><![CDATA[New spyware &amp; iPhone]]></title><link>https://citizenlab.ca/2026/11/x/</link><pubDate>Fri, 27 Nov 2026 10:00:00 +0000</pubDate><description>&lt;p&gt;Android stalkerware&lt;/p&gt;</description></item></channel></rss>`;
     expect(parseFeed(rss)).toEqual([
-      { title: "New spyware & iPhone", link: "https://citizenlab.ca/2026/11/x/", date: "Fri, 27 Nov 2026 10:00:00 +0000", summary: "Android stalkerware" },
+      {
+        title: "New spyware & iPhone",
+        link: "https://citizenlab.ca/2026/11/x/",
+        date: "Fri, 27 Nov 2026 10:00:00 +0000",
+        summary: "Android stalkerware",
+      },
     ]);
     const atom = `<feed><entry><title>Report</title><link rel="alternate" href="https://securelist.com/a/"/><published>2026-11-27T00:00:00Z</published><summary>x</summary></entry></feed>`;
     expect(parseFeed(atom)[0].link).toBe("https://securelist.com/a/");
@@ -64,18 +116,33 @@ describe("feeds and pages", () => {
   it("never leaves the allowed hosts, even through a redirect", async () => {
     const fetcher = async (url) =>
       url === "https://securelist.com/a/"
-        ? new Response(null, { status: 302, headers: { location: "https://attacker.example/x" } })
+        ? new Response(null, {
+            status: 302,
+            headers: { location: "https://attacker.example/x" },
+          })
         : new Response("ok");
-    await expect(fetchAllowed(fetcher, "https://securelist.com/a/", "text/html")).rejects.toThrow("host_not_allowed");
-    await expect(fetchAllowed(fetcher, "https://attacker.example/x", "text/html")).rejects.toThrow("host_not_allowed");
+    await expect(
+      fetchAllowed(fetcher, "https://securelist.com/a/", "text/html"),
+    ).rejects.toThrow("host_not_allowed");
+    await expect(
+      fetchAllowed(fetcher, "https://attacker.example/x", "text/html"),
+    ).rejects.toThrow("host_not_allowed");
   });
 });
 
 describe("the request to the model", () => {
   it("asks for the strict schema and passes the article as data", () => {
-    const p = params({ source: "S", title: "T", url: "https://citizenlab.ca/x", text: "body" });
+    const p = params({
+      source: "S",
+      title: "T",
+      url: "https://citizenlab.ca/x",
+      text: "body",
+    });
     expect(p.model).toBe("claude-opus-5-5");
-    expect(p.output_config.format).toEqual({ type: "json_schema", schema: SCHEMA });
+    expect(p.output_config.format).toEqual({
+      type: "json_schema",
+      schema: SCHEMA,
+    });
     expect(p.messages[0].content).toContain("<article>\nbody\n</article>");
     expect(p).not.toHaveProperty("tools");
   });
@@ -96,7 +163,8 @@ const PAGE = `<article><p>${ARTICLE.repeat(4)}</p></article>`;
 
 function fakeFetch(url) {
   if (url === "https://citizenlab.ca/feed/") return new Response(FEED);
-  if (url === "https://citizenlab.ca/2026/11/graphite/") return new Response(PAGE);
+  if (url === "https://citizenlab.ca/2026/11/graphite/")
+    return new Response(PAGE);
   return new Response("", { status: 404 });
 }
 
@@ -105,15 +173,35 @@ function fakeClient({ refuse = false } = {}) {
   const reply = (stop) => ({
     model: "claude-opus-5-5",
     stop_reason: stop,
-    content: stop === "refusal" ? [] : [{ type: "text", text: JSON.stringify({
-      relevant: true,
-      summary: "Graphite targeted iPhones.",
-      families: ["Graphite"],
-      indicators: [
-        { kind: "domain", value: "c2.example-spy.net", family: "Graphite", platform: "ios", quote: "contacted c2[.]example-spy[.]net and 203.0.113.7" },
-        { kind: "domain", value: "made-up.example", family: "Graphite", platform: "ios", quote: "made-up.example" },
-      ],
-    }) }],
+    content:
+      stop === "refusal"
+        ? []
+        : [
+            {
+              type: "text",
+              text: JSON.stringify({
+                relevant: true,
+                summary: "Graphite targeted iPhones.",
+                families: ["Graphite"],
+                indicators: [
+                  {
+                    kind: "domain",
+                    value: "c2.example-spy.net",
+                    family: "Graphite",
+                    platform: "ios",
+                    quote: "contacted c2[.]example-spy[.]net and 203.0.113.7",
+                  },
+                  {
+                    kind: "domain",
+                    value: "made-up.example",
+                    family: "Graphite",
+                    platform: "ios",
+                    quote: "made-up.example",
+                  },
+                ],
+              }),
+            },
+          ],
   });
   return {
     sent: [],
@@ -129,7 +217,10 @@ function fakeClient({ refuse = false } = {}) {
         results: async (id) =>
           batches.get(id).map((r) => ({
             custom_id: r.custom_id,
-            result: { type: "succeeded", message: reply(refuse ? "refusal" : "end_turn") },
+            result: {
+              type: "succeeded",
+              message: reply(refuse ? "refusal" : "end_turn"),
+            },
           })),
       },
     },
@@ -150,7 +241,11 @@ describe("a run", () => {
   it("sends new on-topic articles, then publishes only verified indicators", async () => {
     const store = memoryStore();
     const client = fakeClient();
-    const pipeline = new Pipeline({ store, client, fetcher: async (u) => fakeFetch(u) });
+    const pipeline = new Pipeline({
+      store,
+      client,
+      fetcher: async (u) => fakeFetch(u),
+    });
     const first = await pipeline.run();
     expect(first.found).toBe(1);
     expect(first.sent).toBe(1);
@@ -169,7 +264,11 @@ describe("a run", () => {
   it("asks again with a fallback model when the batch's model declines", async () => {
     const store = memoryStore();
     const client = fakeClient({ refuse: true });
-    const pipeline = new Pipeline({ store, client, fetcher: async (u) => fakeFetch(u) });
+    const pipeline = new Pipeline({
+      store,
+      client,
+      fetcher: async (u) => fakeFetch(u),
+    });
     await pipeline.run();
     await pipeline.run();
     expect(client.beta.messages.direct).toBe(1);
@@ -178,7 +277,11 @@ describe("a run", () => {
   });
   it("without an API key it only reads the feeds", async () => {
     const store = memoryStore();
-    const status = await new Pipeline({ store, client: null, fetcher: async (u) => fakeFetch(u) }).run();
+    const status = await new Pipeline({
+      store,
+      client: null,
+      fetcher: async (u) => fakeFetch(u),
+    }).run();
     expect(status.note).toBe("no_api_key");
     expect(status.found).toBe(1);
   });

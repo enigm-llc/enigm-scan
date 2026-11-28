@@ -3,13 +3,28 @@
 // follows a link anywhere else.
 export const FEEDS = [
   { name: "Citizen Lab", url: "https://citizenlab.ca/feed/" },
-  { name: "Amnesty Security Lab", url: "https://securitylab.amnesty.org/feed/" },
-  { name: "Amnesty International research", url: "https://www.amnesty.org/en/latest/research/feed/" },
+  {
+    name: "Amnesty Security Lab",
+    url: "https://securitylab.amnesty.org/feed/",
+  },
+  {
+    name: "Amnesty International research",
+    url: "https://www.amnesty.org/en/latest/research/feed/",
+  },
   { name: "Kaspersky Securelist", url: "https://securelist.com/feed/" },
-  { name: "ESET WeLiveSecurity", url: "https://www.welivesecurity.com/en/rss/feed/" },
-  { name: "Google Threat Intelligence", url: "https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v" },
+  {
+    name: "ESET WeLiveSecurity",
+    url: "https://www.welivesecurity.com/en/rss/feed/",
+  },
+  {
+    name: "Google Threat Intelligence",
+    url: "https://feeds.feedburner.com/threatintelligence/pvexyqv7v0v",
+  },
   { name: "Access Now", url: "https://www.accessnow.org/feed/" },
-  { name: "TechCrunch (spyware)", url: "https://techcrunch.com/tag/spyware/feed/" },
+  {
+    name: "TechCrunch (spyware)",
+    url: "https://techcrunch.com/tag/spyware/feed/",
+  },
 ];
 
 export const ARTICLE_HOSTS = new Set([
@@ -27,7 +42,8 @@ export const ARTICLE_HOSTS = new Set([
 
 // An article is read only when its title or summary is about phone spyware:
 // most of these feeds also cover other topics.
-const TOPIC = /\b(spyware|stalkerware|stalker ?ware|watchware|surveillance ?ware|mercenary|zero[- ]click|one[- ]click|exploit chain|pegasus|predator|intellexa|cytrox|candiru|paragon|graphite|nso group|quadream|reign|cellebrite|finfisher|finspy|hermit|rcs lab|novispy|lightspy|wyrmspy|dragonegg|badbazaar|moonshine|triangulation|blastpass|forcedentry|iphone|ios|android|apk|mobile malware|smartphone|phone)\b/i;
+const TOPIC =
+  /\b(spyware|stalkerware|stalker ?ware|watchware|surveillance ?ware|mercenary|zero[- ]click|one[- ]click|exploit chain|pegasus|predator|intellexa|cytrox|candiru|paragon|graphite|nso group|quadream|reign|cellebrite|finfisher|finspy|hermit|rcs lab|novispy|lightspy|wyrmspy|dragonegg|badbazaar|moonshine|triangulation|blastpass|forcedentry|iphone|ios|android|apk|mobile malware|smartphone|phone)\b/i;
 
 export function onTopic(text) {
   return TOPIC.test(text || "");

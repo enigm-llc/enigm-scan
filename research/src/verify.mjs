@@ -42,7 +42,8 @@ export const KINDS = Object.keys(FORMATS);
 export function canonical(kind, value) {
   if (!FORMATS[kind] || typeof value !== "string") return null;
   let v = refang(value).trim();
-  if (["domain", "sha256", "app_cert_sha256", "email", "ip"].includes(kind)) v = v.toLowerCase();
+  if (["domain", "sha256", "app_cert_sha256", "email", "ip"].includes(kind))
+    v = v.toLowerCase();
   if (kind === "app_cert_sha256") v = v.replace(/:/g, "");
   if (kind === "domain") v = v.replace(/^\*\./, "").replace(/\.$/, "");
   return FORMATS[kind].test(v) ? v : null;
@@ -58,10 +59,18 @@ export function verify(candidates, article) {
     const value = canonical(c?.kind, c?.value);
     const quote = typeof c?.quote === "string" ? c.quote : "";
     const q = normalize(quote);
-    const inQuote = value && (c.kind === "app_cert_sha256" ? q.replace(/:/g, "") : q).includes(
-      value.toLowerCase(),
-    );
-    if (!value || q.length < 4 || q.length > 600 || !text.includes(q) || !inQuote) {
+    const inQuote =
+      value &&
+      (c.kind === "app_cert_sha256" ? q.replace(/:/g, "") : q).includes(
+        value.toLowerCase(),
+      );
+    if (
+      !value ||
+      q.length < 4 ||
+      q.length > 600 ||
+      !text.includes(q) ||
+      !inQuote
+    ) {
       dropped++;
       continue;
     }
@@ -72,7 +81,9 @@ export function verify(candidates, article) {
       kind: c.kind,
       value,
       family: String(c.family || "").slice(0, 80),
-      platform: ["ios", "android", "both", "other"].includes(c.platform) ? c.platform : "other",
+      platform: ["ios", "android", "both", "other"].includes(c.platform)
+        ? c.platform
+        : "other",
       quote: quote.replace(/\s+/g, " ").trim().slice(0, 600),
     });
   }
