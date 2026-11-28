@@ -78,6 +78,7 @@ const BRANDS: &[Brand] = &[
             "youtube.com",
             "google.dev",
             "google.app",
+            "google.org",
         ],
         fuzzy: true,
     },
@@ -98,7 +99,14 @@ const BRANDS: &[Brand] = &[
     },
     Brand {
         name: "telegram",
-        owned: &["telegram.org", "t.me", "telegram.me", "telesco.pe"],
+        // telegra.ph is Telegram's own publishing site.
+        owned: &[
+            "telegram.org",
+            "t.me",
+            "telegram.me",
+            "telesco.pe",
+            "telegra.ph",
+        ],
         fuzzy: true,
     },
     Brand {
@@ -159,7 +167,12 @@ const BRANDS: &[Brand] = &[
     },
     Brand {
         name: "paypal",
-        owned: &["paypal.com", "paypal.me", "paypalobjects.com"],
+        owned: &[
+            "paypal.com",
+            "paypal.me",
+            "paypalobjects.com",
+            "paypal-community.com",
+        ],
         fuzzy: true,
     },
     Brand {
@@ -176,6 +189,8 @@ const BRANDS: &[Brand] = &[
             "amazon.com.br",
             "amazonaws.com",
             "media-amazon.com",
+            "ssl-images-amazon.com",
+            "amazon-adsystem.com",
         ],
         fuzzy: false,
     },
@@ -297,9 +312,20 @@ fn owned_by(brand: &Brand, host: &str) -> bool {
                 || SECOND_LEVEL.contains(&suffix)
         })
 }
+/// The brand's domain under a country suffix, such as `icloud.com.cn` or
+/// `google.com.hk`: run by the brand, not someone else's site.
+fn country_edition(host: &str, owned: &str) -> bool {
+    registrable(host)
+        .strip_prefix(owned)
+        .and_then(|rest| rest.strip_prefix('.'))
+        .is_some_and(|cc| cc.len() == 2 && cc.bytes().all(|c| c.is_ascii_lowercase()))
+}
 /// Ordinary words one letter away from a brand.
 const ORDINARY: &[&str] = &[
     "twister", "samsun", "googly", "goggle", "outlooks", "dropbot",
+    // A common word and the name of news sites (telegraf.rs), and an
+    // English word one swap away from "appleid".
+    "telegraf", "applied",
 ];
 /// Letters from other scripts that look like Latin letters.
 fn confusable(c: char) -> char {
@@ -515,7 +541,10 @@ fn assess_host_in(host: &str, context: Context) -> Option<Assessment> {
         }
         // 2. A brand's own domain placed in front of someone else's.
         if let Some(owned) = brand.owned.iter().find(|d| {
-            d.contains('.') && host.starts_with(&format!("{d}.")) && registrable(&host) != **d
+            d.contains('.')
+                && host.starts_with(&format!("{d}."))
+                && registrable(&host) != **d
+                && !country_edition(&host, d)
         }) {
             return result(
                 format!(
@@ -598,6 +627,12 @@ mod tests {
             "https://login.microsoftonline.com",
             "https://elpais.com/internacional",
             "https://applebees.com",
+            "https://telegra.ph/article-11-28",
+            "https://www.telegraf.rs/vesti",
+            "https://www.icloud.com.cn",
+            "https://www.google.org",
+            "https://www.paypal-community.com/t5",
+            "https://applied-science.example",
             "https://www.signalhire.com",
             "https://pineapple-recipes.com",
             "https://192.168.1.1/admin",

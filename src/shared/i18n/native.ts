@@ -1414,6 +1414,18 @@ export function nativeText(value: string, language: Language) {
 /** Evidence lines from Enigm and MVT; identifiers are kept exactly. */
 const EVIDENCE: Rule[] = [
   [
+    /^(.+): (\d+) different known spyware domains or addresses in one file \(for example (.+)\)$/s,
+    t(
+      "{0}: {1} dominios o direcciones de spyware conocidos distintos en un mismo archivo (por ejemplo, {2})",
+      "{0}: {1} different known spyware domains or addresses in one file (for example {2})",
+      "{0} : {1} domaines ou adresses de logiciels espions connus différents dans un même fichier (par exemple {2})",
+      "{0}: {1} verschiedene bekannte Spyware-Domains oder -Adressen in einer Datei (zum Beispiel {2})",
+      "{0}: {1} domini o indirizzi di spyware noti diversi in uno stesso file (ad esempio {2})",
+      "{0}: {1} domínios ou endereços de spyware conhecidos diferentes num mesmo ficheiro (por exemplo, {2})",
+    ),
+    ["raw", "n", "raw"],
+  ],
+  [
     /^(\d+) connections to (.+) \(port (\d+)\) about every (\d+) seconds$/s,
     t(
       "{0} conexiones a {1} (puerto {2}) cada {3} segundos aproximadamente",

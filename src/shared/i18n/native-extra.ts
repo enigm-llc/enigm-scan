@@ -18,6 +18,28 @@ const t = (
 /** Whole sentences: recommendations and limitations. Groups are kept as-is. */
 export const EXTRA_TEXTS: Array<[RegExp, T]> = [
   [
+    /^Review point: a file that lists many known spyware addresses is usually the block list/,
+    t(
+      "Punto a revisar: un archivo que enumera muchas direcciones de spyware conocidas suele ser la lista de bloqueo de una app de seguridad o de un bloqueador de contenido, no un rastro de infección.",
+      "Point to review: a file that lists many known spyware addresses is usually the block list of a security app or content blocker, not a trace of an infection.",
+      "Point à vérifier : un fichier qui énumère de nombreuses adresses de logiciels espions connues est généralement la liste de blocage d’une application de sécurité ou d’un bloqueur de contenu, et non une trace d’infection.",
+      "Zu prüfender Punkt: Eine Datei, die viele bekannte Spyware-Adressen auflistet, ist meist die Sperrliste einer Sicherheits-App oder eines Inhaltsblockers, keine Spur einer Infektion.",
+      "Punto da verificare: un file che elenca molti indirizzi di spyware noti è di solito l’elenco di blocco di un’app di sicurezza o di un blocco contenuti, non una traccia di infezione.",
+      "Ponto a rever: um ficheiro que enumera muitos endereços de spyware conhecidos costuma ser a lista de bloqueio de uma app de segurança ou de um bloqueador de conteúdos, não um vestígio de infeção.",
+    ),
+  ],
+  [
+    /^If you do not recognise the app this file belongs to, ask an expert to review the phone\.$/,
+    t(
+      "Si no reconoces la app a la que pertenece este archivo, pide a un experto que revise el móvil.",
+      "If you do not recognise the app this file belongs to, ask an expert to review the phone.",
+      "Si vous ne reconnaissez pas l’application à laquelle appartient ce fichier, demandez à un expert d’examiner le téléphone.",
+      "Wenn Sie die App, zu der diese Datei gehört, nicht kennen, lassen Sie das Telefon von einer Fachperson prüfen.",
+      "Se non riconosci l’app a cui appartiene questo file, chiedi a un esperto di esaminare il telefono.",
+      "Se não reconhece a app a que pertence este ficheiro, peça a um especialista que reveja o telemóvel.",
+    ),
+  ],
+  [
     /^The USB transport, rather than a manually entered IP, attributes this capture/,
     t(
       "La captura se atribuye al móvil elegido porque llega por su conexión USB, no por una IP escrita a mano.",

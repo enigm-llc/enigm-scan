@@ -379,7 +379,9 @@ fn analyze(
     // with a named service are ordinary and not reported.
     let mut periodic: Vec<(String, u16, usize, i64)> = opened
         .iter()
-        .filter(|((address, _), _)| !address_names.contains_key(address) && public(address))
+        .filter(|((address, _), _)| {
+            !address_names.contains_key(address) && public(address) && !apple(address)
+        })
         .filter_map(|((address, port), times)| {
             let pace = steady_interval(times)?;
             Some((address.to_string(), *port, times.len(), pace))
@@ -564,6 +566,19 @@ fn dns_name(b: &[u8], start: usize) -> Option<(String, usize)> {
     None
 }
 /// An address on the internet: not private, local, link-local or multicast.
+/// Apple's own address block (17.0.0.0/8, and 2620:149::/32 and
+/// 2403:300::/32 for IPv6): an iPhone keeps reaching its services there,
+/// often by an address it looked up before the capture began. Nobody else
+/// can host a server in it. Indicators are still compared as usual.
+fn apple(address: &IpAddr) -> bool {
+    match address {
+        IpAddr::V4(a) => a.octets()[0] == 17,
+        IpAddr::V6(a) => {
+            let s = a.segments();
+            (s[0] == 0x2620 && s[1] == 0x0149) || (s[0] == 0x2403 && s[1] == 0x0300)
+        }
+    }
+}
 fn public(address: &IpAddr) -> bool {
     match address {
         IpAddr::V4(a) => {
@@ -984,6 +999,23 @@ mod tests {
             syn(1180, 50004),
             syn(1185, 50005),
         ]);
+        // Apple's own addresses at a steady pace are the phone's services.
+        let apple = |sec: u32, port: u16| {
+            (
+                sec,
+                ip4(PHONE, [17, 57, 146, 10], Some(0x02), port, 5223, &[]),
+            )
+        };
+        let report_apple = analyzed(&[
+            apple(1000, 50001),
+            apple(1060, 50002),
+            apple(1120, 50003),
+            apple(1180, 50004),
+        ]);
+        assert!(!report_apple
+            .findings
+            .iter()
+            .any(|f| f.rule == "enigm.heuristic.network_beacon"));
         // Five openings but one breaks the pace: nothing to report.
         assert!(!report
             .findings

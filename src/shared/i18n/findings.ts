@@ -2,6 +2,14 @@ import type { Language } from "./i18n";
 import { moduleLabel } from "./native";
 /** Readable names for indicator categories; unknown categories stay as reported. */
 const labels: Record<string, Record<Language, string>> = {
+  indicator_list: {
+    es: "Lista de direcciones de spyware conocidas",
+    en: "List of known spyware addresses",
+    fr: "Liste d’adresses de logiciels espions connues",
+    de: "Liste bekannter Spyware-Adressen",
+    it: "Elenco di indirizzi di spyware noti",
+    pt: "Lista de endereços de spyware conhecidos",
+  },
   network_periodic_connections: {
     es: "Conexiones periódicas a un destino",
     en: "Periodic connections to one destination",
@@ -314,6 +322,7 @@ const kindOf: Record<string, keyof typeof kinds> = {
   known_email_indicator: "account",
   known_filename_indicator: "file",
   known_filepath_indicator: "file",
+  indicator_list: "file",
   known_appid_indicator: "app",
   known_configurationprofileid_indicator: "profile",
   android_sideloaded_apps: "app",

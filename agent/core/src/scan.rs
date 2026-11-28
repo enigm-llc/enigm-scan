@@ -13,6 +13,9 @@ use std::{
 const TEXT_LIMIT: usize = 2 * 1024 * 1024;
 const ENTRY_LIMIT: usize = 1_000_000;
 const DURATION_LIMIT: Duration = Duration::from_secs(3600);
+/// Different known addresses in one file from which it is taken as a list
+/// of them (a block list) rather than traces of their use.
+const LIST_HITS: usize = 10;
 pub struct Matches<'a> {
     pub rules: &'a VerifiedRules,
     seen: HashSet<String>,
@@ -318,8 +321,34 @@ pub fn scan_directory(
             &result.artifact,
             None,
         );
-        for (kind, value) in result.hits {
-            matches.inspect(&mut report, kind, &value, &result.artifact, None);
+        // A file naming many different known spyware addresses is a list of
+        // them, such as a security app's or content blocker's block list,
+        // not traces of an infection: one review point instead of one
+        // finding per address.
+        let distinct: std::collections::BTreeSet<&str> =
+            result.hits.iter().map(|(_, v)| v.as_str()).collect();
+        if distinct.len() >= LIST_HITS {
+            if report.findings.len() < 500 {
+                let sample: Vec<&str> = distinct.iter().take(3).copied().collect();
+                report.findings.push(crate::extractions::finding(
+                    "enigm.heuristic.indicator_list",
+                    "indicator_list",
+                    "low",
+                    &format!(
+                        "{}: {} different known spyware domains or addresses in one file (for example {})",
+                        result.artifact,
+                        distinct.len(),
+                        sample.join(", ")
+                    ),
+                    None,
+                    "Review point: a file that lists many known spyware addresses is usually the block list of a security app or content blocker, not a trace of an infection.",
+                    "If you do not recognise the app this file belongs to, ask an expert to review the phone.",
+                ));
+            }
+        } else {
+            for (kind, value) in result.hits {
+                matches.inspect(&mut report, kind, &value, &result.artifact, None);
+            }
         }
         report.artifacts_analyzed += 1;
     }
@@ -359,6 +388,37 @@ mod tests {
             .findings
             .iter()
             .any(|f| f.evidence.contains("notindicator") || f.evidence.contains("attacker")));
+    }
+    #[test]
+    fn a_block_list_of_known_addresses_is_one_review_point() {
+        let root = tempfile::tempdir().unwrap();
+        let list: Vec<String> = (0..12).map(|i| format!("h{i}.indicator.invalid")).collect();
+        std::fs::write(root.path().join("blocklist.txt"), list.join("\n")).unwrap();
+        std::fs::write(
+            root.path().join("history.txt"),
+            "https://indicator.invalid/x",
+        )
+        .unwrap();
+        let (bytes, key) = crate::rules::tests::fixture(1000);
+        let rules = VerifiedRules::verify(&bytes, &key, 1000, 1).unwrap();
+        let report =
+            scan_directory(root.path(), "ios", &rules, &AtomicBool::new(false), |_| {}).unwrap();
+        let lists: Vec<_> = report
+            .findings
+            .iter()
+            .filter(|f| f.rule == "enigm.heuristic.indicator_list")
+            .collect();
+        assert_eq!(lists.len(), 1);
+        assert!(lists[0]
+            .evidence
+            .starts_with("blocklist.txt: 12 different known spyware"));
+        assert_eq!(lists[0].confidence, "low");
+        // A single mention elsewhere is still a match.
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.evidence == "history.txt: indicator.invalid"));
+        assert_eq!(report.findings.len(), 2);
     }
     #[test]
     fn large_files_are_hashed_without_loading_their_entire_content() {

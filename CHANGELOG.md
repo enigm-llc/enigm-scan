@@ -16,6 +16,21 @@
 - iPhone: the kernel's own line in shutdown.log (process 0, shown as
   `/kernel/` followed by its identifier) is no longer reported as a process
   in an unrecognised folder. Any other process with such a path still is.
+- Fewer false alarms, from a review of every rule of our own:
+  - Links: Telegram's own telegra.ph, Apple's and Google's country sites
+    (icloud.com.cn), google.org and PayPal's and Amazon's own domains are
+    no longer taken for imitations, nor are ordinary words one letter away
+    from a brand ("telegraf", "applied").
+  - Network: Apple's own addresses (17.0.0.0/8) are no longer listed as
+    destinations contacted at a steady pace without a name; they are still
+    compared with the indicators.
+  - Android: a manufacturer's app installed by that manufacturer (Samsung
+    Smart Switch restoring the owner's apps, Xiaomi updating its own) no
+    longer counts as imitating a system component; Xiaomi's installer is
+    recognised as installing an APK file; a removed proxy (`:0`) is no
+    longer reported as set.
+  - A file listing many known spyware addresses, such as a security app's
+    block list, is one review point instead of one finding per address.
 
 ## 1.0.4 — 28 November 2026
 

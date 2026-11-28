@@ -205,9 +205,18 @@ pub fn mark_system(packages: &mut [Package], text: &str) -> usize {
 pub(crate) const SIDELOAD_INSTALLERS: &[&str] = &[
     "com.google.android.packageinstaller",
     "com.android.packageinstaller",
+    // Xiaomi's (MIUI, HyperOS) own installer for APK files.
+    "com.miui.packageinstaller",
     "com.android.shell",
 ];
 impl Inventory {
+    /// The global HTTP proxy, if one is really set: Android writes `:0`
+    /// when a proxy has been removed.
+    pub fn proxy(&self) -> Option<&str> {
+        self.http_proxy
+            .as_deref()
+            .filter(|p| !p.is_empty() && *p != ":0")
+    }
     pub fn package(&self, id: &str) -> Option<&Package> {
         self.packages.iter().find(|p| p.id == id)
     }
@@ -465,7 +474,7 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
             }
         }
     }
-    if let Some(proxy) = &inventory.http_proxy {
+    if let Some(proxy) = inventory.proxy() {
         let host = proxy.rsplit_once(':').map(|(h, _)| h).unwrap_or(proxy);
         matches.inspect(report, Kind::Domain, host, "HTTP proxy", None);
         matches.inspect(report, Kind::Ip, host, "HTTP proxy", None);
@@ -520,14 +529,10 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
             "Check that you recognise every app listed. Uninstall any you did not install yourself.",
         ));
     }
-    if let Some(proxy) = inventory
-        .http_proxy
-        .as_ref()
-        .filter(|p| !p.is_empty() && p.as_str() != ":0")
-    {
+    if let Some(proxy) = inventory.proxy() {
         // A proxy on dynamic DNS or a tunnel sends the phone's traffic to
         // someone's own computer, not to a workplace or a provider.
-        let host = proxy.rsplit_once(':').map_or(proxy.as_str(), |(h, _)| h);
+        let host = proxy.rsplit_once(':').map_or(proxy, |(h, _)| h);
         let hosting = crate::infrastructure::classify(host)
             .filter(|h| h.class != crate::infrastructure::Class::Collector);
         if report.findings.len() < 500 {
@@ -559,7 +564,7 @@ pub fn analyze(inventory: &Inventory, rules: &VerifiedRules, report: &mut Report
         (Some("enigmdns"), _) => "Private DNS uses Enigm DNS.".into(),
         _ => "Private DNS is automatic or not reported.".into(),
     };
-    let proxy = if inventory.http_proxy.is_some() {
+    let proxy = if inventory.proxy().is_some() {
         "A global HTTP proxy is set."
     } else {
         "No global HTTP proxy."

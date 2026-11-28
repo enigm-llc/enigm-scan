@@ -90,6 +90,42 @@ const SYSTEM_NAMESPACES: &[&str] = &[
     "com.zte.",
     "com.realme.",
 ];
+/// Manufacturers by the namespaces they publish under. An app in a
+/// manufacturer's namespace installed by that same manufacturer's own app
+/// (Samsung Smart Switch restoring the owner's apps, Xiaomi updating its
+/// apps) is that manufacturer's app, not an imitation of it.
+const VENDORS: &[&[&str]] = &[
+    &["com.samsung.", "com.sec."],
+    &["com.miui.", "com.xiaomi."],
+    &["com.huawei."],
+    &["com.hihonor."],
+    &[
+        "com.coloros.",
+        "com.oplus.",
+        "com.oppo.",
+        "com.heytap.",
+        "com.oneplus.",
+        "com.realme.",
+    ],
+    &["com.vivo.", "com.bbk."],
+    &["com.motorola."],
+    &["com.lge."],
+    &["com.sony.", "com.sonyericsson."],
+    &["com.asus."],
+    &["com.nothing."],
+    &["com.transsion."],
+    &["com.zte."],
+    &["com.htc."],
+];
+fn same_vendor(id: &str, installer: Option<&str>) -> bool {
+    let Some(installer) = installer else {
+        return false;
+    };
+    VENDORS.iter().any(|vendor| {
+        vendor.iter().any(|ns| id.starts_with(ns))
+            && vendor.iter().any(|ns| installer.starts_with(ns))
+    })
+}
 /// Words stalkerware uses to pass as a system service.
 const DISGUISE_WORDS: &[&str] = &[
     "system",
@@ -583,8 +619,9 @@ fn profile(inventory: &Inventory, package: &Package) -> Profile {
         .launchable
         .as_ref()
         .is_some_and(|ids| !ids.iter().any(|l| l == id));
-    p.imitates_system =
-        SYSTEM_NAMESPACES.iter().any(|ns| id.starts_with(ns)) && !GENUINE_APKS.contains(&id);
+    p.imitates_system = SYSTEM_NAMESPACES.iter().any(|ns| id.starts_with(ns))
+        && !GENUINE_APKS.contains(&id)
+        && !same_vendor(id, package.installer.as_deref());
     p.disguise_words = words(id, DISGUISE_WORDS);
     p.monitoring_words = words(id, MONITORING_WORDS);
     // The most recent access of each kind while the app was not on screen;
@@ -1362,5 +1399,35 @@ mod tests {
         let mut report = Report::new("android", 1);
         assert!(analyze(&inv, &mut report).is_empty());
         assert!(report.findings.is_empty() && report.checks.is_empty());
+    }
+    #[test]
+    fn a_manufacturers_app_installed_by_that_manufacturer_is_not_an_imitation() {
+        for (id, installer) in [
+            ("com.samsung.android.app.notes", "com.sec.android.easyMover"),
+            ("com.miui.notes", "com.xiaomi.discover"),
+        ] {
+            let inv = inventory(vec![package(id, Some(installer), &["READ_CONTACTS"])]);
+            let mut report = Report::new("android", 1);
+            analyze(&inv, &mut report);
+            assert!(
+                report
+                    .findings
+                    .iter()
+                    .all(|f| !f.evidence.contains("imitates")),
+                "{id}"
+            );
+        }
+        // Another vendor's installer, or an APK file, does not vouch for it.
+        let inv = inventory(vec![package(
+            "com.samsung.android.app.notes",
+            Some("com.xiaomi.discover"),
+            &["READ_CONTACTS"],
+        )]);
+        let mut report = Report::new("android", 1);
+        analyze(&inv, &mut report);
+        assert!(report
+            .findings
+            .iter()
+            .any(|f| f.evidence.contains("imitates")));
     }
 }
