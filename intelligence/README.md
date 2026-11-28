@@ -38,9 +38,11 @@ to the open issue labelled `intelligence` what may deserve new indicators:
 - the indicators published in new public research, found by the research
   worker (`research/`). Every six hours it reads a fixed list of feeds
   (Citizen Lab, Amnesty, Kaspersky, ESET, Google Threat Intelligence, Access
-  Now, TechCrunch), asks Claude which indicators of phone spyware each new
-  article publishes, each with the sentence it comes from, and keeps only
-  those whose sentence is word for word in the article. Its result is
+  Now, TechCrunch, Jamf, Zimperium, Check Point, Cisco Talos, Volexity,
+  Unit 42, Microsoft, Recorded Future and Meta), asks Claude which
+  indicators of phone spyware each new article publishes, each with the
+  sentence it comes from, and keeps only those whose sentence is word for
+  word in the article. Its result is
   public, read-only, at
   <https://research.scan.enigm.io/latest.json>.
 

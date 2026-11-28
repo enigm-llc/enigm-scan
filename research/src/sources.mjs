@@ -25,6 +25,23 @@ export const FEEDS = [
     name: "TechCrunch (spyware)",
     url: "https://techcrunch.com/tag/spyware/feed/",
   },
+  // Mobile security research.
+  { name: "Jamf Threat Labs", url: "https://www.jamf.com/blog/rss/" },
+  { name: "Zimperium", url: "https://zimperium.com/blog/rss.xml" },
+  // Threat research that covers phone spyware now and then.
+  {
+    name: "Check Point Research",
+    url: "https://research.checkpoint.com/feed/",
+  },
+  { name: "Cisco Talos", url: "https://blog.talosintelligence.com/rss/" },
+  { name: "Volexity", url: "https://www.volexity.com/feed/" },
+  { name: "Unit 42", url: "https://unit42.paloaltonetworks.com/feed/" },
+  {
+    name: "Microsoft Threat Intelligence",
+    url: "https://www.microsoft.com/en-us/security/blog/feed/",
+  },
+  { name: "Recorded Future", url: "https://www.recordedfuture.com/feed" },
+  { name: "Meta", url: "https://about.fb.com/news/feed/" },
 ];
 
 export const ARTICLE_HOSTS = new Set([
@@ -38,6 +55,15 @@ export const ARTICLE_HOSTS = new Set([
   "cloud.google.com",
   "www.accessnow.org",
   "techcrunch.com",
+  "www.jamf.com",
+  "zimperium.com",
+  "research.checkpoint.com",
+  "blog.talosintelligence.com",
+  "www.volexity.com",
+  "unit42.paloaltonetworks.com",
+  "www.microsoft.com",
+  "www.recordedfuture.com",
+  "about.fb.com",
 ]);
 
 // An article is read only when its title or summary is about phone spyware:
