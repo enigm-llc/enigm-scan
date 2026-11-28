@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Reads new public research on phone spyware every six hours and publishes
+  // the indicators found, each with its literal quote, at /latest.json for
+  // the daily review (.github/workflows/intelligence-watch.yml). It holds no
+  // signing key and cannot change the indicators the app uses.
+  "name": "enigm-scan-research",
+  "main": "src/index.mjs",
+  "account_id": "d99d44fd83be9c81fb7687f0ec8ecf58",
+  "compatibility_date": "2026-10-25",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "STATE", "class_name": "ResearchState" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ResearchState"] }],
+  "triggers": { "crons": ["17 */6 * * *"] },
+  // Secret, set in Cloudflare by the maintainer: ANTHROPIC_API_KEY.
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+}

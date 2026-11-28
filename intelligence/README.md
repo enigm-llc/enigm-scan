@@ -29,6 +29,26 @@ listed with its SHA-256 in `sources/manifest.json`:
 Each source keeps its license and attribution next to it (see
 [THIRD-PARTY-LICENSES.txt](../THIRD-PARTY-LICENSES.txt)).
 
+## Daily review
+
+Every morning the workflow `.github/workflows/intelligence-watch.yml` posts
+to the open issue labelled `intelligence` what may deserve new indicators:
+
+- what changed upstream in the sources above (`scripts/intel/check-sources.mjs`);
+- the indicators published in new public research, found by the research
+  worker (`research/`). Every six hours it reads a fixed list of feeds
+  (Citizen Lab, Amnesty, Kaspersky, ESET, Google Threat Intelligence, Access
+  Now, TechCrunch), asks Claude which indicators of phone spyware each new
+  article publishes, each with the sentence it comes from, and keeps only
+  those whose sentence is word for word in the article. Its result is
+  public, read-only, at
+  <https://enigm-scan-research.enigm.workers.dev/latest.json>.
+
+Nothing in this review changes the indicators the app uses. A maintainer
+checks each candidate against its article, adds the accepted ones to a
+source here, and builds and signs a release as below. The worker holds no
+signing key, and its API key is only a secret of the worker in Cloudflare.
+
 ## Building a release
 
 `scripts/build-intelligence.mjs` reads the sources, checks their hashes and
