@@ -11,8 +11,10 @@ import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 
-export const RESEARCH = "https://research.scan.enigm.io/latest.json";
-// A name of its own: the site's protection challenges anonymous clients.
+// The worker's own address: research.scan.enigm.io is for people, and the
+// zone's bot protection challenges scripts there.
+export const RESEARCH =
+  "https://enigm-scan-research.enigm.workers.dev/latest.json";
 const AGENT = "EnigmScanReview/1.0 (+https://github.com/enigm-llc/enigm-scan)";
 const TITLE = "Intelligence to review";
 const LABEL = "intelligence";

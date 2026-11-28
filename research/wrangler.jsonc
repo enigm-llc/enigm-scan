@@ -17,7 +17,9 @@
   "triggers": { "crons": ["17 */6 * * *"] },
   // Secret, set in Cloudflare by the maintainer: ANTHROPIC_API_KEY.
   "routes": [{ "pattern": "research.scan.enigm.io", "custom_domain": true }],
-  "workers_dev": false,
+  // People read it on research.scan.enigm.io; the daily review reads it on
+  // workers.dev, which the zone's bot protection does not challenge.
+  "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true },
 }
