@@ -166,66 +166,45 @@ function marked(kind, text) {
   return `<!-- ${kind}:${hash} -->\n${text}`;
 }
 
-async function main() {
-  const token = process.env.GITHUB_TOKEN;
-  let issue = null;
-  let posted = "";
-  if (token) {
-    const issues = await github(
-      `/issues?state=open&labels=${LABEL}&per_page=10`,
-    );
-    issue = issues.find((i) => i.title === TITLE) || null;
-    if (issue)
-      posted = [
-        issue.body || "",
-        ...(await github(`/issues/${issue.number}/comments?per_page=100`)).map(
-          (c) => c.body,
-        ),
-      ].join("\n");
-  }
-  const known = signedValues();
-  let report = null;
+/** The open review issue and everything already posted on it. */
+async function openIssue() {
+  const issues = await github(`/issues?state=open&labels=${LABEL}&per_page=10`);
+  const issue = issues.find((i) => i.title === TITLE) || null;
+  if (!issue) return { issue, posted: "" };
+  const comments = await github(
+    `/issues/${issue.number}/comments?per_page=100`,
+  );
+  return {
+    issue,
+    posted: [issue.body || "", ...comments.map((c) => c.body)].join("\n"),
+  };
+}
+
+async function researchReport() {
   try {
     const response = await fetch(RESEARCH, {
       headers: { accept: "application/json", "user-agent": AGENT },
     });
-    if (response.ok) report = await response.json();
-  } catch {}
-  const parts = [];
-  const sources = sourcesSection();
-  if (sources) parts.push(`## Sources changed upstream\n\n${sources}`);
-  const research = researchSection(report, known, posted);
-  if (research) parts.push(`## New public research\n\n${research}`);
-  const status = report?.status;
-  if (!report)
-    parts.push(marked("worker", "The research worker could not be reached."));
-  else if (status?.errors?.length)
-    parts.push(
-      marked(
-        "worker",
-        `Research worker problems in its last run: ${status.errors.map((e) => plain(e, 120)).join("; ")}`,
-      ),
-    );
-  else if (status?.note === "no_api_key")
-    parts.push(
-      marked(
-        "worker",
-        "The research worker has no Anthropic API key yet: it reads the feeds but asks nothing.",
-      ),
-    );
-  if (!token) {
-    console.log(parts.join("\n\n") || "Nothing to review.");
-    return;
+    return response.ok ? await response.json() : null;
+  } catch {
+    return null;
   }
-  if (!parts.length) return console.log("Nothing to review.");
-  const fresh = parts.filter((text) => {
-    const markers = text.match(/<!-- [a-z]+:[0-9a-f]+ -->/g) || [];
-    return !markers.length || markers.some((m) => !posted.includes(m));
-  });
-  if (!fresh.length) return console.log("Already posted.");
-  const body = `${fresh.join("\n\n")}\n\n_Candidates are checked against the article's own words. To accept some, reply here with the values or the article; they go into the next signed release (intelligence/README.md). Nothing is signed without that._`;
-  // Assigned to the maintainer: GitHub notifies the assignee (email and the
-  // app) of an issue an automated job opens or comments on.
+}
+
+/** A note on the research worker's health, when there is one. */
+function workerNote(report) {
+  if (!report) return "The research worker could not be reached.";
+  const status = report.status;
+  if (status?.errors?.length)
+    return `Research worker problems in its last run: ${status.errors.map((e) => plain(e, 120)).join("; ")}`;
+  if (status?.note === "no_api_key")
+    return "The research worker has no Anthropic API key yet: it reads the feeds but asks nothing.";
+  return null;
+}
+
+// Assigned to the maintainer: GitHub notifies the assignee (email and the
+// app) of an issue an automated job opens or comments on.
+async function publish(issue, body) {
   const reviewer = process.env.REVIEWER;
   if (!issue) {
     await github("/issues", {
@@ -237,19 +216,42 @@ async function main() {
         body,
       }),
     });
-    console.log("Opened the review issue.");
-  } else {
-    if (reviewer && !issue.assignees?.some((a) => a.login === reviewer))
-      await github(`/issues/${issue.number}/assignees`, {
-        method: "POST",
-        body: JSON.stringify({ assignees: [reviewer] }),
-      });
-    await github(`/issues/${issue.number}/comments`, {
-      method: "POST",
-      body: JSON.stringify({ body }),
-    });
-    console.log("Commented on the review issue.");
+    return "Opened the review issue.";
   }
+  if (reviewer && !issue.assignees?.some((a) => a.login === reviewer))
+    await github(`/issues/${issue.number}/assignees`, {
+      method: "POST",
+      body: JSON.stringify({ assignees: [reviewer] }),
+    });
+  await github(`/issues/${issue.number}/comments`, {
+    method: "POST",
+    body: JSON.stringify({ body }),
+  });
+  return "Commented on the review issue.";
+}
+
+async function main() {
+  const token = process.env.GITHUB_TOKEN;
+  const { issue, posted } = token
+    ? await openIssue()
+    : { issue: null, posted: "" };
+  const report = await researchReport();
+  const parts = [];
+  const sources = sourcesSection();
+  if (sources) parts.push(`## Sources changed upstream\n\n${sources}`);
+  const research = researchSection(report, signedValues(), posted);
+  if (research) parts.push(`## New public research\n\n${research}`);
+  const note = workerNote(report);
+  if (note) parts.push(marked("worker", note));
+  if (!token) return console.log(parts.join("\n\n") || "Nothing to review.");
+  if (!parts.length) return console.log("Nothing to review.");
+  const fresh = parts.filter((text) => {
+    const markers = text.match(/<!-- [a-z]+:[0-9a-f]+ -->/g) || [];
+    return !markers.length || markers.some((m) => !posted.includes(m));
+  });
+  if (!fresh.length) return console.log("Already posted.");
+  const body = `${fresh.join("\n\n")}\n\n_Candidates are checked against the article's own words. To accept some, reply here with the values or the article; they go into the next signed release (intelligence/README.md). Nothing is signed without that._`;
+  console.log(await publish(issue, body));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) await main();
