@@ -209,7 +209,7 @@ async function main() {
   if (!fresh.length) return console.log("Already posted.");
   const body = `${fresh.join("\n\n")}\n\n_Candidates are checked against the article's own words. Review them before converting and signing (intelligence/README.md)._`;
   if (!issue) {
-    issue = await github("/issues", {
+    await github("/issues", {
       method: "POST",
       body: JSON.stringify({ title: TITLE, labels: [LABEL], body }),
     });
