@@ -82,14 +82,16 @@ serves files listed in [releases/manifest.json](../releases/manifest.json).
 1. Add the four packages to `releases/manifest.json`, with their size,
    SHA-256 and MD5 (the R2 ETag), under a key that includes the commit. Keys
    are never reused for different bytes.
-2. Upload them with a temporary R2 token kept outside the repository:
+2. Upload them with an R2 API token limited to the releases bucket (object
+   read and write), kept outside the repository:
 
    ```sh
    python scripts/upload-installers.py ARTIFACT_DIRECTORY < TOKEN_FILE
    ```
 
-   The script uploads only files that match the manifest, downloads each one
-   again and checks its SHA-256. Revoke the token afterwards.
+   The script uploads only files that match the manifest through R2's S3
+   API, with each file's SHA-256 signed into the request so R2 refuses
+   different bytes, then downloads each one again and checks its SHA-256.
 3. Push the manifest to `main`. Cloudflare Workers Builds deploys the website,
    which then offers the new packages.
 4. Download each package from scan.enigm.io and compare its SHA-256.
